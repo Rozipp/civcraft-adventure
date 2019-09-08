@@ -78,12 +78,7 @@
             <scope>provided</scope>
         </dependency>
         <!-- BungeeAPI -->
-        <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-api</artifactId>
-            <version>1.8-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+
         <!-- VaultAPI -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
@@ -98,10 +93,11 @@
         </dependency>
         <!-- WorldEdit -->
         <dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>6.1.4-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>.1.4-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/WorldEdit.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.inventivetalent</groupId>
