@@ -1,0 +1,32 @@
+// 
+// Decompiled by Procyon v0.5.30
+// 
+
+package com.avrgaming.civcraft.config;
+
+import java.util.List;
+import com.avrgaming.civcraft.main.CivLog;
+import java.util.Map;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class ConfigLabLevel
+{
+    public int level;
+    public int amount;
+    public int count;
+    public double beakers;
+    
+    public static void loadConfig(final FileConfiguration cfg, final Map<Integer, ConfigLabLevel> levels) {
+        levels.clear();
+        final List<Map<?, ?>> mine_levels = (List<Map<?, ?>>)cfg.getMapList("lab_levels");
+        for (final Map<?, ?> level : mine_levels) {
+            final ConfigLabLevel mine_level = new ConfigLabLevel();
+            mine_level.level = (int)level.get("level");
+            mine_level.amount = (int)level.get("amount");
+            mine_level.beakers = (double)level.get("beakers");
+            mine_level.count = (int)level.get("count");
+            levels.put(mine_level.level, mine_level);
+        }
+        CivLog.info("Loaded " + levels.size() + " lab levels.");
+    }
+}
