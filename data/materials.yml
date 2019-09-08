@@ -1,0 +1,2387 @@
+#
+# This yml describes the recipies for all of the various
+# lore materials that we're using in civcraft. We'll divide
+# up the sections into the following.
+#
+# Primary Materials
+# Secondary Materials
+# Weapons
+# Armors
+# Special (villages, civs, etc)
+#
+# We will be able to attach components to these items which
+# will passed in-game events such as onItemPickup() and onItemUse()
+#-------------------------------------------------------------------
+
+
+# --- Each Material must have the following ----
+# id: - unquie identifier for this material
+# item_id: '- This is a minecraft compatible typeID, used to choose which item to convert.
+# item_data: - This is the datavalue for the in-game item.
+# name: - Used as a display name for the item.
+# ----- The following are Optional ------
+# lore: - Multi-line string that should be displayed as item lore.
+# shaped: - True if the item recipie requires a shape, default is false
+# required_tech: - Technology required to craft this item.
+# ingredients: - List of incredients..
+#       ingred_id: 'one of our material id's instead of ingred_id and data. (optional)
+#       count: - Number of items required. (optional, not used in shapeless recipie, default is 1)
+#       letter: - Letter used to represent item location in shaped recipie(optional)
+#    ...
+# shape: List of strings for shape data, shape data is composed of 3 strings with 3 letters in them
+#        the first string is the top 3 locations, the middle for the middle three and the last for the
+#        bottom three. For example, a golden apple recipe would look like:
+#       
+#        shape:
+#            - "ggg"
+#            - "gag"
+#            - "ggg"
+#
+#        Where the 'letter' setting in the incredient above had 'g' and 'a' for gold and apples respectively.  
+#   
+# Possible components:
+#    
+#   Attack - Increases attack damage of this item.
+#   - name: 'Attack'
+#     value: '0.5'  
+#
+#   MaxHealth - Increases the max health of the player whne this item is worn or held.
+#   - name: 'MaxHealth'
+#     value: '5'
+#
+#   MoveSpeed - Increases/decreases the move speed of the player when this item is worn or held.
+#   - name: 'MoveSpeed'
+#     value: '-0.3'
+#
+#   Defense - Decreases damage by this % when the item is worn.
+#   - name: 'Defense'
+#     value: '0.5'
+#
+#  NoVanillaDurability - Prevents this item from being damaged normally.
+#  - name: 'NoVanillaDurability'
+#
+#  DurabilityOnDeath - Reduces durability of this item by this % when player dies and is holding or wearing it.
+#  - name: 'DurabilityOnDeath'
+#    value: '0.1'
+#
+#
+materials:
+#============== Primary Materials
+# Tier 1 Materials ======================================================
+        - id: 'mat_carved_leather'
+          item_id: '334:0'
+          name: 'T1 Carved Leather'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '334:0'
+                count: 9
+                
+        - id: 'mat_wood_resin'
+          item_id: '351:1'
+          name: 'T1 Wood Resin'
+          category: '<lightgreen>Tier 1 Materials'
+
+        - id: 'mat_refined_stone'
+          item_id: '1:0'
+          name: 'T1 Refined Stone'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '4:0'
+                count: 9
+          # ingredients:
+              # - ingred_id: '1
+                # data: 1
+                # count: 9
+          # ingredients:
+              # - ingred_id: '1
+                # data: 3
+                # count: 9
+          # ingredients:
+              # - ingred_id: '1
+                # data: 5
+                # count: 9
+
+        - id: 'mat_refined_feathers'
+          item_id: '406:0'
+          name: 'T1 Packed Feathers'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '288:0'
+                count: 9
+
+        - id: 'mat_crafted_string'
+          item_id: '287:0'
+          name: 'T1 Crafted String'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '287:0'
+                count: 9
+
+        - id: 'mat_refined_slime'
+          item_id: '341:0'
+          name: 'T1 Refined Slime'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: 'mat_vanilla_slime'
+                count: 2
+
+        - id: 'mat_crafted_reeds'
+          item_id: '338:0'
+          name: 'T1 Crafted Reeds'
+          tradeValue: 5.0
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '338:0'
+                count: 9
+
+        - id: 'mat_crafted_sticks'
+          item_id: '280:0'
+          name: 'T1 Crafted Sticks'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '280:0'
+                count: 9
+
+        - id: 'mat_refined_sulphur'
+          item_id: '289:0'
+          name: 'T1 Refined Sulphur'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '289:0'
+                count: 9
+
+        - id: 'mat_compacted_sand'
+          item_id: '24:1'
+          name: 'T1 Compacted Sand'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '12:-1'
+                count: 9
+
+        - id: 'mat_forged_clay'
+          item_id: '336:0'
+          name: 'T1 Forged Clay'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '337:0'
+                count: 9
+
+        - id: 'mat_refined_starch'
+          item_id: '332:0'
+          name: 'T1 Refined Starch'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '392:0'
+                count: 9
+
+        - id: 'mat_refined_wart'
+          item_id: '372:0'
+          name: 'T1 Refined Wart'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '372:0'
+                count: 9
+
+        - id: 'mat_forged_chromium'
+          item_id: '265:0'
+          name: 'T1 Forged Chromium'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: 'mat_chromium_ore'
+                count: 9
+
+        - id: 'mat_forged_tungsten'
+          item_id: '133:0'
+          name: 'T1 Forged Tungsten'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: 'mat_tungsten_ore'
+                count: 9
+
+        - id: 'mat_refined_wood'
+          item_id: '126:0'
+          name: 'T1 Refined Wood'
+          category: '<lightgreen>Tier 1 Materials'
+          ingredients:
+              - ingred_id: '17:-1'
+                count: 9
+
+        - id: 'mat_mercury_bath'
+          item_id: '368:0'
+          name: 'T2 Mercury Bath'
+          category: '<lightblue>Tier 2 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_mercury'
+                count: 9
+
+# Tier 2 Materials ======================================================
+
+        - id: 'mat_crafted_leather'
+          item_id: '31:0'
+          name: 'T2 Crafted Leather'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_carved_leather'
+                count: 1
+              - ingred_id: 'mat_crafted_string'
+                count: 1
+
+        - id: 'mat_decorative_jewels'
+          item_id: '372:0'
+          name: 'T2 Decorative Jewels'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: '57:0'
+                count: 7
+
+        - id: 'mat_crushed_stone'
+          item_id: '44:0'
+          name: 'T2 Crushed Stone'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_refined_stone'
+                count: 9
+
+        - id: 'mat_jewelry_grade_gold'
+          item_id: '322:0'
+          name: 'T2 Jewelry Grade Gold'
+          tradeValue: 1400.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: '41:0'
+                count: 9
+                
+        - id: 'mat_industrial_diamond'
+          item_id: '264:0'
+          name: 'T2 Industrial Diamond'
+          category: '<lightblue>Tier 2 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: '57:0'
+                count: 3
+        - id: 'mat_milled_lumber'
+          item_id: '53:0'
+          name: 'T2 Milled Lumber'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_refined_wood'
+                count: 9
+                
+        - id: 'mat_drying_oil'
+          item_id: '433:0'
+          name: 'T2 Drying Oil'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_wood_resin'
+                count: 5
+        
+        - id: 'mat_concentrated_dye'
+          item_id: '390:0'
+          name: 'T2 Concentrated Dye'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: '351:-1'
+                count: 9
+                
+        - id: 'mat_steel_ingot'
+          item_id: '265:0'
+          name: 'T2 Steel Ingot'
+          tradeValue: 400.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: '42:0'
+                count: 3
+              - ingred_id: '173:0'
+                count: 3
+              - ingred_id: 'mat_refined_sulphur'
+                count: 1
+
+        - id: 'mat_varnish'
+          item_id: '384:0'
+          name: 'T2 Varnish'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_refined_slime'
+                count: 1
+              - ingred_id: 'mat_refined_starch'
+                count: 1
+              - ingred_id: 'mat_refined_wart'
+                count: 2
+
+        - id: 'mat_sticky_resin'
+          item_id: '374:0'
+          name: 'T2 Sticky Resin'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_refined_slime'
+                count: 2
+              - ingred_id: 'mat_refined_starch'
+                count: 1
+              - ingred_id: '281:0'
+                count: 1
+
+        - id: 'mat_clay_molding'
+          item_id: '45:0'
+          name: 'T2 Clay Molding'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_forged_clay'
+                count: 3
+              - ingred_id: 'mat_crafted_reeds'
+                count: 2
+              - ingred_id: 'mat_crafted_sticks'
+                count: 3
+
+        - id: 'mat_chromium_ingot'
+          item_id: '399:0'
+          name: 'T2 Chromium Ingot'
+          tradeValue: 20.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_forged_chromium'
+                count: 2
+              - ingred_id: 'mat_refined_sulphur'
+                count: 2
+              - ingred_id: '173:0'
+                count: 3
+              - ingred_id: '264:0'
+                count: 1
+
+        - id: 'mat_aged_wood_stave'
+          item_id: '280:0'
+          name: 'T2 Aged Wood Stave'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_crafted_sticks'
+                count: 3
+              - ingred_id: 'mat_crafted_reeds'
+                count: 2
+              - ingred_id: 'mat_crafted_string'
+                count: 2
+
+        - id: 'mat_woven_threading'
+          item_id: '420:0'
+          name: 'T2 Woven Threading'
+          tradeValue: 10.0
+          category: '<lightblue>Tier 2 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_crafted_string'
+                count: 4
+              - ingred_id: 'mat_refined_slime'
+                count: 1
+
+        - id: 'mat_steel_sword_blade'
+          item_id: '265:0'
+          name: 'T2 Steel Sword Blade'
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                count: 2
+              - ingred_id: 'mat_clay_steel_cast'
+                count: 1
+
+        - id: 'mat_steel_sword_hilt'
+          item_id: '280:0'
+          name: 'T2 Steel Sword Hilt'
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                count: 2
+              - ingred_id: 'mat_varnish'
+                count: 2
+              - ingred_id: 'mat_leather_straps'
+                count: 2
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+
+        - id: 'mat_steel_plate'
+          item_id: '148:0'
+          name: 'T2 Steel Plate'
+          tradeValue: 400.0
+          category: '<lightblue>Tier 2 Materials'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                count: 1
+              - ingred_id: 'mat_varnish'
+                count: 1
+              - ingred_id: 'mat_clay_molding'
+                count: 1
+
+# Tier 3 Materials =======================================================
+        - id: 'mat_construction_log'
+          item_id: '185:0'
+          name: 'T3 Construction Log'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_milled_lumber'
+                count: 3
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+                
+        - id: 'mat_paint'
+          item_id: '432:0'
+          name: 'T3 Paint'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_drying_oil'
+                count: 1
+              - ingred_id: 'mat_concentrated_dye'
+                count: 1
+                
+        - id: 'mat_compacted_stone'
+          item_id: '98:0'
+          name: 'T3 Compacted Stone'
+          tradeValue: 20.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_crushed_stone'
+                count: 9
+                
+        - id: 'mat_masonry_mortar'
+          item_id: '45:0'
+          name: 'T3 Masonry Mortar'
+          tradeValue: 20.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_sticky_resin'
+                count: 2
+              - ingred_id: 'mat_clay_molding'
+                count: 2
+                
+        - id: 'mat_leather_straps'
+          item_id: '31:0'
+          name: 'T3 Leather Straps'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_crafted_leather'
+                count: 3
+              - ingred_id: 'mat_varnish'
+                count: 2
+
+        - id: 'mat_clay_steel_cast'
+          item_id: '343:0'
+          name: 'T3 Clay Steel Casting'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_clay_molding'
+                count: 2
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+              - ingred_id: 'mat_crafted_sticks'
+                count: 2
+              - ingred_id: 'mat_crafted_reeds'
+                count: 2
+
+        - id: 'mat_reinforced_braid'
+          item_id: '287:0'
+          name: 'T3 Reinforced Braid'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_woven_threading'
+                count: 2
+              - ingred_id: 'mat_sticky_resin'
+                count: 2
+              - ingred_id: 'mat_varnish'
+                count: 1
+
+        - id: 'mat_carbide_steel_ingot'
+          item_id: '318:0'
+          name: 'T3 Carbide Steel Ingot'
+          tradeValue: 800.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                count: 2
+              - ingred_id: 'mat_chromium_ingot'
+                count: 1
+              - ingred_id: 'mat_varnish'
+                count: 1
+
+        - id: 'mat_longbow_stave'
+          item_id: '280:0'
+          name: 'T3 Longbow Stave'
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_aged_wood_stave'
+                count: 1
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+
+        - id: 'mat_carbide_molding'
+          item_id: '380:0'
+          name: 'T3 Carbide Molding'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_clay_molding'
+                count: 2
+              - ingred_id: 'mat_varnish'
+                count: 2
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+
+        - id: 'mat_smithy_resin'
+          item_id: '378:0'
+          name: 'T3 Smithy Resin'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_sticky_resin'
+                count: 2
+              - ingred_id: 'mat_refined_sulphur'
+                count: 2
+              - ingred_id: '173:0'
+                count: 1
+
+        - id: 'mat_tungsten_ingot'
+          item_id: '368:0'
+          name: 'T3 Tungsten Ingot'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_forged_tungsten'
+                count: 5
+              - ingred_id: 'mat_chromium_ingot'
+                count: 2
+              - ingred_id: '173:0'
+                count: 2
+
+        - id: 'mat_clay_tungsten_casting'
+          item_id: '368:0'
+          name: 'T3 Clay Tungsten Casting'
+          tradeValue: 10.0
+          category: '<lightpurple>Tier 3 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_clay_molding'
+                count: 2
+              - ingred_id: 'mat_sticky_resin'
+                count: 1
+              - ingred_id: 'mat_crafted_reeds'
+                count: 2
+
+        - id: 'mat_carbide_steel_sword_hilt'
+          item_id: '280:0'
+          name: 'T3 Carbide Steel Sword Hilt'
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_clay_steel_cast'
+                count: 1
+              - ingred_id: 'mat_smithy_resin'
+                count: 1
+              - ingred_id: 'mat_carbide_steel_ingot'
+                count: 1
+              - ingred_id: 'mat_reinforced_braid'
+                count: 1
+
+        - id: 'mat_carbide_steel_sword_blade'
+          item_id: '265:0'
+          name: 'T3 Carbide Steel Sword Blade'
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_clay_steel_cast'
+                count: 1
+              - ingred_id: 'mat_carbide_steel_ingot'
+                count: 4
+              - ingred_id: 'mat_smithy_resin'
+                count: 2
+
+        - id: 'mat_carbide_steel_plate'
+          item_id: '265:0'
+          name: 'T3 Carbide Steel Plate'
+          tradeValue: 800.0
+          category: '<lightpurple>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_sticky_resin'
+                count: 2
+              - ingred_id: 'mat_clay_molding'
+                count: 1
+              - ingred_id: 'mat_carbide_steel_ingot'
+                count: 1
+
+# Tier 4 Materials =======================================================
+        - id: 'mat_capitol_walls'
+          item_id: '47:0'
+          name: 'T4 Capitol Walls'
+          tradeValue: 40.0
+          category: '<gold>Tier 4 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_construction_log'
+                count: 6
+              - ingred_id: 'mat_crafted_string'
+                count: 1
+                
+        - id: 'mat_capitol_solution'
+          item_id: '213:0'
+          name: 'T4 Capitol Solution'
+          tradeValue: 40.0
+          category: '<gold>Tier 4 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_masonry_mortar'
+                count: 6
+              - ingred_id: 'mat_paint'
+                count: 2
+                
+        - id: 'mat_capitol_footing'
+          item_id: '215:0'
+          name: 'T4 Capitol Footing'
+          tradeValue: 40.0
+          category: '<gold>Tier 4 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_compacted_stone'
+                count: 9
+
+        - id: 'mat_artisan_leather'
+          item_id: '31:0'
+          name: 'T4 Artisan Leather'
+          tradeValue: 40.0
+          category: '<gold>Tier 4 Materials'
+          ingredients:
+              - ingred_id: 'mat_leather_straps'
+                count: 2
+              - ingred_id: 'mat_reinforced_braid'
+                count: 2
+
+        - id: 'mat_tungsten_plate'
+          item_id: '405:0'
+          name: 'T4 Tungsten Plate'
+          tradeValue: 40.0
+          category: '<gold>Tier 4 Materials'
+          ingredients:
+              - ingred_id: 'mat_clay_tungsten_casting'
+                count: 1
+              - ingred_id: 'mat_smithy_resin'
+                count: 2
+              - ingred_id: 'mat_tungsten_ingot'
+                count: 1
+
+        - id: 'mat_tungsten_sword_blade'
+          item_id: '57:0'
+          name: 'T4 Tungsten Sword Blade'
+          category: '<gold>Tier 4 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_clay_tungsten_casting'
+                count: 3
+              - ingred_id: 'mat_smithy_resin'
+                count: 3
+              - ingred_id: 'mat_tungsten_ingot'
+                count: 3
+
+        - id: 'mat_tungsten_sword_hilt'
+          item_id: '280:0'
+          name: 'T4 Tungsten Sword Hilt'
+          category: '<gold>Tier 4 Materials'
+          ingredients:
+              - ingred_id: 'mat_clay_tungsten_casting'
+                count: 2
+              - ingred_id: 'mat_smithy_resin'
+                count: 2
+              - ingred_id: 'mat_tungsten_ingot'
+                count: 2
+              - ingred_id: 'mat_artisan_leather'
+                count: 2
+
+        - id: 'mat_composite_bow_stave'
+          item_id: '280:0'
+          name: 'T4 Composite Bow Stave'
+          category: '<gold>Tier 4 Materials'
+          ingredients:
+              - ingred_id: 'mat_longbow_stave'
+                count: 2
+              - ingred_id: 'mat_leather_straps'
+                count: 2
+              - ingred_id: 'mat_reinforced_braid'
+                count: 2
+
+        - id: 'mat_composite_bow_string'
+          item_id: '287:0'
+          name: 'T4 Composite Bow String'
+          category: '<gold>Tier 4 Materials'
+          ingredients:
+              - ingred_id: 'mat_smithy_resin'
+                count: 3
+              - ingred_id: 'mat_reinforced_braid'
+                count: 3
+
+        - id: 'mat_cannon_wheel'
+          item_id: '163:0'
+          name: 'T4 Cannon Wheel'
+          tradeValue: 40.0
+          category: '<gold>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_milled_lumber'
+                count: 9
+
+        - id: 'mat_cannon_barrel_part'
+          item_id: '171:15'
+          name: 'T4 Cannon Barrel Part'
+          tradeValue: 40.0
+          category: '<gold>Tier 3 Materials'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                letter: 'p'
+          shape:
+              - "ppp"
+              - "ppp"
+              - " p "
+
+# Special Recipes  ===========================================            
+        - id: 'mat_royal_crown'
+          item_id: '314:0'
+          name: 'Royal Crown'
+          category: 'Special'
+          components:
+              - name: 'NoDurability'
+          ingredients:
+              - ingred_id: 'mat_jewelry_grade_gold'
+                count: 6
+              - ingred_id: 'mat_decorative_jewels'
+                count: 1
+              - ingred_id: 'mat_proof_of_leadership'
+                count: 2
+
+        - id: 'mat_proof_of_leadership'
+          item_id: '347:0'
+          name: 'Proof Of Leadership'
+          tradeValue: 1000.0
+          category: 'Special'
+          components:
+              - name: 'Tagged'
+          ingredients:
+              - ingred_id: 'mat_badge_of_leadership'
+                count: 7
+
+        - id: 'mat_badge_of_leadership'
+          item_id: '421:0'
+          name: 'Badge Of Leadership'
+          category: 'Special'
+          components:
+              - name: 'Tagged'
+          ingredients:
+              - ingred_id: 'mat_token_of_leadership'
+                count: 9
+
+        - id: 'mat_token_of_leadership'
+          item_id: '370:0'
+          name: 'Token Of Leadership'
+          category: 'Special'
+          components:
+              - name: 'Tagged'
+
+        - id: 'mat_chieftains_headdress'
+          item_id: '302:0'
+          name: 'Chieftains Headdress'
+          category: 'Special'
+          components:
+              - name: 'NoDurability'
+          ingredients:
+              - ingred_id: 'mat_refined_feathers'
+                count: 2
+              - ingred_id: 'mat_carved_leather'
+                count: 2
+        - id: 'mat_found_civ'
+          item_id: '369:0'
+          name: 'Founding Civilization Flag'
+          category: 'Special'
+          components:
+              - name: 'FoundCivilization'
+          ingredients:
+              - ingred_id: 'mat_royal_crown'
+                letter: 'c'
+              - ingred_id: 'mat_capitol_walls'
+                letter: 'w'
+              - ingred_id: 'mat_capitol_solution'
+                letter: 's'
+              - ingred_id: 'mat_capitol_footing'
+                letter: 'f'
+          shape:
+              - "scs"
+              - "www"
+              - "fff"
+  
+          # XXX mat ID hard coded for village refund. with /village undo 
+        - id: 'mat_found_village'
+          item_id: '324:0'
+          name: 'Village'
+          category: 'Special'
+          components:
+              - name: 'FoundVillage'
+          ingredients:
+              - ingred_id: 'mat_milled_lumber'
+                letter: 'l'
+              - ingred_id: '173:0'
+                letter: 'c'
+              - ingred_id: 'mat_chieftains_headdress'
+                letter: 'h'
+          shape:
+              - " h "
+              - "lll"
+              - "ccc"
+        
+        - id: 'mat_found_warcamp'
+          item_id: '7:0'
+          name: 'War Camp'
+          category: 'Special'
+          components:
+              - name: 'FoundWarCamp'
+          ingredients:
+              - ingred_id: 'mat_masonry_mortar'
+                letter: 'm'
+              - ingred_id: 'mat_milled_lumber'
+                letter: 'l'
+              - ingred_id: 'mat_compacted_stone'
+                letter: 'c'
+          shape:
+              - "lll"
+              - "cmc"
+              - "ccc"
+        
+        - id: 'mat_build_cannon'
+          item_id: '154:0'
+          name: 'War Cannon'
+          category: 'Special'
+          components:
+              - name: 'BuildCannon'
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_cannon_barrel_part'
+                letter: 'p'
+              - ingred_id: 'mat_cannon_wheel'
+                letter: 'w'
+          shape:
+              - "ppp"
+              - "ppp"
+              - "wpw"
+
+# T1 Leather Gear =========================================
+        - id: 'mat_leather_helmet'
+          item_id: '298:0'
+          name: 'Leather Helmet'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '1.25'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '334:0'
+                letter: 'l'
+          shape:
+              - "lll"
+              - "l l"
+              - "   "
+        - id: 'mat_leather_chestplate'
+          item_id: '299:0'
+          name: 'Leather Jacket'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '2.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '334:0'
+                letter: 'l'
+          shape:
+              - "l l"
+              - "lll"
+              - "lll"
+        - id: 'mat_leather_leggings'
+          item_id: '300:0'
+          name: 'Leather Pants'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '1.75'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '334:0'
+                letter: 'l'
+          shape:
+              - "lll"
+              - "l l"
+              - "l l"
+        - id: 'mat_leather_boots'
+          item_id: '301:0'
+          name: 'Leather Moccasins'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '1.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '334:0'
+                letter: 'l'
+          shape:
+              - "   "
+              - "l l"
+              - "l l"
+
+# T2 Refined leather Gear =============================================
+        - id: 'mat_refined_leather_helmet'
+          item_id: '298:0'
+          name: 'Refined Leather Cap'
+          required_techs: 'tech_leather_refinement'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '2.5'
+              - name: 'LeatherColor'
+                color: 'AB8618'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_carved_leather'
+                letter: 'c'
+          shape:
+              - "ccc"
+              - "c c"
+              - "   "
+        - id: 'mat_refined_leather_chestplate'
+          item_id: '299:0'
+          name: 'Refined Leather Chestplate'
+          required_techs: 'tech_leather_refinement'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '4.0'
+              - name: 'LeatherColor'
+                color: 'AB8618'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_carved_leather'
+                letter: 'c'
+          shape:
+              - "c c"
+              - "ccc"
+              - "ccc"
+        - id: 'mat_refined_leather_leggings'
+          item_id: '300:0'
+          name: 'Refined Leather Leggings'
+          required_techs: 'tech_leather_refinement'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '3.5'
+              - name: 'LeatherColor'
+                color: 'AB8618'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_carved_leather'
+                letter: 'c'
+          shape:
+              - "ccc"
+              - "c c"
+              - "c c"
+        - id: 'mat_refined_leather_boots'
+          item_id: '301:0'
+          name: 'Refined Leather Moccasins'
+          required_techs: 'tech_leather_refinement'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '2.0'
+              - name: 'LeatherColor'
+                color: 'AB8618'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_carved_leather'
+                letter: 'c'
+          shape:
+              - "   "
+              - "c c"
+              - "c c"
+
+# T3 Composite Leather Gear recipes ===================================
+        - id: 'mat_hardened_leather_helmet'
+          item_id: '298:0'
+          name: 'Hardened Leather Cap'
+          required_techs: 'tech_tanning'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '3.75'
+              - name: 'LeatherColor'
+                color: '339933'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_leather_straps'
+                letter: 'l'
+          shape:
+              - "lll"
+              - "l l"
+              - "   "
+        - id: 'mat_hardened_leather_chestplate'
+          item_id: '299:0'
+          name: 'Hardened Leather Jacket'
+          required_techs: 'tech_tanning'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '6.0'
+              - name: 'LeatherColor'
+                color: '339933'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_leather_straps'
+                letter: 'l'
+          shape:
+              - "l l"
+              - "lll"
+              - "lll"
+        - id: 'mat_hardened_leather_leggings'
+          item_id: '300:0'
+          name: 'Hardened Leather Pants'
+          required_techs: 'tech_tanning'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '5.25'
+              - name: 'LeatherColor'
+                color: '339933'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_leather_straps'
+                letter: 'l'
+          shape:
+              - "lll"
+              - "l l"
+              - "l l"
+        - id: 'mat_hardened_leather_boots'
+          item_id: '301:0'
+          name: 'Hardened Leather Moccasins'
+          required_techs: 'tech_tanning'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '3.0'
+              - name: 'LeatherColor'
+                color: '339933'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_leather_straps'
+                letter: 'l'
+          shape:
+              - "   "
+              - "l l"
+              - "l l"
+
+# T4 Composit Leather Gear Recipes
+        - id: 'mat_composite_leather_helmet'
+          item_id: '298:0'
+          name: 'Composite Leather Cap'
+          required_techs: 'tech_composites'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '5.0'
+              - name: 'LeatherColor'
+                color: 'FF0000'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_artisan_leather'
+                letter: 'a'
+          shape:
+              - "aaa"
+              - "a a"
+              - "   "
+        - id: 'mat_composite_leather_chestplate'
+          item_id: '299:0'
+          name: 'Composite Leather Jacket'
+          required_techs: 'tech_composites'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '8.0'
+              - name: 'LeatherColor'
+                color: 'FF0000'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_artisan_leather'
+                letter: 'a'
+          shape:
+              - "a a"
+              - "aaa"
+              - "aaa"
+        - id: 'mat_composite_leather_leggings'
+          item_id: '300:0'
+          name: 'Composite Leather Pants'
+          required_techs: 'tech_composites'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '7.0'
+              - name: 'LeatherColor'
+                color: 'FF0000'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_artisan_leather'
+                letter: 'a'
+          shape:
+              - "aaa"
+              - "a a"
+              - "a a"
+        - id: 'mat_composite_leather_boots'
+          item_id: '301:0'
+          name: 'Composite Leather Moccasins'
+          required_techs: 'tech_composites'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '4.0'
+              - name: 'LeatherColor'
+                color: 'FF0000'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+              - name: 'NoCauldronWash'
+          ingredients:
+              - ingred_id: 'mat_artisan_leather'
+                letter: 'a'
+          shape:
+              - "   "
+              - "a a"
+              - "a a"
+
+# Bow Recipes ------------------------------------------------------
+        - id: 'mat_hunting_bow'
+          item_id: '261:0'
+          name: 'Hunting Bow'
+          required_techs: 'tech_archery'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'RangedAttack'
+                value: '18'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '287:0'
+                letter: 's'
+              - ingred_id: '280:0'
+                letter: 'w'
+          shape:
+              - "sw "
+              - "s w"
+              - "sw "
+        - id: 'mat_recurve_bow'
+          item_id: '261:0'
+          name: 'Recurve Bow'
+          required_techs: 'tech_fletching'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'RangedAttack'
+                value: '24'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_aged_wood_stave'
+                letter: 'a'
+              - ingred_id: 'mat_crafted_string'
+                letter: 's'
+          shape:
+              - "sa "
+              - "s a"
+              - "sa "
+        - id: 'mat_longbow'
+          item_id: '261:0'
+          name: 'Longbow'
+          required_techs: 'tech_tillering'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'RangedAttack'
+                value: '30'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_longbow_stave'
+                letter: 'l'
+              - ingred_id: 'mat_reinforced_braid'
+                letter: 'b'
+          shape:
+              - "bl "
+              - "b l"
+              - "bl "
+        - id: 'mat_marksmen_bow'
+          item_id: '261:0'
+          name: 'Marksmen Bow'
+          required_techs: 'tech_laminates'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'RangedAttack'
+                value: '36'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_composite_bow_stave'
+                letter: 'c'
+              - ingred_id: 'mat_composite_bow_string'
+                letter: 's'
+          shape:
+              - "sc "
+              - "s c"
+              - "sc "
+              
+# Sword Recipes ------------------------------------------------------
+        - id: 'mat_wood_sword'
+          item_id: '268:0'
+          name: 'Training Sword'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Attack'
+                value: '1'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '5:-1'
+                letter: 'p'
+              - ingred_id: '280:0'
+                letter: 's'
+          shape:
+              - " p "
+              - " p "
+              - " s "     
+        - id: 'mat_stone_sword'
+          item_id: '272:0'
+          name: 'Stone Shank'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Attack'
+                value: '9'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '4:0'
+                letter: 'c'
+              - ingred_id: '280:0'
+                letter: 's'
+          shape:
+              - " c "
+              - " c "
+              - " s "
+        - id: 'mat_iron_sword'
+          item_id: '267:0'
+          name: 'Iron Shortsword'
+          required_techs: 'tech_metal_casting'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Attack'
+                value: '12'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '265:0'
+                letter: 'i'
+              - ingred_id: '280:0'
+                letter: 's'
+          shape:
+              - " i "
+              - " i "
+              - " s "            
+        - id: 'mat_steel_sword'
+          item_id: '267:0'
+          name: 'Steel Longsword'
+          required_techs: 'tech_sword_smithing'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Attack'
+                value: '18'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_steel_sword_blade'
+                letter: 'b'
+              - ingred_id: 'mat_steel_sword_hilt'
+                letter: 'h'
+          shape:
+              - " b "
+              - " b "
+              - " h "
+        - id: 'mat_carbide_steel_sword'
+          item_id: '283:0'
+          name: 'Carbide Steel sword'
+          required_techs: 'tech_folded_steel'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Attack'
+                value: '24'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_carbide_steel_sword_blade'
+                letter: 'b'
+              - ingred_id: 'mat_carbide_steel_sword_hilt'
+                letter: 'h'
+          shape:
+              - " b "
+              - " b "
+              - " h "
+        - id: 'mat_tungsten_sword'
+          item_id: '276:0'
+          name: 'Tungsten Broadsword'
+          required_techs: 'tech_tempering'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Attack'
+                value: '30'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_tungsten_sword_blade'
+                letter: 'b'
+              - ingred_id: 'mat_tungsten_sword_hilt'
+                letter: 'h'
+          shape:
+              - " b "
+              - " b "
+              - " h "
+              
+# T1 Iron Gear recipes -------------------------------------------------
+        - id: 'mat_iron_helmet'
+          item_id: '306:0'
+          name: 'Iron Helmet'
+          required_techs: 'tech_blacksmithing'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '2.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '265:0'
+                letter: 'i'
+          shape:
+              - "iii"
+              - "i i"
+              - "   "
+        - id: 'mat_iron_chestplate'
+          item_id: '307:0'
+          name: 'Iron Chestplate'
+          required_techs: 'tech_blacksmithing'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '3.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '265:0'
+                letter: 'i'
+          shape:
+              - "i i"
+              - "iii"
+              - "iii"
+        - id: 'mat_iron_leggings'
+          item_id: '308:0'
+          name: 'Iron Leggings'
+          required_techs: 'tech_blacksmithing'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '2.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '265:0'
+                letter: 'i'
+          shape:
+              - "iii"
+              - "i i"
+              - "i i"
+        - id: 'mat_iron_boots'
+          item_id: '309:0'
+          name: 'Iron Boots'
+          required_techs: 'tech_blacksmithing'
+          category: '<lightgreen>Gear Tier 1'
+          components:
+              - name: 'Defense'
+                value: '1.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: '265:0'
+                letter: 'i'
+          shape:
+              - "   "
+              - "i i"
+              - "i i"
+
+# T2 Steel Gear recipes ------------------------------------------------
+        - id: 'mat_steel_helmet'
+          item_id: '302:0'
+          name: 'Steel Helmet'
+          required_techs: 'tech_alloys'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '3.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_steel_plate'
+                letter: 's'
+          shape:
+              - "sss"
+              - "s s"
+              - "   "
+        - id: 'mat_steel_chestplate'
+          item_id: '303:0'
+          name: 'Steel Chestplate'
+          required_techs: 'tech_alloys'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '5.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_steel_plate'
+                letter: 's'
+          shape:
+              - "s s"
+              - "sss"
+              - "sss"
+        - id: 'mat_steel_leggings'
+          item_id: '304:0'
+          name: 'Steel Leggings'
+          required_techs: 'tech_alloys'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '4.5' 
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_steel_plate'
+                letter: 's'
+          shape:
+              - "sss"
+              - "s s"
+              - "s s"
+        - id: 'mat_steel_boots'
+          item_id: '305:0'
+          name: 'Steel Assault Boots'
+          required_techs: 'tech_alloys'
+          category: '<lightblue>Gear Tier 2'
+          components:
+              - name: 'Defense'
+                value: '2.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_steel_plate'
+                letter: 's'
+          shape:
+              - "   "
+              - "s s"
+              - "s s"
+# T3 Carbide steel ----------------------------------------------------
+        - id: 'mat_carbide_steel_helmet'
+          item_id: '314:0'
+          name: 'Carbide Steel Helmet'
+          required_techs: 'tech_chemical_bonding'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '4.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_carbide_steel_plate'
+                letter: 'c'
+          shape:
+              - "ccc"
+              - "c c"
+              - "   "
+        - id: 'mat_carbide_steel_chestplate'
+          item_id: '315:0'
+          name: 'Carbide Steel Chestplate'
+          required_techs: 'tech_chemical_bonding'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '7.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_carbide_steel_plate'
+                letter: 'c'
+          shape:
+              - "c c"
+              - "ccc"
+              - "ccc"
+        - id: 'mat_carbide_steel_leggings'
+          item_id: '316:0'
+          name: 'Carbide Steel leggings'
+          required_techs: 'tech_chemical_bonding'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '6'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_carbide_steel_plate'
+                letter: 'c'
+          shape:
+              - "ccc"
+              - "c c"
+              - "c c"
+        - id: 'mat_carbide_steel_boots'
+          item_id: '317:0'
+          name: 'Carbide Steel Boots'
+          required_techs: 'tech_chemical_bonding'
+          category: '<lightpurple>Gear Tier 3'
+          components:
+              - name: 'Defense'
+                value: '3.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_carbide_steel_plate'
+                letter: 'c'
+          shape:
+              - "   "
+              - "c c"
+              - "c c"
+
+# T4 Tungsten Gear recipes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        - id: 'mat_tungsten_helmet'
+          item_id: '310:0'
+          name: 'Tungsten Helmet'
+          required_techs: 'tech_forging'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '5.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_tungsten_plate'
+                letter: 't'
+          shape:
+              - "ttt"
+              - "t t"
+              - "   "
+        - id: 'mat_tungsten_chestplate'
+          item_id: '311:0'
+          name: 'Tungsten Chestplate'
+          required_techs: 'tech_forging'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '9'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_tungsten_plate'
+                letter: 't'
+          shape:
+              - "t t"
+              - "ttt"
+              - "ttt"
+        - id: 'mat_tungsten_leggings'
+          item_id: '312:0'
+          name: 'Tungsten Leggings'
+          required_techs: 'tech_forging'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '8.0'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_tungsten_plate'
+                letter: 't'
+          shape:
+              - "ttt"
+              - "t t"
+              - "t t"
+        - id: 'mat_tungsten_boots'
+          item_id: '313:0'
+          name: 'Tungsten Boots'
+          required_techs: 'tech_forging'
+          category: '<gold>Gear Tier 4'
+          components:
+              - name: 'Defense'
+                value: '4.5'
+              - name: 'NoVanillaDurability'
+              - name: 'DurabilityOnDeath'
+                value: '0.1'
+          ingredients:
+              - ingred_id: 'mat_tungsten_plate'
+                letter: 't'
+          shape:
+              - "   "
+              - "t t"
+              - "t t"
+# Special Item Recipes -------------------------------------------------
+        - id: 'mat_tutorial_book'
+          item_id: '340:0'
+          name: 'CivCraft Info'
+          components:
+              - name: 'TutorialBook'
+
+          # XXX Statically coded to drop from lapis.        
+        - id: 'mat_tungsten_ore'
+          item_id: '385:0'
+          tradeValue: 5.0
+          name: 'Tungsten Ore'
+          components:
+              - name: 'NoRightClick'
+          category: '<lightgreen>Tier 0 Materials'
+        
+          # XXX Statically coded to drop from trommel 
+        - id: 'mat_chromium_ore'
+          item_id: '370:0'
+          tradeValue: 1.0
+          name: 'Chromium Ore'
+          category: '<lightgreen>Tier 0 Materials'
+              
+        - id: 'mat_vanilla_hopper'
+          item_id: '154:0'
+          name: 'Hopper'
+          vanilla: false
+          required_techs: 'tech_machinery'
+          components:
+              - name: 'AllowBlockPlace'
+          ingredients:
+              - ingred_id: 'mat_steel_ingot'
+                letter: 's'
+              - ingred_id: '54:0'
+                letter: 'c'
+          shape:
+              - "s s"
+              - "scs"
+              - " s "
+
+        - id: 'mat_mercury'
+          item_id: '362:0'
+          name: 'Mercury'
+          category: '<lightgreen>Tier 0 Materials'
+          ingredients:
+              - ingred_id: '41:0'
+                count: 1
+              - ingred_id: '42:0'
+                count: 1
+              
+        - id: 'mat_ender_pearl'
+          item_id: '368:0'
+          name: 'Ender Pearl'
+          category: '<lightgreen>Tier 0 Materials'
+          components:
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_ender_pearl'
+                count: 9
+        
+        - id: 'mat_vanilla_slime'
+          item_id: '341:0'
+          name: 'T1 SlimeBall'
+          category: '<lightgreen>Tier 0 Materials'
+          ingredients:
+              - ingred_id: '353:0'
+                count: 6
+              - ingred_id: '352:0'
+                count: 1
+        
+        - id: 'mat_vanilla_sticky_piston'
+          item_id: '29:0'
+          name: 'Sticky Piston'
+          vanilla: true
+          ingredients:
+              - ingred_id: 'mat_vanilla_slime'
+                letter: 's'
+              - ingred_id: '33:0'
+                letter: 'p'
+          shape:
+              - "   "
+              - " s "
+              - " p "
+        
+        - id: 'mat_vanilla_magma_cream'
+          item_id: '378:0'
+          name: 'Magma Cream'
+          vanilla: true
+          ingredients:
+              - ingred_id: 'mat_vanilla_slime'
+                count: 1
+              - ingred_id: '377:0'
+                count: 1
+        
+        - id: 'mat_vanilla_lead'
+          item_id: '420:0'
+          name: 'Lead'
+          vanilla: true
+          ingredients:
+              - ingred_id: 'mat_vanilla_slime'
+                letter: 'l'
+              - ingred_id: '287:0'
+                letter: 's'
+          shape:
+              - "ss "
+              - "sl "
+              - "  s"
+
+        - id: 'mat_vanilla_dispenser'
+          item_id: '23:0'
+          name: 'Dispenser'
+          vanilla: true
+          ingredients:
+              - ingred_id: '331:0'
+                letter: 'r'
+              - ingred_id: 'mat_hunting_bow'
+                letter: 'b'
+              - ingred_id: '4:0'
+                letter: 'c' 
+          shape:
+              - "ccc"
+              - "cbc"
+              - "crc"
+              
+        - id: 'mat_vanilla_TNT'
+          item_id: '46:0'
+          name: 'TNT'
+          vanilla: true
+          required_techs: 'tech_advanced_artillery'
+          components:
+              - name: 'AllowBlockPlace'
+          ingredients:
+              - ingred_id: 'mat_refined_sulphur'
+                count: 2
+              - ingred_id: 'mat_compacted_sand'
+                count: 1
+                letter: 'g' 
+
+        - id: 'mat_vanilla_ender_chest'
+          item_id: '130:0'
+          name: 'Ender Chest'
+          vanilla: false         
+          components:
+              - name: 'AllowBlockPlace'
+          ingredients:
+              - ingred_id: 'mat_tungsten_plate'
+                letter: 'p'
+              - ingred_id: 'mat_artisan_leather'
+                letter: 'l'
+              - ingred_id: '54:0'
+                letter: 'c'
+          shape:
+              - "lpl"
+              - "pcp"
+              - "lpl"
+# Tools =============================================================
+        - id: 'mat_vanilla_stone_pickaxe'
+          item_id: '274:0'
+          name: 'Stone Pickaxe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '100.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '4:0'
+                letter: 'm' 
+          shape:
+              - "mmm"
+              - " s "
+              - " s "
+        
+        - id: 'mat_vanilla_iron_pickaxe'
+          item_id: '257:0'
+          name: 'Iron Pickaxe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '1000.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '265:0'
+                letter: 'm' 
+          shape:
+              - "mmm"
+              - " s "
+              - " s "
+        
+        - id: 'mat_vanilla_gold_pickaxe'
+          item_id: '285:0'
+          name: 'Gold Pickaxe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '500.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '266:0'
+                letter: 'm' 
+          shape:
+              - "mmm"
+              - " s "
+              - " s "
+
+        - id: 'mat_vanilla_diamond_pickaxe'
+          item_id: '278:0'
+          name: 'Diamond Pickaxe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '2000.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '264:0'
+                letter: 'm' 
+          shape:
+              - "mmm"
+              - " s "
+              - " s "
+              
+        - id: 'mat_vanilla_iron_shovel'
+          item_id: '256:0'
+          name: 'Iron Shovel'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '200.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '265:0'
+                letter: 'm' 
+          shape:
+              - " m "
+              - " s "
+              - " s "
+        
+        - id: 'mat_vanilla_gold_shovel'
+          item_id: '284:0'
+          name: 'Gold Shovel'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '100.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '266:0'
+                letter: 'm' 
+          shape:
+              - " m "
+              - " s "
+              - " s "
+
+        - id: 'mat_vanilla_diamond_shovel'
+          item_id: '277:0'
+          name: 'Diamond Shovel'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '500.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '264:0'
+                letter: 'm' 
+          shape:
+              - " m "
+              - " s "
+              - " s "
+        - id: 'mat_vanilla_iron_axe'
+          item_id: '258:0'
+          name: 'Iron Axe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '400.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '265:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - "ms "
+              - " s "
+        
+        - id: 'mat_vanilla_gold_axe'
+          item_id: '286:0'
+          name: 'Gold Axe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '200.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '266:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - "ms "
+              - " s "
+
+        - id: 'mat_vanilla_diamond_axe'
+          item_id: '279:0'
+          name: 'Diamond Axe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '1000.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '264:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - "ms "
+              - " s "
+
+        - id: 'mat_vanilla_iron_hoe'
+          item_id: '292:0'
+          name: 'Iron Hoe'
+          vanilla: true
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '400.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '265:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - " s "
+              - " s "
+        
+        - id: 'mat_vanilla_gold_hoe'
+          item_id: '294:0'
+          name: 'Gold Hoe'
+          vanilla: true
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '200.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '266:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - " s "
+              - " s "
+
+        - id: 'mat_vanilla_diamond_hoe'
+          item_id: '293:0'
+          name: 'Diamond Hoe'
+          vanilla: true
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '500.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '264:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - " s "
+              - " s "
+              
+#---- Fish (new for 1.75) ----
+        - id: 'mat_fish_seaweed'
+          item_id: '31:1'
+          name: 'Seaweed'
+          shiny: false
+          tradeValue: 0.1
+          category: '<lightpurple>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_brown_trout'
+          item_id: '349:0'
+          name: 'T1 Brown Trout'
+          shiny: true
+          tradeValue: 2.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_pacific_cod'
+          item_id: '349:1'
+          name: 'T2 Pacific Cod'
+          shiny: true
+          tradeValue: 25.0
+          category: '<lightblue>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_red_grouper'
+          item_id: '349:2'
+          name: 'T3 Red Grouper'
+          shiny: true
+          tradeValue: 250.0
+          category: '<lightpurple>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_flounder'
+          item_id: '349:3'
+          name: 'T4 Flounder'
+          shiny: true
+          tradeValue: 2500.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_fish'
+          item_id: '349:0'
+          name: 'T0 Fish'
+          shiny: false
+          tradeValue: 5.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_salmon'
+          item_id: '349:1'
+          name: 'T0 Salmon'
+          shiny: false
+          tradeValue: 5.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_clownfish'
+          item_id: '349:2'
+          name: 'T0 Clownfish'
+          shiny: false
+          tradeValue: 5.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+        - id: 'mat_fish_pufferfish'
+          item_id: '349:3'
+          name: 'T0 Pufferfish'
+          shiny: false
+          tradeValue: 5.0
+          category: '<lightgreen>Fish'
+          components:
+              - name: 'NoRightClick'
+
+#---- End Fish ----
+
+#---- Begin Spaceship Parts----
+ 
+#---- End Spaceship Parts----
+
+#
+# This is a list of removed recpies based on the typeID and 
+# data value of the vanilla item.
+#
+removed_recipes:
+
+    # iron sword
+    - type_id: 267
+      data: 0 
+    
+    # wood sword
+    - type_id: 268
+      data: 0
+ 
+    # stone sword
+    - type_id: 272
+      data: 0
+
+    # Diamond sword
+    - type_id: 276
+      data: 0
+
+    # gold sword
+    - type_id: 283
+      data: 0
+
+    # iron chestplate
+    - type_id: 307
+      data: 0
+
+    # enchantment table
+    - type_id: 116
+      data: 0
+    
+    # bow
+    - type_id: 261
+      data: 0
+
+    # Leather armor default
+    - type_id: 298
+      data: 0
+    - type_id: 299
+      data: 0
+    - type_id: 300
+      data: 0
+    - type_id: 301
+      data: 0
+    
+    # iron armor default
+    - type_id: 306
+      data: 0
+    - type_id: 307
+      data: 0
+    - type_id: 308
+      data: 0
+    - type_id: 309
+      data: 0
+    
+    # chain armor default
+    - type_id: 302
+      data: 0
+    - type_id: 303
+      data: 0
+    - type_id: 304
+      data: 0
+    - type_id: 305
+      data: 0
+    
+    # gold armor default
+    - type_id: 314
+      data: 0
+    - type_id: 315
+      data: 0
+    - type_id: 316
+      data: 0
+    - type_id: 317
+      data: 0
+
+    # diamond default
+    - type_id: 310
+      data: 0
+    - type_id: 311
+      data: 0
+    - type_id: 312
+      data: 0
+    - type_id: 313
+      data: 0
+
+    # Eye of ender
+    - type_id: 381
+      data: 0
+    
+    # Beacon
+    - type_id: 138
+      data: 0
+    
+    # Hopper
+    - type_id: 154
+      data: 0
+
+    # Golden apples
+    - type_id: 322
+      data: 0
+
+    # Pickaxes
+    - type_id: 257
+      data: 0
+    - type_id: 274
+      data: 0
+    - type_id: 278
+      data: 0
+    - type_id: 285
+      data: 0
+    
+    # Shovels
+    - type_id: 256
+      data: 0
+    - type_id: 284
+      data: 0
+    - type_id: 277
+      data: 0
+
+    # Axes
+    - type_id: 258
+      data: 0
+    - type_id: 286
+      data: 0
+    - type_id: 279
+      data: 0
+      
+    # Hoe
+#    - type_id: 292
+#      data: 0
+#    - type_id: 294
+#      data: 0
+#    - type_id: 293
+#      data: 0
+        
+    # TNT
+    - type_id: 46
+      data: 0
+
+    # Ender Chest
+    - type_id: 130
+      data: 0
+    # Slime Block
+    - type_id: 165
+      data: 0
+
+    # Armor stand
+    - type_id: 416
+      data: 0
+      
+    #Nether Wart Block
+    - type_id: 214
+      data: 0
+      
+    #Tipped Arrow
+    - type_id: 440
+      data: 0
+
+    #Shield
+    - type_id: 442
+      data: 0
+
+      
+# Amount of tungston to drop
+tungsten_min_drop: 0
+tungsten_max_drop: 1
+tungsten_max_drop_with_fortune: 3

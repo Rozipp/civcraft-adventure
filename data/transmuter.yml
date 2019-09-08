@@ -1,0 +1,66 @@
+#
+# Класс Transmuter используется в деревне для выдачи специальных предмметов.
+# 'id' - название рецепта
+# 'result_chest' - идентификатор сундука, который написан на табличке и используется на выход + сохранен в стиле структуры.
+# 'source_item' - группа, отвечающая за предметы, которые используются на вход
+# 'result_item' - группа, отвечающая за предметы, которые используются на выход
+# 'item' - идентификатор предмета или custom'ый идентификатор типа String.
+# 'count' - количество предметов, которые будут взяты или выданы в результате работы Transmuter'a
+# 'chest' - идентификатор сундука, который написан на табличке и используется на вход + сохранен в стиле структуры.
+# 'rate' - шанс выпадения предмета после выполнения работы Transmuter'a.
+# 
+
+transmuter:
+    - id: 'sawmill1'
+      result_chest: 'sawmillresult'
+      source_item:
+         - item: 'mat_vanilla_iron_axe'
+           count: 1
+           chest: 'sawmillsource'
+      result_item:
+         - item: '17:0'
+           count: 1
+           rate: 55
+         - item: '17:1'
+           count: 1
+           rate: 15
+         - item: '17:2'
+           count: 1
+           rate: 15
+         - item: '162:0'
+           count: 1
+           rate: 15
+           
+    - id: 'trommel1'
+      result_chest: 'trommelresult'
+      source_item:
+         - item: '4:0'
+           count: 1
+           chest: 'trommelsource'
+      result_item:
+         - item: '13:0'
+           count: 1
+           rate: 90
+         - item: '265:0'
+           count: 1
+           rate: 8
+         - item: '266:0'
+           count: 1
+           rate: 2
+    
+    - id: 'orangery1'
+      result_chest: 'orangeryresult'
+      source_item:
+         - item: '373:0'
+           count: 1
+           chest: 'orangerysource'
+      result_item:
+         - item: '38:0'
+           count: 1
+           rate: 40
+         - item: '6:0'
+           count: 1
+           rate: 40
+         - item: 'mat_wood_resin'
+           count: 1
+           rate: 20

@@ -1,0 +1,407 @@
+# 
+# Unit configuration
+#
+
+# Base rates and information for items 
+# without any units attached.
+#
+base:
+    T1_leather_speed: 1.05
+    T2_leather_speed: 1.1
+    T3_leather_speed: 1.15
+    T4_leather_speed: 1.2
+    T1_metal_speed: 0.95
+    T2_metal_speed: 0.9
+    T3_metal_speed: 0.85
+    T4_metal_speed: 0.8
+
+# Special information per unit
+unit_info:
+    # Percentage of damage increase for warrior unit.
+    warrior_damage: 1.00
+
+    # Percentage of damage increase for archer unit.
+    archer_damage: 1.5
+
+# ==========================================================================
+#
+#   id - обязательное поле Айди компонента
+#   name - название
+#   value - на сколько едениц повышать параметр (По умолчанию 1) 
+#   ammunition - предмет на который будет накладываться компонент
+#   require_tech - список требуемыхх технологий через "," без пробелов
+#   require_struct - Список требуемых структур через "," без пробелов
+#   require_component - список требуемых компонентов?
+#            - название_компонента уровень 
+#   require_level - требуемый  уровень юнита
+#   require_level_upgrade - количество уровней через которое снова будет доступный компонент (для многоуровневых компонентов)
+#   max_upgrade - максимальный уровень компонента
+#   gui_item_id -  адди предмета для отображения в gui
+#   gui_slot - слот в котором будет лежать компонент в gui
+#   gui_lore - список строк с описанием компонента
+#
+
+unit_components:
+  - id: 'maxheal'
+    name: 'Бонусное серце'
+    ammunition: chestplate
+    require_tech: '' 
+    require_level: 0
+    require_level_upgrade: 4
+    max_upgrade: 30
+    gui_item_id: 307
+    gui_slot: 20
+    gui_lore:
+        - 'Увеличивает максимальное количество сердец'
+  - id: 'speed'
+    name: 'Скорость'
+    ammunition: leggings
+    require_level: 0
+    require_level_upgrade: 4
+    max_upgrade: 30
+    gui_item_id: 308
+    gui_slot: 38
+    gui_lore:
+        - 'Увеличивает скорость передвижения'
+  - id: 'protection'
+    name: 'Бонусная защита'
+    ammunition: chestplate
+    require_level: 0
+    require_level_upgrade: 4
+    max_upgrade: 30
+    gui_item_id: 315
+    gui_slot: 21
+    gui_lore:
+        - 'Увеличивает защиту'
+  - id: 'swordattack'
+    name: 'Урон меча'
+    ammunition: sword
+    require_level: 0
+    require_level_upgrade: 4
+    max_upgrade: 30
+    gui_item_id: 367
+    gui_slot: 0
+    gui_lore:
+        - 'Увеличивает атаку в ближнем бою'
+  - id: 'bowattack'
+    name: 'Урон Лука'
+    ammunition: two
+    require_level: 0
+    require_level_upgrade: 4
+    max_upgrade: 30
+    gui_item_id: 361
+    gui_slot: 8
+    gui_lore:
+        - 'Увеличивает атаку в дальнем бою'
+  - id: 'criticalchance'
+    name: 'Шанс критического удара'
+    ammunition: two
+    require_level: 0
+    require_level_upgrade: 5
+    max_upgrade: 30
+    gui_item_id: 361
+    gui_slot: 8
+    gui_lore:
+        - 'Увеличивает шанс критического удара'
+        - 'в ближнем бою'
+  - id: 'oxygen'
+    name: 'Подводное дыхание'
+    ammunition: helmet
+    require_component:
+        - speed 3
+    require_level: 20
+    max_upgrade: 3
+    gui_item_id: 410
+    gui_slot: 2
+    gui_lore:
+        - 'Накладывает на шлем '
+        - 'зачарование подводное дыхание'
+  - id: 'waterworker'
+    name: 'Работа под водой'
+    ammunition: helmet
+    require_component:
+        - oxygen 3
+    require_level: 50
+    gui_item_id: 409
+    gui_slot: 3
+    gui_lore:
+        - 'Накладывает на шлем'
+        - 'зачарование подводник' 
+  - id: 'thorns'
+    name: 'Отдача'
+    ammunition: chestplate
+    require_component:
+        - protection 15
+    require_level: 70
+    max_upgrade: 1
+    gui_item_id: 303
+    gui_slot: 22
+    gui_lore:
+        - 'Накладывает на нагрудник'
+        - 'зачарование шипы'
+  - id: 'jumping'
+    name: 'Прыжок'
+    ammunition: leggings
+    require_component:
+        - speed 8
+        - againstfall 1
+    require_level: 0
+    max_upgrade: 3
+    gui_item_id: 300
+    gui_slot: 39
+    gui_lore:
+        - 'Накладывает закленание прегучести'
+  - id: 'fireprotection'
+    name: 'Защита от огня'
+    ammunition: leggings
+    require_component:
+        - protection 20
+        - maxheal 20
+    require_level: 0
+    max_upgrade: 3
+    gui_item_id: 377
+    gui_slot: 40
+    gui_lore:
+        - 'Накладает заклининие огнеупорности'
+  - id: 'depthstrider'
+    name: 'Скорость в воде'
+    ammunition: boots
+    require_component:
+        - oxygen 1
+        - speed 10
+    require_level: 0
+    max_upgrade: 3
+    gui_item_id: 313
+    gui_slot: 47
+    gui_lore:
+        - 'Накладает на ботинки'
+        - 'заклининие Подводная ходьба'
+  - id: 'againstfall'
+    name: 'Легкое падение'
+    ammunition: boots
+    require_component:
+        - speed 6
+    require_level: 0
+    max_upgrade: 3
+    gui_item_id: 301
+    gui_slot: 48
+    gui_lore:
+        - 'Накладает на ботинки заклининие Невесомость'
+  - id: 'frostwalker'
+    value: 2
+    name: 'Морозные шаги'
+    ammunition: boots
+    require_component:
+        - oxygen 3
+        - speed 30
+        - depthstrider 3
+    require_level: 80
+    max_upgrade: 1
+    gui_item_id: 79
+    gui_slot: 49
+    gui_lore:
+        - 'Накладает на ботинки заклининие Ледоход'
+  - id: 'swordknockback'
+    name: 'Отталкивание на меч'
+    ammunition: sword
+    require_component:
+        - swordattack 20
+    require_level: 80
+    gui_item_id: 376
+    gui_slot: 18
+    gui_lore:
+        - 'Накладает на мечь'
+        - 'заклининие Отдача I'
+  - id: 'fireaspect'
+    name: 'Горячий мечь'
+    ammunition: sword
+    require_component:
+        - swordattack 20
+    require_level: 0
+    gui_item_id: 369
+    gui_slot: 27
+    gui_lore:
+        - 'Накладает на мечь'
+        - 'заклининие Заговор огня I'
+  - id: 'looting'
+    name: 'Удача на мечь'
+    ammunition: sword
+    require_component:
+        - swordattack 5
+    require_level: 25
+    max_upgrade: 3
+    gui_item_id: 283
+    gui_slot: 9
+    gui_lore:
+        - 'Накладает на мечь заклининие Добыча'
+  - id: 'bowknockback'
+    name: 'Отбрасывание на лук'
+    ammunition: two
+    require_component:
+        - bowattack 20
+    require_level: 0
+    gui_item_id: 154
+    gui_slot: 26
+    gui_lore:
+        - 'Накладает на лук заклининие Откидывание I' 
+  - id: 'flame'
+    name: 'Обжигание на лук'
+    ammunition: two
+    require_component:
+        - bowattack 20
+    require_level: 0
+    gui_item_id: 401
+    gui_slot: 35
+    gui_lore:
+        - 'Накладает на лук заклининие Горящая стрела'
+  - id: 'infinite'
+    name: 'Бесконечные стрелы'
+    ammunition: two
+    require_component:
+        - bowattack 20
+    require_level: 0
+    gui_item_id: 261
+    gui_slot: 17
+    gui_lore:
+        - 'Накладает на лук заклининие Безконечность'          
+      
+  - id: 'u_foundtown'
+    name: 'Основать новый город'
+    require_level: 0
+    gui_item_id: 261
+    gui_slot: 17
+    gui_lore:
+        - 'Добавляет книги с помощью которой'
+        - 'можно создать новый город'       
+      
+############################# Experience ##############
+
+first_exp: 100
+step_exp: 15
+max_level: 100   
+
+# Награда за убийство игрока      
+exp_for_player: 10
+# За убийство игрока с активным юнитом. Процент от опыта, нужного убитому до следующего уровня
+percent_exp_per_level_unit: 0.05  
+# Потеря опыта при смерти. Процент от опыта, нужного до следующего уровня
+percent_exp_lost_when_dead: 0.3
+# опыт за ванильных мобов
+exp_for_neutral_entity: 100
+
+exp_for_entity:
+# YOBO
+    - lesser_yobo 2
+    - greater_yobo 4
+    - elite_yobo 6
+    - brutal_yobo 8
+# ANGRY_YOBO
+    - 'lesser_angry 1'
+    - 'greater_angry 2'
+    - 'elite_angry 3'
+    - 'brutal_angry 4'
+# BEHEMOTH
+    - 'lesser_behemoth 4'
+    - 'greater_behemoth 8'
+    - 'elite_behemoth 12'
+    - 'brutal_behemoth 16'
+# SAVAGE
+    - 'lesser_savage 2'
+    - 'greater_savage 4'
+    - 'elite_savage 6'
+    - 'brutal_savage 8'
+# RUFFIAN
+    - 'lesser_ruffian 2'
+    - 'greater_ruffian 4'
+    - 'elite_ruffian 6'
+    - 'brutal_ruffian 8'
+ 
+############################## Units ###################
+ 
+units:
+  - id: 'u_spy'
+    name: "Шпион"
+    class_name: 'Spy'
+    require_tech: 'tech_nationalism'
+    require_struct:
+    require_upgrade:
+    cost: 5000.0
+    hammer_cost: 500.0
+    limit: 1
+    item_id: 381
+    item_data: 0
+    lore:
+        - 'Этот специально обученый солдат способен виполнять'
+        - 'коварные миссии на територии вражеских цивилизаций'
+        - 'Опыт получает за успешное выполнение миссий'
+        - 'С повышение уровня открываються новые миссии.'
+    enable_components: 'maxheal,speed,protection'
+        # - id: 'spy_investigate_town'
+          # slot: 8
+        # - id: 'spy_steal_treasury'
+          # slot: 7
+      #  - id: 'spy_incite_riots'
+      #    slot: 6
+      #  - id: 'spy_subvert_government'
+      #    slot: 5
+      #  - id: 'spy_poison_granary'
+      #    slot: 4
+      #  - id: 'spy_pirate'
+      #    slot: 3
+      #  - id: 'spy_sabotage'
+      #    slot: 2
+    
+  - id: 'u_settler'
+    name: "Поселенцы"
+    class_name: 'Settler'
+    require_tech:
+    require_struct:
+    require_upgrade:
+    cost: 25000.0
+    hammer_cost: 1000.0
+    limit: 0
+    item_id: 330
+    item_data: 0
+    lore:
+        - 'Отряд строителей. Отличаються большой скоростью'
+        - 'передвижения. От его уровня ничего не зависит.'
+        - 'Имеет способность основать новый город, которая'
+        - 'во время войны устанавливает военный лагерь'
+    enable_components: 'maxheal,speed,protection,u_foundtown'
+           
+  - id: 'u_archer'
+    name: "Archer"
+    class_name: 'Archer'
+    require_tech:
+    require_struct:
+    require_upgrade:
+    cost: 2.0
+    hammer_cost: 5.0
+    limit: 0
+    item_id: 2256
+    item_data: 0
+    lore:
+        - 'Лучник - это основной воин дальнего боя. Прекрасно'
+        - 'владеет луком, может носить только кожанную броню.'
+        - 'При увеличения уровня, лучник кроме особенных стрел'
+        - 'может получить особенные пасивные способности'
+    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+    
+  - id: 'u_warrior'
+    name: "Воин"
+    class_name: 'Warrior'
+    require_tech:
+    require_struct:
+    require_upgrade:
+    cost: 2.0
+    hammer_cost: 5.0
+    limit: 0
+    item_id: 2256
+    item_data: 0
+    lore:
+        - 'Воин - это основной воин ближнего боя. Мастер'
+        - 'меча может носить только тяжелую броню и щиты.'
+        - 'При увеличения уровня, увеличивает оборонительные'
+        - 'способности и атаку'
+    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+   

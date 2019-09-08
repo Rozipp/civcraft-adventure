@@ -1,0 +1,80 @@
+#
+# This yml describes the recipies for all of the various
+# lore materials that we're using in civcraft. We'll divide
+# up the sections into the following.
+#
+# Primary Materials
+# Secondary Materials
+# Weapons
+# Armors
+# Special (villages, civs, etc)
+#
+# We will be able to attach components to these items which
+# will passed in-game events such as onItemPickup() and onItemUse()
+#-------------------------------------------------------------------
+
+
+# --- Each Material must have the following ----
+# id: - unquie identifier for this material
+# item_id: '- This is a minecraft compatible typeID, used to choose which item to convert.
+# item_data: - This is the datavalue for the in-game item.
+# name: - Used as a display name for the item.
+# ----- The following are Optional ------
+# lore: - Multi-line string that should be displayed as item lore.
+# craftable: - True if the item can be crafted, default is false
+# shaped: - True if the item recipie requires a shape, default is false
+# required_tech: - Technology required to craft this item.
+# ingredients: - List of incredients..
+#       ingred_id: '- MC item type id for this ingredient, 0 indicates custom item
+#       data: - MC item data for this ingredient.
+#       ingred_id: 'custom id, one of our material id's instead of ingred_id and data. (optional)
+#       count: - Number of items required. (optional, not used in shapeless recipie, default is 1)
+#       letter: - Letter used to represent item location in shaped recipie(optional)
+#    ...
+#   
+# Possible components:
+#    
+#   Attack - Increases attack damage of this item.
+#   - name: 'Attack'
+#     value: '0.5'  
+#
+#   MaxHealth - Increases the max health of the player whne this item is worn or held.
+#   - name: 'MaxHealth'
+#     value: '5'
+#
+#   MoveSpeed - Increases/decreases the move speed of the player when this item is worn or held.
+#   - name: 'MoveSpeed'
+#     value: '-0.3'
+#
+#   Defense - Decreases damage by this % when the item is worn.
+#   - name: 'Defense'
+#     value: '0.5'
+#
+#  NoVanillaDurability - Prevents this item from being damaged normally.
+#  - name: 'NoVanillaDurability'
+#
+#  DurabilityOnDeath - Reduces durability of this item by this % when player dies and is holding or wearing it.
+#  - name: 'DurabilityOnDeath'
+#    value: '0.1'
+#
+#
+materials:
+#============== Primary Materials
+
+    - id: 'u_choiceunitcomponent'
+      item_id: '340:0'
+      name: 'ChoiceUnitComponent'
+      required_techs: ''
+      shaped: true
+      category: '<lightblue>Unit matetial'
+      components:
+          - name: 'ChoiceUnitComponent'
+
+    - id: 'u_foundtown'
+      item_id: '340:0'
+      name: 'FoundTown'
+      required_techs: ''
+      shaped: true
+      category: '<lightblue>Unit matetial'
+      components:
+          - name: 'FoundTown'          

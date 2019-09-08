@@ -1,0 +1,124 @@
+#
+# Contains configuration options for villages.
+# 
+village:
+    # Number of hitpoints a village has.
+    hitpoints: 5000
+  
+    # Number of hitpoints to regenerate per second
+    regen_rate: 2
+
+    # Number of hours a village can survive without coal.
+    firepoints: 24
+
+    # Number of coal it takes to revive one hour worth
+    # of village life.
+    coal_per_firepoint: 12
+
+    # Template path to the village. Starting from the templates directory.
+    template: 'village'
+
+    # cost of the village in coins.
+    cost: 2500.0
+   
+    # number of hours to let village be raidable
+    raid_length: 22
+    
+transmuter:
+    - 'sawmill'
+    - 'trommel'
+    - 'orangery'
+
+longhouse_levels:
+   - level: 1
+     consumes:
+         - 297,3
+     count: 4
+     coins: 15.0
+   
+   - level: 2
+     consumes:
+         - 297,5
+         - 392,5
+     count: 8
+     coins: 40.0
+
+   - level: 3
+     consumes:
+         - 297,5
+         - 392,5
+         - 391,5
+     count: 12
+     coins: 80.0
+     
+upgrades:
+    - id: 'v_up_sawmill'
+      name: 'Лесопилка 1-го уровня'
+      cost: 500.0
+      annex: 'sawmill'
+      level: 1
+      require_upgrade:
+    - id: 'v_up_sawmill2'
+      name: 'Лесопилка 2-го уровня'
+      cost: 5000.0
+      annex: 'sawmill'
+      level: 2
+      require_upgrade: 'v_up_sawmill'
+
+    - id: 'v_up_trommel1'
+      name: 'Каменоломня 1-го уровня'
+      cost: 500.0
+      annex: 'trommel'
+      level: 1
+      require_upgrade:
+    - id: 'v_up_trommel2'
+      name: 'Каменоломня 2-го уровня'
+      cost: 5000.0
+      annex: 'trommel'
+      level: 2
+      require_upgrade: 'v_up_trommel1'
+
+    - id: 'v_up_orangery1'
+      name: 'Оранжерея 1-го уровня'
+      cost: 500.0
+      annex: 'orangery'
+      level: 1
+      require_upgrade:
+    - id: 'v_up_orangery2'
+      name: 'Оранжерея 2-го уровня'
+      cost: 5000.0
+      annex: 'orangery'
+      level: 2
+      require_upgrade: 'v_up_orangery1'
+
+    - id: 'v_up_garden1'
+      name: 'Ферма 1-го уровня'
+      cost: 500.0
+      annex: 'growth'
+      level: 1
+      require_upgrade:
+    - id: 'v_up_garden2'
+      name: 'Ферма 2-го уровня'
+      cost: 2000.0
+      annex: 'growth'
+      level: 2
+      require_upgrade: 'v_up_garden1'
+    - id: 'v_up_garden3'
+      name: 'Ферма 3-го уровня'
+      cost: 8000.0
+      annex: 'growth'
+      level: 3
+      require_upgrade: 'v_up_garden2'
+
+    - id: 'v_up_longhouse1'
+      name: 'Большой дом ур.1'
+      cost: 500.0
+      annex: 'longhouse'
+      level: 1
+      require_upgrade:
+    - id: 'v_up_longhouse2'
+      name: 'Большой дом ур.2'
+      cost: 5000.0
+      annex: 'longhouse'
+      level: 2
+      require_upgrade: 'v_up_longhouse1'

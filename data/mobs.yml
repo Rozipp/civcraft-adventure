@@ -1,0 +1,420 @@
+﻿
+#######################    даленные ванильные мобы     #######################
+disable:
+#    - ZOMBIE
+    - SKELETON
+    - BAT
+    - CAVE_SPIDER
+    - SPIDER
+    - CREEPER
+    - WOLF
+    - SILVERFISH
+    - OCELOT
+#    - WITCH
+    - ZOMBIE_VILLAGER
+    - ENDERMAN
+
+#######################    уровни мобов     #######################
+levels:
+    - id: lesser
+      name: Слабый
+    - id: greater
+      name: Сильный
+    - id: elite
+      name: Елитный
+    - id: brutal
+      name: Брутальный
+    - id: extra
+      name: ЕкстраСложный
+    - id: super
+      name: СуперСложный
+#######################    Классы мобов     #######################
+mobs:
+    - id: yobo
+      name: Зомби
+    - id: angry
+      name: Злюка
+    - id: behemoth
+      name: Голем
+    - id: savage
+      name: Разбойник
+    - id: ruffian
+      name: Маг
+#######################    Дропы мобов     #######################
+
+drops:
+#########   YOBO   #########
+   - id: lesser_yobo
+     drop:
+        - mat_forged_clay 0.1
+        - mat_crafted_reeds 0.1
+        - mat_crafted_sticks 0.1
+   - id: Greater_yobo
+     drop:
+        - mat_clay_steel_cast 0.05
+        - mat_leather_straps 0.05
+        - mat_steel_ingot 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+   - id: Elite_yobo
+     drop:
+        - mat_clay_steel_cast 0.05
+        - mat_reinforced_braid 0.05
+        - mat_carbide_steel_ingot 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+   - id: Brutal_yobo
+     drop:
+        - mat_clay_tungsten_casting 0.05
+        - mat_artisan_leather 0.05
+        - mat_tungsten_ingot 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+#########   ANGRY_YOBO   #########
+   - id: Lesser_angry
+     drop:
+        - mat_forged_clay 0.1
+        - mat_crafted_reeds 0.1
+        - mat_crafted_sticks 0.1
+     
+   - id: Greater_angry
+     drop:
+        - mat_clay_steel_cast 0.05
+        - mat_steel_ingot 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+      
+   - id: Elite_angry
+     drop:
+        - mat_clay_steel_cast 0.05
+        - mat_carbide_steel_ingot 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+     
+   - id: Brutal_angry
+     drop:
+        - mat_tungsten_ingot 0.05
+        - mat_clay_tungsten_casting 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+        
+#########   BEHEMOTH   #########
+
+   - id: Lesser_Behemoth
+     drop:
+        - mat_forged_clay 0.1
+        - mat_crafted_reeds 0.1
+        - mat_crafted_sticks 0.1
+   - id: Greater_Behemoth
+     drop:
+        - mat_steel_plate 0.1
+        - mat_steel_ingot 0.05 
+        - mat_clay_molding 0.05 
+        - mat_varnish 0.01 
+        - mat_sticky_resin 0.05 
+        
+   - id: Elite_Behemoth
+     drop:
+        - mat_carbide_steel_plate 0.1
+        - mat_carbide_steel_ingot 0.05
+        - mat_clay_molding 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.05
+        
+   - id: Brutal_Behemoth
+     drop:
+        - mat_tungsten_plate 0.1
+        - mat_tungsten_ingot 0.05
+        - mat_clay_tungsten_casting 0.05
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.05
+        
+ 
+#########   SAVAGE   #########
+
+   - id: Lesser_Savage
+     drop:
+        - mat_forged_clay 0.1
+        - mat_crafted_reeds 0.1
+        - mat_crafted_sticks 0.1
+        
+   - id: Greater_Savage
+     drop:
+        - mat_aged_wood_stave 0.1
+        - mat_crafted_string 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+        
+   - id: Elite_Savage
+     drop:
+        - mat_aged_wood_stave 0.1
+        - mat_varnish 0.05
+        - mat_woven_threading 0.1
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+        
+   - id: Brutal_Savage
+     drop:
+        - mat_longbow_stave 0.1
+        - mat_reinforced_braid 0.15
+        - mat_leather_straps 0.1
+        - mat_sticky_resin 0.1
+        - mat_smithy_resin 0.01
+     
+#########   RUFFIAN   #########
+
+   - id: Lesser_Ruffian
+     drop:
+        - mat_ionic_crystal_fragment_1 0.05
+        - mat_forged_clay 0.1
+        - mat_crafted_reeds 0.1
+        - mat_crafted_sticks 0.1
+        - mat_refined_sulphur 0.15
+          
+   - id: Greater_Ruffian
+     drop:
+        - mat_ionic_crystal_fragment_2 0.05
+        - mat_carved_leather 0.1
+        - mat_crafted_string 0.03
+        - mat_refined_slime 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+        - mat_refined_sulphur 0.25
+      
+   - id: Elite_Ruffian
+     drop:
+        - mat_ionic_crystal_fragment_3 0.05
+        - mat_leather_straps 0.1
+        - mat_crafted_string 0.05
+        - mat_refined_slime 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+        - mat_refined_sulphur 0.35
+        
+   - id: Brutal_Ruffian
+     drop:
+        - mat_ionic_crystal_fragment_4 0.05
+        - mat_artisan_leather 0.1
+        - mat_crafted_string 0.1
+        - mat_refined_slime 0.05
+        - mat_varnish 0.01
+        - mat_sticky_resin 0.01
+        - mat_refined_sulphur 0.5
+        
+biomes:
+   - id: BEACHES
+     mobs:
+       
+   - id: BIRCH_FOREST
+     mobs:
+       - lesser_yobo
+   - id: BIRCH_FOREST_HILLS
+     mobs:
+       - lesser_yobo
+   - id: COLD_BEACH
+     mobs:
+       - lesser_behemoth
+   - id: DEEP_OCEAN
+     mobs:
+        
+   - id: DESERT
+     mobs:
+       - lesser_savage
+   - id: DESERT_HILLS
+     mobs:
+       - lesser_savage
+   - id: EXTREME_HILLS
+     mobs:
+       - elite_yobo
+   - id: EXTREME_HILLS_WITH_TREES
+     mobs:
+       
+   - id: FOREST
+     mobs:
+       - lesser_yobo
+   - id: FOREST_HILLS
+     mobs:
+       - greater_yobo
+   - id: FROZEN_OCEAN
+     mobs:
+       - lesser_behemoth
+   - id: FROZEN_RIVER
+     mobs:
+       - lesser_behemoth
+   - id: HELL
+     mobs:
+       
+   - id: ICE_FLATS
+     mobs:
+       - elite_behemoth
+   - id: ICE_MOUNTAINS
+     mobs:
+       - greater_ruffian
+   - id: JUNGLE
+     mobs:
+       - lesser_ruffian
+   - id: JUNGLE_EDGE
+     mobs:
+       - lesser_ruffian
+   - id: JUNGLE_HILLS
+     mobs:
+       - greater_ruffian
+   - id: MESA
+     mobs:
+       - elite_savage
+   - id: MESA_CLEAR_ROCK
+     mobs:
+       - brutal_savage
+   - id: MESA_ROCK
+     mobs:
+       - brutal_savage
+   - id: MUSHROOM_ISLAND
+     mobs:
+       
+   - id: MUSHROOM_ISLAND_SHORE
+     mobs:
+       
+   - id: MUTATED_BIRCH_FOREST
+     mobs:
+       - greater_yobo
+       - elite_ruffian
+   - id: MUTATED_BIRCH_FOREST_HILLS
+     mobs:
+       - greater_yobo
+       - elite_ruffian
+   - id: MUTATED_DESERT
+     mobs:
+       - lesser_savage
+   - id: MUTATED_EXTREME_HILLS
+     mobs:
+       - elite_yobo
+       - brutal_yobo
+   - id: MUTATED_EXTREME_HILLS_WITH_TREES
+     mobs:
+       
+   - id: MUTATED_FOREST
+     mobs:
+       - greater_yobo
+   - id: MUTATED_ICE_FLATS
+     mobs:
+       - brutal_behemoth
+   - id: MUTATED_JUNGLE
+     mobs:
+       - brutal_ruffian
+       - brutal_behemoth
+   - id: MUTATED_JUNGLE_EDGE
+     mobs:
+       - lesser_ruffian
+   - id: MUTATED_MESA
+     mobs:
+       - brutal_savage
+   - id: MUTATED_MESA_CLEAR_ROCK
+     mobs:
+       - elite_savage
+   - id: MUTATED_MESA_ROCK
+     mobs:
+       - elite_savage
+   - id: MUTATED_PLAINS
+     mobs:
+       - greater_yobo
+   - id: MUTATED_REDWOOD_TAIGA
+     mobs:
+       
+   - id: MUTATED_REDWOOD_TAIGA_HILLS
+     mobs:
+       
+   - id: MUTATED_ROOFED_FOREST
+     mobs:
+       - elite_yobo
+   - id: MUTATED_SAVANNA
+     mobs:
+       - greater_savage
+   - id: MUTATED_SAVANNA_ROCK
+     mobs:
+       - greater_savage
+   - id: MUTATED_SWAMPLAND
+     mobs:
+       - brutal_ruffian
+   - id: MUTATED_TAIGA
+     mobs:
+       - elite_savage
+   - id: MUTATED_TAIGA_COLD
+     mobs:
+       - elite_savage
+       - greater_ruffian
+   - id: OCEAN
+     mobs:
+       
+   - id: PLAINS
+     mobs:
+      - lesser_yobo
+   - id: REDWOOD_TAIGA
+     mobs:
+       
+   - id: REDWOOD_TAIGA_HILLS
+     mobs:
+       
+   - id: RIVER
+     mobs:
+       
+   - id: ROOFED_FOREST
+     mobs:
+       - elite_yobo
+   - id: SAVANNA
+     mobs:
+       - greater_savage
+   - id: SAVANNA_ROCK
+     mobs:
+       - greater_savage
+   - id: SKY
+     mobs:
+       
+   - id: SMALLER_EXTREME_HILLS
+     mobs:
+       
+   - id: STONE_BEACH
+     mobs:
+       
+   - id: SWAMPLAND
+     mobs:
+       - greater_ruffian
+   - id: TAIGA
+     mobs:
+       - lesser_ruffian
+   - id: TAIGA_COLD
+     mobs:
+       - lesser_behemoth
+   - id: TAIGA_COLD_HILLS
+     mobs:
+       - greater_ruffian
+   - id: TAIGA_HILLS
+     mobs:
+       
+   - id: VOID
+     mobs:
+    
+#########   YOBO   #########
+#   - id: lesser_yobo
+#   - id: greater_yobo
+#   - id: elite_yobo
+#   - id: brutal_yobo
+#########   ANGRY_YOBO   #########
+#   - id: lesser_angry
+#   - id: greater_angry
+#   - id: elite_angry
+#   - id: brutal_angry
+#########   BEHEMOTH   #########
+#   - id: lesser_behemoth
+#   - id: greater_behemoth
+#   - id: elite_behemoth
+#   - id: brutal_behemoth
+#########   SAVAGE   #########
+#   - id: lesser_savage
+#   - id: greater_savage
+#   - id: elite_savage
+#   - id: brutal_savage
+#########   RUFFIAN   #########
+#   - id: lesser_ruffian
+#   - id: greater_ruffian
+#   - id: elite_ruffian
+#   - id: brutal_ruffian
