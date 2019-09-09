@@ -24,7 +24,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
@@ -41,6 +40,13 @@ import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagInt;
 
 public class UnitStatic {
+
+	public static float T1_metal_speed;
+	public static float T2_metal_speed;
+	public static float T3_metal_speed;
+	public static float T4_metal_speed;
+	public static float normal_speed;
+
 	public static int first_exp = 100;
 	public static int step_exp = 15;
 	public static int max_level = 100;
@@ -247,12 +253,11 @@ public class UnitStatic {
 				player.getInventory().setItem(UnitMaterial.LAST_SLOT, is);
 			player.setExp(uo.getFloatExp());
 			player.setLevel(uo.getLevel());
-			player.updateInventory();
 		} else {
 			player.setExp(0);
 			player.setLevel(0);
-			player.updateInventory();
 		}
+		player.updateInventory();
 	}
 
 	public static void addExpToPlayer(Player player, int exp) {
@@ -339,6 +344,7 @@ public class UnitStatic {
 			}
 			player.updateInventory();
 		}
+		CivGlobal.getResident(player).setUnitId(0);
 	}
 
 	public static boolean isWearingFullComposite(final Player player) {
@@ -365,31 +371,33 @@ public class UnitStatic {
 	}
 
 	public static boolean isWearingAnyMetal(final Player player) {
-		return isWearingAnyChain(player) || isWearingAnyGold(player) || isWearingAnyIron(player) || isWearingAnyDiamond(player);
+		for (ItemStack is : player.getInventory().getArmorContents()) {
+			if (is == null) continue;
+			if (isWearingAnyChain(is.getType())) return true;
+			if (isWearingAnyDiamond(is.getType())) return true;
+			if (isWearingAnyGold(is.getType())) return true;
+			if (isWearingAnyIron(is.getType())) return true;
+		}
+		return false;
 	}
-	public static boolean isWearingAnyChain(final Player player) {
-		return (player.getEquipment().getBoots() != null && player.getEquipment().getBoots().getType().equals((Object) Material.CHAINMAIL_BOOTS))
-				|| (player.getEquipment().getChestplate() != null
-						&& player.getEquipment().getChestplate().getType().equals((Object) Material.CHAINMAIL_CHESTPLATE))
-				|| (player.getEquipment().getHelmet() != null && player.getEquipment().getHelmet().getType().equals((Object) Material.CHAINMAIL_HELMET))
-				|| (player.getEquipment().getLeggings() != null && player.getEquipment().getLeggings().getType().equals((Object) Material.CHAINMAIL_LEGGINGS));
+	public static boolean isWearingAnyChain(Material mat) {
+		if (mat == null) return false;
+		return mat.equals(Material.CHAINMAIL_BOOTS) || mat.equals(Material.CHAINMAIL_CHESTPLATE) || mat.equals(Material.CHAINMAIL_HELMET)
+				|| mat.equals(Material.CHAINMAIL_LEGGINGS);
 	}
-	public static boolean isWearingAnyGold(final Player player) {
-		return (player.getEquipment().getBoots() != null && player.getEquipment().getBoots().getType().equals((Object) Material.GOLD_BOOTS))
-				|| (player.getEquipment().getChestplate() != null && player.getEquipment().getChestplate().getType().equals((Object) Material.GOLD_CHESTPLATE))
-				|| (player.getEquipment().getHelmet() != null && player.getEquipment().getHelmet().getType().equals((Object) Material.GOLD_HELMET))
-				|| (player.getEquipment().getLeggings() != null && player.getEquipment().getLeggings().getType().equals((Object) Material.GOLD_LEGGINGS));
+	public static boolean isWearingAnyGold(Material mat) {
+		if (mat == null) return false;
+		return mat.equals(Material.GOLD_BOOTS) || mat.equals(Material.GOLD_CHESTPLATE) || mat.equals(Material.GOLD_HELMET)
+				|| mat.equals(Material.GOLD_LEGGINGS);
 	}
-	public static boolean isWearingAnyIron(final Player player) {
-		return (player.getEquipment().getBoots() != null && ItemManager.getTypeId(player.getEquipment().getBoots()) == 309)
-				|| (player.getEquipment().getChestplate() != null && ItemManager.getTypeId(player.getEquipment().getChestplate()) == 307)
-				|| (player.getEquipment().getHelmet() != null && ItemManager.getTypeId(player.getEquipment().getHelmet()) == 306)
-				|| (player.getEquipment().getLeggings() != null && ItemManager.getTypeId(player.getEquipment().getLeggings()) == 308);
+	public static boolean isWearingAnyIron(Material mat) {
+		if (mat == null) return false;
+		return mat.equals(Material.IRON_BOOTS) || mat.equals(Material.IRON_CHESTPLATE) || mat.equals(Material.IRON_HELMET)
+				|| mat.equals(Material.IRON_LEGGINGS);
 	}
-	public static boolean isWearingAnyDiamond(final Player player) {
-		return (player.getEquipment().getBoots() != null && ItemManager.getTypeId(player.getEquipment().getBoots()) == 313)
-				|| (player.getEquipment().getChestplate() != null && ItemManager.getTypeId(player.getEquipment().getChestplate()) == 311)
-				|| (player.getEquipment().getHelmet() != null && ItemManager.getTypeId(player.getEquipment().getHelmet()) == 310)
-				|| (player.getEquipment().getLeggings() != null && ItemManager.getTypeId(player.getEquipment().getLeggings()) == 312);
+	public static boolean isWearingAnyDiamond(Material mat) {
+		if (mat == null) return false;
+		return mat.equals(Material.DIAMOND_BOOTS) || mat.equals(Material.DIAMOND_CHESTPLATE) || mat.equals(Material.DIAMOND_HELMET)
+				|| mat.equals(Material.DIAMOND_LEGGINGS);
 	}
 }

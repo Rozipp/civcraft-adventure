@@ -1018,7 +1018,6 @@ public class Town extends SQLObject {
 			}
 
 			if (!free) {
-				resident.setUnitId(0);
 				UnitStatic.removeUnit(player, "u_settler");
 				civ.getTreasury().deposit(costTown);
 			}

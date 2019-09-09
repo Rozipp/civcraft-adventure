@@ -72,6 +72,12 @@ public class ConfigUnit {
 			units.put(unit.id, unit);
 		}
 
+		UnitStatic.T1_metal_speed = (float) cfg.getDouble("base.T1_metal_speed");
+		UnitStatic.T2_metal_speed = (float) cfg.getDouble("base.T2_metal_speed");
+		UnitStatic.T3_metal_speed = (float) cfg.getDouble("base.T3_metal_speed");
+		UnitStatic.T4_metal_speed = (float) cfg.getDouble("base.T4_metal_speed");
+		UnitStatic.normal_speed = 0.2f;
+
 		CivLog.info("Loaded " + units.size() + " units.");
 		ConfigUnit.loadConfigexpEntity(cfg, UnitStatic.expEntity);
 		ConfigUnitComponent.loadConfig(cfg, UnitStatic.configUnitComponents);
@@ -85,7 +91,6 @@ public class ConfigUnit {
 		UnitStatic.percent_exp_per_level_unit = cfg.getDouble("percent_exp_per_level_unit");
 		UnitStatic.percent_exp_lost_when_dead = cfg.getDouble("percent_exp_lost_when_dead");
 		UnitStatic.exp_for_neutral_entity = cfg.getInt("exp_for_neutral_entity");
-		
 
 		expEntity.clear();
 		List<String> expforentity = cfg.getStringList("exp_for_entity");

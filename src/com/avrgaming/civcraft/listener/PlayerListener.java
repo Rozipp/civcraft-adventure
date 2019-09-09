@@ -75,6 +75,7 @@ import com.avrgaming.civcraft.threading.tasks.PlayerChunkNotifyAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.PlayerLoginAsyncTask;
 import com.avrgaming.civcraft.threading.timers.PlayerLocationCacheUpdate;
 import com.avrgaming.civcraft.units.UnitMaterial;
+import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -219,7 +220,7 @@ public class PlayerListener implements Listener {
 				}
 			}
 		} else {
-			speed = CivSettings.normal_speed;
+			speed = UnitStatic.normal_speed;
 		}
 
 		player.setWalkSpeed((float) Math.min(1.0f, speed));

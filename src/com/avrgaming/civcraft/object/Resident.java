@@ -74,6 +74,7 @@ import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildPreviewAsyncTask;
+import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
@@ -171,7 +172,7 @@ public class Resident extends SQLObject {
 	private Date lastKilledTime = null;
 	private String lastIP = "";
 	private UUID uid;
-	private double walkingModifier = CivSettings.normal_speed;
+	private double walkingModifier = UnitStatic.normal_speed;
 	private boolean onRoad = false;
 	public String debugTown;
 
@@ -1632,12 +1633,16 @@ public class Resident extends SQLObject {
 		Double sumValue = 0.0;
 		for (ItemStack is : player.getInventory().getArmorContents()) {
 			if (is == null) continue;
+			if (UnitStatic.isWearingAnyIron(is.getType())) sumValue = sumValue + UnitStatic.T1_metal_speed;
+			if (UnitStatic.isWearingAnyChain(is.getType())) sumValue = sumValue + UnitStatic.T2_metal_speed;
+			if (UnitStatic.isWearingAnyGold(is.getType())) sumValue = sumValue + UnitStatic.T3_metal_speed;
+			if (UnitStatic.isWearingAnyDiamond(is.getType())) sumValue = sumValue + UnitStatic.T4_metal_speed;
 			AttributeUtil attrs = new AttributeUtil(is);
 			if (attrs.hasEnhancement("LoreEnhancementSpeed")) {
 				sumValue = sumValue + Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
 			}
 		}
-		this.walkingModifier = CivSettings.normal_speed * (1.0 + sumValue);
+		this.walkingModifier = UnitStatic.normal_speed * (1.0 + sumValue);
 	}
 
 	public static String getNameTagColor(final Civilization civ) {

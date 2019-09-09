@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.listener.PlayerListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Resident;
@@ -48,13 +49,15 @@ public class UnitListener implements Listener {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
 		int unitId = resident.getUnitId();
-		if (unitId == 0) return;
+		if (unitId <= 0) return;
 		UnitObject uo = CivGlobal.getUnitObject(unitId);
 
 		UnitStatic.removeChildrenItems(player);
 		uo.removeExp((int) Math.round(UnitStatic.percent_exp_lost_when_dead * uo.getExpToNextLevel()));
 		resident.setUnitId(0);
 		UnitStatic.updateUnitForPlaeyr(player);
+		resident.calculateWalkingModifier(player);
+		PlayerListener.setModifiedMovementSpeed(player);
 	}
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="D:/civcraftdata/releases/civcraft1.0/plugins/CivCraft1.0.jar"/>
+    <options buildIfNeeded="true" compress="false" descriptionLocation="/civcraft-lab/export.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" manifestLocation="/civcraft-lab/manifest" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <folder path="/civcraft-lab/data"/>
+        <folder path="/civcraft-lab/localization"/>
+        <javaElement handleIdentifier="=civcraft-lab/src"/>
+    </selectedElements>
+</jardesc>
