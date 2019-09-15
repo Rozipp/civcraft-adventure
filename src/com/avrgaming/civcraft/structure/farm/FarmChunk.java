@@ -422,7 +422,4 @@ public class FarmChunk {
 	public int getMissedGrowthTicksStat() {
 		return missedGrowthTicksStat;
 	}
-
-	
-	
 }

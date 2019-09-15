@@ -34,7 +34,6 @@ import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.mythicmob.MobListener;
 import com.avrgaming.civcraft.mythicmob.MobSpawnerTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
-import com.avrgaming.civcraft.populators.MobSpawnerPopulator;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
@@ -103,7 +102,6 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("RegenTimer", new RegenTimer(), TimeTools.toTicks(5));
 		TaskMaster.asyncTimer("BeakerTimer", new BeakerTimer(60), TimeTools.toTicks(60));
 		TaskMaster.syncTimer("UnitTrainTimer", new UnitTrainTimer(), TimeTools.toTicks(1));
-		TaskMaster.asyncTimer("ReduceExposureTimer", new ReduceExposureTimer(), 0, TimeTools.toTicks(5));
 		try {
 			double arrow_firerate = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.fire_rate");
 			TaskMaster.syncTimer("arrowTower", new ProjectileComponentTimer(), (int) (arrow_firerate * 20));
@@ -199,7 +197,6 @@ public final class CivCraft extends JavaPlugin {
 
 		//Load World Populators
 		BukkitObjects.getWorlds().get(0).getPopulators().add(new TradeGoodPopulator());
-		BukkitObjects.getWorlds().get(0).getPopulators().add(new MobSpawnerPopulator());
 
 		try {
 			CivSettings.init(this);

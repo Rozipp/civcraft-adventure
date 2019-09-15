@@ -46,7 +46,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.avrgaming.civcraft.populators.MobSpawnerPreGenerate;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
@@ -123,9 +122,6 @@ public class CivGlobal {
 	private static Map<String, Civilization> adminCivs = new ConcurrentHashMap<String, Civilization>();
 	private static Map<ChunkCoord, TownChunk> townChunks = new ConcurrentHashMap<ChunkCoord, TownChunk>();
 	private static Map<ChunkCoord, CultureChunk> cultureChunks = new ConcurrentHashMap<ChunkCoord, CultureChunk>();
-
-	private static Map<BlockCoord, MobSpawner_FURNEX> mobSpawners = new ConcurrentHashMap<>();
-	public static MobSpawnerPreGenerate mobSpawnerPreGenerator = new MobSpawnerPreGenerate();
 	private static Map<ChunkCoord, Boolean> persistChunks = new ConcurrentHashMap<ChunkCoord, Boolean>();
 	private static Map<BlockCoord, Structure> structures = new ConcurrentHashMap<BlockCoord, Structure>();
 	private static Map<BlockCoord, Wonder> wonders = new ConcurrentHashMap<BlockCoord, Wonder>();
@@ -234,9 +230,6 @@ public class CivGlobal {
 		loadPermissionGroups();
 		loadTownChunks();
 		loadWonders();
-		if (CivSettings.hasCustomMobs) {
-			loadMobSpawners();
-		}
 		loadStructures();
 		loadWallBlocks();
 		loadRoadBlocks();
@@ -359,32 +352,6 @@ public class CivGlobal {
 				}
 			}
 			CivLog.info("Loaded " + CivGlobal.towns.size() + " Reports");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
-
-	private static void loadMobSpawners() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + MobSpawner_FURNEX.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				MobSpawner_FURNEX spawner;
-				try {
-					spawner = new MobSpawner_FURNEX(rs);
-					mobSpawners.put(spawner.getCoord(), spawner);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + mobSpawners.size() + " Mob Spawners");
 		} finally {
 			SQL.close(rs, ps, context);
 		}
@@ -853,7 +820,7 @@ public class CivGlobal {
 	}
 	
 	public static Player getPlayer(Resident resident) throws CivException {
-		Player player = Bukkit.getPlayer(resident.getUUID());
+		Player player = Bukkit.getPlayer(resident.getUid());
 		if (player == null) throw new CivException("No player named" + " " + resident.getName());
 		return player;
 	}
@@ -882,12 +849,12 @@ public class CivGlobal {
 
 	public static void addResident(Resident res) {
 		residents.put(res.getName(), res);
-		residentsViaUUID.put(res.getUUID(), res);
+		residentsViaUUID.put(res.getUid(), res);
 	}
 
 	public static void removeResident(Resident res) {
 		residents.remove(res.getName());
-		residentsViaUUID.remove(res.getUUID());
+		residentsViaUUID.remove(res.getUid());
 	}
 
 	public static Resident getResident(String name) {
@@ -1062,7 +1029,7 @@ public class CivGlobal {
 	public static Player getPlayer(String name) throws CivException {
 		Resident res = CivGlobal.getResident(name);
 		if (res == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noResident", name));
-		Player player = Bukkit.getPlayer(res.getUUID());
+		Player player = Bukkit.getPlayer(res.getUid());
 		if (player == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noPlayer", name));
 		return player;
 	}
@@ -1222,18 +1189,6 @@ public class CivGlobal {
 
 	public static Iterator<Entry<BlockCoord, Structure>> getStructureIterator() {
 		return structures.entrySet().iterator();
-	}
-
-	public static void addMobSpawner(MobSpawner_FURNEX spawner) {
-		mobSpawners.put(spawner.getCoord(), spawner);
-	}
-
-	public static MobSpawner_FURNEX getMobSpawner(BlockCoord coord) {
-		return mobSpawners.get(coord);
-	}
-
-	public static Collection<MobSpawner_FURNEX> getMobSpawners() {
-		return mobSpawners.values();
 	}
 
 	public static void addTradeGood(TradeGood good) {
@@ -1815,18 +1770,6 @@ public class CivGlobal {
 		return color + namedPlayer.getName();
 	}
 
-	public static boolean mobSpawnerTooCloseToAnother(Location spawnerLoc, double radius) {
-		for (MobSpawner_FURNEX ms : mobSpawners.values()) {
-			Location msLoc = ms.getCoord().getLocation();
-
-			if (msLoc.distance(spawnerLoc) < radius) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-
 	public static boolean tradeGoodTooCloseToAnother(Location goodLoc, double radius) {
 		for (TradeGood tg : tradeGoods.values()) {
 			Location tgLoc = tg.getCoord().getLocation();
@@ -2219,7 +2162,7 @@ public class CivGlobal {
 
 	public static EconObject createEconObject(SQLObject holder) {
 		if (useEconomy && holder instanceof Resident) {
-			return new VaultEconObject(holder, ((Resident) holder).getUUID());
+			return new VaultEconObject(holder, ((Resident) holder).getUid());
 		}
 		return new EconObject(holder);
 	}
@@ -2510,7 +2453,7 @@ public class CivGlobal {
 
 	public static Report getReportByCloseTime(final long closeTime) {
 		for (final Report report : CivGlobal.reports.values()) {
-			if (report.getClosed() && report.getCloseTime() == closeTime) {
+			if (report.isClosed() && report.getCloseTime() == closeTime) {
 				return report;
 			}
 		}

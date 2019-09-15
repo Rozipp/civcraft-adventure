@@ -21,6 +21,8 @@ package com.avrgaming.civcraft.util;
 import java.util.HashMap;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -35,6 +37,8 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 
+@Getter
+@Setter
 public class ItemFrameStorage {	
 	
 	// We cannot store the actual frame because it unloads and the resource changes?
@@ -162,10 +166,6 @@ public class ItemFrameStorage {
 		return false;
 	}
 
-	public Location getLocation() {
-		return this.location;
-	}
-
 	public boolean isOurEntity(Entity entity) {
 		return (((ItemFrame)entity).getUniqueId().equals(getUUID()));
 	}
@@ -179,35 +179,11 @@ public class ItemFrameStorage {
 		return new BlockCoord(this.getLocation());
 	}
 
-	public UUID getFrameID() {
-		return frameID;
-	}
-
-	public void setFrameID(UUID frameID) {
-		this.frameID = frameID;
-	}
-
-	public void setLocation(Location location) {
-		this.location = location;
-	}
-
 	public Town getTown() {
 		if (buildable != null) {
 			return buildable.getTown();
 		}
 		return null;
-	}
-
-	public void setBuildable(Buildable buildable) {
-		this.buildable = buildable;
-	}
-
-	public BlockCoord getAttachedBlock() {
-		return attachedBlock;
-	}
-
-	public void setAttachedBlock(BlockCoord attachedBlock) {
-		this.attachedBlock = attachedBlock;
 	}
 	
 }

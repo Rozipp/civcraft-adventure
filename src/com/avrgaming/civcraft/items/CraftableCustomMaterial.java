@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -16,6 +18,8 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.ItemManager;
 
+@Getter
+@Setter
 public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 	private boolean craftable;
@@ -240,21 +244,5 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 	public int getCraftAmount() {
 		return this.configMaterial.amount;
-	}
-
-	public boolean isCraftable() {
-		return craftable;
-	}
-
-	public void setCraftable(boolean craftable) {
-		this.craftable = craftable;
-	}
-
-	public boolean isShaped() {
-		return shaped;
-	}
-
-	public void setShaped(boolean shaped) {
-		this.shaped = shaped;
 	}
 }

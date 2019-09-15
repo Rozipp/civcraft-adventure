@@ -11,7 +11,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class ConfigAlchemistHouseLevel
 {
-    /*
     public int level;
     public String itemName;
     public int itemId;
@@ -24,14 +23,14 @@ public class ConfigAlchemistHouseLevel
         final List<Map<?, ?>> culture_levels = (List<Map<?, ?>>)cfg.getMapList("alchemisthouse_levels");
         for (final Map<?, ?> level : culture_levels) {
             final ConfigAlchemistHouseLevel alchemisthouse_level = new ConfigAlchemistHouseLevel();
-            alchemisthouse_level.level = (int)level.get("level");
+            alchemisthouse_level.level = (Integer)level.get("level");
             alchemisthouse_level.itemName = (String)level.get("itemName");
-            alchemisthouse_level.itemId = (int)level.get("itemId");
-            alchemisthouse_level.itemData = (int)level.get("itemData");
-            alchemisthouse_level.amount = (int)level.get("amount");
-            alchemisthouse_level.price = (double)level.get("price");
+            alchemisthouse_level.itemId = (Integer)level.get("itemId");
+            alchemisthouse_level.itemData = (Integer)level.get("itemData");
+            alchemisthouse_level.amount = (Integer)level.get("amount");
+            alchemisthouse_level.price = (Double) level.get("price");
             levels.put(alchemisthouse_level.level, alchemisthouse_level);
         }
         CivLog.info("Loaded " + levels.size() + " alchemisthouse levels.");
-    }*/
+    }
 }

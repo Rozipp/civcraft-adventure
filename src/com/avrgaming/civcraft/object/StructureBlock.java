@@ -18,6 +18,8 @@
  */
 package com.avrgaming.civcraft.object;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -27,6 +29,8 @@ import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.war.War;
 
+@Getter
+@Setter
 public class StructureBlock implements BuildableDamageBlock {
 
 	private BlockCoord coord = null;
@@ -40,28 +44,12 @@ public class StructureBlock implements BuildableDamageBlock {
 		this.owner = owner;
 	}
 	
-	public Buildable getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Buildable owner) {
-		this.owner = owner;
-	}
-	
 	public Town getTown() {
 		return this.owner.getTown();
 	}
 	
 	public Civilization getCiv() {
 		return this.owner.getCiv();
-	}
-
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
 	}
 	
 	public int getX() {
@@ -78,14 +66,6 @@ public class StructureBlock implements BuildableDamageBlock {
 	
 	public String getWorldname() {
 		return this.coord.getWorldname();
-	}
-
-	public boolean isDamageable() {
-		return damageable;
-	}
-
-	public void setDamageable(boolean damageable) {
-		this.damageable = damageable;
 	}
 	
 	public boolean canDestroyOnlyDuringWar() {
@@ -130,13 +110,5 @@ public class StructureBlock implements BuildableDamageBlock {
 			}
 		}
 		return false;
-	}
-
-	public boolean isAlwaysDamage() {
-		return alwaysDamage;
-	}
-
-	public void setAlwaysDamage(boolean alwaysDamage) {
-		this.alwaysDamage = alwaysDamage;
 	}
 }

@@ -47,12 +47,13 @@ public abstract class UnitMaterial extends CustomMaterial {
 	private ConfigUnit configUnit = null;
 	public static final int LAST_SLOT = 8;
 	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
-	
+
 	//=============== EquipmentElemen
 	public HashMap<String, EquipmentElement> equipmentElemens = new HashMap<>();
 	public abstract void initAmmunitions();
 	public String getCustMatTir(String eq, Integer tir) {
 		EquipmentElement e = equipmentElemens.get(eq);
+		if (e == null) return "";
 		return e.getMatTir(tir);
 	}
 	public Integer getSlot(String eq) {
@@ -60,11 +61,11 @@ public abstract class UnitMaterial extends CustomMaterial {
 		if (e == null) return 0;
 		return e.getSlot();
 	}
-	
+
 	//=============== init Unit
 	public abstract void initLore(AttributeUtil attrs, UnitObject uo);
 	public abstract void initUnitObject(UnitObject uo);
-	
+
 	public UnitMaterial(String id, ConfigUnit configUnit) {
 		super(id, configUnit.item_id, (short) configUnit.item_data);
 		this.configUnit = configUnit;
@@ -76,11 +77,11 @@ public abstract class UnitMaterial extends CustomMaterial {
 	public ConfigUnit getConfigUnit() {
 		return configUnit;
 	}
-	
+
 	public void addMaterial() {
 		unitMaterials.put(this.getId(), this);
 	}
-	
+
 	// ============== extends CustomMaterial @Override
 
 	@Override
@@ -118,8 +119,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 		CivMessage.sendError(event.getWhoClicked(), CivSettings.localize.localizedString("unitItem_cannotCraft"));
 		event.setCancelled(true);
 	}
-	
-	
+
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		event.setCancelled(true);
@@ -130,20 +130,19 @@ public abstract class UnitMaterial extends CustomMaterial {
 			//Деактивация юнита
 			resident.setUnitId(0);
 			UnitStatic.removeChildrenItems(player);
-			
+
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
 		} else {
 			//Активация юнита
 			ItemStack unitItemStack = event.getItem();
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(unitItemStack));
-			
+
 			resident.setUnitId(uo.getId());
 			uo.dressAmmunitions(player);
 
 			CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + "Юнит активирован ");
 		}
-		
-		
+
 		UnitStatic.updateUnitForPlaeyr(player);
 		resident.calculateWalkingModifier(player);
 		UnitStatic.setModifiedMovementSpeed(player);

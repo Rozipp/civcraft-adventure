@@ -19,7 +19,11 @@
 package com.avrgaming.civcraft.village;
 
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class VillageBlock {
 	//XXX TODO merge this with structure block?
 	private BlockCoord coord;
@@ -35,19 +39,6 @@ public class VillageBlock {
 		this.coord = coord;
 		this.village = village;
 		this.friendlyBreakable = friendlyBreakable;
-	}
-
-	public BlockCoord getCoord() {
-		return coord;
-	}
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
-	public Village getVillage() {
-		return village;
-	}
-	public void setVillage(Village village) {
-		this.village = village;
 	}
 	
 	public int getX() {

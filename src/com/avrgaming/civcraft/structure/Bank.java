@@ -365,7 +365,7 @@ public class Bank extends Structure {
 	public void onLoad() {
 		/* Process the interest rate. */
 		if (interestRate == 0.0) {
-			this.getTown().getTreasury().setPrincipalAmount(0);
+			this.getTown().getTreasury().setPrincipalAmount(Double.valueOf(0));
 			return;
 		}
 		
@@ -379,7 +379,7 @@ public class Bank extends Structure {
 		/* Process the interest rate. */
 		double effectiveInterestRate = interestRate;
 		if (effectiveInterestRate == 0.0) {
-			this.getTown().getTreasury().setPrincipalAmount(0);
+			this.getTown().getTreasury().setPrincipalAmount(Double.valueOf(0));
 			return;
 		}
 		

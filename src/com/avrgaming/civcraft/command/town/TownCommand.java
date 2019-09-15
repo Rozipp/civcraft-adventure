@@ -877,7 +877,7 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimError"));
 		}
 
-		if (!tc.getCanUnclaim()) {
+		if (!tc.isCanUnclaim()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorTownHall"));
 		}
 

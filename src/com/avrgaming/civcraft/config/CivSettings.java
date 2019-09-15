@@ -141,9 +141,7 @@ public class CivSettings {
 	public static FileConfiguration mobsConfig;
 	public static Map<String, ConfigMobs> mobs = new HashMap<String, ConfigMobs>();
 	
-	public static FileConfiguration unitConfig;
-	
-	public static FileConfiguration espionageConfig;
+	public static FileConfiguration unitConfig; /*units.yml*/
 	public static Map<String, ConfigMission> missions = new HashMap<String, ConfigMission>();
 	
 	public static FileConfiguration governmentConfig; /* governments.yml */
@@ -472,7 +470,6 @@ public class CivSettings {
 		warConfig = loadCivConfig("war.yml");
 		wonderConfig = loadCivConfig("wonders.yml");
 		unitConfig = loadCivConfig("units.yml");
-		espionageConfig = loadCivConfig("espionage.yml");
 		scoreConfig = loadCivConfig("score.yml");
 		perkConfig = loadCivConfig("perks.yml");
 		enchantConfig = loadCivConfig("enchantments.yml");
@@ -518,7 +515,6 @@ public class CivSettings {
 		ConfigGovernment.loadConfig(governmentConfig, governments);
 		ConfigEnchant.loadConfig(enchantConfig, enchants);
 		
-		ConfigMission.loadConfig(espionageConfig, missions);
 		ConfigPerk.loadConfig(perkConfig, perks);
 		ConfigPerk.loadTemplates(perkConfig, templates);
 		ConfigVillageLonghouseLevel.loadConfig(villageConfig, longhouseLevels);
@@ -533,7 +529,6 @@ public class CivSettings {
 		ConfigMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
 		ConfigMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
 		
-		ConfigMission.loadConfig(espionageConfig, missions);
 		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
 		
 		ConfigRandomEvent.loadConfig(randomEventsConfig, randomEvents, randomEventIDs);
@@ -548,7 +543,6 @@ public class CivSettings {
         SoundManager.loadConfig(soundConfig);
 		ConfigRemovedRecipes.removeRecipes(craftableMaterialsConfig, removedRecipies );
 		CivGlobal.tradeGoodPreGenerator.preGenerate();
-		CivGlobal.mobSpawnerPreGenerator.preGenerate();
 		Wall.init_settings();
 		FortifiedWall.init_settings();
 	}

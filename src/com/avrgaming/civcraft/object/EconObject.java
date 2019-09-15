@@ -18,7 +18,12 @@
  */
 package com.avrgaming.civcraft.object;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /* Any object with a balance that can go into debt. */
+@Getter
+@Setter
 public class EconObject {
 
 	private String econName;
@@ -29,14 +34,6 @@ public class EconObject {
 	
 	public EconObject(SQLObject holder) {
 		this.holder = holder;
-	}
-	
-	public String getEconomyName() {
-		return econName;
-	}
-	
-	public void setEconomyName(String name) {
-		this.econName = name;
 	}
 	
 	public double getBalance() {
@@ -198,14 +195,4 @@ public class EconObject {
 		debt = Math.floor(debt);
 		this.debt = debt;
 	}
-
-	public double getPrincipalAmount() {
-		return principalAmount;
-	}
-
-	public void setPrincipalAmount(double interestAmount) {
-		this.principalAmount = interestAmount;
-	}
-
-	
 }

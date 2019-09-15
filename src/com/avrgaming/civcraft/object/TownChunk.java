@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -43,6 +45,8 @@ import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.village.Village;
 
+@Getter
+@Setter
 public class TownChunk extends SQLObject {
 	
 	private ChunkCoord chunkLocation;
@@ -196,14 +200,6 @@ public class TownChunk extends SQLObject {
 		}
 						
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
-	}
-	
-	public Town getTown() {
-		return town;
-	}
-
-	public void setTown(Town town) {
-		this.town = town;
 	}
 
 	public ChunkCoord getChunkCoord() {
@@ -440,18 +436,6 @@ public class TownChunk extends SQLObject {
 		CivGlobal.removeTownChunk(this);
 	}
 
-	public boolean isForSale() {
-		return forSale;
-	}
-
-	public void setForSale(boolean forSale) {
-		this.forSale = forSale;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
 	/* Called when a player enters this plot. */
 	public String getOnEnterString(Player player, TownChunk fromTc) {
 		String out = "";
@@ -490,14 +474,6 @@ public class TownChunk extends SQLObject {
 		this.perms.clearGroups();
 		
 		this.save();
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
 	}
 	
 	public String getCenterString() {
@@ -548,23 +524,4 @@ public class TownChunk extends SQLObject {
 		}
 		
 	}
-
-	public boolean isOutpost() {
-		return outpost;
-	}
-
-	public void setOutpost(boolean outpost) {
-		this.outpost = outpost;
-	}
-
-	public boolean getCanUnclaim() {
-		return canUnclaim;
-	}
-
-	public void setCanUnclaim(boolean canUnclaim) {
-		this.canUnclaim = canUnclaim;
-	}
-
-
-
 }

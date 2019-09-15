@@ -9,7 +9,11 @@ import java.util.HashMap;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.main.CivLog;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Report
 extends SQLObject {
     public static final String TABLE_NAME = "REPORTS";
@@ -44,54 +48,6 @@ extends SQLObject {
         } else {
             CivLog.info("REPORTS table OK!");
         }
-    }
-
-    public String getCause() {
-        return this.cause;
-    }
-
-    public void setCause(String cause) {
-        this.cause = cause;
-    }
-
-    public String getProof() {
-        return this.proof;
-    }
-
-    public void setProof(String proof) {
-        this.proof = proof;
-    }
-
-    public String getReportedBy() {
-        return this.reportedBy;
-    }
-
-    public void setReportedBy(String reportedBy) {
-        this.reportedBy = reportedBy;
-    }
-
-    public long getTime() {
-        return this.time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public boolean getBug() {
-        return this.bug;
-    }
-
-    public void setBug(boolean bug) {
-        this.bug = bug;
-    }
-
-    public boolean getClosed() {
-        return this.closed;
-    }
-
-    public void setClosed(boolean closed) {
-        this.closed = closed;
     }
 
     @Override
@@ -130,30 +86,6 @@ extends SQLObject {
 
     @Override
     public void delete() throws SQLException {
-    }
-
-    public void setWhoClosed(String whoClosed) {
-        this.whoClosed = whoClosed;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public void setCloseTime(long closeTime) {
-        this.closeTime = closeTime;
-    }
-
-    public String getWhoClosed() {
-        return this.whoClosed;
-    }
-
-    public String getResult() {
-        return this.result;
-    }
-
-    public long getCloseTime() {
-        return this.closeTime;
     }
 
     public void close(String whoClosed, String result) {

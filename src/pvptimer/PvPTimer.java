@@ -25,7 +25,7 @@ public class PvPTimer implements Runnable {
 				mins = CivSettings.getInteger(CivSettings.civConfig, "global.pvp_timer");
 				if (DateUtil.isAfterMins(new Date(resident.getRegistered()), mins)) {
 				//if (DateUtil.isAfterSeconds(new Date(resident.getRegistered()), mins)) {
-					resident.setisProtected(false);
+					resident.setProtected(false);
 					CivMessage.send(resident, CivColor.LightGray+CivSettings.localize.localizedString("pvpTimerEnded"));
 				}
 			} catch (InvalidConfiguration e) {

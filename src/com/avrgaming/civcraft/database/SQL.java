@@ -21,7 +21,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Coalition;
 import com.avrgaming.civcraft.object.MissionLogger;
-import com.avrgaming.civcraft.object.MobSpawner_FURNEX;
 import com.avrgaming.civcraft.object.NamedObject;
 import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Relation;
@@ -103,7 +102,6 @@ public class SQL {
 		Coalition.init();
 		TradeGood.init();
 		UnitObject.init();
-		MobSpawner_FURNEX.init();
 		ProtectedBlock.init();
 		BonusGoodie.init();
 		MissionLogger.init();

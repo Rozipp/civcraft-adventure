@@ -3,7 +3,11 @@ package com.avrgaming.civcraft.components;
 import java.util.HashSet;
 
 import com.avrgaming.civcraft.structure.Buildable;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ActivateOnBiome extends Component {
 	
 	public enum EffectType {
@@ -28,30 +32,6 @@ public class ActivateOnBiome extends Component {
 		setAttribute(this.getString("attribute"));
 		setValue(this.getDouble("value"));
 		setEffectType(EffectType.valueOf(this.getString("effect").toUpperCase()));
-	}
-
-	public String getAttribute() {
-		return attribute;
-	}
-
-	public void setAttribute(String attribute) {
-		this.attribute = attribute;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
-	}
-
-	public EffectType getEffectType() {
-		return effectType;
-	}
-
-	public void setEffectType(EffectType effectType) {
-		this.effectType = effectType;
 	}
 
 	public boolean isValidBiome(String biomeName) {

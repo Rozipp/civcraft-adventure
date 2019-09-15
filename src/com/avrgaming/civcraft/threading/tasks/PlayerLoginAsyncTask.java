@@ -98,7 +98,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 				CivLog.info("Added resident:"+resident.getName());
 				resident.setRegistered(System.currentTimeMillis());
 //				CivTutorial.showTutorialInventory(getPlayer());
-				resident.setisProtected(true);
+				resident.setProtected(true);
 				int mins;
 				try {
 					mins = CivSettings.getInteger(CivSettings.civConfig, "global.pvp_timer");
@@ -116,11 +116,11 @@ public class PlayerLoginAsyncTask implements Runnable {
 			 * We are not going to allow residents to change names without admin permission.
 			 * If someone logs in with a name that does not match the stored UUID, we'll kick them.
 			 */
-			if (resident.getUUID() == null) {
+			if (resident.getUid() == null) {
 				/* This resident does not yet have a UUID stored. Free lunch. */
-				resident.setUUID(getPlayer().getUniqueId());
-				CivLog.info("Resident named:"+resident.getName()+" was acquired by UUID:"+resident.getUUIDString());
-			} else if (!resident.getUUID().equals(getPlayer().getUniqueId())) {
+				resident.setUid(getPlayer().getUniqueId());
+				CivLog.info("Resident named:"+resident.getName()+" was acquired by UUID:"+resident.getUid().toString());
+			} else if (!resident.getUid().equals(getPlayer().getUniqueId())) {
 				TaskMaster.syncTask(new PlayerKickBan(getPlayer().getName(), true, false, CivSettings.localize.localizedString("PlayerLoginAsync_usernameInUse")));
 				return;
 			}
@@ -180,7 +180,6 @@ public class PlayerLoginAsyncTask implements Runnable {
 					
 			resident.setLastOnline(System.currentTimeMillis());
 			resident.setLastIP(getPlayer().getAddress().getAddress().getHostAddress());
-			resident.setSpyExposure(resident.getSpyExposure());
 			resident.save();
 			
 			//TODO send town board messages?

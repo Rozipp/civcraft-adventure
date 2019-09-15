@@ -162,7 +162,7 @@ public class Village extends Buildable {
 	}
 
 	public Village(Resident owner, String name, Location corner) throws CivException {
-		this.ownerName = owner.getUUID().toString();
+		this.ownerName = owner.getUid().toString();
 		this.corner = new BlockCoord(corner);
 		try {
 			this.setName(name);
@@ -248,7 +248,7 @@ public class Village extends Buildable {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		hashmap.put("owner_name", this.getOwner().getUUIDString());
+		hashmap.put("owner_name", this.getOwner().getUid().toString());
 		hashmap.put("firepoints", this.firepoints);
 		hashmap.put("corner", this.corner.toString());
 		hashmap.put("next_raid_date", this.nextRaidDate.getTime());
@@ -795,7 +795,7 @@ public class Village extends Buildable {
 			Tagged tag = (Tagged) craftMat.getComponent("Tagged");
 			Resident res = CivGlobal.getResident(this.getOwnerName());
 
-			token = tag.addTag(token, res.getUUIDString());
+			token = tag.addTag(token, res.getUid().toString());
 
 			AttributeUtil attrs = new AttributeUtil(token);
 			attrs.addLore(CivColor.LightGray + res.getName());
@@ -846,7 +846,7 @@ public class Village extends Buildable {
 				Tagged tag = (Tagged) craftMat2.getComponent("Tagged");
 				Resident res = CivGlobal.getResident(this.getOwnerName());
 
-				token = tag.addTag(token, res.getUUIDString());
+				token = tag.addTag(token, res.getUid().toString());
 
 				AttributeUtil attrs = new AttributeUtil(token);
 				attrs.addLore(CivColor.LightGray + res.getName());
@@ -1064,7 +1064,7 @@ public class Village extends Buildable {
 	}
 
 	public void setOwner(Resident owner) {
-		this.ownerName = owner.getUUID().toString();
+		this.ownerName = owner.getUid().toString();
 	}
 
 	public int getHitpoints() {

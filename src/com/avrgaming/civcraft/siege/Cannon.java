@@ -727,25 +727,7 @@ public class Cannon extends Buildable {
 		this.cleanup();
 	}
 
-	public int getTntLoaded() {
-		return tntLoaded;
-	}
-
-	public void setTntLoaded(int tntLoaded) {
-		this.tntLoaded = tntLoaded;
-	}
-
-	public int getCooldown() {
-		return shotCooldown;
-	}
-
-	public void setCooldown(int cooldown) {
-		this.shotCooldown = cooldown;
-	}
-
 	public int getDamage() {
 		return baseStructureDamage;
 	}
-
-	
 }

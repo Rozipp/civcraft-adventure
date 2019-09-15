@@ -19,6 +19,8 @@
 package com.avrgaming.civcraft.permission;
 
 import com.avrgaming.civcraft.exception.CivException;
+import lombok.Getter;
+import lombok.Setter;
 
 /*
  * Modeled after Unix permissions, each node has an owner, and group. The permission node is named
@@ -31,6 +33,8 @@ import com.avrgaming.civcraft.exception.CivException;
  * The netizen, toydolls0101, and toyguest could all "build" but robosnail could not.
  * 
  */
+@Getter
+@Setter
 public class PermissionNode {
 
 	/*
@@ -65,38 +69,6 @@ public class PermissionNode {
 		permitGroup = Boolean.valueOf(split[2]);
 		permitOthers = Boolean.valueOf(split[3]);
 
-	}
-
-	public boolean isPermitOwner() {
-		return permitOwner;
-	}
-
-	public void setPermitOwner(boolean permitOwner) {
-		this.permitOwner = permitOwner;
-	}
-
-	public boolean isPermitGroup() {
-		return permitGroup;
-	}
-
-	public void setPermitGroup(boolean permitGroup) {
-		this.permitGroup = permitGroup;
-	}
-
-	public boolean isPermitOthers() {
-		return permitOthers;
-	}
-
-	public void setPermitOthers(boolean permitOthers) {
-		this.permitOthers = permitOthers;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 	
 	public String getString() {

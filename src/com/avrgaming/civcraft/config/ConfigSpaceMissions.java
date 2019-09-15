@@ -21,7 +21,7 @@ public class ConfigSpaceMissions
         final List<Map<?, ?>> spacemissions_levels = (List<Map<?, ?>>)cfg.getMapList("spacemissions_levels");
         for (final Map<?, ?> level : spacemissions_levels) {
             final ConfigSpaceMissions spaceMission_level = new ConfigSpaceMissions();
-            spaceMission_level.level = (int)level.get("level");
+            spaceMission_level.level = (Integer)level.get("level");
             spaceMission_level.name = (String)level.get("name");
             spaceMission_level.require_hammers = (String)level.get("require_hammers");
             spaceMission_level.require_beakers = (String)level.get("require_beakers");

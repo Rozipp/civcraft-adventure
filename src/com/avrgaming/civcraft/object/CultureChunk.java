@@ -20,6 +20,8 @@ package com.avrgaming.civcraft.object;
 
 import java.util.ArrayList;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -38,6 +40,8 @@ import com.avrgaming.civcraft.util.BiomeCache;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
+@Getter
+@Setter
 public class CultureChunk {
 
 	private Town town;
@@ -50,23 +54,7 @@ public class CultureChunk {
 		this.chunkCoord = coord;
 		biome = BiomeCache.getBiome(this);
 	}
-	public Civilization getCiv() {
-		return town.getCiv();
-	}
 
-	public Town getTown() {
-		return town;
-	}
-	public void setTown(Town town) {
-		this.town = town;
-	}
-	
-	public ChunkCoord getChunkCoord() {
-		return chunkCoord;
-	}
-	public void setChunkCoord(ChunkCoord chunkCoord) {
-		this.chunkCoord = chunkCoord;
-	}
 	public int getDistanceToNearestEdge(ArrayList<TownChunk> edges) {
 		int distance = Integer.MAX_VALUE;
 		
@@ -79,10 +67,7 @@ public class CultureChunk {
 		
 		return distance;
 	}
-	public void setDistance(int distance) {
-		this.distance = distance;
-	}
-	
+
 	public String getOnLeaveString() {
 		return CivColor.LightPurple+CivSettings.localize.localizedString("var_cultureLeaveMsg",town.getCiv().getName());
 	}
@@ -208,6 +193,9 @@ public class CultureChunk {
 		Block block = loc.getChunk().getBlock(0, 0, 0);
 		return block.getBiome();
 	}
-	
-	
+
+	public Civilization getCiv() {
+		return town.getCiv();
+	}
+
 }

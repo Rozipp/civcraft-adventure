@@ -101,12 +101,12 @@ public class Wall extends Structure {
 		double refund = 0.0;
 		for (WallBlock wb : wallBlocks.values()) {
 
-			if (CivSettings.restrictedUndoBlocks.contains(ItemManager.getMaterial(wb.getOldId()))) {
+			if (CivSettings.restrictedUndoBlocks.contains(ItemManager.getMaterial(wb.getOld_id()))) {
 //				continue;
 				ItemManager.setTypeIdAndData(wb.getCoord().getBlock(), 0, 0, false);
 			} else {
-				ItemManager.setTypeId(wb.getCoord().getBlock(), wb.getOldId());
-				ItemManager.setData(wb.getCoord().getBlock(), wb.getOldData());
+				ItemManager.setTypeId(wb.getCoord().getBlock(), wb.getOld_id());
+				ItemManager.setData(wb.getCoord().getBlock(), wb.getOld_data());
 			}
 			refund += COST_PER_SEGMENT;
 			try {
@@ -179,8 +179,8 @@ public class Wall extends Structure {
 		if (this.nextWallBuilt == null) {
 			for (BlockCoord coord : wallBlocks.keySet()) {
 				WallBlock wb = wallBlocks.get(coord);
-				ItemManager.setTypeId(coord.getBlock(), wb.getOldId());
-				ItemManager.setData(coord.getBlock(), wb.getOldData());
+				ItemManager.setTypeId(coord.getBlock(), wb.getOld_id());
+				ItemManager.setData(coord.getBlock(), wb.getOld_data());
 				try {
 					wb.delete();
 				} catch (SQLException e) {
@@ -519,7 +519,7 @@ public class Wall extends Structure {
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
-			ItemManager.setTypeId(bcoord.getBlock(), wb.getTypeId());
+			ItemManager.setTypeId(bcoord.getBlock(), wb.getType_id());
 			ItemManager.setData(bcoord.getBlock(), wb.getData());
 		}
 
@@ -543,7 +543,7 @@ public class Wall extends Structure {
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
-			ItemManager.setTypeId(bcoord.getBlock(), wb.getTypeId());
+			ItemManager.setTypeId(bcoord.getBlock(), wb.getType_id());
 			ItemManager.setData(bcoord.getBlock(), wb.getData());
 		}
 

@@ -54,7 +54,7 @@ public class PerkManager {
 		try {
 			context = SQL.getGlobalConnection();
 			
-			String uuid = resident.getUUIDString();
+			String uuid = resident.getUid().toString();
 		
 			try {
 				/* Lookup join table for perks and users. */
@@ -109,7 +109,7 @@ public class PerkManager {
 		try {
 			context = SQL.getGlobalConnection();
 			
-			String uuid = resident.getUUIDString();
+			String uuid = resident.getUid().toString();
 
 			int added = 0;
 			for (int i = 0; i < count; i++) {
@@ -135,7 +135,7 @@ public class PerkManager {
 		try {
 			context = SQL.getGlobalConnection();
 			
-			String uuid = resident.getUUIDString();
+			String uuid = resident.getUid().toString();
 
 			/* Lookup join table for perks and users. */
 			sql = "DELETE FROM `"+USER_PERKS_TABLE_NAME+"` WHERE `uuid` = ? AND `perk_id` = ? LIMIT ?";

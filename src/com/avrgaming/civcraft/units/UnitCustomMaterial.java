@@ -11,10 +11,12 @@ package com.avrgaming.civcraft.units;
 import java.util.List;
 
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMaterial;
+import com.avrgaming.civcraft.config.ConfigMission;
 import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.util.CivColor;
@@ -35,12 +37,24 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	public static void buildStaticMaterials() {
 		/* Loads in materials from configuration file. */
 		for (ConfigMaterial cfgMat : CivSettings.unitMaterials.values()) {
-			UnitCustomMaterial loreMat = new UnitCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
-			loreMat.setName(cfgMat.name);
-			loreMat.setLore(cfgMat.lore);
-			loreMat.configMaterial = cfgMat;
-			loreMat.buildComponents();
-//			materials.put(cfgMat.id, loreMat);
+			UnitCustomMaterial custMat = new UnitCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
+			custMat.setName(cfgMat.name);
+			custMat.setLore(cfgMat.lore);
+			custMat.configMaterial = cfgMat;
+			custMat.buildComponents();
+			if (custMat.components.containsKey("Espionage")) {
+				ConfigMission mission = CivSettings.missions.get(custMat.components.get("Espionage").getString("espionage_id"));
+				if (mission.slot > 0) {
+					custMat.setName(mission.name);
+					for (String str : mission.description) {
+						custMat.addLore(str);
+					}
+					custMat.addLore(CivColor.Yellow+mission.cost+" "+CivSettings.CURRENCY_NAME);
+					custMat.setSocketSlot(mission.slot);
+					Spy.missionBooks.put(custMat.getId(), custMat);
+					Spy.allowedSubslots.add(custMat.getSocketSlot());
+				}
+			}
 		}
 	}
 
@@ -72,6 +86,12 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	public void setSocketSlot(int socketSlot) {
 		this.socketSlot = socketSlot;
+	}
+
+	@Override
+	public void onInteractEntity(PlayerInteractEntityEvent event) {
+		//	CivLog.debug("\tMissionBook )
+		event.setCancelled(true);
 	}
 
 	@Override

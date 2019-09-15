@@ -48,7 +48,6 @@ import com.avrgaming.civcraft.command.admin.AdminTownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
-import com.avrgaming.civcraft.config.ConfigMobSpawner;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.event.EventTimer;
@@ -72,7 +71,6 @@ import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PermissionGroup;
-import com.avrgaming.civcraft.populators.MobSpawnerPopulator;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.siege.Cannon;
@@ -90,7 +88,6 @@ import com.avrgaming.civcraft.template.TemplateStream;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.ChunkGenerateTask;
 import com.avrgaming.civcraft.threading.tasks.FisheryAsyncTask;
-import com.avrgaming.civcraft.threading.tasks.MobSpawnerPostGenTask;
 import com.avrgaming.civcraft.threading.tasks.PostBuildSyncTask;
 import com.avrgaming.civcraft.threading.tasks.QuarryAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.TradeGoodPostGenTask;
@@ -178,7 +175,6 @@ public class DebugCommand extends CommandBase {
 		cs.add("getdura", "gets the durability of an item");
 		cs.add("setdura", "sets the durability of an item");
 		cs.add("togglebookcheck", "Toggles checking for enchanted books on and off.");
-		cs.add("setexposure", "[int] sets your exposure to this ammount.");
 		cs.add("circle", "[int] - draws a circle at your location, with this radius.");
 		cs.add("loadperks", "loads perks for yourself");
 		cs.add("colorme", "[hex] adds nbt color value to item held.");
@@ -606,15 +602,6 @@ public class DebugCommand extends CommandBase {
 		CivMessage.sendSuccess(player, "Built a circle at your feet.");
 	}
 
-	public void setexposure_cmd() throws CivException {
-		Resident resident = getResident();
-		Player player = getPlayer();
-		Double exp = getNamedDouble(1);
-		resident.setSpyExposure(exp);
-
-		CivMessage.sendSuccess(player, "Set Exposure.");
-	}
-
 	public void togglebookcheck_cmd() {
 		CivGlobal.checkForBooks = !CivGlobal.checkForBooks;
 		CivMessage.sendSuccess(sender, "Check for books is:" + CivGlobal.checkForBooks);
@@ -1027,18 +1014,6 @@ public class DebugCommand extends CommandBase {
 		}
 	}
 
-	public void regenmobspawnerchunk_cmd() {
-
-		World world = Bukkit.getWorld("world");
-
-		for (ChunkCoord coord : CivGlobal.mobSpawnerPreGenerator.spawnerPicks.keySet()) {
-
-			world.regenerateChunk(coord.getX(), coord.getZ());
-			CivMessage.send(sender, "Regened:" + coord);
-
-		}
-	}
-
 	public void restoresigns_cmd() {
 
 		CivMessage.send(sender, "restoring....");
@@ -1090,23 +1065,6 @@ public class DebugCommand extends CommandBase {
 
 	}
 
-	public void mobspawnergenerate_cmd() throws CivException {
-		if (CivSettings.hasCustomMobs) {
-			String playerName;
-
-			if (sender instanceof Player) {
-				playerName = sender.getName();
-			} else {
-				playerName = null;
-			}
-
-			CivMessage.send(sender, "Starting Mob Spawner Generation task...");
-			TaskMaster.asyncTask(new MobSpawnerPostGenTask(playerName, 0), 0);
-		} else {
-			CivMessage.send(sender, "Unable to generate CustomMob spawners, CustomMobs is not enabled.");
-		}
-	}
-
 	public void tradegenerate_cmd() throws CivException {
 		String playerName;
 
@@ -1133,25 +1091,6 @@ public class DebugCommand extends CommandBase {
 		BlockCoord coord = new BlockCoord(getPlayer().getLocation());
 		TradeGoodPopulator.buildTradeGoodie(good, coord, getPlayer().getLocation().getWorld(), false);
 		CivMessage.sendSuccess(sender, "Created a " + good.name + " here.");
-	}
-
-	public void createmobspawner_cmd() throws CivException {
-		if (CivSettings.hasCustomMobs) {
-			if (args.length < 2) {
-				throw new CivException("Enter mob spawner id");
-			}
-
-			ConfigMobSpawner spawner = CivSettings.spawners.get(args[1]);
-			if (spawner == null) {
-				throw new CivException("Unknown mob spawner id:" + args[1]);
-			}
-
-			BlockCoord coord = new BlockCoord(getPlayer().getLocation());
-			MobSpawnerPopulator.buildMobSpawner(spawner, coord, getPlayer().getLocation().getWorld(), false);
-			CivMessage.sendSuccess(sender, "Created a " + spawner.name + " Mob Spawner here.");
-		} else {
-			CivMessage.send(sender, "Unable to generate CustomMob spawners, CustomMobs is not enabled.");
-		}
 	}
 
 	public void generate_cmd() throws CivException {

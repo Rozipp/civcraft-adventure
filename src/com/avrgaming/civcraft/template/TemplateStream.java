@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -33,6 +35,8 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
+@Getter
+@Setter
 public class TemplateStream {
 	/*
 	 * TemplateStream  
@@ -199,29 +203,5 @@ public class TemplateStream {
 		} finally {
 			reader.close();
 		}
-	}
-
-	public int getSizeX() {
-		return sizeX;
-	}
-
-	public void setSizeX(int sizeX) {
-		this.sizeX = sizeX;
-	}
-
-	public int getSizeY() {
-		return sizeY;
-	}
-
-	public void setSizeY(int sizeY) {
-		this.sizeY = sizeY;
-	}
-
-	public int getSizeZ() {
-		return sizeZ;
-	}
-
-	public void setSizeZ(int sizeZ) {
-		this.sizeZ = sizeZ;
 	}
 }

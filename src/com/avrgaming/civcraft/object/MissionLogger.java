@@ -62,7 +62,7 @@ public class MissionLogger {
 		hashmap.put("town_id", town.getId());
 		hashmap.put("target_id", target.getId());
 		hashmap.put("time", new Date());
-			hashmap.put("playerName", resident.getUUIDString());
+			hashmap.put("playerName", resident.getUid().toString());
 		
 		
 		hashmap.put("missionName", missionName);

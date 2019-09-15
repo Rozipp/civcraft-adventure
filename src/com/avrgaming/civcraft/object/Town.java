@@ -23,8 +23,9 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -50,7 +51,6 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.interactive.InteractiveBuildableRefresh;
 import com.avrgaming.civcraft.items.BonusGoodie;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -95,6 +95,8 @@ import com.avrgaming.civcraft.war.War;
 import com.avrgaming.global.perks.Perk;
 import com.avrgaming.global.perks.components.CustomTemplate;
 
+@Getter
+@Setter
 public class Town extends SQLObject {
 
 	private ConcurrentHashMap<String, Resident> residents = new ConcurrentHashMap<String, Resident>();
@@ -506,13 +508,10 @@ public class Town extends SQLObject {
 			this.defaultGroup.addMember(res);
 			this.defaultGroup.save();
 		}
-		Player player = Bukkit.getPlayer(res.getUUID());
 		//TODO
-		/*
-		if (player != null && CivSettings.hasITag) {
-			Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> //XXX from furnex
-			iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers())));
-		}*/
+//		Player player = Bukkit.getPlayer(res.getUid());
+		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> //XXX from furnex
+		 * iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers()))); } */
 	}
 
 	public void addTownChunk(TownChunk tc) throws AlreadyRegisteredException {
@@ -1433,11 +1432,10 @@ public class Town extends SQLObject {
 
 		resident.save();
 		this.save();
-		Player player = Bukkit.getPlayer(resident.getUUID());
-		/*
-		if (player != null && CivSettings.hasITag) {
-			Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers())));
-		}*/
+		//TODO
+//		Player player = Bukkit.getPlayer(resident.getUid());
+		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> iTag.getInstance().refreshPlayer(player, new
+		 * HashSet<>(Bukkit.getOnlinePlayers()))); } */
 	}
 
 	public double collectPlotTax() {
@@ -2632,24 +2630,24 @@ public class Town extends SQLObject {
 	}
 
 	public boolean isOutlaw(Resident res) {
-		return this.outlaws.contains(res.getUUIDString());
+		return this.outlaws.contains(res.getUid().toString());
 	}
 
 	public boolean isOutlaw(String name) {
 		Resident res = CivGlobal.getResident(name);
-		return this.outlaws.contains(res.getUUIDString());
+		return this.outlaws.contains(res.getUid().toString());
 	}
 
 	public void addOutlaw(String name) {
 		Resident res = CivGlobal.getResident(name);
-		this.outlaws.add(res.getUUIDString());
-		TaskMaster.syncTask(new SyncUpdateTags(res.getUUIDString(), this.residents.values()));
+		this.outlaws.add(res.getUid().toString());
+		TaskMaster.syncTask(new SyncUpdateTags(res.getUid().toString(), this.residents.values()));
 	}
 
 	public void removeOutlaw(String name) {
 		Resident res = CivGlobal.getResident(name);
-		this.outlaws.remove(res.getUUIDString());
-		TaskMaster.syncTask(new SyncUpdateTags(res.getUUIDString(), this.residents.values()));
+		this.outlaws.remove(res.getUid().toString());
+		TaskMaster.syncTask(new SyncUpdateTags(res.getUid().toString(), this.residents.values()));
 	}
 
 	public void changeCiv(Civilization newCiv) {
@@ -3250,8 +3248,8 @@ public class Town extends SQLObject {
 
 	private static String lastMessage = null;
 	public boolean processSpyExposure(Resident resident) {
-		double exposure = resident.getSpyExposure();
-		double percent = exposure / Resident.MAX_SPY_EXPOSURE;
+//		double exposure = resident.getSpyExposure();
+//		double percent = exposure / Resident.MAX_SPY_EXPOSURE;
 		boolean failed = false;
 
 		Player player;
@@ -3263,36 +3261,31 @@ public class Town extends SQLObject {
 		}
 
 		String message = "";
-		try {
-
-			if (percent >= CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_failure")) {
-				failed = true;
-				CivMessage.sendTown(this, CivColor.Yellow + CivColor.BOLD + CivSettings.localize.localizedString("town_spy_thwarted"));
-				return failed;
+//		try {
+//			if (percent >= CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_failure")) {
+//				failed = true;
+//				CivMessage.sendTown(this, CivColor.Yellow + CivColor.BOLD + CivSettings.localize.localizedString("town_spy_thwarted"));
+//				return failed;
+//			}
+//			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_warning")) {
+		message += CivSettings.localize.localizedString("town_spy_currently") + " ";
+//			}
+//			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_location")) {
+		message += CivSettings.localize.localizedString("var_town_spy_location",
+				(player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ())) + " ";
+//			}
+//			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_name")) {
+		message += CivSettings.localize.localizedString("var_town_spy_perpetrator", resident.getName());
+//			}
+		if (message.length() > 0) {
+			if (lastMessage == null || !lastMessage.equals(message)) {
+				CivMessage.sendTown(this, CivColor.Yellow + CivColor.BOLD + message);
+				lastMessage = message;
 			}
-
-			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_warning")) {
-				message += CivSettings.localize.localizedString("town_spy_currently") + " ";
-			}
-
-			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_location")) {
-				message += CivSettings.localize.localizedString("var_town_spy_location",
-						(player.getLocation().getBlockX() + ", " + player.getLocation().getBlockY() + ", " + player.getLocation().getBlockZ())) + " ";
-			}
-
-			if (percent > CivSettings.getDouble(CivSettings.espionageConfig, "espionage.town_exposure_name")) {
-				message += CivSettings.localize.localizedString("var_town_spy_perpetrator", resident.getName());
-			}
-
-			if (message.length() > 0) {
-				if (lastMessage == null || !lastMessage.equals(message)) {
-					CivMessage.sendTown(this, CivColor.Yellow + CivColor.BOLD + message);
-					lastMessage = message;
-				}
-			}
-		} catch (InvalidConfiguration e) {
-			e.printStackTrace();
 		}
+//		} catch (InvalidConfiguration e) {
+//			e.printStackTrace();
+//		}
 
 		return failed;
 	}
@@ -3498,7 +3491,7 @@ public class Town extends SQLObject {
 
 			/* There is a structure at this location that doesnt belong to us! Grab it! */
 			struct.getTown().removeStructure(struct);
-			this.addStructure(struct); 
+			this.addStructure(struct);
 			Template.moveUndoTemplate(struct.getCorner().toString(), struct.getTown().getName(), struct.getTown().getName());
 			struct.setTown(this);
 			struct.save();

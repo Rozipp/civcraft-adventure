@@ -19,7 +19,11 @@
 package com.avrgaming.civcraft.object;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class StructureChest {
 
 	private BlockCoord coord;
@@ -33,37 +37,4 @@ public class StructureChest {
 		this.setCoord(coord);
 		this.setOwner(owner);
 	}
-	
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
-
-	public Buildable getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Buildable owner) {
-		this.owner = owner;
-	}
-
-	public int getDirection() {
-		return direction;
-	}
-
-	public void setDirection(int direction) {
-		this.direction = direction;
-	}
-
-	public String getChestId() {
-		return chestId;
-	}
-
-	public void setChestId(String chestId) {
-		this.chestId = chestId;
-	}
-	
 }

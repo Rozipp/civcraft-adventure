@@ -68,11 +68,6 @@ public class PlayerLocationCache {
 		pc.setDead(player.isDead());
 		pc.setVanished(false);
 
-		/*
-		if (CivSettings.hasVanishNoPacket) {
-			pc.setVanished(VanishNoPacketUtil.isVanished(player));
-		}*/
-		
 		cache.put(pc.getName(), pc);
 	}
 	
@@ -96,13 +91,6 @@ public class PlayerLocationCache {
 			resident.onRoadTest(pc.getCoord(), player);
 //			resident.onWaterTest(pc.getCoord(), player);
 		}
-
-		/*
-		if (CivSettings.hasVanishNoPacket) {
-			pc.setVanished(VanishNoPacketUtil.isVanished(player));
-		} else {
-			pc.setVanished(false);
-		}*/
 	}
 	
 	public static Collection<PlayerLocationCache> getCache() {

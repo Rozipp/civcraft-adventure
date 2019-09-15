@@ -37,11 +37,15 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
 import com.avrgaming.civcraft.object.Town;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+@Getter
+@Setter
 public class PermissionGroup extends SQLObject {
 
 	private Map<String, Resident> members = new ConcurrentHashMap<String, Resident>();
@@ -67,15 +71,15 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public void addMember(Resident res) {
-			members.put(res.getUUIDString(), res);
+			members.put(res.getUid().toString(), res);
 	}
 	
 	public void removeMember(Resident res) {
-			members.remove(res.getUUIDString());
+			members.remove(res.getUid().toString());
 	}
 
 	public boolean hasMember(Resident res) {		
-			return members.containsKey(res.getUUIDString());
+			return members.containsKey(res.getUid().toString());
 	}
 	
 	public void clearMembers() {
@@ -180,10 +184,6 @@ public class PermissionGroup extends SQLObject {
 		return cacheTown;
 	}
 
-	public void setTown(Town town) {
-		this.cacheTown = town;
-	}
-
 	public int getMemberCount() {
 		return members.size();
 	}
@@ -244,22 +244,6 @@ public class PermissionGroup extends SQLObject {
 			}
 		return out;
 	}
-
-	public int getCivId() {
-		return civId;
-	}
-
-	public void setCivId(int civId) {
-		this.civId = civId;
-	}
-
-	public int getTownId() {
-		return townId;
-	}
-
-	public void setTownId(int townId) {
-		this.townId = townId;
-	}
 	
 	public static boolean hasGroup(String playerName, String groupName){
 		RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
@@ -268,7 +252,6 @@ public class PermissionGroup extends SQLObject {
 		String group = chat.getProvider().getPrimaryGroup(playerToCheck);
 	      if (playerToCheck != null) {
 	         if (!groupName.contains("Helper")) {
-	            @SuppressWarnings("deprecation")
 				String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
 	            int var4 = var3.length;
 

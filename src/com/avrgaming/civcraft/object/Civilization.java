@@ -32,6 +32,8 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -75,6 +77,8 @@ import com.avrgaming.civcraft.village.WarCamp;
 
 import org.apache.commons.lang.StringUtils;
 
+@Getter
+@Setter
 public class Civilization extends SQLObject {
 
 	private Map<String, ConfigTech> techs = new ConcurrentHashMap<String, ConfigTech>();
@@ -146,7 +150,7 @@ public class Civilization extends SQLObject {
 	
 	public Civilization(String name, String capitolName, String tag, Resident leader) throws InvalidNameException {
 		this.setName(name);
-		this.leaderName = leader.getUUID().toString();
+		this.leaderName = leader.getUid().toString();
 		this.setCapitolName(capitolName);
 		this.setTag(tag);
 		this.government = CivSettings.governments.get("gov_tribalism");		
@@ -154,7 +158,7 @@ public class Civilization extends SQLObject {
 		this.setTreasury(CivGlobal.createEconObject(this));
 		this.getTreasury().setBalance(0, false);
 		this.created_date = new Date();
-		this.ownerName = leader.getUUID().toString();
+		this.ownerName = leader.getUid().toString();
         this.loadSettings();
         try {
             this.saveNow();
@@ -248,7 +252,7 @@ public class Civilization extends SQLObject {
 		this.loadKeyValueString(rs.getString("lastUpkeepTick"), this.lastUpkeepPaidMap);
 		this.loadKeyValueString(rs.getString("lastTaxesTick"), this.lastTaxesPaidMap);
 		this.setSciencePercentage(rs.getDouble("science_percentage"));
-		this.setTechQueued((ConfigTech)CivSettings.techs.get(rs.getString("techQueue")));
+		this.setTechQueue((ConfigTech)CivSettings.techs.get(rs.getString("techQueue")));
 		double taxes = rs.getDouble("income_tax_rate");
 		if (taxes > this.government.maximum_tax_rate) {
 			taxes = this.government.maximum_tax_rate;
@@ -317,7 +321,7 @@ public class Civilization extends SQLObject {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		hashmap.put("leaderName", this.getLeader().getUUIDString());
+		hashmap.put("leaderName", this.getLeader().getUid().toString());
 		hashmap.put("tag", this.tag);
 		hashmap.put("capitolName", this.capitolName);
 		hashmap.put("leaderGroupName", this.getLeaderGroupName());
@@ -328,8 +332,8 @@ public class Civilization extends SQLObject {
 		hashmap.put("income_tax_rate", this.getIncomeTaxRate());
 		hashmap.put("science_percentage", this.getSciencePercentage());
 		hashmap.put("color", this.getColor());
-		if (this.getTechQueued() != null) {
-            hashmap.put("techQueue", this.getTechQueued().id);
+		if (this.getTechQueue() != null) {
+            hashmap.put("techQueue", this.getTechQueue().id);
         }
         else {
             hashmap.put("techQueue", null);
@@ -487,18 +491,6 @@ public class Civilization extends SQLObject {
 		}
 		
 	}
-
-	public int getColor() {
-		return color;
-	}
-
-	public void setColor(int color) {
-		this.color = color;
-	}
-	
-	public void setMotd(String message) {
-		this.messageOfTheDay = message;
-	}
 	
 	public String MOTD() {
 		return this.messageOfTheDay;
@@ -509,7 +501,7 @@ public class Civilization extends SQLObject {
 	}
 
 	public void setLeader(Resident leader) {
-		this.leaderName = leader.getUUID().toString();
+		this.leaderName = leader.getUid().toString();
 	}
 
 	@Override
@@ -541,14 +533,6 @@ public class Civilization extends SQLObject {
 		}
 	}
 
-	public EconObject getTreasury() {
-		return treasury;
-	}
-
-	public void setTreasury(EconObject treasury) {
-		this.treasury = treasury;
-	}
-
 	public String getLeaderGroupName() {
 		return "leaders";
 	}
@@ -563,14 +547,6 @@ public class Civilization extends SQLObject {
 
 	public void setAdvisersGroupName(String advisersGroupName) {
 		this.advisersGroupName = "advisers";
-	}
-
-	public double getIncomeTaxRate() {
-		return incomeTaxRate;
-	}
-
-	public void setIncomeTaxRate(double taxRate) {
-		this.incomeTaxRate = taxRate;
 	}
 
 	public Town getTown(String name) {
@@ -686,18 +662,6 @@ public class Civilization extends SQLObject {
 		
 	}
 
-	public void setOwnerGroup(final PermissionGroup ownerGroup) {
-        this.ownerGroup = ownerGroup;
-    }
-	
-	public String getCapitolName() {
-		return capitolName;
-	}
-
-	public void setCapitolName(String capitolName) {
-		this.capitolName = capitolName;
-	}
-
 	public void addGroup(PermissionGroup grp) {
 		
 		if (grp.getName().equalsIgnoreCase(this.leaderGroupName)) {
@@ -708,22 +672,6 @@ public class Civilization extends SQLObject {
 		else if (grp.getName().equalsIgnoreCase(this.ownerGroupName)) {
             this.setOwnerGroup(grp);
         }
-	}
-
-	public PermissionGroup getLeaderGroup() {
-		return leaderGroup;
-	}
-
-	public void setLeaderGroup(PermissionGroup leaderGroup) {
-		this.leaderGroup = leaderGroup;
-	}
-
-	public PermissionGroup getAdviserGroup() {
-		return adviserGroup;
-	}
-
-	public void setAdviserGroup(PermissionGroup adviserGroup) {
-		this.adviserGroup = adviserGroup;
 	}
 
 	public Collection<Town> getTowns() {
@@ -975,15 +923,6 @@ public class Civilization extends SQLObject {
 		
 		return upkeep;
 	}
-
-
-	public int getDaysInDebt() {
-		return daysInDebt;
-	}
-
-	public void setDaysInDebt(int daysInDebt) {
-		this.daysInDebt = daysInDebt;
-	}
 	
 	public void warnDebt() {
 		CivMessage.global(CivSettings.localize.localizedString("var_civ_debtAnnounce",this.getName(),this.getTreasury().getDebt(),CivSettings.CURRENCY_NAME));
@@ -1103,10 +1042,6 @@ public class Civilization extends SQLObject {
 		
 		return out;
 	}
-
-	public double getBaseBeakers() {
-		return this.baseBeakers;
-	}
 	
 	public double getBeakers() {
 		double total = 0;
@@ -1118,10 +1053,6 @@ public class Civilization extends SQLObject {
 		total += baseBeakers;
 		
 		return total;
-	}
-
-	public void setBaseBeakers(double beakerRate) {
-		this.baseBeakers = beakerRate;
 	}
 
 	public void addBeakers(double beakers) {
@@ -1146,8 +1077,8 @@ public class Civilization extends SQLObject {
 
             this.save();
             TagManager.editNameTag(this);
-            if (this.getTechQueued() != null) {
-                final ConfigTech tech = this.getTechQueued();
+            if (this.getTechQueue() != null) {
+                final ConfigTech tech = this.getTechQueue();
                 if (!tech.isAvailable(this)) {
                     CivMessage.sendTechError(this, CivSettings.localize.localizedString("civ_research_queueErrorCodeOne", tech.name));
                     return;
@@ -1166,7 +1097,7 @@ public class Civilization extends SQLObject {
                 }
                 this.setResearchTech(tech);
                 this.setResearchProgress(0.0);
-                this.setTechQueued(null);
+                this.setTechQueue(null);
                 CivMessage.sendCiv(this, "§e" + CivSettings.localize.localizedString("civ_research_queuePrefix") + CivSettings.localize.localizedString("civ_research_queueSucussesStarted", tech.name));
                 this.getTreasury().withdraw(tech.getAdjustedTechCost(this));
                 this.save();
@@ -1191,14 +1122,6 @@ public class Civilization extends SQLObject {
 		this.save();
 	
 	}
-    
-	public ConfigTech getTechQueued() {
-        return this.techQueue;
-    }
-    
-    public void setTechQueued(final ConfigTech techQueue) {
-        this.techQueue = techQueue;
-    }
 
 	public void startTechnologyResearch(ConfigTech tech) throws CivException {		
 		if (this.getResearchTech() != null) {
@@ -1223,22 +1146,6 @@ public class Civilization extends SQLObject {
 	
 		this.getTreasury().withdraw(cost);
 		TaskMaster.asyncTask(new UpdateTechBar(this),0);
-	}
-
-	public ConfigTech getResearchTech() {
-		return researchTech;
-	}
-
-	public void setResearchTech(ConfigTech researchTech) {
-		this.researchTech = researchTech;
-	}
-
-	public double getResearchProgress() {
-		return researchProgress;
-	}
-
-	public void setResearchProgress(double researchProgress) {
-		this.researchProgress = researchProgress;
 	}
 
 	public void changeGovernment(Civilization civ, ConfigGovernment gov, boolean force) throws CivException {
@@ -1687,10 +1594,6 @@ public class Civilization extends SQLObject {
 		return residents;
 	}
 
-	public Date getConqueredDate() {
-		return this.conquer_date;
-	}
-
 	public void capitulate() {
 		for (Town t : CivGlobal.getTowns()) {
 			if (t.getMotherCiv() == this) {
@@ -1935,10 +1838,6 @@ public class Civilization extends SQLObject {
 		this.warCamps.add(camp);
 	}
 
-	public LinkedList<WarCamp> getWarCamps() {
-		return this.warCamps;
-	}
-
 	public void onWarEnd() {
 		for (WarCamp camp : this.warCamps) {
 			camp.onWarEnd();
@@ -1951,14 +1850,6 @@ public class Civilization extends SQLObject {
 				th.save();
 			}
 		}
-	}
-
-	public Date getCreated() {
-		return created_date;
-	}
-
-	public void setCreated(Date created_date) {
-		this.created_date = created_date;
 	}
 
 	public void validateGift() throws CivException {
@@ -2057,7 +1948,7 @@ public class Civilization extends SQLObject {
     }
     
     public void setOwner(final Resident owner) {
-        this.ownerName = owner.getUUID().toString();
+        this.ownerName = owner.getUid().toString();
     }
     public void setTag(final String tag) {
         this.tag = tag;

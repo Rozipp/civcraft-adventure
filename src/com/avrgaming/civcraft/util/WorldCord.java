@@ -18,8 +18,12 @@
  */
 package com.avrgaming.civcraft.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 
+@Getter
+@Setter
 public class WorldCord {
 
 	private String worldname;
@@ -42,33 +46,4 @@ public class WorldCord {
 		this.y = location.getBlockY();
 		this.z = location.getBlockZ();
 	}
-
-	public String getWorldname() {
-		return worldname;
-	}
-	public void setWorldname(String worldname) {
-		this.worldname = worldname;
-	}
-	public int getX() {
-		return x;
-	}
-	public void setX(int x) {
-		this.x = x;
-	}
-	public int getY() {
-		return y;
-	}
-	public void setY(int y) {
-		this.y = y;
-	}
-	public int getZ() {
-		return z;
-	}
-	public void setZ(int z) {
-		this.z = z;
-	}
-	
-	
-	
-	
 }

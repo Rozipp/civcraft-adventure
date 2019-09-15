@@ -18,10 +18,14 @@
  */
 package com.avrgaming.civcraft.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.ChunkSnapshot;
 
 import com.avrgaming.civcraft.exception.InvalidBlockLocation;
 
+@Getter
+@Setter
 public class BlockSnapshot {
 
 	private int x;
@@ -67,55 +71,4 @@ public class BlockSnapshot {
 		BlockSnapshot relative = new BlockSnapshot(this.getX() + xOff, this.getY() + yOff, this.getZ() + zOff, snapshot);		
 		return relative;
 	}
-	
-	
-	public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	public int getY() {
-		return y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
-	}
-
-	public int getZ() {
-		return z;
-	}
-
-	public void setZ(int z) {
-		this.z = z;
-	}
-
-	public int getTypeId() {
-		return typeId;
-	}
-
-	public void setTypeId(int typeId) {
-		this.typeId = typeId;
-	}
-
-	public int getData() {
-		return data;
-	}
-
-	public void setData(int data) {
-		this.data = data;
-	}
-
-	public ChunkSnapshot getSnapshot() {
-		return snapshot;
-	}
-
-	public void setSnapshot(ChunkSnapshot snapshot) {
-		this.snapshot = snapshot;
-	}
-	
-	
 }

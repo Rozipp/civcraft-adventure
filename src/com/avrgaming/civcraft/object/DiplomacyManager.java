@@ -14,11 +14,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Relation.Status;
 
+@Getter
+@Setter
 public class DiplomacyManager {
 
 	/* Manages diplomatic relationships for the object it is attached to. Diplomatic relationships are stored in the SessionDB with this civ as the key. There
@@ -194,15 +198,7 @@ public class DiplomacyManager {
 				return false;
 		}
 	}
-	
-	public int getCoalitionId() {
-		return coalitionId;
-	}
-	
-	public int setCoalitionId(int id) {
-		return coalitionId = id;
-	}
-	
+
 	public Coalition getCoalition() {
 		return CivGlobal.getCoalition(coalitionId);
 	}

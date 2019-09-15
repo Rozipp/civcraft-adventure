@@ -24,11 +24,15 @@ import java.sql.SQLException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
+import lombok.Getter;
+import lombok.Setter;
 
 /*
  * Any object that needs to be saved will extend this object so it can be
  * saved in the database.
  */
+@Getter
+@Setter
 public abstract class SQLObject extends NamedObject {
 	
 	private boolean isDeleted = false;
@@ -40,13 +44,5 @@ public abstract class SQLObject extends NamedObject {
 	public abstract void saveNow() throws SQLException;
 	
 	public abstract void delete() throws SQLException;
-
-	public boolean isDeleted() {
-		return isDeleted;
-	}
-
-	public void setDeleted(boolean isDeleted) {
-		this.isDeleted = isDeleted;
-	}
 	
 }

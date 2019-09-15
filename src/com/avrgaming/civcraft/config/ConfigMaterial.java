@@ -50,16 +50,6 @@ public class ConfigMaterial {
 		CivLog.info("Loaded " + materials.size() + " Materials.");
 	}
 	
-	public static void loadConfigUnit(FileConfiguration cfg, Map<String, ConfigMaterial> materials) {
-		materials.clear();
-		List<Map<?, ?>> configMaterials = cfg.getMapList("materials");
-		for (Map<?, ?> b : configMaterials) {
-			ConfigMaterial mat = loadOneUnitConfig(b);
-			materials.put(mat.id, mat);
-		}
-		CivLog.info("Loaded " + materials.size() + " Materials.");
-	}
-
 	@SuppressWarnings("unchecked")
 	public static ConfigMaterial loadOneCraftableConfig(Map<?, ?> b) {
 		ConfigMaterial mat = new ConfigMaterial();
@@ -184,6 +174,17 @@ public class ConfigMaterial {
 		return mat;
 	}
 	
+	public static void loadConfigUnit(FileConfiguration cfg, Map<String, ConfigMaterial> materials) {
+		ConfigMission.loadConfig(cfg, CivSettings.missions);
+		materials.clear();
+		List<Map<?, ?>> configMaterials = cfg.getMapList("materials");
+		for (Map<?, ?> b : configMaterials) {
+			ConfigMaterial mat = loadOneUnitConfig(b);
+			materials.put(mat.id, mat);
+		}
+		CivLog.info("Loaded " + materials.size() + " Materials.");
+	}
+
 	@SuppressWarnings("unchecked")
 	public static ConfigMaterial loadOneUnitConfig(Map<?, ?> b) {
 		ConfigMaterial mat = new ConfigMaterial();

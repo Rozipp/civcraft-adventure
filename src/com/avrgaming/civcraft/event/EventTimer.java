@@ -30,7 +30,11 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.randomevents.RandomEventTimer;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class EventTimer {
 
 	private Calendar next;
@@ -208,34 +212,6 @@ public class EventTimer {
 			SQL.close(null, ps, context);
 		}
 
-	}
-	
-	public Calendar getNext() {
-		return next;
-	}
-	
-	public Calendar getLast() {
-		return last;
-	}
-	
-	public void setNext(Calendar next2) {
-		this.next = next2;
-	}
-	
-	public void setLast(Calendar last) {
-		this.last = last;
-	}
-
-	public EventInterface getEventFunction() {
-		return eventFunction;
-	}
-
-	public void setEventFunction(EventInterface eventFunction) {
-		this.eventFunction = eventFunction;
-	}
-
-	public String getName() {
-		return name;
 	}
 	
 	public static Calendar getCalendarInServerTimeZone() {
