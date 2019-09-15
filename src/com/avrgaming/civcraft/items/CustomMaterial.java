@@ -38,6 +38,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.mysql.jdbc.StringUtils;
@@ -53,9 +54,9 @@ public abstract class CustomMaterial {
 	private LinkedList<String> lore = new LinkedList<String>();
 	private String name;
 
-	private static Map<String, CustomMaterial> materials = new HashMap<String, CustomMaterial>();
-	private static Map<String, BaseCustomMaterial> unitMaterials = new HashMap<String, BaseCustomMaterial>();
-	private static Map<String, BaseCustomMaterial> craftableMaterials = new HashMap<String, BaseCustomMaterial>();
+	protected static Map<String, CustomMaterial> materials = new HashMap<String, CustomMaterial>();
+	protected static Map<String, BaseCustomMaterial> unitMaterials = new HashMap<String, BaseCustomMaterial>();
+	protected static Map<String, BaseCustomMaterial> craftableMaterials = new HashMap<String, BaseCustomMaterial>();
 
 	public static final String MID_TAG = CivColor.Black + "MID";
 
@@ -64,7 +65,8 @@ public abstract class CustomMaterial {
 		this.typeID = typeID;
 		this.damage = damage;
 		/* Adding quotes around id since NBTString does it =\ */
-		addCustomMaterial(this);
+		materials.put(this.getId(), this);
+		this.addMaterial();
 	}
 
 	public String getId() {
@@ -87,11 +89,8 @@ public abstract class CustomMaterial {
 		attrs.setName(name);
 	}
 
-	public static void addCustomMaterial(CustomMaterial mat) {
-		materials.put(mat.getId(), mat);
-		if (mat instanceof UnitCustomMaterial) unitMaterials.put(mat.getId(), (UnitCustomMaterial) mat);
-		if (mat instanceof CraftableCustomMaterial) craftableMaterials.put(mat.getId(), (CraftableCustomMaterial) mat);
-	}
+	public abstract void addMaterial();
+	
 	//----------CustomMaterial
 	public static CustomMaterial getCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
@@ -111,8 +110,9 @@ public abstract class CustomMaterial {
 	//----------BaseCustomMaterial
 	public static BaseCustomMaterial getBaseCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
-		if (isCraftableCustomMaterial(stack)) return craftableMaterials.get(getMID(stack));
-		if (isUnitCustomMaterial(stack)) return unitMaterials.get(getMID(stack));
+		String mid = getMID(stack);
+		if (isCraftableCustomMaterial(stack)) return craftableMaterials.get(mid);
+		if (isUnitCustomMaterial(stack)) return unitMaterials.get(mid);
 		return null;
 	}
 	public static BaseCustomMaterial getBaseCustomMaterial(String mid) {
@@ -127,7 +127,7 @@ public abstract class CustomMaterial {
 	//----------CraftableCustomMaterial
 	public static CraftableCustomMaterial getCraftableCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
-		return (CraftableCustomMaterial) craftableMaterials.get(getMID(stack));
+		return getCraftableCustomMaterial(getMID(stack));
 	}
 	public static CraftableCustomMaterial getCraftableCustomMaterial(String mid) {
 		return (CraftableCustomMaterial) craftableMaterials.get(mid.toLowerCase());
@@ -143,7 +143,7 @@ public abstract class CustomMaterial {
 	//----------UnitCustomMaterial
 	public static UnitCustomMaterial getUnitCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
-		return (UnitCustomMaterial) unitMaterials.get(getMID(stack));
+		return getUnitCustomMaterial(getMID(stack));
 	}
 	public static UnitCustomMaterial getUnitCustomMaterial(String mid) {
 		return (UnitCustomMaterial) unitMaterials.get(mid.toLowerCase());

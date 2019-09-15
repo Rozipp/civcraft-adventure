@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigIngredient;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.main.CivData;
@@ -32,6 +34,24 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 	public CraftableCustomMaterial(String id, int typeID, short damage) {
 		super(id, typeID, damage);
+	}
+	@Override
+	public void addMaterial() {
+		CustomMaterial.craftableMaterials.put(this.getId(), this);
+	}
+	
+	public static void buildStaticMaterials() {
+		/* Loads in materials from configuration file. */
+		for (ConfigMaterial cfgMat : CivSettings.craftableMaterials.values()) {
+			CraftableCustomMaterial loreMat = new CraftableCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
+			loreMat.setName(cfgMat.name);
+			loreMat.setLore(cfgMat.lore);
+			loreMat.setCraftable(cfgMat.craftable);
+			loreMat.setShaped(cfgMat.shaped);
+			loreMat.configMaterial = cfgMat;
+			loreMat.buildComponents();
+//			materials.put(cfgMat.id, loreMat);
+		}
 	}
 
 	public static String getShapedRecipeKey(ItemStack[] matrix) {

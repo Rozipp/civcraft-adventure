@@ -7,9 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.listener.PlayerListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Resident;
@@ -57,7 +55,12 @@ public class UnitListener implements Listener {
 		resident.setUnitId(0);
 		UnitStatic.updateUnitForPlaeyr(player);
 		resident.calculateWalkingModifier(player);
-		PlayerListener.setModifiedMovementSpeed(player);
+//		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin) ItemJoin.getInstance(), (Runnable) new Runnable() {
+//			@Override
+//			public void run() {
+		UnitStatic.setModifiedMovementSpeed(player);
+//			}
+//		}, 1L);
 	}
 
 }

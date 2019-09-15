@@ -45,11 +45,6 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.Reflection;
 import com.avrgaming.civcraft.village.Village;
 
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.inventivetalent.title.TitleAPI;
-
 public class CivMessage {
 
 	/* Stores the player name and the hash code of the last message sent to prevent error spamming the player. */
@@ -154,29 +149,29 @@ public class CivMessage {
 	    return null;
 	  }
 	
-	public static void send(Object sender, String line, ItemStack item) {
-		if ((sender instanceof Player)) {
-			Player p = (Player) sender;
-			TextComponent msg = new TextComponent( line );
-			msg.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new ComponentBuilder(itemTooltip(item)).create() ) );
-
-			p.sendMessage(String.valueOf(msg));
-		} else if (sender instanceof CommandSender) {
-			
-			((CommandSender) sender).sendMessage(line);
-		}
-		else if (sender instanceof Resident) {
-			try {				
-				Player p = CivGlobal.getPlayer(((Resident) sender));
-				TextComponent msg = new TextComponent( line );
-				msg.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new ComponentBuilder(itemTooltip(item)).create() ) );
-
-				p.sendMessage(String.valueOf(msg));
-			} catch (CivException e) {
-				// No player online
-			}
-		}
-	}
+//	public static void send(Object sender, String line, ItemStack item) {
+//		if ((sender instanceof Player)) {
+//			Player p = (Player) sender;
+//			TextComponent msg = new TextComponent( line );
+//			msg.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new ComponentBuilder(itemTooltip(item)).create() ) );
+//
+//			p.sendMessage(String.valueOf(msg));
+//		} else if (sender instanceof CommandSender) {
+//			
+//			((CommandSender) sender).sendMessage(line);
+//		}
+//		else if (sender instanceof Resident) {
+//			try {				
+//				Player p = CivGlobal.getPlayer(((Resident) sender));
+//				TextComponent msg = new TextComponent( line );
+//				msg.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, new ComponentBuilder(itemTooltip(item)).create() ) );
+//
+//				p.sendMessage(String.valueOf(msg));
+//			} catch (CivException e) {
+//				// No player online
+//			}
+//		}
+//	}
 	public static void send(Object sender, String[] lines) {
 		boolean isPlayer = false;
 		if (sender instanceof Player)

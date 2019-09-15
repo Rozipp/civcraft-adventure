@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownPotion;
@@ -37,6 +36,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -51,12 +51,9 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTechPotion;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.items.UnitCustomMaterial;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -67,13 +64,13 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.PlayerChunkNotifyAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.PlayerLoginAsyncTask;
 import com.avrgaming.civcraft.threading.timers.PlayerLocationCacheUpdate;
+import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.units.UnitMaterial;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -103,31 +100,43 @@ public class PlayerListener implements Listener {
 			Resident resident = CivGlobal.getResident(player);
 			if (resident.getItemMode().equals("all")) {
 				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup",
-						CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name), item);
+						CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
 			} else
 				if (resident.getItemMode().equals("rare") && rare) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup",
-							CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name), item);
+							CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
 				}
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		CivLog.info("Scheduling on player login task for player:" + event.getPlayer().getName());
-		TaskMaster.asyncTask("onPlayerLogin-" + event.getPlayer().getName(), new PlayerLoginAsyncTask(event.getPlayer().getUniqueId()), 0L);
-		Bukkit.getScheduler().runTaskLater((Plugin) CivCraft.getPlugin(), () -> TagManager.editNameTag(event.getPlayer()), 4L);
-		CivGlobal.playerFirstLoginMap.put(event.getPlayer().getName(), new Date());
-		PlayerLocationCacheUpdate.playerQueue.add(event.getPlayer().getName());
+		Player player = event.getPlayer();
+		CivLog.info("Scheduling on player login task for player:" + player.getName());
+		TaskMaster.asyncTask("onPlayerLogin-" + player.getName(), new PlayerLoginAsyncTask(player.getUniqueId()), 0L);
+		Bukkit.getScheduler().runTaskLater((Plugin) CivCraft.getPlugin(), () -> TagManager.editNameTag(player), 4L);
+		CivGlobal.playerFirstLoginMap.put(player.getName(), new Date());
+		PlayerLocationCacheUpdate.playerQueue.add(player.getName());
 		 
 		MobSpawnerTimer.playerQueue.add((event.getPlayer().getName()));
 		
-		if (event.getPlayer().isOp()) {
+		if (player.isOp()) {
 			//Bukkit.dispatchCommand(event.getPlayer(), "vanish");
 			//Bukkit.dispatchCommand(event.getPlayer(), "dynmap hide");
 		}
 		event.getPlayer().setFlying(false);
 		event.getPlayer().setAllowFlight(false);
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void OnPlayerJoinEvent(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
+		Resident resident = CivGlobal.getResident(player);
+		resident.setUnitId(0);
+		UnitStatic.removeChildrenItems(player);
+		UnitStatic.updateUnitForPlaeyr(player);
+		UnitStatic.setModifiedMovementSpeed(player);
+		UnitStatic.setModifiedJumping(player);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -200,32 +209,6 @@ public class PlayerListener implements Listener {
 		}
 	}
 
-	public static void setModifiedMovementSpeed(Player player) {
-		/* Change move speed based on armor. */
-		double speed;
-		Resident resident = CivGlobal.getResident(player);
-		if (resident != null) {
-			speed = resident.getWalkingModifier();
-			if (resident.isOnRoad()) {
-				if (player.getVehicle() != null && player.getVehicle().getType().equals(EntityType.HORSE)) {
-					Vector vec = player.getVehicle().getVelocity();
-					double yComp = vec.getY();
-
-					vec.multiply(Road.ROAD_HORSE_SPEED);
-					vec.setY(yComp); /* Do not multiply y velocity. */
-
-					player.getVehicle().setVelocity(vec);
-				} else {
-					speed *= Road.ROAD_PLAYER_SPEED;
-				}
-			}
-		} else {
-			speed = UnitStatic.normal_speed;
-		}
-
-		player.setWalkSpeed((float) Math.min(1.0f, speed));
-	}
-
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		/* Abort if we havn't really moved */
@@ -235,7 +218,7 @@ public class PlayerListener implements Listener {
 		}
 		if (!CivGlobal.speedChunks) {
 			/* Get the Modified Speed for the player. */
-			setModifiedMovementSpeed(event.getPlayer());
+			UnitStatic.setModifiedMovementSpeed(event.getPlayer());
 		}
 
 		ChunkCoord fromChunk = new ChunkCoord(event.getFrom());
@@ -247,7 +230,7 @@ public class PlayerListener implements Listener {
 		}
 		if (CivGlobal.speedChunks) {
 			/* Get the Modified Speed for the player. */
-			setModifiedMovementSpeed(event.getPlayer());
+			UnitStatic.setModifiedMovementSpeed(event.getPlayer());
 		}
 
 		TaskMaster.asyncTask(PlayerChunkNotifyAsyncTask.class.getSimpleName(),

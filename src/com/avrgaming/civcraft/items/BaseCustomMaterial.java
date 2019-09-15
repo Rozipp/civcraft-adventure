@@ -29,7 +29,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
@@ -49,48 +48,9 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 		super(id, typeID, damage);
 	}
 
-	public static BaseCustomMaterial getBaseCustomMaterial(ItemStack stack) {
-		if (stack == null) return null;
-		CustomMaterial mat = getCustomMaterial(getMID(stack));
-		if (mat instanceof BaseCustomMaterial) return (BaseCustomMaterial) mat;
-		return null;
-	}
-
-	public static BaseCustomMaterial getBaseCustomMaterial(String mid) {
-		CustomMaterial mat = getCustomMaterial(mid.toLowerCase());
-		if (mat instanceof BaseCustomMaterial) return (BaseCustomMaterial) mat;
-		return null;
-	}
-
-//	public static Collection<BaseCustomMaterial> getAllBaseCustomMaterial() {
-//		return getAllLoreMaterial();
-//	}
-
-	public static boolean isBaseCustomMaterial(ItemStack stack) {
-		BaseCustomMaterial material = (BaseCustomMaterial) getCustomMaterial(stack);
-		return material != null;
-	}
-
 	public static void buildStaticMaterials() {
 		/* Loads in materials from configuration file. */
-		for (ConfigMaterial cfgMat : CivSettings.craftableMaterials.values()) {
-			CraftableCustomMaterial loreMat = new CraftableCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
-			loreMat.setName(cfgMat.name);
-			loreMat.setLore(cfgMat.lore);
-			loreMat.setCraftable(cfgMat.craftable);
-			loreMat.setShaped(cfgMat.shaped);
-			loreMat.configMaterial = cfgMat;
-			loreMat.buildComponents();
-//			materials.put(cfgMat.id, loreMat);
-		}
-		for (ConfigMaterial cfgMat : CivSettings.unitMaterials.values()) {
-			UnitCustomMaterial loreMat = new UnitCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
-			loreMat.setName(cfgMat.name);
-			loreMat.setLore(cfgMat.lore);
-			loreMat.configMaterial = cfgMat;
-			loreMat.buildComponents();
-//			materials.put(cfgMat.id, loreMat);
-		}
+		return;
 	}
 
 	public void buildComponents() {

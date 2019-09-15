@@ -20,7 +20,6 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMission;
-import com.avrgaming.civcraft.items.UnitCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.MissionLogger;

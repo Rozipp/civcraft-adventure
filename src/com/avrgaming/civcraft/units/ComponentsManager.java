@@ -108,7 +108,15 @@ public class ComponentsManager {
 
 	public void rebuildComponents() {
 		for (Integer level : levelComponents.keySet()) {
-			if (level == 0) continue;
+			if (level == 0) {
+				HashMap<String, Integer> comp = levelComponents.get(level);
+				for (String key : comp.keySet()) {
+					if (key.equals("helmet") || key.equals("chestplate") ||key.equals("leggings") ||
+						key.equals("boots") ||key.equals("sword") ||key.equals("two") ) continue;
+					this.totalComponents.put(key, this.totalComponents.getOrDefault(key, 0) + comp.get(key));
+				}
+				continue;
+			}
 			HashMap<String, Integer> comp = levelComponents.get(level);
 			for (String key : comp.keySet()) {
 				this.totalComponents.put(key, this.totalComponents.getOrDefault(key, 0) + comp.get(key));

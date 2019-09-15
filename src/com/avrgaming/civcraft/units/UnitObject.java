@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.items.UnitCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -52,7 +51,7 @@ public class UnitObject extends SQLObject {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		UnitMaterial um = UnitStatic.getUnit(this.configUnit.class_name);
+		UnitMaterial um = UnitStatic.getUnit(this.configUnit.id);
 		um.initUnitObject(this);
 	}
 
@@ -250,62 +249,83 @@ public class UnitObject extends SQLObject {
 		return true;
 	}
 
+	class NewStackList {
+		HashMap<String, ItemStack> newStack = new HashMap<>();
+		ArrayList<String> newStackSlot;
+
+		public NewStackList() {
+			newStackSlot = new ArrayList<>();
+			for (int i = 0; i < 42; i++) {
+				newStackSlot.add(null);
+			}
+		}
+		public void addItem(String id, ItemStack stack, Integer slot) {
+			newStack.put(id, stack);
+			Integer oldslot = ammunitionSlots.getOrDefault(id, slot);
+			if (newStackSlot.get(oldslot) == null) {
+				newStackSlot.set(oldslot, id);
+				return;
+			}
+			while (newStackSlot.get(slot) != null) {
+				slot = slot + 1;
+				if (slot > 40) slot = 0;
+			}
+			newStackSlot.set(slot, id);
+		}
+		public ItemStack getItemStack(Integer slot) {
+			String mat = newStackSlot.get(slot);
+			return getItemStack(mat);
+		}
+		public ItemStack getItemStack(String mat) {
+			return newStack.get(mat);
+		}
+		public void putAmunitionComponent(String ammunition, String key, Integer value) {
+			ItemStack stack = newStack.get(ammunition);
+			newStack.put(ammunition, UnitStatic.addAttribute(stack, key, value));
+		}
+	}
+
 	public void dressAmmunitions(Player player) {
 		PlayerInventory inv = player.getInventory();
 		UnitMaterial um;
 		um = UnitStatic.getUnit(this.configUnitId);
 
 		//создаю предметы амуниции
-		HashMap<String, ItemStack> newStack = new HashMap<>();
+		NewStackList newStack = new NewStackList();
 		for (String equip : EquipmentElement.allEquipments) {
 			Integer tir = compManager.getBaseComponentValue(equip);
-			if (tir == 0) continue;
 			String mat = um.getCustMatTir(equip, tir);
-			if (mat == null) continue;
-			newStack.put(equip, ItemManager.createItemStack(mat, 1));
+			if (mat == null || mat == "") continue;
+			newStack.addItem(equip, ItemManager.createItemStack(mat, 1), um.getSlot(equip));
 		}
-
-		ArrayList<ItemStack> removes = new ArrayList<>(); //список предметов которые занимают нужные слоты
 
 		//проверяю все компоненты юнита
 		for (String key : compManager.getComponentsKey()) {
-			// Если это компонент предмет. Создаем его и ложим игроку
+			// Если это компонент предмет. Создаем его
 			UnitCustomMaterial ucmat = CustomMaterial.getUnitCustomMaterial(key);
 			if (ucmat != null) {
-				ItemStack stack = CustomMaterial.spawn(ucmat);
-				Integer slot = ammunitionSlots.getOrDefault(ucmat, -1);
-				if (slot == -1)
-					UnitStatic.putItemSlot(inv, stack, 6, removes);
-				else
-					UnitStatic.putItemSlot(inv, stack, slot, removes);
+				newStack.addItem(key, CustomMaterial.spawn(ucmat), ucmat.getSocketSlot());
 				continue;
 			}
 
 			// если это атрибут амуниции, добавляем его
 			ConfigUnitComponent cuc = UnitStatic.configUnitComponents.get(key);
 			if (cuc != null) {
-				String ammunition = cuc.ammunition;
-				newStack.put(ammunition, UnitStatic.addAttribute(newStack.get(ammunition), key, this.getComponent(key)));
+				newStack.putAmunitionComponent(cuc.ammunition, key, this.getComponent(key));
 				continue;
 			}
 
 			// если ничего не найдено
-			compManager.removeComponent(key);
 			CivLog.warning("Компонент " + key + " у юнита id=" + this.getId() + " был удален, так как не найдена его обработка");
 		}
-
 		if (compManager.getLevelUp() > 0) {
-			ItemStack stacklevelup = ItemManager.createItemStack("u_choiceunitcomponent", compManager.getLevelUp());
-			UnitStatic.putItemSlot(inv, stacklevelup, 7, removes);
+			newStack.addItem("u_choiceunitcomponent", ItemManager.createItemStack("u_choiceunitcomponent", compManager.getLevelUp()), 7);
 		}
 
+		ArrayList<ItemStack> removes = new ArrayList<>(); //список предметов которые занимают нужные слоты
 		//ложу все предметы в слоты сохраненные в this.ammunitions или в стандартные из um.getSlot()
-		for (String equip : newStack.keySet()) {
-			ItemStack stack = newStack.get(equip);
-			String mat = CustomMaterial.getMID(stack);
-			Integer slot = ammunitionSlots.get(mat);
-			if (slot == null) slot = um.getSlot(equip);
-			UnitStatic.putItemSlot(inv, stack, slot, removes);
+		for (Integer slot = 0; slot <= 40; slot++) {
+			UnitStatic.putItemSlot(inv, newStack.getItemStack(slot), slot, removes);
 		}
 
 		// Try to re-add any removed items.

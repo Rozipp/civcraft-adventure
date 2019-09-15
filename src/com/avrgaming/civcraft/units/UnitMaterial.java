@@ -31,7 +31,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.listener.PlayerListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -47,7 +46,8 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 	private ConfigUnit configUnit = null;
 	public static final int LAST_SLOT = 8;
-
+	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
+	
 	//=============== EquipmentElemen
 	public HashMap<String, EquipmentElement> equipmentElemens = new HashMap<>();
 	public abstract void initAmmunitions();
@@ -70,10 +70,15 @@ public abstract class UnitMaterial extends CustomMaterial {
 		this.configUnit = configUnit;
 		//TODO initLore
 		this.setName(configUnit.name);
+		this.initAmmunitions();
 	}
 
 	public ConfigUnit getConfigUnit() {
 		return configUnit;
+	}
+	
+	public void addMaterial() {
+		unitMaterials.put(this.getId(), this);
 	}
 	
 	// ============== extends CustomMaterial @Override
@@ -137,9 +142,12 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 			CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + "Юнит активирован ");
 		}
+		
+		
 		UnitStatic.updateUnitForPlaeyr(player);
 		resident.calculateWalkingModifier(player);
-		PlayerListener.setModifiedMovementSpeed(player);
+		UnitStatic.setModifiedMovementSpeed(player);
+		UnitStatic.setModifiedJumping(player);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.items.BaseCustomMaterial;
+import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -23,15 +23,21 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.util.CivColor;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import gpl.AttributeUtil;
 import gpl.AttributeUtil.Attribute;
@@ -55,7 +61,6 @@ public class UnitStatic {
 	public static double percent_exp_lost_when_dead = 0.3;
 	public static int exp_for_neutral_entity = 0;
 
-	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
 	public static HashMap<String, Integer> expEntity = new HashMap<>();
 
 	public static HashMap<String, ConfigUnit> configUnits = new HashMap<>();
@@ -71,9 +76,7 @@ public class UnitStatic {
 				Class partypes[] = {String.class, ConfigUnit.class};
 				Constructor cntr = cls.getConstructor(partypes);
 				Object arglist[] = {cu.id, cu};
-				UnitMaterial unit = (UnitMaterial) cntr.newInstance(arglist);
-				unit.initAmmunitions();
-				unitMaterials.put(cu.id, unit);
+				cntr.newInstance(arglist);
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException e) {
 				CivLog.error("-----Class '" + name + "' creation error-----");
@@ -168,7 +171,9 @@ public class UnitStatic {
 				break;
 			//================= Leggings	
 			case "jumping" :
-//
+				attrs = new AttributeUtil(stack);
+				LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementJumping", value);
+				stack = attrs.getStack();
 				break;
 			case "speed" :
 				attrs = new AttributeUtil(stack);
@@ -263,6 +268,7 @@ public class UnitStatic {
 	public static void addExpToPlayer(Player player, int exp) {
 		Resident res = CivGlobal.getResident(player);
 		UnitObject uo = CivGlobal.getUnitObject(res.getUnitId());
+		if (uo == null) return;
 		CivMessage.send(player, CivColor.LightGray + "   " + "Ваш " + CivColor.PurpleBold + uo.getName() + CivColor.LightGray + " получил " + CivColor.Yellow
 				+ exp + CivColor.LightGray + " единиц опыта");
 		uo.addExp(exp);
@@ -275,7 +281,7 @@ public class UnitStatic {
 	}
 
 	public static UnitMaterial getUnit(String unit_id) {
-		return unitMaterials.get(unit_id);
+		return UnitMaterial.unitMaterials.get(unit_id);
 	}
 	/** Добавляет в NBTTag информацию value под ключом "unit_id" */
 	public static ItemStack setUnitIdNBTTag(ItemStack stack, int value) {
@@ -300,7 +306,7 @@ public class UnitStatic {
 		return CivGlobal.getUnitObject(unitId).getConfigUnit();
 	}
 
-	/** находит предмет класа Unit в инвентаре игрока */
+	/** находит предмет класа UnitMaterial в инвентаре игрока */
 	public static ItemStack findUnit(final Player player) {
 		ItemStack st = player.getInventory().getItem(UnitMaterial.LAST_SLOT);
 		if (st != null) {
@@ -318,6 +324,7 @@ public class UnitStatic {
 
 	/** Удаляет все предмети юнита из инвентаря */
 	public static void removeChildrenItems(Player player) {
+		if (player == null) return;
 		Resident res = CivGlobal.getResident(player);
 		int unitId = res.getUnitId();
 		if (unitId <= 0) unitId = UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player));
@@ -331,6 +338,7 @@ public class UnitStatic {
 				player.getInventory().setItem(i, null);
 			}
 		}
+		
 		player.updateInventory();
 	}
 
@@ -345,6 +353,48 @@ public class UnitStatic {
 			player.updateInventory();
 		}
 		CivGlobal.getResident(player).setUnitId(0);
+	}
+
+	public static void setModifiedMovementSpeed(Player player) {
+		/* Change move speed based on armor. */
+		double speed = UnitStatic.normal_speed;
+		Resident resident = CivGlobal.getResident(player);
+		Entity vehicleEntity = player.getVehicle();
+		if (resident != null) {
+			speed = resident.getWalkingModifier();
+			if (resident.isOnRoad()) {
+				if (vehicleEntity != null && vehicleEntity.getType().equals(EntityType.HORSE)) {
+					Vector vec = vehicleEntity.getVelocity();
+					double yComp = vec.getY();
+
+					vec.multiply(Road.ROAD_HORSE_SPEED);
+					vec.setY(yComp); /* Do not multiply y velocity. */
+
+					vehicleEntity.setVelocity(vec);
+				} else {
+					speed *= Road.ROAD_PLAYER_SPEED;
+				}
+			}
+		}
+
+		player.setWalkSpeed((float) Math.min(1.0f, speed));
+	}
+	public static void setModifiedJumping(Player player) {
+		/* Change move speed based on armor. */
+		ItemStack[] stacks = player.getInventory().getArmorContents();
+		for (ItemStack is : stacks) {
+			if (is == null) continue;
+			AttributeUtil attrs = new AttributeUtil(is);
+			if (attrs.hasEnhancement("LoreEnhancementJumping")) {
+				CivLog.debug("Found LoreEnhancementJumping");
+				Double level = Double.valueOf(attrs.getEnhancementData("LoreEnhancementJumping", "level"));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999*20, level.intValue()));
+				return;
+//				Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
+			}
+		}
+		CivLog.debug("Not Found LoreEnhancementJumping");
+		player.removePotionEffect(PotionEffectType.JUMP);
 	}
 
 	public static boolean isWearingFullComposite(final Player player) {
@@ -363,7 +413,7 @@ public class UnitStatic {
 		ItemStack[] armorContents = player.getInventory().getArmorContents();
 		int length = armorContents.length;
 		for (int i = 0; i < length; ++i) {
-			final BaseCustomMaterial craftMat = BaseCustomMaterial.getBaseCustomMaterial(armorContents[i]);
+			final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(armorContents[i]);
 			if (craftMat == null) return false;
 			if (!craftMat.getConfigId().contains(ss)) return false;
 		}

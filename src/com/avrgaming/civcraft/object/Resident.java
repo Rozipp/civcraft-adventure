@@ -1631,7 +1631,8 @@ public class Resident extends SQLObject {
 
 	public void calculateWalkingModifier(Player player) {
 		Double sumValue = 0.0;
-		for (ItemStack is : player.getInventory().getArmorContents()) {
+		ItemStack[] stacks = player.getInventory().getArmorContents();
+		for (ItemStack is : stacks) { 
 			if (is == null) continue;
 			if (UnitStatic.isWearingAnyIron(is.getType())) sumValue = sumValue + UnitStatic.T1_metal_speed;
 			if (UnitStatic.isWearingAnyChain(is.getType())) sumValue = sumValue + UnitStatic.T2_metal_speed;
@@ -1836,9 +1837,6 @@ public class Resident extends SQLObject {
 	}
 
 	public void setUnitId(int uId) {
-		if (uId == 0 && this.unitObjectId != 0) {
-			CivGlobal.getUnitObject(this.unitObjectId).setLastResident(this);
-		}
 		if (uId > 0) {
 			CivGlobal.getUnitObject(uId).setLastResident(this);
 		}
