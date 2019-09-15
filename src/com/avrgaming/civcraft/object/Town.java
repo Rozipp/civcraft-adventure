@@ -508,10 +508,6 @@ public class Town extends SQLObject {
 			this.defaultGroup.addMember(res);
 			this.defaultGroup.save();
 		}
-<<<<<<< HEAD
-=======
-		Player player = Bukkit.getPlayer(res.getUid());
->>>>>>> refs/remotes/origin/master
 		//TODO
 //		Player player = Bukkit.getPlayer(res.getUid());
 		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> //XXX from furnex
@@ -1436,18 +1432,10 @@ public class Town extends SQLObject {
 
 		resident.save();
 		this.save();
-<<<<<<< HEAD
 		//TODO
 //		Player player = Bukkit.getPlayer(resident.getUid());
 		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> iTag.getInstance().refreshPlayer(player, new
 		 * HashSet<>(Bukkit.getOnlinePlayers()))); } */
-=======
-		Player player = Bukkit.getPlayer(resident.getUid());
-		/*
-		if (player != null && CivSettings.hasITag) {
-			Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers())));
-		}*/
->>>>>>> refs/remotes/origin/master
 	}
 
 	public double collectPlotTax() {

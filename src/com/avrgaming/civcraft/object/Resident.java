@@ -90,7 +90,6 @@ import com.avrgaming.global.perks.components.CustomTemplate;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-/** @author User */
 
 @Getter
 @Setter
@@ -915,21 +914,7 @@ public class Resident extends SQLObject {
 		this.previewUndo.clear();
 		this.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
 	}
-
-<<<<<<< HEAD
-=======
-	public void setSpyExposure(double spyExposure) {
-		this.spyExposure = spyExposure;
-
-		try {
-			Player player = CivGlobal.getPlayer(this);
-			double percentage = spyExposure / MAX_SPY_EXPOSURE;
-			player.setExp((float) percentage);
-		} catch (CivException e) {}
-
-	}
-
->>>>>>> refs/remotes/origin/master
+	
 	public void onRoadTest(BlockCoord coord, Player player) {
 		/* Test the block beneath us for a road, if so, set the road flag. */
 		BlockCoord feet = new BlockCoord(coord);
@@ -1358,13 +1343,6 @@ public class Resident extends SQLObject {
 		}
 	}
 
-<<<<<<< HEAD
-=======
-	public String getUUIDString() {
-		return uid.toString();
-	}
-
->>>>>>> refs/remotes/origin/master
 	public void calculateWalkingModifier(Player player) {
 		Double sumValue = 0.0;
 		ItemStack[] stacks = player.getInventory().getArmorContents();
