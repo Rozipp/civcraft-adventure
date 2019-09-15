@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Random;
 
+import com.avrgaming.donate.Donate;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -273,15 +274,16 @@ public final class CivCraft extends JavaPlugin {
 		getCommand("report").setExecutor(new ReportCommand());
 		getCommand("trade").setExecutor(new TradeCommand());
 		getCommand("kill").setExecutor(new KillCommand());
-		getCommand("enderchest").setExecutor((CommandExecutor) new EnderChestCommand());
-		getCommand("map").setExecutor((CommandExecutor) new MapCommand());
-		getCommand("wiki").setExecutor((CommandExecutor) new WikiCommand());
-		getCommand("vcc").setExecutor((CommandExecutor) new VillageChatCommand());
+		getCommand("enderchest").setExecutor(new EnderChestCommand());
+		getCommand("map").setExecutor(new MapCommand());
+		getCommand("wiki").setExecutor(new WikiCommand());
+		getCommand("vcc").setExecutor(new VillageChatCommand());
+		getCommand("donate").setExecutor(new Donate());
 		//TODO from furnex CivGlobal.dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
 
 		registerEvents();
 
-		this.getServer().getScheduler().scheduleSyncDelayedTask((Plugin) this, () -> {
+		this.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
 			HoloDispListener.clearHolos();
 			HoloDispListener.tradeGoodHolo();
 			return;

@@ -94,6 +94,14 @@ public class VillageCommand extends CommandBase {
 
 	public void refresh_cmd() throws CivException {
 		Resident resident = getResident();
+		Date now = new Date();
+		int buildable_refresh_cooldown;
+		try {
+			buildable_refresh_cooldown = CivSettings.getInteger(CivSettings.townConfig, "town.buildable_refresh_cooldown");
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
+		}
 
 		if (!resident.hasVillage()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotInvillage"));
@@ -109,15 +117,6 @@ public class VillageCommand extends CommandBase {
 		}
 
 		if (this.lastBuildableRefresh != null) {
-			Date now = new Date();
-			int buildable_refresh_cooldown;
-			try {
-				buildable_refresh_cooldown = CivSettings.getInteger(CivSettings.townConfig, "town.buildable_refresh_cooldown");
-			} catch (InvalidConfiguration e) {
-				e.printStackTrace();
-				throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
-			}
-
 			if (now.getTime() < this.lastBuildableRefresh.getTime() + (buildable_refresh_cooldown * 60 * 1000)) {
 				throw new CivException(CivSettings.localize.localizedString("var_town_refresh_wait1", buildable_refresh_cooldown));
 			}
@@ -130,6 +129,7 @@ public class VillageCommand extends CommandBase {
 		}
 		village.reprocessCommandSigns();
 		CivMessage.send(sender, CivSettings.localize.localizedString("cmd_village_refreshSuccess"));
+		resident.setNextRefresh(now.getTime() + (buildable_refresh_cooldown * 60 * 1000));
 	}
 
 	public void upgrade_cmd() {

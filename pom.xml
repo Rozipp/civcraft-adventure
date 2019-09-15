@@ -114,6 +114,13 @@
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.muffincolor</groupId>
+            <artifactId>donate</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/Donate.jar</systemPath>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
