@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.block.Sign;
 
 import com.avrgaming.civcraft.database.SQL;
@@ -33,6 +35,8 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.BlockCoord;
 
+@Getter
+@Setter
     public class StructureSign extends SQLObject {
 
 	private String text;
@@ -141,46 +145,6 @@ import com.avrgaming.civcraft.util.BlockCoord;
 		this.text = text;
 	}
 
-	public Buildable getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Buildable owner) {
-		this.owner = owner;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
-
-	public int getDirection() {
-		return direction;
-	}
-
-	public void setDirection(int direction) {
-		this.direction = direction;
-	}
-
 	public void setText(String[] message) {
 		this.text = "";
 		for (String str : message) {
@@ -203,13 +167,4 @@ import com.avrgaming.civcraft.util.BlockCoord;
 			sign.update();
 		}
 	}
-
-	public boolean isAllowRightClick() {
-		return allowRightClick;
-	}
-
-	public void setAllowRightClick(boolean allowRightClick) {
-		this.allowRightClick = allowRightClick;
-	}
-
 }

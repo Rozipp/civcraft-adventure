@@ -25,7 +25,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Component {
 
 	public static ConcurrentHashMap<String, ArrayList<Component>> componentsByType = new ConcurrentHashMap<String, ArrayList<Component>>();
@@ -81,14 +85,6 @@ public class Component {
 
 	public void onSave() {
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 	
 	public String getString(String key) {
 		return attributes.get(key);
@@ -100,14 +96,6 @@ public class Component {
 	
 	public void setAttribute(String key, String value) {
 		attributes.put(key, value);
-	}
-
-	public Buildable getBuildable() {
-		return buildable;
-	}
-
-	public void setBuildable(Buildable buildable) {
-		this.buildable = buildable;
 	}
 	
 	public boolean isActive() {

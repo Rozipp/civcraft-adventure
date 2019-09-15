@@ -27,7 +27,11 @@ import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ProtectedBlock extends SQLObject {
 	
 	private BlockCoord coord;
@@ -114,21 +118,4 @@ public class ProtectedBlock extends SQLObject {
 //	public void setOwner(Structure owner) {
 //		this.owner = owner;
 //	}
-
-	public Type getType() {
-		return type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
-
 }

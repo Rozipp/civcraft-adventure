@@ -22,7 +22,11 @@ import java.text.DecimalFormat;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Buff {
 	
 	/* Quick redefines for id/name from yml. */
@@ -73,30 +77,6 @@ public class Buff {
 	/**
 	 * @return the source
 	 */
-	public String getSource() {
-		return source;
-	}
-
-	/**
-	 * @param source the source to set
-	 */
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	/**
-	 * @return the config
-	 */
-	public ConfigBuff getConfig() {
-		return config;
-	}
-
-	/**
-	 * @param config the config to set
-	 */
-	public void setConfig(ConfigBuff config) {
-		this.config = config;
-	}
 
 	public boolean isStackable() {
 		return config.stackable;
@@ -131,13 +111,5 @@ public class Buff {
 
 	public String getDisplayName() {
 		return config.name;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 }

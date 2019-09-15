@@ -8,6 +8,8 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -15,6 +17,8 @@ import org.bukkit.World;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+@Getter
+@Setter
 public class ChunkCoord implements Comparable<ChunkCoord> {
 
 	private String worldname;
@@ -57,30 +61,6 @@ public class ChunkCoord implements Comparable<ChunkCoord> {
 	}
 
 	public ChunkCoord() {
-	}
-
-	public String getWorldname() {
-		return worldname;
-	}
-
-	public void setWorldname(String worldname) {
-		this.worldname = worldname;
-	}
-
-	public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	public int getZ() {
-		return z;
-	}
-
-	public void setZ(int z) {
-		this.z = z;
 	}
 
 	@Override

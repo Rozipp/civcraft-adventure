@@ -110,12 +110,12 @@ public class FortifiedWall extends Wall {
 		double refund = 0.0;
 		for (WallBlock wb : wallBlocks.values()) {
 
-			Material material = ItemManager.getMaterial(wb.getOldId());
+			Material material = ItemManager.getMaterial(wb.getOld_id());
 			if (CivSettings.restrictedUndoBlocks.contains(material)) {
 				ItemManager.setTypeIdAndData(wb.getCoord().getBlock(), 0, 0, false);
 			} else {
-				ItemManager.setTypeId(wb.getCoord().getBlock(), wb.getOldId());
-				ItemManager.setData(wb.getCoord().getBlock(), wb.getOldData());
+				ItemManager.setTypeId(wb.getCoord().getBlock(), wb.getOld_data());
+				ItemManager.setData(wb.getCoord().getBlock(), wb.getOld_data());
 			}
 			refund += COST_PER_SEGMENT;
 			try {
@@ -188,8 +188,8 @@ public class FortifiedWall extends Wall {
 		if (this.nextWallBuilt == null) {
 			for (BlockCoord coord : wallBlocks.keySet()) {
 				WallBlock wb = wallBlocks.get(coord);
-				ItemManager.setTypeId(coord.getBlock(), wb.getOldId());
-				ItemManager.setData(coord.getBlock(), wb.getOldData());
+				ItemManager.setTypeId(coord.getBlock(), wb.getOld_id());
+				ItemManager.setData(coord.getBlock(), wb.getOld_data());
 				try {
 					wb.delete();
 				} catch (SQLException e) {
@@ -711,7 +711,7 @@ public class FortifiedWall extends Wall {
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
-			ItemManager.setTypeId(bcoord.getBlock(), wb.getTypeId());
+			ItemManager.setTypeId(bcoord.getBlock(), wb.getType_id());
 			ItemManager.setData(bcoord.getBlock(), wb.getData());
 		}
 
@@ -735,7 +735,7 @@ public class FortifiedWall extends Wall {
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
-			ItemManager.setTypeId(bcoord.getBlock(), wb.getTypeId());
+			ItemManager.setTypeId(bcoord.getBlock(), wb.getType_id());
 			ItemManager.setData(bcoord.getBlock(), wb.getData());
 		}
 

@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Buildable;
+import lombok.Getter;
 
+@Getter
 public class NonMemberFeeComponent extends Component {
 
 	private Buildable buildable;
@@ -65,20 +67,11 @@ public class NonMemberFeeComponent extends Component {
 	}
 
 
-	public double getFeeRate() {
-		return feeRate;
-	}
-
-
 	public void setFeeRate(double feeRate) {
 		this.feeRate = feeRate;
 		onSave();
 	}
 
-
-	public Buildable getBuildable() {
-		return buildable;
-	}
 	
 	public String getFeeString() {
 		DecimalFormat df = new DecimalFormat();

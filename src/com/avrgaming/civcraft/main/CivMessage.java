@@ -645,7 +645,7 @@ public class CivMessage {
 	      }
 
 	      url = url.replace(".exc", "");
-	      return url.replace("https://www.dropbox.com/home/FurnexProjecthttps://www.dropbox.com/home/FurnexProject/", "");
+	      return url.replace("https://www.dropbox.com/home/HNM", "");
 	   }
 
 	public static void sendTownNoRepeat(final Town town, final String line) {

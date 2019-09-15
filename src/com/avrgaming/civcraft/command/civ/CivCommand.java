@@ -234,12 +234,12 @@ public class CivCommand extends CommandBase {
 			Calendar cal = Calendar.getInstance();
 			Calendar revCal = Calendar.getInstance();
 			
-			Date conquered = town.getMotherCiv().getConqueredDate();
+			Date conquered = town.getMotherCiv().getConquer_date();
 			if (conquered == null) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_civ_revolutionErrorNoMother"));
 			}
 			
-			revCal.setTime(town.getMotherCiv().getConqueredDate());
+			revCal.setTime(town.getMotherCiv().getConquer_date());
 			revCal.add(Calendar.DAY_OF_MONTH, revolution_cooldown);
 			
 			if (!cal.after(revCal)) {

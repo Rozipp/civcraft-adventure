@@ -21,10 +21,10 @@ public class ConfigLabLevel
         final List<Map<?, ?>> mine_levels = (List<Map<?, ?>>)cfg.getMapList("lab_levels");
         for (final Map<?, ?> level : mine_levels) {
             final ConfigLabLevel mine_level = new ConfigLabLevel();
-            mine_level.level = (int)level.get("level");
-            mine_level.amount = (int)level.get("amount");
-            mine_level.beakers = (double)level.get("beakers");
-            mine_level.count = (int)level.get("count");
+            mine_level.level = (Integer)level.get("level");
+            mine_level.amount = (Integer)level.get("amount");
+            mine_level.beakers = (Double) level.get("beakers");
+            mine_level.count = (Integer)level.get("count");
             levels.put(mine_level.level, mine_level);
         }
         CivLog.info("Loaded " + levels.size() + " lab levels.");

@@ -418,7 +418,7 @@ public class War {
 		return start;
 	}
 
-	
+
 	/**
 	 * @param start the start to set
 	 */

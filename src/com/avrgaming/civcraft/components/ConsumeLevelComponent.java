@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -40,6 +42,8 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
 
+@Getter
+@Setter
 public class ConsumeLevelComponent extends Component {
 
 	/* Current level we're operating at. */
@@ -448,34 +452,6 @@ public class ConsumeLevelComponent extends Component {
 		}
 		
 		return out;
-	}
-	
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
-
-	public double getConsumeRate() {
-		return consumeRate;
-	}
-
-	public void setConsumeRate(double consumeRate) {
-		this.consumeRate = consumeRate;
-	}
-
-	public Result getLastResult() {
-		return this.lastResult;
 	}
 
 	public void clearEquivExchanges() {

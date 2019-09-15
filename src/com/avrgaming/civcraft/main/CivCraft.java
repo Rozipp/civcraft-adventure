@@ -34,7 +34,6 @@ import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.mythicmob.MobListener;
 import com.avrgaming.civcraft.mythicmob.MobSpawnerTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
-import com.avrgaming.civcraft.populators.MobSpawnerPopulator;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
@@ -199,7 +198,6 @@ public final class CivCraft extends JavaPlugin {
 
 		//Load World Populators
 		BukkitObjects.getWorlds().get(0).getPopulators().add(new TradeGoodPopulator());
-		BukkitObjects.getWorlds().get(0).getPopulators().add(new MobSpawnerPopulator());
 
 		try {
 			CivSettings.init(this);

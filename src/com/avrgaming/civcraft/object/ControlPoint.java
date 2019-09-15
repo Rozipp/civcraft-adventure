@@ -20,7 +20,11 @@ package com.avrgaming.civcraft.object;
 
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class ControlPoint {
 
 	/* Location of the control block. */
@@ -43,48 +47,6 @@ public class ControlPoint {
 		this.hitpoints = this.maxHitpoints;
 		this.info = info;
 	}
-	
-	/**
-	 * @return the coord
-	 */
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-	/**
-	 * @param coord the coord to set
-	 */
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
-
-	/**
-	 * @return the hitpoints
-	 */
-	public int getHitpoints() {
-		return hitpoints;
-	}
-
-	/**
-	 * @param hitpoints the hitpoints to set
-	 */
-	public void setHitpoints(int hitpoints) {
-		this.hitpoints = hitpoints;
-	}
-
-	/**
-	 * @return the maxHitpoints
-	 */
-	public int getMaxHitpoints() {
-		return maxHitpoints;
-	}
-
-	/**
-	 * @param maxHitpoints the maxHitpoints to set
-	 */
-	public void setMaxHitpoints(int maxHitpoints) {
-		this.maxHitpoints = maxHitpoints;
-	}
 
 	public void damage(int amount) {
 		if (this.hitpoints <= 0) {
@@ -105,16 +67,4 @@ public class ControlPoint {
 		}
 		return false;
 	}
-
-	public Buildable getBuildable() {
-		return buildable;
-	}
-
-	public void setBuildable(Buildable buildable) {
-		this.buildable = buildable;
-	}
-	
-	public String getinfo() {
-        return this.info;
-    }
 }

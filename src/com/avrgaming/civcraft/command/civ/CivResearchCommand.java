@@ -77,20 +77,20 @@ public class CivResearchCommand extends CommandBase {
         if (tech == null) {
             throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueUnknownTech", techname));
         }
-        if (civ.getTechQueued() != null) {
-            if (civ.getTechQueued() == tech) {
+        if (civ.getTechQueue() != null) {
+            if (civ.getTechQueue() == tech) {
                 throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueArleayIn"));
             }
             if (civ.getResearchTech() == null) {
                 throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueNoResearchingNow", tech.name));
             }
-            ConfigTech oldQueue = civ.getTechQueued();
-            civ.setTechQueued(tech);
+            ConfigTech oldQueue = civ.getTechQueue();
+            civ.setTechQueue(tech);
             CivMessage.sendCiv(civ, CivSettings.localize.localizedString("cmd_civ_research_queueSucussesAdded", tech.name));
             CivMessage.send(sender, CivColor.YellowBold + CivSettings.localize.localizedString("cmd_civ_research_queueSucussesWithWarning", oldQueue.name, tech.name));
             civ.save();
         } else {
-            civ.setTechQueued(tech);
+            civ.setTechQueue(tech);
             CivMessage.sendCiv(civ, CivSettings.localize.localizedString("cmd_civ_research_queueSucussesAdded", tech.name));
             civ.save();
         }
@@ -98,21 +98,21 @@ public class CivResearchCommand extends CommandBase {
 
     public void queueremove_cmd() throws CivException {
         Civilization civ = this.getSenderCiv();
-        if (civ.getTechQueued() == null) {
+        if (civ.getTechQueue() == null) {
             throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueErrorListRemove"));
         }
-        ConfigTech oldQueue = civ.getTechQueued();
-        civ.setTechQueued(null);
+        ConfigTech oldQueue = civ.getTechQueue();
+        civ.setTechQueue(null);
         CivMessage.sendCiv(civ, CivSettings.localize.localizedString("cmd_civ_research_queueRemoveSucusses", oldQueue.name));
         civ.save();
     }
 
     public void queuelist_cmd() throws CivException {
         Civilization civ = this.getSenderCiv();
-        if (civ.getTechQueued() == null) {
+        if (civ.getTechQueue() == null) {
             throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueErrorListRemove"));
         }
-        CivMessage.sendCiv(civ, CivSettings.localize.localizedString("cmd_civ_research_queueListSucusses") + "§d" + civ.getTechQueued().name);
+        CivMessage.sendCiv(civ, CivSettings.localize.localizedString("cmd_civ_research_queueListSucusses") + "§d" + civ.getTechQueue().name);
     }
 
     public void calc_cmd() throws CivException {

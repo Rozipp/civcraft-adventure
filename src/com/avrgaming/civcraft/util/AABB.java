@@ -9,6 +9,8 @@
 
 package com.avrgaming.civcraft.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,32 +24,17 @@ import com.avrgaming.civcraft.main.CivGlobal;
  * 
  * The position _must_ be the center of the box and the extents is the size/2 (aka the "radius") of the box. */
 
-/** @deprecated */
+@Getter
+@Setter
 public class AABB {
 
 	private Vector position = new Vector();
 	private Vector extents = new Vector();
 
-	public Vector getPosition() {
-		return position;
-	}
-
-	public void setPosition(Vector position) {
-		this.position = position;
-	}
-
 	public void setPosition(BlockCoord coord) {
 		this.position.setX(coord.getX());
 		this.position.setY(coord.getY());
 		this.position.setZ(coord.getZ());
-	}
-
-	public Vector getExtents() {
-		return extents;
-	}
-
-	public void setExtents(Vector extents) {
-		this.extents = extents;
 	}
 
 	public void setExtents(BlockCoord coord) {

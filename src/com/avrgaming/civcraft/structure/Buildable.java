@@ -60,7 +60,6 @@ import com.avrgaming.civcraft.object.BuildableDamageBlock;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.CultureChunk;
-import com.avrgaming.civcraft.object.MobSpawner_FURNEX;
 import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
@@ -99,7 +98,6 @@ import com.wimbli.WorldBorder.Config;
 public abstract class Buildable extends SQLObject {
 
 	protected BlockCoord mobSpawnerCoord;
-	protected MobSpawner_FURNEX mobSpawner = null;
 
 	private Town town;
 	protected BlockCoord corner;
@@ -145,32 +143,6 @@ public abstract class Buildable extends SQLObject {
 //	public AABB templateBoundingBox = null;
 	public String invalidLayerMessage = "";
 
-	public MobSpawner_FURNEX getMobSpawner() {
-		try {
-			Template tpl = new Template();
-			Block centerBlock = this.getCorner().getBlock();
-			tpl.initTemplate(this.getCenterLocation(), this);
-			for (int x = 0; x < tpl.size_x; x++) {
-				for (int y = 0; y < tpl.size_y; y++) {
-					for (int z = 0; z < tpl.size_z; z++) {
-						Block b = centerBlock.getRelative(x, y, z);
-						BlockCoord coord = new BlockCoord(b);
-						ProtectedBlock pb = CivGlobal.getProtectedBlock(coord);
-						if (pb != null && pb.getType() == ProtectedBlock.Type.MOB_SPAWNER_MARKER) {
-							MobSpawner_FURNEX spawner = CivGlobal.getMobSpawner(coord);
-							if (spawner != null) {
-								return spawner;
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			return null;
-		}
-		return null;
-	}
-
 	public BlockCoord getMobSpawnerCoord() {
 
 		return mobSpawnerCoord;
@@ -178,43 +150,6 @@ public abstract class Buildable extends SQLObject {
 
 	public void setMobSpawnerCoord(BlockCoord mobSpawnerCoord) {
 		this.mobSpawnerCoord = mobSpawnerCoord;
-	}
-
-	public void disableMobSpawner() {
-		/* Disable Mob Spawner When structure is built. */
-		MobSpawner_FURNEX spawner = getMobSpawner();
-		if (spawner == null) {
-			return;
-		}
-		spawner.setActive(false);
-		spawner.setBuildable(this.getId());
-		spawner.setCiv(this.getTown().getCiv());
-
-		/* Save the spawner *afterwards* so the structure id is properly set. */
-		try {
-			spawner.saveNow();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void enableMobSpawner() {
-		/* Enable Mob Spawner When structure is removed. */
-		MobSpawner_FURNEX spawner = getMobSpawner();
-		if (spawner == null) {
-			return;
-		}
-		spawner.setActive(true);
-		spawner.setBuildable(0);
-		spawner.setCiv(null);
-		/* Save the spawner *afterwards* so the structure id is properly set. */
-		try {
-			spawner.saveNow();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public Town getTown() {
@@ -436,7 +371,6 @@ public abstract class Buildable extends SQLObject {
 			}
 		}
 
-		this.disableMobSpawner();
 		this.save();
 	}
 
@@ -593,7 +527,6 @@ public abstract class Buildable extends SQLObject {
 			CivGlobal.removeStructureBlock(coord);
 		}
 
-		this.enableMobSpawner();
 	}
 
 	/* XXX this is called only on structures which do not have towns yet. For Example Capitols, Camps and Town Halls. */
@@ -897,23 +830,6 @@ public abstract class Buildable extends SQLObject {
 						//not building a trade outpost, prevent protected blocks from being destroyed.
 						ProtectedBlock pb = CivGlobal.getProtectedBlock(coord);
 						if (pb != null) {
-							if (pb.getType() == ProtectedBlock.Type.MOB_SPAWNER_MARKER) {
-
-								//							MOB_SPAWNER_MARKER\
-								MobSpawner_FURNEX spawner = CivGlobal.getMobSpawner(coord);
-								if (spawner != null) {
-									this.setMobSpawnerCoord(coord);
-									spawner.setActive(false);
-									spawner.setBuildable(this.getId());
-									spawner.setCiv(this.getTown().getCiv());
-
-									/* Save the spawner *afterwards* so the structure id is properly set. */
-									spawner.save();
-								}
-							} else {
-								CivLog.debug("Type: " + pb.getType());
-								throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
-							}
 						}
 					} else {
 						if (CivGlobal.getTradeGood(coord) != null) {
@@ -1241,7 +1157,7 @@ public abstract class Buildable extends SQLObject {
 				final Capitol capitol = (Capitol) this.getTown().getStructureByType("s_capitol");
 				boolean allDestroyed = true;
 				for (final ControlPoint c : capitol.controlPoints.values()) {
-					if (c.getinfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
+					if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
 						allDestroyed = false;
 						break;
 					}
@@ -1254,7 +1170,7 @@ public abstract class Buildable extends SQLObject {
 				final TownHall townHall = (TownHall) this.getTown().getStructureByType("s_townhall");
 				boolean allDestroyed = true;
 				for (final ControlPoint c : townHall.controlPoints.values()) {
-					if (c.getinfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
+					if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
 						allDestroyed = false;
 						break;
 					}

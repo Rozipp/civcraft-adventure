@@ -28,6 +28,8 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -88,6 +90,9 @@ import com.avrgaming.global.perks.components.CustomTemplate;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 /** @author User */
+
+@Getter
+@Setter
 public class Resident extends SQLObject {
 
 	private Town town = null;
@@ -470,32 +475,8 @@ public class Resident extends SQLObject {
 		return this.getTown().getName();
 	}
 
-	public Town getTown() {
-		return town;
-	}
-
-	public void setTown(Town town) {
-		this.town = town;
-	}
-
 	public boolean hasTown() {
 		return town != null;
-	}
-
-	public long getRegistered() {
-		return registered;
-	}
-
-	public void setRegistered(long registered) {
-		this.registered = registered;
-	}
-
-	public long getLastOnline() {
-		return lastOnline;
-	}
-
-	public void setLastOnline(long lastOnline) {
-		this.lastOnline = lastOnline;
 	}
 
 	@Override
@@ -525,14 +506,6 @@ public class Resident extends SQLObject {
 		} catch (CivException e) {
 			//Player is not online.
 		}
-	}
-
-	public int getDaysTilEvict() {
-		return daysTilEvict;
-	}
-
-	public void setDaysTilEvict(int daysTilEvict) {
-		this.daysTilEvict = daysTilEvict;
 	}
 
 	public void decrementGraceCounters() {
@@ -671,54 +644,6 @@ public class Resident extends SQLObject {
 		} catch (CivException e) {
 			//player offline.
 		}
-	}
-
-	public boolean isTownChat() {
-		return townChat;
-	}
-
-	public void setTownChat(boolean townChat) {
-		this.townChat = townChat;
-	}
-
-	public boolean isCivChat() {
-		return civChat;
-	}
-
-	public void setCivChat(boolean civChat) {
-		this.civChat = civChat;
-	}
-
-	public boolean isAdminChat() {
-		return adminChat;
-	}
-
-	public void setAdminChat(boolean adminChat) {
-		this.adminChat = adminChat;
-	}
-
-	public Town getTownChatOverride() {
-		return townChatOverride;
-	}
-
-	public void setTownChatOverride(Town townChatOverride) {
-		this.townChatOverride = townChatOverride;
-	}
-
-	public Civilization getCivChatOverride() {
-		return civChatOverride;
-	}
-
-	public void setCivChatOverride(Civilization civChatOverride) {
-		this.civChatOverride = civChatOverride;
-	}
-
-	public boolean isPermOverride() {
-		return permOverride;
-	}
-
-	public void setPermOverride(boolean permOverride) {
-		this.permOverride = permOverride;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -904,14 +829,6 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public boolean isGivenKit() {
-		return givenKit;
-	}
-
-	public void setGivenKit(boolean givenKit) {
-		this.givenKit = givenKit;
-	}
-
 	public boolean isSBPermOverride() {
 		return sbperm;
 	}
@@ -932,26 +849,6 @@ public class Resident extends SQLObject {
 
 	public InteractiveResponse getInteractiveResponse() {
 		return this.interactiveResponse;
-	}
-
-	public boolean isInteractiveMode() {
-		return interactiveMode;
-	}
-
-	public Town getSelectedTown() {
-		return selectedTown;
-	}
-
-	public void setSelectedTown(Town selectedTown) {
-		this.selectedTown = selectedTown;
-	}
-
-	public Village getVillage() {
-		return village;
-	}
-
-	public void setVillage(Village village) {
-		this.village = village;
 	}
 
 	public boolean hasVillage() {
@@ -982,38 +879,6 @@ public class Resident extends SQLObject {
 			}
 		}
 
-	}
-
-	public boolean isShowScout() {
-		return showScout;
-	}
-
-	public void setShowScout(boolean showScout) {
-		this.showScout = showScout;
-	}
-
-	public boolean isShowTown() {
-		return showTown;
-	}
-
-	public void setShowTown(boolean showTown) {
-		this.showTown = showTown;
-	}
-
-	public boolean isShowCiv() {
-		return showCiv;
-	}
-
-	public void setShowCiv(boolean showCiv) {
-		this.showCiv = showCiv;
-	}
-
-	public boolean isShowMap() {
-		return showMap;
-	}
-
-	public void setShowMap(boolean showMap) {
-		this.showMap = showMap;
 	}
 
 	public void startPreviewTask(Template tpl, Block block, UUID uuid) {
@@ -1053,26 +918,6 @@ public class Resident extends SQLObject {
 		this.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
 	}
 
-	public boolean isShowInfo() {
-		return showInfo;
-	}
-
-	public void setShowInfo(boolean showInfo) {
-		this.showInfo = showInfo;
-	}
-
-	public boolean isBanned() {
-		return banned;
-	}
-
-	public void setBanned(boolean banned) {
-		this.banned = banned;
-	}
-
-	public double getSpyExposure() {
-		return spyExposure;
-	}
-
 	public void setSpyExposure(double spyExposure) {
 		this.spyExposure = spyExposure;
 
@@ -1082,14 +927,6 @@ public class Resident extends SQLObject {
 			player.setExp((float) percentage);
 		} catch (CivException e) {}
 
-	}
-
-	public boolean isPerformingMission() {
-		return performingMission;
-	}
-
-	public void setPerformingMission(boolean performingMission) {
-		this.performingMission = performingMission;
 	}
 
 	public void onRoadTest(BlockCoord coord, Player player) {
@@ -1111,14 +948,6 @@ public class Resident extends SQLObject {
 //				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5, 5));
 //			}
 		}
-	}
-
-	public boolean isOnRoad() {
-		return onRoad;
-	}
-
-	public void setOnRoad(boolean onRoad) {
-		this.onRoad = onRoad;
 	}
 
 	public void giveTemplate(String name) {
@@ -1323,28 +1152,8 @@ public class Resident extends SQLObject {
 		return unboundPerks;
 	}
 
-	public boolean isControlBlockInstantBreak() {
-		return controlBlockInstantBreak;
-	}
-
 	public void setControlBlockInstantBreak(boolean controlBlockInstantBreak) {
 		this.controlBlockInstantBreak = controlBlockInstantBreak;
-	}
-
-	public boolean isMuted() {
-		return muted;
-	}
-
-	public void setMuted(boolean muted) {
-		this.muted = muted;
-	}
-
-	public boolean isCombatInfo() {
-		return combatInfo;
-	}
-
-	public void setCombatInfo(boolean combatInfo) {
-		this.combatInfo = combatInfo;
 	}
 
 	public boolean isInactiveForDays(int days) {
@@ -1359,14 +1168,6 @@ public class Resident extends SQLObject {
 		}
 
 		return false;
-	}
-
-	public String getTimezone() {
-		return timezone;
-	}
-
-	public void setTimezone(String timezone) {
-		this.timezone = timezone;
 	}
 
 	public Inventory startTradeWith(Resident resident) {
@@ -1478,30 +1279,6 @@ public class Resident extends SQLObject {
 		return true;
 	}
 
-	public Date getLastKilledTime() {
-		return lastKilledTime;
-	}
-
-	public void setLastKilledTime(Date lastKilledTime) {
-		this.lastKilledTime = lastKilledTime;
-	}
-
-	public Date getMuteExpires() {
-		return muteExpires;
-	}
-
-	public void setMuteExpires(Date muteExpires) {
-		this.muteExpires = muteExpires;
-	}
-
-	public String getItemMode() {
-		return itemMode;
-	}
-
-	public void setItemMode(String itemMode) {
-		this.itemMode = itemMode;
-	}
-
 	public void toggleItemMode() {
 		if (this.itemMode.equals("all")) {
 			this.itemMode = "rare";
@@ -1515,14 +1292,6 @@ public class Resident extends SQLObject {
 				CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemAll"));
 			}
 		this.save();
-	}
-
-	public void setLastIP(String hostAddress) {
-		this.lastIP = hostAddress;
-	}
-
-	public String getLastIP() {
-		return this.lastIP;
 	}
 
 	public void teleportHome() {
@@ -1550,14 +1319,6 @@ public class Resident extends SQLObject {
 
 	public boolean canDamageControlBlock() {
 		return (!this.hasTown()) || (this.getCiv().getCapitolStructure().isValid()); 
-	}
-
-	public long getNextRefresh() {
-		return this.nextRefresh;
-	}
-
-	public void setNextRefresh(final long nextRefresh) {
-		this.nextRefresh = nextRefresh;
 	}
 
 	public void saveInventory() {
@@ -1596,36 +1357,8 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public String getSavedInventory() {
-		return savedInventory;
-	}
-
-	public void setSavedInventory(String savedInventory) {
-		this.savedInventory = savedInventory;
-	}
-
-	public boolean isProtected() {
-		return isProtected;
-	}
-
-	public void setisProtected(boolean prot) {
-		isProtected = prot;
-	}
-
-	public UUID getUUID() {
-		return uid;
-	}
-
 	public String getUUIDString() {
 		return uid.toString();
-	}
-
-	public void setUUID(UUID uid) {
-		this.uid = uid;
-	}
-
-	public double getWalkingModifier() {
-		return walkingModifier;
 	}
 
 	public void calculateWalkingModifier(Player player) {
@@ -1663,41 +1396,10 @@ public class Resident extends SQLObject {
 				return "§5";
 		}
 	}
-	
-	public boolean isTitleAPI() {
-		return titleAPI;
-	}
-
-	public void setTitleAPI(boolean titleAPI) {
-		this.titleAPI = titleAPI;
-	}
-
-	public int getLanguage() {
-		return languageCode;
-	}
 
 	public void setLanguageCode(int code) {
 		// TO-DO: Need to validate if language code is supported.
 		this.languageCode = code;
-	}
-
-	public void setSavedPrefix(final String prefix) {
-		this.savedPrefix = prefix;
-	}
-	public String getSavedPrefix() {
-		return this.savedPrefix;
-	}
-
-	public String getPrefix() {
-		return this.prefix;
-	}
-
-	public long getNextTeleport() {
-		return this.nextTeleport;
-	}
-
-	public void setNextTeleport(final long nextTeleport) {
-		this.nextTeleport = nextTeleport;
 	}
 
 	public static String plurals(final int count, final String... pluralForms) {
@@ -1722,55 +1424,6 @@ public class Resident extends SQLObject {
 			return resident.getSelectedTown();
 		}
 		return resident.getTown();
-	}
-
-	public void setDesiredReportPlayerName(final String desiredReportPlayerName) {
-		this.desiredReportPlayerName = desiredReportPlayerName;
-	}
-
-	public String getDesiredReportPlayerName() {
-		return this.desiredReportPlayerName;
-	}
-
-	public String getReportResult() {
-		return this.reportResult;
-	}
-
-	public void setReportResult(final String reportResult) {
-		this.reportResult = reportResult;
-	}
-
-	public boolean getReportChecked() {
-		return this.reportChecked;
-	}
-
-	public void setReportChecked(final boolean reportChecked) {
-		this.reportChecked = reportChecked;
-	}
-
-	public boolean isVillageChat() {
-		return this.villageChat;
-	}
-
-	public void setVillageChat(final boolean villageChat) {
-		this.villageChat = villageChat;
-	}
-
-	/** @deprecated */
-	public boolean isPreview() {
-		return this.preview;
-	}
-
-	public void setPreview(final boolean Preview) {
-		this.preview = Preview;
-	}
-
-	public boolean isCanUseRename() {
-		return this.canUseRename;
-	}
-
-	public void setCanUseRename(final boolean canUseRename) {
-		this.canUseRename = canUseRename;
 	}
 
 	public boolean isPoisonImmune() {

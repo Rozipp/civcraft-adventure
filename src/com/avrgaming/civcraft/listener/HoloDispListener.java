@@ -19,7 +19,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.object.MobSpawner_FURNEX;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
@@ -66,41 +65,6 @@ public class HoloDispListener {
       }
 
       CivLog.info(CivGlobal.getTradeGoods().size() + " было создано голограмм для торговых ресурсов.");
-   }
-   
-   public static void mobspawnerHolo() {
-	   if (!CivSettings.hasHoloDisp) {
-		   CivLog.warning("Человек попытался сгенерировать голограмму без плагина HoloDisp.");
-		   return;
-	   }
-
-	   Plugin CivCraftSpawners = CivCraft.getPlugin();
-	   Iterator<MobSpawner_FURNEX> var1 = CivGlobal.getMobSpawners().iterator();
-	   
-	   while(var1.hasNext()) {
-		   	 MobSpawner_FURNEX spawner = (MobSpawner_FURNEX)var1.next();
-	         BlockCoord coord = spawner.getCoord();
-	         Location loc = new Location(coord.getBlock().getWorld(), (double)coord.getX() + 0.5D, (double)(coord.getY() + 5), (double)coord.getZ() + 0.5D);
-	         Hologram holoSpawner = HologramsAPI.createHologram(CivCraftSpawners, loc);
-	         TextLine spawnerName = holoSpawner.appendTextLine(CivColor.GoldBold + "Спавнер " + CivColor.LightGreenBold + CivColor.ITALIC);// + spawner.getInfo().name);;
-	         TextLine spawneValue = holoSpawner.appendTextLine(CivColor.LightPurpleBold + "Дает: ");;
-	         @SuppressWarnings("unused")
-			String color = "§c";
-	         //TODO
-//	         if (spawner.getInfo().water) {
-//	        	 spawnerName = holoSpawner.appendTextLine(CivColor.GoldBold + "Спавнер " + CivColor.LightBlueBold + CivColor.ITALIC + spawner.getInfo().name);
-//	        	 spawneValue = holoSpawner.appendTextLine(CivColor.LightPurpleBold + "Дает: ");
-//	            color = "§7";
-//	         } else {
-//	        	 spawnerName = holoSpawner.appendTextLine(CivColor.GoldBold + "Спавнер " + CivColor.LightGreenBold + CivColor.ITALIC + spawner.getInfo().name);
-//	        	 spawneValue = holoSpawner.appendTextLine(CivColor.LightPurpleBold + "Дает: ");
-//	            color = "§c";
-//	         }
-
-	         setMobSpawner(spawnerName, spawneValue);
-	      }
-
-	      CivLog.info(CivGlobal.getTradeGoods().size() + " было создано голограмм для торговых ресурсов.");
    }
 
    public static String getHumanBuffList(TradeGood tradeGood) {

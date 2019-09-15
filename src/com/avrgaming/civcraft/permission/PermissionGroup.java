@@ -37,11 +37,15 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
 import com.avrgaming.civcraft.object.Town;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+@Getter
+@Setter
 public class PermissionGroup extends SQLObject {
 
 	private Map<String, Resident> members = new ConcurrentHashMap<String, Resident>();
@@ -180,10 +184,6 @@ public class PermissionGroup extends SQLObject {
 		return cacheTown;
 	}
 
-	public void setTown(Town town) {
-		this.cacheTown = town;
-	}
-
 	public int getMemberCount() {
 		return members.size();
 	}
@@ -243,22 +243,6 @@ public class PermissionGroup extends SQLObject {
 				out += res.getName()+", ";
 			}
 		return out;
-	}
-
-	public int getCivId() {
-		return civId;
-	}
-
-	public void setCivId(int civId) {
-		this.civId = civId;
-	}
-
-	public int getTownId() {
-		return townId;
-	}
-
-	public void setTownId(int townId) {
-		this.townId = townId;
 	}
 	
 	public static boolean hasGroup(String playerName, String groupName){

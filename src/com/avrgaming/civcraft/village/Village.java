@@ -162,7 +162,7 @@ public class Village extends Buildable {
 	}
 
 	public Village(Resident owner, String name, Location corner) throws CivException {
-		this.ownerName = owner.getUUID().toString();
+		this.ownerName = owner.getUid().toString();
 		this.corner = new BlockCoord(corner);
 		try {
 			this.setName(name);
@@ -1064,7 +1064,7 @@ public class Village extends Buildable {
 	}
 
 	public void setOwner(Resident owner) {
-		this.ownerName = owner.getUUID().toString();
+		this.ownerName = owner.getUid().toString();
 	}
 
 	public int getHitpoints() {

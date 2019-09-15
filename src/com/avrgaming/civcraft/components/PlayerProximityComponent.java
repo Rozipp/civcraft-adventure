@@ -25,7 +25,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.avrgaming.civcraft.cache.PlayerLocationCache;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class PlayerProximityComponent extends Component {
 
 	/*
@@ -109,21 +113,6 @@ public class PlayerProximityComponent extends Component {
 			this.lock.unlock();
 		}
 	}
-	
-
-	public BlockCoord getCenter() {
-		return center;
-	}
-
-
-	public void setCenter(BlockCoord center) {
-		this.center = center;
-	}
-
-
-	public double getRadiusSquared() {
-		return radiusSquared;
-	}
 
 
 	public void setRadius(double radius) {
@@ -147,17 +136,4 @@ public class PlayerProximityComponent extends Component {
 		
 		return;
 	}
-
-
-	public Buildable getBuildable() {
-		return buildable;
-	}
-
-
-	public void setBuildable(Buildable buildable) {
-		this.buildable = buildable;
-	}
-
-	
-
 }

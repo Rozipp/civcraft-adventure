@@ -32,10 +32,10 @@ extends CommandBase {
         if (report == null) {
             throw new CivException(CivColor.Red + CivSettings.localize.localizedString("adcmd_report_close_unkReport", reportID));
         }
-        if (report.getClosed()) {
+        if (report.isClosed()) {
             Object[] arrobject = new Object[2];
             arrobject[0] = reportID;
-            arrobject[1] = report.getBug() ? "bug" : "player";
+            arrobject[1] = report.isBug() ? "bug" : "player";
             throw new CivException(CivColor.Red + CivSettings.localize.localizedString("adcmd_report_close_closedReport", arrobject));
         }
         if (this.args.length < 3) {
@@ -58,7 +58,7 @@ extends CommandBase {
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
         CivMessage.sendHeading(this.sender, "Server Bugs " + Bukkit.getServerName());
         for (Report report : CivGlobal.getReports()) {
-            if (report.getClosed() || !report.getBug()) continue;
+            if (report.isClosed() || !report.isBug()) continue;
             String message = CivColor.LightGray + "(" + report.getId() + ") " + "§a" + "Reporter: " + CivColor.Red + report.getReportedBy() + " " + "§d" + "Time: " + sdf.format(report.getTime()) + " " + "§b" + "Proof: " + report.getProof();
             CivMessage.send((Object)this.sender, message);
         }
@@ -68,7 +68,7 @@ extends CommandBase {
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
         CivMessage.sendHeading(this.sender, "Player Reports " + Bukkit.getServerName());
         for (Report report : CivGlobal.getReports()) {
-            if (report.getClosed() || report.getBug()) continue;
+            if (report.isClosed() || report.isBug()) continue;
             String message = CivColor.LightGray + "(" + report.getId() + ") " + "§a" + "Reporter: " + CivColor.Red + report.getReportedBy() + " " + "§d" + "Time: " + sdf.format(report.getTime()) + " " + "§b" + "Proof: " + report.getProof() + " " + "§2" + "Player: " + report.getCause();
             CivMessage.send((Object)this.sender, message);
         }

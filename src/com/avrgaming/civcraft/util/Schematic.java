@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.File;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.block.Block;
 import com.avrgaming.civcraft.main.CivCraft;
 import org.bukkit.block.Skull;
@@ -16,6 +18,8 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.Location;
 
+@Getter
+@Setter
 public class Schematic
 {
     private short[] blocks;
@@ -119,29 +123,5 @@ public class Schematic
             throw new IllegalArgumentException(key + " tag is not of tag type " + expected.getName());
         }
         return expected.cast(tag);
-    }
-    
-    public short[] getBlocks() {
-        return this.blocks;
-    }
-    
-    public String getName() {
-        return this.name;
-    }
-    
-    public byte[] getData() {
-        return this.data;
-    }
-    
-    public short getWidth() {
-        return this.width;
-    }
-    
-    public short getLenght() {
-        return this.lenght;
-    }
-    
-    public short getHeight() {
-        return this.height;
     }
 }

@@ -29,10 +29,10 @@ public class ConfigSpaceCraftMat
                 configSpaceCraftMat.minecraftComponents = new HashMap<Integer, ConfigSpaceCraftMat2>();
                 for (final Map<?, ?> ingred : configSpaceCraftMat2) {
                     final ConfigSpaceCraftMat2 ingredient = new ConfigSpaceCraftMat2();
-                    ingredient.typeID = (int)ingred.get("type_id");
-                    ingredient.data = (int)ingred.get("data");
+                    ingredient.typeID = (Integer) ingred.get("type_id");
+                    ingredient.data = (Integer)ingred.get("data");
                     ingredient.name = (String)ingred.get("name");
-                    ingredient.count = (int)ingred.get("count");
+                    ingredient.count = (Integer)ingred.get("count");
                     configSpaceCraftMat.minecraftComponents.put(ingredient.typeID, ingredient);
                 }
             }

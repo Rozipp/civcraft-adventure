@@ -65,7 +65,7 @@ public class ResidentCommand extends CommandBase {
 	public void report_cmd() throws CivException {
 		Report report;
 		Resident resident = this.getResident();
-		if (!resident.getReportChecked()) {
+		if (!resident.isReportChecked()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_res_report_notNow"));
 		}
 		String[] split = resident.getReportResult().split("///");
@@ -103,7 +103,7 @@ public class ResidentCommand extends CommandBase {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_res_pvptimerNotActive"));
 		}
 
-		resident.setisProtected(false);
+		resident.setProtected(false);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_res_pvptimerSuccess"));
 	}
 

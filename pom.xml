@@ -149,7 +149,6 @@
                     <include>*.*</include>
                     <include>plugin.yml</include>
                     <include>config.yml</include>
-                    <include>${basedir}/libs</include>
                     <include>${basedir}/data</include>
                     <include>${basedir}/localize</include>
                 </includes>

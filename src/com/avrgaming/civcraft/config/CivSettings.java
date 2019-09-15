@@ -570,7 +570,6 @@ public class CivSettings {
         SoundManager.loadConfig(soundConfig);
 		ConfigRemovedRecipes.removeRecipes(craftableMaterialsConfig, removedRecipies );
 		CivGlobal.tradeGoodPreGenerator.preGenerate();
-		CivGlobal.mobSpawnerPreGenerator.preGenerate();
 		Wall.init_settings();
 		FortifiedWall.init_settings();
 	}

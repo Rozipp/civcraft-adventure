@@ -20,6 +20,8 @@ package com.avrgaming.civcraft.components;
 
 import java.util.HashSet;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -38,6 +40,8 @@ import com.avrgaming.civcraft.util.BlockCoord;
 
 import net.minecraft.server.v1_12_R1.Vec3D;
 
+@Getter
+@Setter
 public abstract class ProjectileComponent extends Component {
 
 	protected int damage;
@@ -256,21 +260,5 @@ public abstract class ProjectileComponent extends Component {
 	
 	public abstract void fire(Location turretLoc, Entity targetEntity);
 	public abstract void loadSettings();
-
-	public Buildable getBuildable() {
-		return buildable;
-	}
-	
-	public void setBuildable(Buildable buildable) {
-		this.buildable = buildable;
-	}
-
-	public Location getTurretCenter() {
-		return turretCenter;
-	}
-
-	public void setTurretCenter(Location turretCenter) {
-		this.turretCenter = turretCenter;
-	}
 	
 }

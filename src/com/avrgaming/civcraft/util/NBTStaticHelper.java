@@ -1,9 +1,13 @@
 package com.avrgaming.civcraft.util;
 
+import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagEnd;
+
 public class NBTStaticHelper {
 
-	/* From the decompiled 1.7 jar...
-	 *   protected static NBTBase createTag(byte paramByte)
+	/*
+	protected static NBTBase createTag(byte paramByte)
   {
     switch (paramByte)
     {
@@ -33,8 +37,7 @@ public class NBTStaticHelper {
       return new NBTTagCompound();
     }
     return null;
-  }
-	 */
+  }*/
 	
 	public static final int TAG_LIST = 9;
 	public static final int TAG_COMPOUND = 10;

@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -95,6 +97,8 @@ import com.avrgaming.civcraft.war.War;
 import com.avrgaming.global.perks.Perk;
 import com.avrgaming.global.perks.components.CustomTemplate;
 
+@Getter
+@Setter
 public class Town extends SQLObject {
 
 	private ConcurrentHashMap<String, Resident> residents = new ConcurrentHashMap<String, Resident>();
@@ -506,7 +510,7 @@ public class Town extends SQLObject {
 			this.defaultGroup.addMember(res);
 			this.defaultGroup.save();
 		}
-		Player player = Bukkit.getPlayer(res.getUUID());
+		Player player = Bukkit.getPlayer(res.getUid());
 		//TODO
 		/*
 		if (player != null && CivSettings.hasITag) {
@@ -1434,7 +1438,7 @@ public class Town extends SQLObject {
 
 		resident.save();
 		this.save();
-		Player player = Bukkit.getPlayer(resident.getUUID());
+		Player player = Bukkit.getPlayer(resident.getUid());
 		/*
 		if (player != null && CivSettings.hasITag) {
 			Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers())));

@@ -33,7 +33,11 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class WallBlock extends SQLObject {
 
 	private BlockCoord coord;
@@ -144,28 +148,7 @@ public class WallBlock extends SQLObject {
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
-	public Structure getStruct() {
-		return struct;
-	}
-
 	public void setStruct(Structure struct) {
 		this.struct = (Wall) struct;
 	}
-
-	public int getOldId() {
-		return this.old_id;
-	}
-	
-	public byte getOldData() {
-		return (byte)this.old_data;
-	}
-
-	public int getTypeId() {
-		return this.type_id;
-	}
-	
-	public int getData() {
-		return this.data;
-	}
-	
 }

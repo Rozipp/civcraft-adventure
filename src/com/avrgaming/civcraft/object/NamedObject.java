@@ -19,8 +19,11 @@
 package com.avrgaming.civcraft.object;
 
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public class NamedObject {
 
 	/* Unique Id of named object. */
@@ -32,18 +35,6 @@ public class NamedObject {
 	public void setName(String newname) throws InvalidNameException {
 		validateName(newname);
 		this.name = newname;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-	
-	public void setId(int i) {
-		this.id = i;
-	}
-	
-	public int getId() {
-		return id;
 	}
 	
 	private void validateName(String name) throws InvalidNameException {

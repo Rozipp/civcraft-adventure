@@ -34,7 +34,11 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TradeOutpost;
 import com.avrgaming.civcraft.util.BlockCoord;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class TradeGood extends SQLObject {
 
 	private ConfigTradeGood info;
@@ -159,45 +163,6 @@ public class TradeGood extends SQLObject {
 	public void delete() throws SQLException {		
 	}
 
-
-	public Town getTown() {
-		return town;
-	}
-
-
-	public void setTown(Town town) {
-		this.town = town;
-	}
-
-
-	public Civilization getCiv() {
-		return civ;
-	}
-
-
-	public void setCiv(Civilization civ) {
-		this.civ = civ;
-	}
-
-
-	public ConfigTradeGood getInfo() {
-		return info;
-	}
-
-
-	public void setInfo(ConfigTradeGood info) {
-		this.info = info;
-	}
-
-
-	public BlockCoord getCoord() {
-		return coord;
-	}
-
-
-	public void setCoord(BlockCoord coord) {
-		this.coord = coord;
-	}
 	public static double getBaseValue(TradeGood good) {
 		ConfigTradeGood configTradeGood = good.getInfo();
 		double value = configTradeGood.value;
@@ -309,16 +274,4 @@ public class TradeGood extends SQLObject {
         }
 		return total_payment;
 	}
-
-
-	public Structure getStruct() {
-		return struct;
-	}
-
-
-	public void setStruct(Structure struct) {
-		this.struct = struct;
-	}
-	
-	
 }

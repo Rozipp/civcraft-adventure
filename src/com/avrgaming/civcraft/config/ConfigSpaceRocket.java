@@ -20,7 +20,7 @@ public class ConfigSpaceRocket
         final List<Map<?, ?>> spaceRocket_names = (List<Map<?, ?>>)cfg.getMapList("spacerocket_names");
         for (final Map<?, ?> level : spaceRocket_names) {
             final ConfigSpaceRocket spaceRocket_name = new ConfigSpaceRocket();
-            spaceRocket_name.level = (int)level.get("level");
+            spaceRocket_name.level = (Integer)level.get("level");
             spaceRocket_name.name = (String)level.get("name");
             spaceRocket_name.components = (String)level.get("components");
             names.put(spaceRocket_name.level, spaceRocket_name);

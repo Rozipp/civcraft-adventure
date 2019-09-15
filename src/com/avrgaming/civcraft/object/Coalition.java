@@ -14,7 +14,11 @@ import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Coalition extends SQLObject {
 
 	public static final String TABLE_NAME = "COALITIONS";

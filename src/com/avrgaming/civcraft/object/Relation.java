@@ -47,8 +47,6 @@ public class Relation extends SQLObject {
 		WAR,
 		PEACE,
 		ALLY,
-//		MASTER,
-//		VASSAL
 	}
 
 	private Status relation = Status.NEUTRAL;

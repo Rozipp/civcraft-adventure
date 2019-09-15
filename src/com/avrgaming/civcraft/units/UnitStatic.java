@@ -162,7 +162,7 @@ public class UnitStatic {
 				break;
 			//================= Leggings	
 			case "jumping" :
-//
+
 				break;
 			case "speed" :
 				attrs = new AttributeUtil(stack);
