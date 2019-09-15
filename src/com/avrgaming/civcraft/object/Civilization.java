@@ -506,7 +506,6 @@ public class Civilization extends SQLObject {
 
 	@Override
 	public void delete() throws SQLException {
-		
 		/* First delete all of our groups. */
 		if (this.leaderGroup != null) {
 			this.leaderGroup.delete();

@@ -119,7 +119,11 @@ public class PlayerLoginAsyncTask implements Runnable {
 			if (resident.getUid() == null) {
 				/* This resident does not yet have a UUID stored. Free lunch. */
 				resident.setUid(getPlayer().getUniqueId());
+<<<<<<< HEAD
 				CivLog.info("Resident named:"+resident.getName()+" was acquired by UUID:"+resident.getUid().toString());
+=======
+				CivLog.info("Resident named:"+resident.getName()+" was acquired by UUID:"+resident.getUUIDString());
+>>>>>>> refs/remotes/origin/master
 			} else if (!resident.getUid().equals(getPlayer().getUniqueId())) {
 				TaskMaster.syncTask(new PlayerKickBan(getPlayer().getName(), true, false, CivSettings.localize.localizedString("PlayerLoginAsync_usernameInUse")));
 				return;

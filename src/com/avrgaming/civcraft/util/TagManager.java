@@ -18,8 +18,8 @@ public class TagManager {
      private static final Pattern CLEANUP_REDUNDANT_COLORS_REGEX;
 	 public static String reset;
 	 public static HashMap<String, String> hash;
-	    public static Set<String> curators;
-	    public static Set<String> devs;
+	 public static Set<String> curators;
+	 public static Set<String> devs;
 
 	public static void editNameTag(final Player var1) {
 	        String prefix = "";
@@ -170,8 +170,8 @@ public class TagManager {
     static {
         CLEANUP_REDUNDANT_COLORS_REGEX = Pattern.compile("§[0-9a-fk-or]((?: *§[0-9a-fk-or])*)( *§[0-9a-fr])");
         TagManager.reset = CivColor.RESET;
-        TagManager.hash = new HashMap<String, String>();
-        TagManager.curators = new HashSet<String>(Arrays.asList("Tialas555"));
-        TagManager.devs = new HashSet<String>(Arrays.asList("MuffinColor", "realkarmakun", "nutrolshok", "_Feniksovich_", "Dancebunny98_Yt", "golovorez3000", "glowgrew", "DrakonForever", "AtomicScience", "__xDark"));
+        TagManager.hash = new HashMap<>();
+		TagManager.curators = new HashSet<>(Arrays.asList("Test"));
+        TagManager.devs = new HashSet<>(Arrays.asList("MuffinColor", "Rozipp"));
     }
 }

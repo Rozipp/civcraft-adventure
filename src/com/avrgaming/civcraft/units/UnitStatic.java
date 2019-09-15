@@ -171,9 +171,13 @@ public class UnitStatic {
 				break;
 			//================= Leggings	
 			case "jumping" :
+<<<<<<< HEAD
 				attrs = new AttributeUtil(stack);
 				LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementJumping", value);
 				stack = attrs.getStack();
+=======
+
+>>>>>>> refs/remotes/origin/master
 				break;
 			case "speed" :
 				attrs = new AttributeUtil(stack);

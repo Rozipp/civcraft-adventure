@@ -59,5 +59,6 @@ commands:
         aliases:
     vcc:
         aliases: [campchat]
+    donate:
     enderchest:
         aliases: [echest, eechest, eenderchest, endersee, eendersee, ec, eec]

@@ -90,19 +90,7 @@ import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockGrowEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
@@ -790,6 +778,33 @@ public class BlockListener implements Listener {
 				}
 				buildable.layerValidPercentages.put(bcoord.getY(), layer);
 			}
+		}
+	}
+
+	/*
+	@EventHandler
+	public void onBlockPhysics(BlockPhysicsEvent event) {
+		bcoord.setFromLocation(event);
+		ProtectedBlock pb = CivGlobal.getProtectedBlock(bcoord);
+		if (pb != null) {
+			if(event.getBlock().getType() == Material.STATIONARY_WATER) {
+				event.setCancelled(true);
+			}
+		}
+	}*/
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockFromTo(BlockFromToEvent event) {
+		Block block = event.getBlock();
+		bcoord.setFromLocation(event.getToBlock().getLocation());
+		VillageBlock vb = CivGlobal.getVillageBlock(bcoord);
+		if (vb != null) {
+			event.setCancelled(true);
+		}
+
+		ProtectedBlock pb = CivGlobal.getProtectedBlock(bcoord);
+		if (pb != null) {
+			event.setCancelled(true);
 		}
 	}
 
