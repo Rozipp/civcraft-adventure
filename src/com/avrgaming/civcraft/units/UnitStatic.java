@@ -386,14 +386,12 @@ public class UnitStatic {
 			if (is == null) continue;
 			AttributeUtil attrs = new AttributeUtil(is);
 			if (attrs.hasEnhancement("LoreEnhancementJumping")) {
-				CivLog.debug("Found LoreEnhancementJumping");
 				Double level = Double.valueOf(attrs.getEnhancementData("LoreEnhancementJumping", "level"));
 				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999*20, level.intValue()));
 				return;
 //				Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
 			}
 		}
-		CivLog.debug("Not Found LoreEnhancementJumping");
 		player.removePotionEffect(PotionEffectType.JUMP);
 	}
 

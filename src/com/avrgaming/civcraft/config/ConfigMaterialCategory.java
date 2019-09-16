@@ -9,10 +9,10 @@ public class ConfigMaterialCategory {
 	private static TreeMap<String, ConfigMaterialCategory> categories = new TreeMap<String, ConfigMaterialCategory>();
 	
 	public String name;
-	public HashMap<String, ConfigMaterial> materials = new HashMap<String, ConfigMaterial>();
+	public HashMap<String, ConfigCraftableMaterial> materials = new HashMap<String, ConfigCraftableMaterial>();
 	public int craftableCount = 0;
 	
-	public static void addMaterial(ConfigMaterial mat) {
+	public static void addMaterial(ConfigCraftableMaterial mat) {
 		ConfigMaterialCategory cat = categories.get(mat.categoryCivColortripped);
 		if (cat == null) {
 			cat = new ConfigMaterialCategory();

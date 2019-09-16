@@ -5,7 +5,7 @@ import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigVillageLonghouseLevel;
 import com.avrgaming.civcraft.config.ConfigVillageUpgrade;
-import com.avrgaming.civcraft.config.TransmuterItem;
+import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
@@ -53,6 +53,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,6 +76,8 @@ import org.bukkit.inventory.ItemStack;
 
 /** @author User */
 public class Village extends Buildable {
+	public static LinkedList<ConfigTransmuterRecipe> enableTransmuterRecipes = new LinkedList<>();
+
 	private int hitpoints;
 	private int firepoints;
 	private BlockCoord corner;
@@ -94,15 +97,12 @@ public class Village extends Buildable {
 	/* Transmuter */
 	/** уровни пристроек в селе */
 	private HashMap<String, Integer> annexLevel = new HashMap<>();
-	public LinkedList<TransmuterItem> transmuterItems = new LinkedList<>();
 	public HashMap<String, ReentrantLock> locks = new HashMap<>();
 
 	/* Locations that exhibit vanilla growth */
 	public HashSet<BlockCoord> growthLocations = new HashSet<BlockCoord>();
 
 	/* Longhouse Stuff. */
-	public HashSet<BlockCoord> foodDepositPoints1 = new HashSet<BlockCoord>();
-	public HashSet<BlockCoord> foodDepositPoints2 = new HashSet<BlockCoord>();
 	public ConsumeLevelComponent consumeComponent;
 
 	/* Doors we protect. */
@@ -114,6 +114,7 @@ public class Village extends Buildable {
 	private int raidLength;
 
 	private HashMap<String, ConfigVillageUpgrade> upgrades = new HashMap<String, ConfigVillageUpgrade>();
+
 	public static final String TABLE_NAME = "VILLAGES";
 
 	public static void newVillage(Resident resident, Player player, String name) {
@@ -201,13 +202,9 @@ public class Village extends Buildable {
 		} catch (InvalidConfiguration var7) {
 			var7.printStackTrace();
 		}
-		loadTransmuterItems();
-	}
-
-	public void loadTransmuterItems() {
-		addTransmuterItems("sawmill");
-		addTransmuterItems("trommel");
-		addTransmuterItems("orangery");
+		for (ConfigTransmuterRecipe ctr : enableTransmuterRecipes) {
+			this.locks.put(ctr.id, new ReentrantLock());
+		}
 		locks.put("longhouse", new ReentrantLock());
 	}
 
@@ -263,7 +260,7 @@ public class Village extends Buildable {
 			resident.setVillage((Village) null);
 			resident.save();
 		}
-		
+
 		this.unbindVillageBlocks();
 		SQL.deleteNamedObject(this, TABLE_NAME);
 		CivGlobal.removeVillage(this.getName());
@@ -364,8 +361,8 @@ public class Village extends Buildable {
 		}
 
 		this.corner.setFromLocation(this.repositionCenter(center, tpl.dir(), (double) tpl.size_x, (double) tpl.size_z));
-		
-		this.setTotalBlockCount(tpl.size_x*tpl.size_y*tpl.size_z);
+
+		this.setTotalBlockCount(tpl.size_x * tpl.size_y * tpl.size_z);
 		// Save the template x,y,z for later. This lets us know our own dimensions.
 		// this is saved in the db so it remains valid even if the template changes.
 		this.setTemplateName(tpl.getFilepath());
@@ -373,7 +370,7 @@ public class Village extends Buildable {
 		this.setTemplateY(tpl.size_y);
 		this.setTemplateZ(tpl.size_z);
 //		this.setTemplateAABB(new BlockCoord(cornerLoc), tpl);	
-		
+
 		this.checkBlockPermissionsAndRestrictions(player, this.corner.getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
 
 		try {
@@ -407,7 +404,6 @@ public class Village extends Buildable {
 		}
 
 		this.processCommandSigns(tpl);
-		this.loadTransmuterItems();
 	}
 
 	@Override
@@ -1356,17 +1352,17 @@ public class Village extends Buildable {
 		this.reprocessCommandSigns();
 		owner.getTreasury().withdraw(upgrade.cost);
 		this.save();
-
 	}
 
-	public void addTransmuterItems(String tId) {
-		addTransmuterItems(TransmuterItem.getTransmuterItemForId(CivSettings.globalTransmuterItems, tId));
-	}
-	public void addTransmuterItems(TransmuterItem tI) {
-		if (tI != null && !transmuterItems.contains(tI)) {
-			transmuterItems.add(tI);
-			locks.put(tI.id, new ReentrantLock());
+	public static void loadConfigTransmuterRecipes() {
+		List<?> configLore = CivSettings.villageConfig.getList("transmuter_recipe");
+		if (configLore != null) {
+			for (Object obj : configLore) {
+				if (obj instanceof String) {
+					ConfigTransmuterRecipe ctr = ConfigTransmuterRecipe.getTransmuterRecipeForId((String) obj);
+					if (ctr != null) enableTransmuterRecipes.add(ctr);
+				}
+			}
 		}
 	}
-
 }

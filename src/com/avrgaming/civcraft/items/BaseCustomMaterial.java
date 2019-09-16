@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
@@ -167,8 +168,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 		}
 
 		AttributeUtil attrs = new AttributeUtil(stack);
-		if (attrs.hasEnhancement("LoreEnhancementUnitItem") && toInv.getType() != InventoryType.PLAYER)
-		{
+		if (attrs.hasEnhancement("LoreEnhancementUnitItem") && toInv.getType() != InventoryType.PLAYER) {
 //			CivMessage.sendError(player, "Нельзя использовать этот предмет в инвентаре " + toInv.getType());
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
@@ -184,7 +184,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	@Override
 	public void onInvDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
 	}
-	
+
 	@Override
 	public void onPlayerDeath(EntityDeathEvent event, ItemStack stack) {
 	}
@@ -287,7 +287,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	}
 
 	public boolean isVanilla() {
-		return this.configMaterial.vanilla;
+		return ((ConfigCraftableMaterial) this.configMaterial).vanilla;
 	}
 
 	public void rebuildLore() {

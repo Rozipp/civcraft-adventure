@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.config.TransmuterItem;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
@@ -32,8 +31,6 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.FisheryAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.MobGrinderAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.village.TransmuterAsyncTask;
-import com.avrgaming.civcraft.village.Village;
 
 public class UpdateMinuteEventTimer extends CivAsyncTask {
 		
@@ -97,11 +94,11 @@ public class UpdateMinuteEventTimer extends CivAsyncTask {
 			}
 			
 			
-			for (Village village : CivGlobal.getVillages()) {
-				for (TransmuterItem cTranI : village.transmuterItems) {
-					TaskMaster.asyncTask("village-" + village.getCorner() + ";transmuterItem-" + cTranI.id, new TransmuterAsyncTask(village, cTranI), 0);
-				}
-			}
+//			for (Village village : CivGlobal.getVillages()) {
+//				for (ConfigTransmuterRecipe cTranI : Village.enableTransmuterRecipes) {
+//					TaskMaster.asyncTask("village-" + village.getCorner() + ";transmuterItem-" + cTranI.id, new TransmuterAsyncTask(village, cTranI), 0);
+//				}
+//			}
 		
 		} finally {
 			lock.unlock();

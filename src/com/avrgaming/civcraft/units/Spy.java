@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 
 import org.bukkit.ChatColor;
@@ -57,9 +56,6 @@ import gpl.AttributeUtil;
 public class Spy extends UnitMaterial {
 
 	public final int BOOK_ID = 403;
-
-	public static HashSet<Integer> allowedSubslots = new HashSet<Integer>();
-	public static HashMap<String, UnitCustomMaterial> missionBooks = new HashMap<>();
 
 	public Spy(String id, ConfigUnit configUnit) {
 		super(id, configUnit);

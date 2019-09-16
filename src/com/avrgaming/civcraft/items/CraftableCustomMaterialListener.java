@@ -16,6 +16,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.config.ConfigTechItem;
 import com.avrgaming.civcraft.items.components.Tagged;
@@ -62,8 +63,8 @@ public class CraftableCustomMaterialListener implements Listener {
 				return;
 			}
 			
-			if (!craftMat.getConfigMaterial().playerHasTechnology(player)) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("var_loreCraft_missingTech",craftMat.getConfigMaterial().getRequireString()));
+			if (!(craftMat.getConfigMaterial()).playerHasTechnology(player)) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString("var_loreCraft_missingTech",((ConfigCraftableMaterial)craftMat.getConfigMaterial()).getRequireString()));
 				event.setCancelled(true);
 				return;
 			}

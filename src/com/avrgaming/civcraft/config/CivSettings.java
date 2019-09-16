@@ -173,7 +173,7 @@ public class CivSettings {
 	public static Map<String, ConfigVillageUpgrade> villageUpgrades = new HashMap<String, ConfigVillageUpgrade>();
 	
 	public static FileConfiguration transmuterConfig; /* transmuter.yml */
-	public static ArrayList<TransmuterItem> globalTransmuterItems = new ArrayList<>();
+	public static HashMap<String, ConfigTransmuterRecipe> transmuterRecipes = new HashMap<>();
 	
 	public static FileConfiguration marketConfig; /* market.yml */
 	public static Map<Integer, ConfigMarketItem> marketItems = new HashMap<Integer, ConfigMarketItem>();
@@ -186,9 +186,9 @@ public class CivSettings {
 	public static HashMap<Integer, ConfigHappinessState> happinessStates = new HashMap<Integer, ConfigHappinessState>();
 	
 	public static FileConfiguration craftableMaterialsConfig; /* materials.yml */
-	public static HashMap<String, ConfigMaterial> craftableMaterials = new HashMap<String, ConfigMaterial>();
+	public static HashMap<String, ConfigCraftableMaterial> craftableMaterials = new HashMap<String, ConfigCraftableMaterial>();
 	public static FileConfiguration unitMaterialsConfig; /* unitmaterials.yml */
-	public static HashMap<String, ConfigMaterial> unitMaterials = new HashMap<String, ConfigMaterial>();
+	public static HashMap<String, ConfigUnitMaterial> unitMaterials = new HashMap<String, ConfigUnitMaterial>();
 	
 	public static FileConfiguration randomEventsConfig; /* randomevents.yml */
 	public static HashMap<String, ConfigRandomEvent> randomEvents = new HashMap<String, ConfigRandomEvent>();
@@ -519,15 +519,17 @@ public class CivSettings {
 		ConfigPerk.loadTemplates(perkConfig, templates);
 		ConfigVillageLonghouseLevel.loadConfig(villageConfig, longhouseLevels);
 		ConfigVillageUpgrade.loadConfig(villageConfig, villageUpgrades);
-		TransmuterItem.loadConfig(transmuterConfig, globalTransmuterItems);
+		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
+		Village.loadConfigTransmuterRecipes();
+		
 		ConfigMarketItem.loadConfig(marketConfig, marketItems);
 		ConfigStableItem.loadConfig(structureConfig, stableItems);
 		ConfigStableHorse.loadConfig(structureConfig, horses);
 		ConfigTownHappinessLevel.loadConfig(happinessConfig, townHappinessLevels);
 		ConfigHappinessState.loadConfig(happinessConfig, happinessStates);
 		ConfigCultureBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
-		ConfigMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
-		ConfigMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
+		ConfigCraftableMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
+		ConfigUnitMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
 		
 		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
 		

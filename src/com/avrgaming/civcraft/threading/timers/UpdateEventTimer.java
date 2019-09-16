@@ -12,10 +12,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.config.TransmuterItem;
+import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.QuarryAsyncTask;
@@ -79,12 +78,11 @@ public class UpdateEventTimer extends CivAsyncTask {
 				}
 			}
 
-			for (Wonder wonder : CivGlobal.getWonders()) {
-				wonder.onUpdate();
-			}
-
+//			for (Wonder wonder : CivGlobal.getWonders()) {
+//				wonder.onUpdate();
+//			}
 			for (Village village : CivGlobal.getVillages()) {
-				for (TransmuterItem cTranI : village.transmuterItems) {
+				for (ConfigTransmuterRecipe cTranI : Village.enableTransmuterRecipes) {
 					TaskMaster.asyncTask("village-" + village.getCorner() + ";transmuterItem-" + cTranI.id, new TransmuterAsyncTask(village, cTranI), 0);
 				}
 			}

@@ -12,6 +12,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigIngredient;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.main.CivData;
@@ -43,10 +44,14 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 	public void addMaterial() {
 		CustomMaterial.craftableMaterials.put(this.getId(), this);
 	}
+	@Override
+	public ConfigCraftableMaterial getConfigMaterial() {
+		return (ConfigCraftableMaterial) this.configMaterial;
+	}
 	
 	public static void buildStaticMaterials() {
 		/* Loads in materials from configuration file. */
-		for (ConfigMaterial cfgMat : CivSettings.craftableMaterials.values()) {
+		for (ConfigCraftableMaterial cfgMat : CivSettings.craftableMaterials.values()) {
 			CraftableCustomMaterial loreMat = new CraftableCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
 			loreMat.setName(cfgMat.name);
 			loreMat.setLore(cfgMat.lore);
@@ -130,7 +135,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 			if (!mat.isCraftable()) continue;
 
 			ItemStack stack = CustomMaterial.spawn(mat);
-			ConfigMaterial configMaterial = mat.configMaterial;
+			ConfigCraftableMaterial configMaterial = (ConfigCraftableMaterial) mat.configMaterial;
 
 			if (mat.isShaped()) {
 				ItemStack[] matrix = new ItemStack[9];
@@ -150,7 +155,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 							CivLog.warning("Couldn't find custom material id:" + ingred.custom_id);
 						}
 
-						ConfigMaterial customMat = customLoreMat.configMaterial;
+						ConfigCraftableMaterial customMat = (ConfigCraftableMaterial) customLoreMat.configMaterial;
 						if (customMat != null) {
 							recipe.setIngredient(ingred.letter.charAt(0), ItemManager.getMaterialData(customMat.item_id, customMat.item_data));
 						} else {
@@ -243,6 +248,6 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 	}
 
 	public int getCraftAmount() {
-		return this.configMaterial.amount;
+		return ((ConfigCraftableMaterial) this.configMaterial).amount;
 	}
 }

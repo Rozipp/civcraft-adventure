@@ -66,7 +66,6 @@ import com.avrgaming.sls.SLSManager;
 import com.avrgaming.civcraft.command.town.*;
 import com.avrgaming.civcraft.command.village.VillageCommand;
 
-import org.bukkit.command.*;
 import com.avrgaming.civcraft.command.resident.*;
 import com.avrgaming.civcraft.command.plot.*;
 import com.avrgaming.civcraft.command.civ.*;

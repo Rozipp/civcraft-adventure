@@ -7,7 +7,8 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.command.admin.AdminCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigMaterial;
+import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
+import com.avrgaming.civcraft.config.ConfigUnitMaterial;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -43,7 +44,7 @@ public class DebugReloadConfCommand extends CommandBase {
 	public void craftmaterial_cmd() throws CivException {
 		try {
 			CivSettings.craftableMaterialsConfig = CivSettings.loadCivConfig("materials.yml");
-			ConfigMaterial.loadConfigCraftable(CivSettings.craftableMaterialsConfig, CivSettings.craftableMaterials);
+			ConfigCraftableMaterial.loadConfigCraftable(CivSettings.craftableMaterialsConfig, CivSettings.craftableMaterials);
 			CraftableCustomMaterial.buildStaticMaterials();
 			CraftableCustomMaterial.buildRecipes();
 			AdminCommand.spawnInventory = null;
@@ -56,7 +57,7 @@ public class DebugReloadConfCommand extends CommandBase {
 	public void unitmaterial_cmd() throws CivException {
 		try {
 			CivSettings.unitMaterialsConfig = CivSettings.loadCivConfig("unitmaterials.yml");
-			ConfigMaterial.loadConfigUnit(CivSettings.unitMaterialsConfig, CivSettings.unitMaterials);
+			ConfigUnitMaterial.loadConfigUnit(CivSettings.unitMaterialsConfig, CivSettings.unitMaterials);
 			UnitCustomMaterial.buildStaticMaterials();
 		} catch (IOException | InvalidConfigurationException e) {
 			e.printStackTrace();

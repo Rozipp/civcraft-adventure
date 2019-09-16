@@ -15,8 +15,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.config.ConfigMission;
+import com.avrgaming.civcraft.config.ConfigUnitMaterial;
 import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.util.CivColor;
@@ -33,27 +33,19 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	public void addMaterial() {
 		CustomMaterial.unitMaterials.put(this.getId(), this);
 	}
-	
+
 	public static void buildStaticMaterials() {
 		/* Loads in materials from configuration file. */
-		for (ConfigMaterial cfgMat : CivSettings.unitMaterials.values()) {
+		for (ConfigUnitMaterial cfgMat : CivSettings.unitMaterials.values()) {
 			UnitCustomMaterial custMat = new UnitCustomMaterial(cfgMat.id, cfgMat.item_id, (short) cfgMat.item_data);
 			custMat.setName(cfgMat.name);
 			custMat.setLore(cfgMat.lore);
+			custMat.setSocketSlot(cfgMat.slot);
 			custMat.configMaterial = cfgMat;
 			custMat.buildComponents();
 			if (custMat.components.containsKey("Espionage")) {
 				ConfigMission mission = CivSettings.missions.get(custMat.components.get("Espionage").getString("espionage_id"));
-				if (mission.slot > 0) {
-					custMat.setName(mission.name);
-					for (String str : mission.description) {
-						custMat.addLore(str);
-					}
-					custMat.addLore(CivColor.Yellow+mission.cost+" "+CivSettings.CURRENCY_NAME);
-					custMat.setSocketSlot(mission.slot);
-					Spy.missionBooks.put(custMat.getId(), custMat);
-					Spy.allowedSubslots.add(custMat.getSocketSlot());
-				}
+				custMat.addLore(CivColor.Yellow + mission.cost + " " + CivSettings.CURRENCY_NAME);
 			}
 		}
 	}

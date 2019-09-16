@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.object.BuildableDamageBlock;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
@@ -90,7 +91,7 @@ public abstract class CustomMaterial {
 	}
 
 	public abstract void addMaterial();
-	
+
 	//----------CustomMaterial
 	public static CustomMaterial getCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
@@ -168,17 +169,17 @@ public abstract class CustomMaterial {
 		Boolean isShiny = false;
 		if (material instanceof BaseCustomMaterial) {
 			BaseCustomMaterial craftMat = (BaseCustomMaterial) material;
-			attrs.addLore(CivColor.ITALIC + craftMat.getConfigMaterial().category);
+			if (material instanceof CraftableCustomMaterial) attrs.addLore(CivColor.ITALIC + ((ConfigCraftableMaterial) craftMat.getConfigMaterial()).category);
 			if (craftMat.getConfigMaterial().tradeable) attrs.setCivCraftProperty("tradeable", "true");
 			if (craftMat.getConfigMaterial().tradeValue >= 0) attrs.setCivCraftProperty("tradeValue", "" + craftMat.getConfigMaterial().tradeValue);
 			isShiny = craftMat.getConfigMaterial().shiny;
 		}
 
 		if (material.getLore() != null) attrs.setLore(material.getLore());
-		
+
 		material.applyAttributes(attrs);
 		ItemStack newStack = attrs.getStack();
-		
+
 		if (isShiny) addGlow(newStack);
 
 		ItemMeta im = newStack.getItemMeta();

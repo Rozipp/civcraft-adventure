@@ -10,9 +10,8 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.ResultItem;
 import com.avrgaming.civcraft.config.SourceItem;
-import com.avrgaming.civcraft.config.TransmuterItem;
+import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
-import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.object.StructureChest;
 import com.avrgaming.civcraft.structure.Buildable;
@@ -24,27 +23,30 @@ import com.avrgaming.civcraft.util.MultiInventory;
 public class TransmuterAsyncTask extends CivAsyncTask {
 
 	Buildable buildable;
-	TransmuterItem cTranI;
+	ConfigTransmuterRecipe cTranI;
 
-	public TransmuterAsyncTask(Buildable buildable, TransmuterItem cTranI) {
+	public TransmuterAsyncTask(Buildable buildable, ConfigTransmuterRecipe cTranI) {
 		this.buildable = buildable;
 		this.cTranI = cTranI;
 	}
 
 	@Override
 	public void run() {
-		ReentrantLock reentrantLock = ((Village) buildable).locks.get(cTranI.id);
-		if (reentrantLock.tryLock()) {
+		ReentrantLock lock = ((Village)buildable).locks.get(cTranI.id);
+		if (lock.tryLock()) {
 			try {
 				HashMap<String, MultiInventory> multInv = new HashMap<>();
 				if (hasEnoughToTransmute(this, cTranI, multInv)) processTransmute(this, cTranI, multInv);
+				if (cTranI.delay != 0) Thread.sleep(1000 * cTranI.delay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			} finally {
-				reentrantLock.unlock();
+				lock.unlock();
 			}
 		}
 	}
 
-	boolean hasEnoughToTransmute(CivAsyncTask task, TransmuterItem cTranI, HashMap<String, MultiInventory> multInv) {
+	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv) {
 		if (cTranI == null) return false;
 		// Проверка ести ли все сундуки
 
@@ -81,7 +83,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		return false;
 	}
 	/** Заменить все предметы из входных сундуков на нужные предмети в выходном БЕЗ ПРОВЕРКИ НА ВОЗМОЖНОСТЬ ОПЕРАЦИИ */
-	void processTransmute(CivAsyncTask task, TransmuterItem cTranI, HashMap<String, MultiInventory> multInv) {
+	void processTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv) {
 		/* определяем какой предмет нужно возвращать в зависимости от rate */
 		Random rand = new Random();
 		int i = 0;
@@ -99,8 +101,8 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 			// удалить все sourceItems
 			for (SourceItem si : cTranI.sourceItems) {
 				MultiInventory sMInv = multInv.get(si.chest);
-				ItemStack is = getItemStack(si.item, si.count);
-				if (is.getType().getMaxDurability() > 0) {
+				ItemStack is = ItemManager.createItemStack(si.item, si.count);
+				if (is.getType().getMaxDurability() > 0) { // если инструмент, то вернуть чуть поломанный
 					ItemStack stack = null;
 					for (ItemStack st : sMInv.getContents()) {
 						if (CustomMaterial.getMID(st).equalsIgnoreCase(si.item)) {
@@ -109,22 +111,22 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 						}
 					}
 					if (stack == null) return;
-					int modifier = 1;//checkDigSpeed(stack);
 					short damage = stack.getDurability();
 					if (!task.updateInventory(Action.REMOVE, sMInv, stack)) return;
-					damage += modifier;
+					damage += si.count;
 					stack.setDurability(damage);
 					if (damage < stack.getType().getMaxDurability() && stack.getAmount() == 1) {
 						task.updateInventory(Action.ADD, sMInv, stack);
 					}
 				} else {
 					task.updateInventory(Action.REMOVE, sMInv, is);
-					if (si.item.contains("373")) task.updateInventory(Action.ADD, sMInv, getItemStack("374", si.count));
+					//Если бутылка, то вернуть пустую
+					if (si.item.contains("373")) task.updateInventory(Action.ADD, sMInv, ItemManager.createItemStack("374", si.count));
 				}
 			}
 			//Добавить предмет в resultChest
 			MultiInventory rMInv = multInv.get(cTranI.resultChest);
-			task.updateInventory(Action.ADD, rMInv, getItemStack(resI.item, resI.count));
+			task.updateInventory(Action.ADD, rMInv, ItemManager.createItemStack(resI.item, resI.count));
 		} catch (InterruptedException e) {
 			return;
 		}
@@ -151,11 +153,5 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 			return null;
 		}
 		return multiInv;
-	}
-
-	ItemStack getItemStack(String ss, int amount) {
-		if (ss.contains(":")) return ItemManager.createItemStack(ss, amount);
-		if (ss.contains("_")) return CustomMaterial.spawn(CraftableCustomMaterial.getCraftableCustomMaterial(ss), amount);
-		return ItemManager.createItemStack(Integer.parseInt(ss), amount);
 	}
 }
