@@ -46,7 +46,7 @@ public class Neuschwanstein extends Wonder implements RespawnLocationHolder {
     public String getRespawnName() {
         String townInfo = CivColor.LightGray + "Neuschwanstein";
         Town town = this.getTown();
-        return townInfo + "\n" + CivColor.Gold + town.getName() + "\nLocation:\n" + CivColor.LightGreen + this.corner.getX() + " " + this.corner.getY() + " " + this.corner.getZ();
+        return townInfo + "\n" + CivColor.Gold + town.getName() + "\nLocation:\n" + CivColor.LightGreen + this.getCorner().getX() + " " + this.getCorner().getY() + " " + this.getCorner().getZ();
     }
 
     public void setRevivePoint(BlockCoord absCoord) {

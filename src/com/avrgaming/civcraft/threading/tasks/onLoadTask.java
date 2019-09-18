@@ -28,12 +28,12 @@ public class onLoadTask implements Runnable {
 			try {
 				Template tpl;
 				try {
-					if (struct.getSavedTemplatePath() == null && struct.hasTemplate()) {
+					if (struct.getTemplateName() == null && struct.hasTemplate()) {
 						CivLog.warning("structure:" + struct.getDisplayName() + " did not have a template name set but says it needs one!");
 						continue;
 					}
 					if (!struct.hasTemplate()) continue;
-					tpl = Template.getTemplate(struct.getSavedTemplatePath(), null);
+					tpl = Template.getTemplate(struct.getTemplateName(), null);
 				} catch (CivException | IOException e) {
 					e.printStackTrace();
 					return;
@@ -58,7 +58,7 @@ public class onLoadTask implements Runnable {
 			Template tpl;
 			try {
 				try {
-					tpl = Template.getTemplate(wonder.getSavedTemplatePath(), null);
+					tpl = Template.getTemplate(wonder.getTemplateName(), null);
 				} catch (CivException | IOException e) {
 					e.printStackTrace();
 					return;

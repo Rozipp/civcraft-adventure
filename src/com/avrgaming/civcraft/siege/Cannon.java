@@ -160,12 +160,12 @@ public class Cannon extends Buildable {
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
 		}
 		
-		corner = new BlockCoord(center);
-		corner.setFromLocation(this.repositionCenter(center, tpl.dir(), tpl.size_x, tpl.size_z));
-		checkBlockPermissionsAndRestrictions(player, corner.getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
-		buildCannonFromTemplate(tpl, corner);
-		processCommandSigns(tpl, corner);
-		this.hitpoints = maxHitpoints;
+		this.setCorner(new BlockCoord(center));
+		this.getCorner().setFromLocation(this.repositionCenter(center, tpl.dir(), tpl.size_x, tpl.size_z));
+		checkBlockPermissionsAndRestrictions(player, getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
+		buildCannonFromTemplate(tpl, getCorner());
+		processCommandSigns(tpl, getCorner());
+		this.setHitpoints(maxHitpoints);
 		this.owner = CivGlobal.getResident(player);
 		
 		try {

@@ -201,7 +201,7 @@ public class AdminBuildCommand extends CommandBase {
 			nearest.repairFromTemplate();
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("interactive_refresh_exception")+nearest.getSavedTemplatePath()+" ?");
+			throw new CivException(CivSettings.localize.localizedString("interactive_refresh_exception")+nearest.getTemplateName()+" ?");
 		}
 		CivMessage.sendSuccess(player, nearest.getDisplayName()+" "+CivSettings.localize.localizedString("Repaired"));
 		

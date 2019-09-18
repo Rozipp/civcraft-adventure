@@ -67,7 +67,7 @@ public class InteractiveBuildableRefresh implements InteractiveResponse {
 						CivMessage.sendSuccess(resident, CivSettings.localize.localizedString("var_interactive_refresh_success",buildable.getDisplayName()));
 					} catch (IOException e) {
 						e.printStackTrace();
-						throw new CivException(CivSettings.localize.localizedString("interactive_refresh_exception")+" "+buildable.getSavedTemplatePath()+" ?");
+						throw new CivException(CivSettings.localize.localizedString("interactive_refresh_exception")+" "+buildable.getTemplateName()+" ?");
 					} 
 				} catch (CivException e) {
 					CivMessage.sendError(resident, e.getMessage());

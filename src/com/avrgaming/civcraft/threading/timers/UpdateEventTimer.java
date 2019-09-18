@@ -82,8 +82,9 @@ public class UpdateEventTimer extends CivAsyncTask {
 //				wonder.onUpdate();
 //			}
 			for (Village village : CivGlobal.getVillages()) {
-				for (ConfigTransmuterRecipe cTranI : Village.enableTransmuterRecipes) {
-					TaskMaster.asyncTask("village-" + village.getCorner() + ";transmuterItem-" + cTranI.id, new TransmuterAsyncTask(village, cTranI), 0);
+				for (ConfigTransmuterRecipe cTranR : Village.enableTransmuterRecipes.values()) {
+					if (village.locks.containsKey(cTranR.id) && !village.locks.get(cTranR.id).isLocked())
+						TaskMaster.asyncTask("v-" + village.getCorner() + ";tr-" + cTranR.id, new TransmuterAsyncTask(village, cTranR), 0);
 				}
 			}
 

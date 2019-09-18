@@ -1,5 +1,6 @@
 package com.avrgaming.civcraft.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class ConfigVillageUpgrade {
 	public String name;
 	public double cost;
 	public String annex;
+	public List<String> transmuter_recipe;
 	public int level;
 	public String require_upgrade = null;
 
@@ -31,6 +33,13 @@ public class ConfigVillageUpgrade {
 			upgrade.name = (String) level.get("name");
 			upgrade.cost = (Double) level.get("cost");
 			upgrade.annex = (String) level.get("annex");
+			String temp = (String) level.get("transmuter_recipe");
+			if (temp != null) {
+				upgrade.transmuter_recipe = new ArrayList<String>();
+				String[] split = temp.split(",");
+				for (String s : split)
+					upgrade.transmuter_recipe.add(s);
+			}
 			upgrade.level = (Integer) level.get("level");
 			upgrade.require_upgrade = (String) level.get("require_upgrade");
 			upgrades.put(upgrade.id, upgrade);

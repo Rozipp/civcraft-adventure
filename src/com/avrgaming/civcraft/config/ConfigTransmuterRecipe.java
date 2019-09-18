@@ -1,11 +1,9 @@
 package com.avrgaming.civcraft.config;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -13,58 +11,30 @@ import com.avrgaming.civcraft.main.CivLog;
 
 public class ConfigTransmuterRecipe {
 
-	public ReentrantLock lock = new ReentrantLock();
 	public String id;
 	public Integer delay = 0;
 	public String resultChest;
-	public LinkedList<SourceItem> sourceItems;
-	public LinkedList<ResultItem> resultItems;
+	public LinkedList<SourceItem> sourceItems = new LinkedList<SourceItem>();
+	public LinkedList<ResultItem> resultItems = new LinkedList<ResultItem>();
+	private Integer allRate = 0;
 
-	public ConfigTransmuterRecipe() {
-		sourceItems = new LinkedList<SourceItem>();
-		resultItems = new LinkedList<ResultItem>();
+	public static class SourceItem {
+		public String item;
+		public int count;
+		public String chest;
 	}
-
-	public ConfigTransmuterRecipe(String id, String resultChest) {
-		this.id = id;
-		this.resultChest = resultChest;
-		sourceItems = new LinkedList<SourceItem>();
-		resultItems = new LinkedList<ResultItem>();
+	public static class ResultItem {
+		public String item;
+		public int count;
+		public int rate;
 	}
-
-	public void addSourceItem(String item, int amount, String chest) {
-		SourceItem si = new SourceItem();
-		si.item = item;
-		si.count = amount;
-		si.chest = chest;
-		sourceItems.add(si);
-	}
-
-	public void addResultItem(String resultItem, int resultAmount, int resultRate) {
-		ResultItem ri = new ResultItem();
-		ri.item = resultItem;
-		ri.count = resultAmount;
-		ri.rate = resultRate;
-		resultItems.add(ri);
-	}
-
-	public Collection<SourceItem> getSourceItems() {
-		return sourceItems;
-	}
-
-	public Collection<ResultItem> getResultItems() {
-		return resultItems;
-	}
-
+	
 	public int getAllRate() {
-		int sum = 0;
-		for (ResultItem ri : resultItems)
-			sum = sum + ri.rate;
-		return sum;
-	}
-
-	public static ConfigTransmuterRecipe getTransmuterRecipeForId(String id) {
-		return CivSettings.transmuterRecipes.get(id);
+		if (allRate == 0) {
+			for (ResultItem ri : resultItems)
+				allRate = allRate + ri.rate;
+		}
+		return allRate;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,14 +45,14 @@ public class ConfigTransmuterRecipe {
 			ConfigTransmuterRecipe ctr = new ConfigTransmuterRecipe();
 			Object obj;
 			ctr.id = (String) b.get("id");
-			ctr.delay = ((obj = b.get("delay")) == null) ? 0 :(Integer) obj;
+			ctr.delay = ((obj = b.get("delay")) == null) ? 0 : (Integer) obj;
 			ctr.resultChest = (String) b.get("result_chest");
 			List<Map<?, ?>> configSourceItems = (List<Map<?, ?>>) b.get("source_item");
 			if (configSourceItems != null) {
 				for (Map<?, ?> ingred : configSourceItems) {
 					SourceItem sourceItem = new SourceItem();
 					sourceItem.item = (String) ingred.get("item");
-					sourceItem.count = ((obj = ingred.get("count")) == null) ? 0 : (Integer) obj;
+					sourceItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
 					sourceItem.chest = (String) ingred.get("chest");
 					ctr.sourceItems.add(sourceItem);
 				}
@@ -92,7 +62,7 @@ public class ConfigTransmuterRecipe {
 				for (Map<?, ?> ingred : configResultItems) {
 					ResultItem resultItem = new ResultItem();
 					resultItem.item = (String) ingred.get("item");
-					resultItem.count = ((obj = ingred.get("count")) == null) ? 0 : (Integer) obj;
+					resultItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
 					resultItem.rate = (Integer) ingred.get("rate");
 					ctr.resultItems.add(resultItem);
 				}

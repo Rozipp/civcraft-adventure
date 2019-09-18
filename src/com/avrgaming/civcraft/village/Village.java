@@ -12,7 +12,9 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
+import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
+import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.items.components.Tagged;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -41,6 +43,8 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.SimpleBlock.Type;
 import com.avrgaming.civcraft.util.TagManager;
 import gpl.AttributeUtil;
+import lombok.Getter;
+import lombok.Setter;
 import ua.rozipp.sound.SoundManager;
 
 import java.io.IOException;
@@ -75,15 +79,17 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 /** @author User */
+@Getter
+@Setter
 public class Village extends Buildable {
-	public static LinkedList<ConfigTransmuterRecipe> enableTransmuterRecipes = new LinkedList<>();
+	public static HashMap<String, ConfigTransmuterRecipe> enableTransmuterRecipes = new HashMap<>();
+	public static final double SHIFT_OUT = 2.0D;
+	public static final String SUBDIR = "village";
 
 	private int hitpoints;
 	private int firepoints;
 	private BlockCoord corner;
 	private HashMap<String, Resident> members = new HashMap<String, Resident>();
-	public static final double SHIFT_OUT = 2.0D;
-	public static final String SUBDIR = "village";
 	private boolean undoable = false;
 
 	private String ownerName;
@@ -97,16 +103,17 @@ public class Village extends Buildable {
 	/* Transmuter */
 	/** уровни пристроек в селе */
 	private HashMap<String, Integer> annexLevel = new HashMap<>();
+	/** служит замком для рецептов трасмутера, а так же испольжуеться во время проверки купленых рецептов */
 	public HashMap<String, ReentrantLock> locks = new HashMap<>();
 
 	/* Locations that exhibit vanilla growth */
 	public HashSet<BlockCoord> growthLocations = new HashSet<BlockCoord>();
 
 	/* Longhouse Stuff. */
-	public ConsumeLevelComponent consumeComponent;
+	private ConsumeLevelComponent consumeComponent;
 
 	/* Doors we protect. */
-	public HashSet<BlockCoord> doors = new HashSet<BlockCoord>();
+//	public HashSet<BlockCoord> doors = new HashSet<BlockCoord>();
 	/* Control blocks */
 	public HashMap<BlockCoord, ControlPoint> controlBlocks = new HashMap<BlockCoord, ControlPoint>();
 
@@ -115,51 +122,30 @@ public class Village extends Buildable {
 
 	private HashMap<String, ConfigVillageUpgrade> upgrades = new HashMap<String, ConfigVillageUpgrade>();
 
-	public static final String TABLE_NAME = "VILLAGES";
-
 	public static void newVillage(Resident resident, Player player, String name) {
-		class SyncTask implements Runnable {
-			Resident resident;
-			String name;
-			Player player;
-
-			public SyncTask(Resident resident, String name, Player player) {
-				this.resident = resident;
-				this.name = name;
-				this.player = player;
+		try {
+			Village existVillage = CivGlobal.getVillage(name);
+			if (existVillage != null) {
+				throw new CivException("(" + name + ") " + CivSettings.localize.localizedString("village_nameTaken"));
 			}
-
-			public void run() {
-				try {
-					Village existVillage = CivGlobal.getVillage(this.name);
-					if (existVillage != null) {
-						throw new CivException("(" + this.name + ") " + CivSettings.localize.localizedString("village_nameTaken"));
-					}
-
-					ItemStack stack = this.player.getInventory().getItemInMainHand();
-					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-					if (craftMat == null || !craftMat.hasComponent("FoundVillage")) {
-						throw new CivException(CivSettings.localize.localizedString("village_missingItem"));
-					}
-
-					Village village = new Village(this.resident, this.name, this.player.getLocation());
-					village.buildVillage(this.player, this.player.getLocation());
-					village.setUndoable(true);
-					CivGlobal.addVillage(village);
-					village.save();
-					CivMessage.sendSuccess((CommandSender) this.player, CivSettings.localize.localizedString("village_createSuccess"));
-					ItemStack newStack = new ItemStack(Material.AIR);
-					this.player.getInventory().setItemInMainHand(newStack);
-					this.resident.clearInteractiveMode();
-					TagManager.editNameTag(this.player);
-				} catch (CivException var6) {
-					CivMessage.sendError(this.player, var6.getMessage());
-				}
-
+			resident.clearInteractiveMode();
+			ItemStack stack = player.getInventory().getItemInMainHand();
+			BaseCustomMaterial craftMat = CustomMaterial.getBaseCustomMaterial(stack);
+			if (craftMat == null || !craftMat.hasComponent("FoundVillage")) {
+				throw new CivException(CivSettings.localize.localizedString("village_missingItem"));
 			}
+			Village village = new Village(resident, name, player.getLocation());
+			village.buildVillage(player, player.getLocation());
+			village.setUndoable(true);
+			CivGlobal.addVillage(village);
+			village.save();
+			CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("village_createSuccess"));
+			player.getInventory().setItemInMainHand(null);
+
+			TagManager.editNameTag(player);
+		} catch (CivException var6) {
+			CivMessage.sendError(player, var6.getMessage());
 		}
-
-		TaskMaster.syncTask(new SyncTask(resident, name, player));
 	}
 
 	public Village(Resident owner, String name, Location corner) throws CivException {
@@ -202,12 +188,9 @@ public class Village extends Buildable {
 		} catch (InvalidConfiguration var7) {
 			var7.printStackTrace();
 		}
-		for (ConfigTransmuterRecipe ctr : enableTransmuterRecipes) {
-			this.locks.put(ctr.id, new ReentrantLock());
-		}
-		locks.put("longhouse", new ReentrantLock());
 	}
 
+	public static final String TABLE_NAME = "VILLAGES";
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
 			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
@@ -235,7 +218,6 @@ public class Village extends Buildable {
 
 		this.loadUpgradeString(rs.getString("upgrades"));
 		this.bindVillageBlocks();
-
 	}
 
 	public void save() {
@@ -250,7 +232,7 @@ public class Village extends Buildable {
 		hashmap.put("corner", this.corner.toString());
 		hashmap.put("next_raid_date", this.nextRaidDate.getTime());
 		hashmap.put("upgrades", this.getUpgradeSaveString());
-		hashmap.put("template_name", this.getSavedTemplatePath());
+		hashmap.put("template_name", this.getTemplateName());
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
@@ -280,6 +262,9 @@ public class Village extends Buildable {
 			}
 			this.upgrades.put(id, upgrade);
 			if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
+			for (String s : upgrade.transmuter_recipe) {
+				this.locks.put(s, new ReentrantLock());
+			}
 			//upgrade.processAction(this);
 		}
 	}
@@ -393,42 +378,12 @@ public class Village extends Buildable {
 		this.addMember(resident);
 		resident.save();
 	}
-
-	public void reprocessCommandSigns() {
-		Template tpl;
-		try {
-			tpl = Template.getTemplate(this.getSavedTemplatePath(), (Location) null);
-		} catch (CivException | IOException var3) {
-			var3.printStackTrace();
-			return;
-		}
-
-		this.processCommandSigns(tpl);
-	}
-
+	
 	@Override
-	public void processCommandSigns(Template tpl) {
-		for (BlockCoord relativeCoord : tpl.doorRelativeLocations) {
-			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
-			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
-
-			Block block = absCoord.getBlock();
-			if (ItemManager.getTypeId(block) != sb.getType()) {
-				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
-			}
-			this.addVillageBlock(absCoord);
-		}
-
-		for (BlockCoord relativeCoord : tpl.attachableLocations) {
-			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
-			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
-
-			Block block = absCoord.getBlock();
-			if (ItemManager.getTypeId(block) != sb.getType()) {
-				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
-			}
-			this.addVillageBlock(absCoord);
-		}
+	public void processValidateCommandBlockRelative(Template tpl) {
+		/* Use the location's of the command blocks in the template and the buildable's corner to find their real positions. Then perform any special building
+		 * we may want to do at those locations. */
+		/* These block coords do not point to a location in the world, just a location in the template. */
 		for (BlockCoord relativeCoord : tpl.commandBlockRelativeLocations) {
 			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
 			BlockCoord absCoord = new BlockCoord(corner.getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
@@ -516,22 +471,22 @@ public class Village extends Buildable {
 					this.addVillageBlock(absCoord);
 					break;
 
-				case "/door" :
-					this.doors.add(absCoord);
-					Block doorBlock = absCoord.getBlock();
-					Block doorBlock2 = absCoord.getBlock().getRelative(0, 1, 0);
-
-					byte topData = 0x8;
-					byte bottomData = 0x0;
-					byte doorDirection = CivData.convertSignDataToDoorDirectionData((byte) sb.getData());
-					bottomData |= doorDirection;
-
-					ItemManager.setTypeIdAndData(doorBlock, ItemManager.getMaterialId(Material.WOODEN_DOOR), bottomData, false);
-					ItemManager.setTypeIdAndData(doorBlock2, ItemManager.getMaterialId(Material.WOODEN_DOOR), topData, false);
-
-					this.addVillageBlock(new BlockCoord(doorBlock));
-					this.addVillageBlock(new BlockCoord(doorBlock2));
-					break;
+//				case "/door" :
+//					this.doors.add(absCoord);
+//					Block doorBlock = absCoord.getBlock();
+//					Block doorBlock2 = absCoord.getBlock().getRelative(0, 1, 0);
+//
+//					byte topData = 0x8;
+//					byte bottomData = 0x0;
+//					byte doorDirection = CivData.convertSignDataToDoorDirectionData((byte) sb.getData());
+//					bottomData |= doorDirection;
+//
+//					ItemManager.setTypeIdAndData(doorBlock, ItemManager.getMaterialId(Material.WOODEN_DOOR), bottomData, false);
+//					ItemManager.setTypeIdAndData(doorBlock2, ItemManager.getMaterialId(Material.WOODEN_DOOR), topData, false);
+//
+//					this.addVillageBlock(new BlockCoord(doorBlock));
+//					this.addVillageBlock(new BlockCoord(doorBlock2));
+//					break;
 				case "/control" :
 					this.createControlPoint(absCoord, "");
 					break;
@@ -550,11 +505,49 @@ public class Village extends Buildable {
 					break;
 			}
 		}
+	}
+
+	public void reprocessCommandSigns() {
+		Template tpl;
+		try {
+			tpl = Template.getTemplate(this.getTemplateName(), (Location) null);
+		} catch (CivException | IOException var3) {
+			var3.printStackTrace();
+			return;
+		}
+
+		this.processCommandSigns(tpl);
+	}
+
+	@Override
+	public void processCommandSigns(Template tpl) {
+		for (BlockCoord relativeCoord : tpl.doorRelativeLocations) {
+			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
+			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
+
+			Block block = absCoord.getBlock();
+			if (ItemManager.getTypeId(block) != sb.getType()) {
+				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
+			}
+			this.addVillageBlock(absCoord);
+		}
+
+		for (BlockCoord relativeCoord : tpl.attachableLocations) {
+			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
+			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
+
+			Block block = absCoord.getBlock();
+			if (ItemManager.getTypeId(block) != sb.getType()) {
+				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
+			}
+			this.addVillageBlock(absCoord);
+		}
+		
 
 		updateFirepit();
 	}
 
-	private void updateFirepit() {
+	public void updateFirepit() {
 		try {
 			int maxFirePoints = CivSettings.getInteger(CivSettings.villageConfig, "village.firepoints");
 			int totalFireBlocks = this.firepitBlocks.size();
@@ -580,7 +573,6 @@ public class Village extends Buildable {
 	}
 
 	public void processFirepoints() {
-		CivLog.debug("begin processFirepoints");
 		MultiInventory mInv = new MultiInventory();
 		for (BlockCoord bcoord : this.fireFurnaceBlocks) {
 			Furnace furnace = (Furnace) bcoord.getBlock().getState();
@@ -612,104 +604,7 @@ public class Village extends Buildable {
 		this.updateFirepit();
 	}
 
-//	public void processLonghouse(CivAsyncTask task) {
-//		int level = annexLevel.getOrDefault("longhouse", 0);
-//		if (level == 0) return;
-//
-//		MultiInventory mInv = new MultiInventory();
-//
-//		ArrayList<StructureChest> chests = this.getAllChestsById("longHouseSource");
-//
-//		// Make sure the chunk is loaded and add it to the inventory.
-//		try {
-//			for (StructureChest c : chests) {
-//				task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
-//				Inventory tmp;
-//				try {
-//					tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), true);
-//					mInv.addInventory(tmp);
-//				} catch (CivTaskAbortException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		if (mInv.getInventoryCount() == 0) {
-//			CivMessage.sendVillage(this, "§c" + CivSettings.localize.localizedString("village_longhouseNoChest"));
-//			return;
-//		}
-//		this.consumeComponent.setSource(mInv);
-//		ConsumeLevelComponent.Result result = this.consumeComponent.processConsumption(true);
-//		this.consumeComponent.onSave();
-//		switch ($SWITCH_TABLE$com$avrgaming$civcraft$components$ConsumeLevelComponent$Result()[result.ordinal()]) {
-//			case 1 :
-//				CivMessage.sendVillage(this, "§a" + CivSettings.localize.localizedString("var_village_yourLonghouseDown",
-//						"§e" + CivSettings.localize.localizedString("village_longhouseStagnated") + "§a", CivSettings.CURRENCY_NAME));
-//				return;
-//			case 2 :
-//			case 4 :
-//			case 6 :
-//			default :
-//				ConfigVillageLonghouseLevel lvl1;
-//				if (result == ConsumeLevelComponent.Result.LEVELUP) {
-//					lvl1 = (ConfigVillageLonghouseLevel) CivSettings.longhouseLevels.get(this.consumeComponent.getLevel() - 1);
-//				} else {
-//					lvl1 = (ConfigVillageLonghouseLevel) CivSettings.longhouseLevels.get(this.consumeComponent.getLevel());
-//				}
-//
-//				double total_coins = lvl1.coins;
-//				this.getOwner().getTreasury().deposit(total_coins);
-//				LoreCraftableMaterial craftMat = LoreCraftableMaterial.getCraftableCustomMaterialFromId("mat_token_of_leadership");
-//				if (craftMat != null) {
-//					ItemStack token = LoreCraftableMaterial.spawn(craftMat);
-//					Tagged tag = (Tagged) craftMat.getComponent("Tagged");
-//					Resident res = CivGlobal.getResident(this.getOwnerName());
-//					token = tag.addTag(token, res.getUUIDString());
-//					AttributeUtil attrs = new AttributeUtil(token);
-//					attrs.addLore("§7" + res.getName());
-//					token = attrs.getStack();
-//					mInv.addItem(token);
-//				}
-//
-//				String stateMessage = "";
-//				switch ($SWITCH_TABLE$com$avrgaming$civcraft$components$ConsumeLevelComponent$Result()[result.ordinal()]) {
-//					case 2 :
-//						stateMessage = "§2" + CivSettings.localize.localizedString("var_village_longhouseGrew", this.consumeComponent.getCountString() + "§a");
-//					case 3 :
-//					case 5 :
-//					default :
-//						break;
-//					case 4 :
-//						stateMessage = "§2" + CivSettings.localize.localizedString("village_longhouselvlUp") + "§a";
-//						break;
-//					case 6 :
-//						stateMessage = "§2"
-//								+ CivSettings.localize.localizedString("var_village_longhouseIsMaxed", this.consumeComponent.getCountString() + "§a");
-//				}
-//
-//				CivMessage.sendVillage(this,
-//						"§a" + CivSettings.localize.localizedString("var_village_yourLonghouse", stateMessage, total_coins, CivSettings.CURRENCY_NAME));
-//				return;
-//			case 3 :
-//				CivMessage.sendVillage(this,
-//						"§a" + CivSettings.localize.localizedString("var_village_yourLonghouseDown",
-//								"§c" + CivSettings.localize.localizedString("var_village_longhouseStarved", this.consumeComponent.getCountString()) + "§a",
-//								CivSettings.CURRENCY_NAME));
-//				return;
-//			case 5 :
-//				CivMessage.sendVillage(this, "§a" + CivSettings.localize.localizedString("var_village_yourLonghouseDown",
-//						"§c" + CivSettings.localize.localizedString("village_longhouseStavedAndLeveledDown") + "§a", CivSettings.CURRENCY_NAME));
-//				return;
-//			case 7 :
-//				CivMessage.sendVillage(this, "§a" + CivSettings.localize.localizedString("var_village_yourLonghouseDown",
-//						"§5" + CivSettings.localize.localizedString("village_longhouseSomethingUnknown") + "§a", CivSettings.CURRENCY_NAME));
-//		}
-//	}
-
 	public void processLonghouse(CivAsyncTask task) {
-		CivLog.debug("begin processLonghouse");
 		int level = annexLevel.getOrDefault("longhouse", 0);
 		if (level == 0) return;
 		MultiInventory mInv = new MultiInventory();
@@ -721,22 +616,6 @@ public class Village extends Buildable {
 			Chest chest = (Chest) b.getState();
 			mInv.addInventory(chest.getBlockInventory());
 		}
-		//TODO срочно изменить на синхронное определение сундука, так как сначала нужно грузить чанк
-//		try {
-//			for (StructureChest c : chests) {
-//				//task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
-//				Inventory tmp;
-//				try {
-//					tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), true);
-//					mInv.addInventory(tmp);
-//				} catch (CivTaskAbortException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-
 		if (mInv.getInventoryCount() == 0) {
 			CivMessage.sendVillage(this, "§c" + CivSettings.localize.localizedString("village_longhouseNoChest"));
 			return;
@@ -831,7 +710,7 @@ public class Village extends Buildable {
 			}
 
 			try {
-				mInv2.removeItem(CivData.BREAD, 32, true);
+				mInv2.removeItem(CivData.BREAD, CivSettings.villageConfig.getInt("village.bread_per_hour_for_second_longhouse"), true);
 			} catch (CivException e) {
 				return;
 			}
@@ -850,7 +729,6 @@ public class Village extends Buildable {
 
 				mInv2.addItems(token, true);
 			}
-
 		}
 	}
 
@@ -904,7 +782,7 @@ public class Village extends Buildable {
 
 		Template tpl;
 		try {
-			tpl = Template.getTemplate(this.getSavedTemplatePath(), (Location) null);
+			tpl = Template.getTemplate(this.getTemplateName(), (Location) null);
 		} catch (IOException var9) {
 			var9.printStackTrace();
 			return;
@@ -1063,30 +941,6 @@ public class Village extends Buildable {
 		this.ownerName = owner.getUid().toString();
 	}
 
-	public int getHitpoints() {
-		return this.hitpoints;
-	}
-
-	public void setHitpoints(int hitpoints) {
-		this.hitpoints = hitpoints;
-	}
-
-	public int getFirepoints() {
-		return this.firepoints;
-	}
-
-	public void setFirepoints(int firepoints) {
-		this.firepoints = firepoints;
-	}
-
-	public BlockCoord getCorner() {
-		return this.corner;
-	}
-
-	public void setCorner(BlockCoord corner) {
-		this.corner = corner;
-	}
-
 	public void fancyVillageBlockDestory() {
 		for (BlockCoord coord : this.villageBlocks.keySet()) {
 			if (CivGlobal.getStructureChest(coord) != null) continue;
@@ -1158,14 +1012,6 @@ public class Village extends Buildable {
 		this.controlBlocks.put(coord, new ControlPoint(coord, this, villageControlHitpoints, info));
 	}
 
-	public boolean isUndoable() {
-		return this.undoable;
-	}
-
-	public void setUndoable(boolean undoable) {
-		this.undoable = undoable;
-	}
-
 	public String getDisplayName() {
 		return CivSettings.localize.localizedString("Village");
 	}
@@ -1221,10 +1067,6 @@ public class Village extends Buildable {
 	public String getOwnerName() {
 		Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(this.ownerName));
 		return res.getName();
-	}
-
-	public void setOwnerName(String ownerName) {
-		this.ownerName = ownerName;
 	}
 
 	public int getLonghouseLevel() {
@@ -1346,8 +1188,11 @@ public class Village extends Buildable {
 		if (!owner.getTreasury().hasEnough(upgrade.cost)) {
 			throw new CivException(CivSettings.localize.localizedString("var_village_ownerMissingCost", upgrade.cost, CivSettings.CURRENCY_NAME));
 		}
+
 		this.upgrades.put(upgrade.id, upgrade);
 		if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
+		for (String s : upgrade.transmuter_recipe)
+			this.locks.put(s, new ReentrantLock());
 		upgrade.processAction(this);
 		this.reprocessCommandSigns();
 		owner.getTreasury().withdraw(upgrade.cost);
@@ -1359,8 +1204,8 @@ public class Village extends Buildable {
 		if (configLore != null) {
 			for (Object obj : configLore) {
 				if (obj instanceof String) {
-					ConfigTransmuterRecipe ctr = ConfigTransmuterRecipe.getTransmuterRecipeForId((String) obj);
-					if (ctr != null) enableTransmuterRecipes.add(ctr);
+					ConfigTransmuterRecipe ctr = CivSettings.transmuterRecipes.get((String) obj);
+					if (ctr != null) enableTransmuterRecipes.put(ctr.id, ctr);
 				}
 			}
 		}

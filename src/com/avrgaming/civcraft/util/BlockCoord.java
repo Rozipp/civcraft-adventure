@@ -22,6 +22,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
+import lombok.Getter;
+
+@Getter
 public class BlockCoord {
 	
 	private String worldname;
@@ -90,17 +93,9 @@ public class BlockCoord {
 		this.setZ(location.getBlockZ());
 	}
 
-	public String getWorldname() {
-		return worldname;
-	}
-
 	public void setWorldname(String worldname) {
 		dirty = true;
 		this.worldname = worldname;
-	}
-
-	public int getX() {
-		return x;
 	}
 
 	public void setX(int x) {
@@ -108,17 +103,9 @@ public class BlockCoord {
 		this.x = x;
 	}
 
-	public int getY() {
-		return y;
-	}
-
 	public void setY(int y) {
 		dirty = true;
 		this.y = y;
-	}
-
-	public int getZ() {
-		return z;
 	}
 
 	public void setZ(int z) {

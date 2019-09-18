@@ -37,7 +37,7 @@ public class TeslaTower extends Structure {
 	protected TeslaTower(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
-		this.hitpoints = this.getMaxHitPoints();
+		this.setHitpoints(this.getMaxHitPoints());
 	}
 	
 	protected TeslaTower(ResultSet rs) throws SQLException, CivException {
@@ -69,7 +69,7 @@ public class TeslaTower extends Structure {
 	        if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
 	            rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 	        }
-	        return (int)((double)this.info.max_hitpoints * rate);
+	        return (int)((double)this.getInfo().max_hitpoints * rate);
 	    }
 	
 //	public void setDamage(int damage) {

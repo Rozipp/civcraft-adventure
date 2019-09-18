@@ -51,17 +51,17 @@ public abstract class Wonder extends Buildable {
 	public Wonder(ResultSet rs) throws SQLException, CivException {
 		this.load(rs);
 		
-		if (this.hitpoints == 0) {
+		if (this.getHitpoints() == 0) {
 			this.delete();
 		}
 	}
 
 	public Wonder(Location center, String id, Town town) throws CivException {
 
-		this.info = CivSettings.wonders.get(id);
+		this.setInfo(CivSettings.wonders.get(id));
 		this.setTown(town);
 		this.setCorner(new BlockCoord(center));
-		this.hitpoints = info.max_hitpoints;
+		this.setHitpoints(getInfo().max_hitpoints);
 		
 		// Disallow duplicate structures with the same hash.
 		Wonder wonder = CivGlobal.getWonder(this.getCorner());
@@ -105,7 +105,7 @@ public abstract class Wonder extends Buildable {
 	@Override
 	public void load(ResultSet rs) throws SQLException, CivException {
 		this.setId(rs.getInt("id"));
-		this.info = CivSettings.wonders.get(rs.getString("type_id"));
+		this.setInfo(CivSettings.wonders.get(rs.getString("type_id")));
 		this.setTown(CivGlobal.getTownFromId(rs.getInt("town_id")));
 		if (this.getTown() == null) {
 			//CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder "+this.getDisplayName()+" ID:"+this.getId());
@@ -113,7 +113,7 @@ public abstract class Wonder extends Buildable {
 		}
 		
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
-		this.hitpoints = rs.getInt("hitpoints");
+		this.setHitpoints(rs.getInt("hitpoints"));
 		this.setTemplateName(rs.getString("template_name"));
 		this.setTemplateX(rs.getInt("template_x"));
 		this.setTemplateY(rs.getInt("template_y"));
@@ -148,7 +148,7 @@ public abstract class Wonder extends Buildable {
 		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getSavedTemplatePath());
+		hashmap.put("template_name", this.getTemplateName());
 		hashmap.put("template_x", this.getTemplateX());
 		hashmap.put("template_y", this.getTemplateY());
 		hashmap.put("template_z", this.getTemplateZ());

@@ -226,7 +226,7 @@ public class StructureValidator implements Runnable {
 				}
 				buildable = iBuildable;
 				cornerLoc = this.iBuildable.getCorner();
-				templateFilepath = this.iBuildable.getSavedTemplatePath();
+				templateFilepath = this.iBuildable.getTemplateName();
 			} else {
 				cornerLoc = this.iCornerLoc;
 				templateFilepath = this.iTemplateName;

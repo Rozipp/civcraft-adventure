@@ -676,7 +676,7 @@ public class Road extends Structure {
 	public void onDestroy() {
 		//can be overriden in subclasses.
 		CivMessage.global(CivSettings.localize.localizedString("var_road_destroySuccess",this.getDisplayName(),this.getTown().getName()));
-		this.hitpoints = 0;
+		this.setHitpoints(0);
 		this.fancyDestroyStructureBlocks();
 		try {
 			this.delete();

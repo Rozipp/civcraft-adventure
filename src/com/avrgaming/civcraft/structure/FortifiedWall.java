@@ -87,7 +87,7 @@ public class FortifiedWall extends Wall {
 
 	public FortifiedWall(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		this.hitpoints = this.getMaxHitPoints();
+		this.setHitpoints(this.getMaxHitPoints());
 	}
 
 	@Override
@@ -223,8 +223,8 @@ public class FortifiedWall extends Wall {
 
 		/* Look for any custom template perks and ask the player if they want to use them. */
 		Resident resident = CivGlobal.getResident(player);
-		ArrayList<Perk> perkList = this.getTown().getTemplatePerks(this, resident, this.info);
-		ArrayList<Perk> personalUnboundPerks = resident.getUnboundTemplatePerks(perkList, this.info);
+		ArrayList<Perk> perkList = this.getTown().getTemplatePerks(this, resident, this.getInfo());
+		ArrayList<Perk> personalUnboundPerks = resident.getUnboundTemplatePerks(perkList, this.getInfo());
 		if (perkList.size() != 0 || personalUnboundPerks.size() != 0) {
 			/* Store the pending buildable. */
 			resident.pendingBuildable = this;
@@ -752,7 +752,7 @@ public class FortifiedWall extends Wall {
 			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
 			rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.BARRICADE);
 		}
-		return (int) (info.max_hitpoints * rate);
+		return (int) (getInfo().max_hitpoints * rate);
 	}
 
 	public String getTEMPLATE() {

@@ -54,7 +54,7 @@ public class RecoverStructureSyncTask implements Runnable {
 		Template tpl;
 		try {
 			//tpl.load_template(struct.getSavedTemplatePath());
-			tpl = Template.getTemplate(struct.getSavedTemplatePath(), null);
+			tpl = Template.getTemplate(struct.getTemplateName(), null);
 		} catch (IOException | CivException e) {
 			e.printStackTrace();
 			return;

@@ -112,9 +112,11 @@ public abstract class CustomMaterial {
 	public static BaseCustomMaterial getBaseCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;
 		String mid = getMID(stack);
-		if (isCraftableCustomMaterial(stack)) return craftableMaterials.get(mid);
-		if (isUnitCustomMaterial(stack)) return unitMaterials.get(mid);
-		return null;
+		BaseCustomMaterial result = craftableMaterials.get(mid);
+		if (result != null)
+			return result;
+		else
+			return unitMaterials.get(mid);
 	}
 	public static BaseCustomMaterial getBaseCustomMaterial(String mid) {
 		return (BaseCustomMaterial) materials.get(mid.toLowerCase());

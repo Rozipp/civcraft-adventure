@@ -18,7 +18,7 @@ public class MagicTower extends Structure {
 
 	protected MagicTower(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
-		this.hitpoints = this.getMaxHitPoints();
+		this.setHitpoints(this.getMaxHitPoints());
 	}
 
 	protected MagicTower(ResultSet rs) throws SQLException, CivException {
@@ -55,7 +55,7 @@ public class MagicTower extends Structure {
 				&& this.getCiv().getCapitol() != null) {
 			rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		}
-		return (int) ((double) this.info.max_hitpoints * rate);
+		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
 	public void setTurretLocation(BlockCoord absCoord) {

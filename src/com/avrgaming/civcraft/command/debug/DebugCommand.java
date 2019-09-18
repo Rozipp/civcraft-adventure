@@ -144,8 +144,6 @@ public class DebugCommand extends CommandBase {
 		cs.add("setallculture", "[amount] - sets all towns culture in the world to this amount.");
 		cs.add("timers", "show all the timer information.");
 		cs.add("runtimer", "run timer commands.");
-		cs.add("shownbt", "shows the current nbt data for this item in the logs");
-		cs.add("addnbt", "adds a custom tag to the item in your hand.");
 		cs.add("loretest", "tests if the magic lore is set.");
 		cs.add("loreset", "adds magic lore tag.");
 		cs.add("giveold", "[name] [first lore]");
@@ -283,7 +281,7 @@ public class DebugCommand extends CommandBase {
 		CivMessage.send(getPlayer(), "Print in consol");
 
 		for (CustomMaterial mat : CustomMaterial.getAllCustomMaterial()) {
-			String mid = mat.getId();  
+			String mid = mat.getId();
 			CivLog.info("material id: " + mid + " mat: " + mat);
 		}
 	}
@@ -441,7 +439,7 @@ public class DebugCommand extends CommandBase {
 
 										Template tplStruct;
 										try {
-											tplStruct = Template.getTemplate(struct.getSavedTemplatePath(), null);
+											tplStruct = Template.getTemplate(struct.getTemplateName(), null);
 											TaskMaster.syncTask(new PostBuildSyncTask(tplStruct, struct));
 										} catch (IOException e) {
 											e.printStackTrace();
@@ -942,29 +940,11 @@ public class DebugCommand extends CommandBase {
 		}
 	}
 
-//	public void shownbt_cmd() throws CivException {
-//		Player player = getPlayer();
-//		
-//		org.bukkit.inventory.ItemStack inHand = player.getInventory().getItemInMainHand();
-//		if (inHand != null) {
-//			NBT.debugPrintItemTags(inHand);
-//		}
-//	}
-
-//	public void addnbt_cmd() throws CivException {
-//		Player player = getPlayer();
-//		
-//		org.bukkit.inventory.ItemStack inHand = player.getInventory().getItemInMainHand();
-//		if (inHand != null) {
-//			NBT.addCustomTag("RJTEST", 1337, inHand);
-//		}
-//	}
-
 	public void runtimer_cmd() {
 		DebugRuntimerCommand cmd = new DebugRuntimerCommand();
 		cmd.onCommand(this.sender, null, "runtimer", this.stripArgs(this.args, 1));
 	}
-	
+
 	public void timers_cmd() {
 
 		CivMessage.sendHeading(sender, "Timers");

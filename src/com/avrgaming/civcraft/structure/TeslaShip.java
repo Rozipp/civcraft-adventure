@@ -81,6 +81,6 @@ public class TeslaShip extends WaterStructure {
 		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
 			rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		}
-		return (int) ((double) this.info.max_hitpoints * rate);
+		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 }

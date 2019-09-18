@@ -95,7 +95,7 @@ public class TradeShip extends WaterStructure {
 		Template tpl;
 		try {
 			//tpl.load_template(this.getSavedTemplatePath());
-			tpl = Template.getTemplate(this.getSavedTemplatePath(), null);
+			tpl = Template.getTemplate(this.getTemplateName(), null);
 		} catch (IOException | CivException e) {
 			e.printStackTrace();
 			return;
@@ -116,7 +116,7 @@ public class TradeShip extends WaterStructure {
 			}
 		}
 		
-		TaskMaster.syncTask(new SyncTask(tpl, corner), TimeTools.toTicks(1));
+		TaskMaster.syncTask(new SyncTask(tpl, getCorner()), TimeTools.toTicks(1));
 
 	}
 	

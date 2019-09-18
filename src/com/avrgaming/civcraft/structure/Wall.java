@@ -78,7 +78,7 @@ public class Wall extends Structure {
 
 	public Wall(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		this.hitpoints = this.getMaxHitPoints();
+		this.setHitpoints(this.getMaxHitPoints());
 	}
 
 	@Override
@@ -560,7 +560,7 @@ public class Wall extends Structure {
 			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
 			rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.BARRICADE);
 		}
-		return (int) (info.max_hitpoints * rate);
+		return (int) (getInfo().max_hitpoints * rate);
 	}
 
 }

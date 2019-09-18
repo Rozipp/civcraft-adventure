@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  * 
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.permission;
 
 import java.sql.ResultSet;
@@ -51,37 +41,37 @@ public class PermissionGroup extends SQLObject {
 	private Map<String, Resident> members = new ConcurrentHashMap<String, Resident>();
 	/* Only cache towns as the 'civ' can change when a town gets conquered or gifted/moved. */
 	private Town cacheTown = null;
-	
+
 	private int civId;
 	private int townId;
-	
+
 	public PermissionGroup(Civilization civ, String name) throws InvalidNameException {
 		this.civId = civ.getId();
 		this.setName(name);
 	}
-	
+
 	public PermissionGroup(Town town, String name) throws InvalidNameException {
 		this.townId = town.getId();
 		this.cacheTown = town;
 		this.setName(name);
 	}
-	
+
 	public PermissionGroup(ResultSet rs) throws SQLException, InvalidNameException {
 		this.load(rs);
 	}
 
 	public void addMember(Resident res) {
-			members.put(res.getUid().toString(), res);
-	}
-	
-	public void removeMember(Resident res) {
-			members.remove(res.getUid().toString());
+		members.put(res.getUid().toString(), res);
 	}
 
-	public boolean hasMember(Resident res) {		
-			return members.containsKey(res.getUid().toString());
+	public void removeMember(Resident res) {
+		members.remove(res.getUid().toString());
 	}
-	
+
+	public boolean hasMember(Resident res) {
+		return members.containsKey(res.getUid().toString());
+	}
+
 	public void clearMembers() {
 		members.clear();
 	}
@@ -89,23 +79,19 @@ public class PermissionGroup extends SQLObject {
 	public static final String TABLE_NAME = "GROUPS";
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME+" (" + 
-					"`id` int(11) unsigned NOT NULL auto_increment," +
-					"`name` VARCHAR(64) NOT NULL," + 
-					"`town_id` int(11)," +
-					"`civ_id` int(11)," +
-					"`members` mediumtext," + 
-				//"FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+"TOWN(id),"+
-				//"FOREIGN KEY (civ_id) REFERENCES "+SQL.tb_prefix+"CIVILIZATIONS(id),"+
-				"PRIMARY KEY (`id`)" + ")";
-			
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
+					+ "`name` VARCHAR(64) NOT NULL," + "`town_id` int(11)," + "`civ_id` int(11)," + "`members` mediumtext," +
+					//"FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+"TOWN(id),"+
+					//"FOREIGN KEY (civ_id) REFERENCES "+SQL.tb_prefix+"CIVILIZATIONS(id),"+
+					"PRIMARY KEY (`id`)" + ")";
+
 			SQL.makeTable(table_create);
-			CivLog.info("Created "+TABLE_NAME+" table");
+			CivLog.info("Created " + TABLE_NAME + " table");
 		} else {
-			CivLog.info(TABLE_NAME+" table OK!");
+			CivLog.info(TABLE_NAME + " table OK!");
 		}
 	}
-	
+
 	@Override
 	public void load(ResultSet rs) throws SQLException, InvalidNameException {
 		this.setId(rs.getInt("id"));
@@ -113,66 +99,65 @@ public class PermissionGroup extends SQLObject {
 		this.setTownId(rs.getInt("town_id"));
 		this.setCivId(rs.getInt("civ_id"));
 		loadMembersFromSaveString(rs.getString("members"));
-		
+
 		if (this.getTownId() != 0) {
-			this.cacheTown = CivGlobal.getTownFromId(this.getTownId());		
+			this.cacheTown = CivGlobal.getTownFromId(this.getTownId());
 			this.getTown().addGroup(this);
 		} else {
 			Civilization civ = CivGlobal.getCivFromId(this.getCivId());
 			if (civ == null) {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
 				if (civ == null) {
-					CivLog.warning("COUlD NOT FIND CIV ID:"+this.getCivId()+" for group: "+this.getName()+" to load.");
+					CivLog.warning("COUlD NOT FIND CIV ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
 					return;
 				}
 			}
-			
+
 			civ.addGroup(this);
 		}
 	}
 
 	@Override
-	public void save() {	
+	public void save() {
 		SQLUpdate.add(this);
 	}
-	
+
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		
+
 		hashmap.put("name", this.getName());
 		hashmap.put("members", this.getMembersSaveString());
 		hashmap.put("town_id", this.getTownId());
 		hashmap.put("civ_id", this.getCivId());
-		
-		SQL.updateNamedObject(this, hashmap, TABLE_NAME);	
+
+		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
 	@Override
 	public void delete() throws SQLException {
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
-	
+
 	private String getMembersSaveString() {
 		String ret = "";
-		
+
 		for (String name : members.keySet()) {
 			ret += name + ",";
 		}
-		
+
 		return ret;
 	}
-	
+
 	private void loadMembersFromSaveString(String src) {
 		String[] names = src.split(",");
-		
+
 		for (String n : names) {
 			Resident res;
 
-			if (n.length() >= 1)
-			{
+			if (n.length() >= 1) {
 				res = CivGlobal.getResidentViaUUID(UUID.fromString(n));
-				
+
 				if (res != null) {
 					members.put(n, res);
 				}
@@ -196,14 +181,14 @@ public class PermissionGroup extends SQLObject {
 		if (cacheTown == null) {
 			return null;
 		}
-		
+
 		return cacheTown.getCiv();
 	}
 
 	public boolean isProtectedGroup() {
 		return isTownProtectedGroup(this.getName()) || isCivProtectedGroup(this.getName());
 	}
-	
+
 	public static boolean isProtectedGroupName(String name) {
 		return isTownProtectedGroup(name) || isCivProtectedGroup(name);
 	}
@@ -211,73 +196,75 @@ public class PermissionGroup extends SQLObject {
 	public boolean isTownProtectedGroup() {
 		return isTownProtectedGroup(this.getName());
 	}
-	
+
 	public boolean isCivProtectedGroup() {
 		return isCivProtectedGroup(this.getName());
 	}
-	
+
 	private static boolean isTownProtectedGroup(String name) {
 		switch (name.toLowerCase()) {
-		case "mayors":
-		case "assistants":
-		case "residents":
-			return true;
+			case "mayors" :
+			case "assistants" :
+			case "residents" :
+				return true;
 		}
 		return false;
 	}
-	
+
 	private static boolean isCivProtectedGroup(String name) {
 		switch (name.toLowerCase()) {
-		case "leaders":
-		case "advisers":
-			return true;
+			case "leaders" :
+			case "advisers" :
+				return true;
 		}
 		return false;
 	}
-	
+
 	public String getMembersString() {
 		String out = "";
-		
-			for (String uuid : members.keySet()) {
-				Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(uuid));
-				out += res.getName()+", ";
-			}
+
+		for (String uuid : members.keySet()) {
+			Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(uuid));
+			out += res.getName() + ", ";
+		}
 		return out;
 	}
-	
-	public static boolean hasGroup(String playerName, String groupName){
-		RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
 
-		Player playerToCheck = Bukkit.getPlayer(playerName);
-		String group = chat.getProvider().getPrimaryGroup(playerToCheck);
-	      if (playerToCheck != null) {
-	         if (!groupName.contains("Helper")) {
-				String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
-	            int var4 = var3.length;
+	public static boolean hasGroup(String playerName, String groupName) {
+		try {
+			RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
 
-	            for(int var5 = 0; var5 < var4; ++var5) {
-	            	String g = var3[var5];
-	               if (g.equalsIgnoreCase(groupName)) {
-	                  return true;
-	               }
-	            }
-	         }
-	      }
+			Player playerToCheck = Bukkit.getPlayer(playerName);
+			String group = chat.getProvider().getPrimaryGroup(playerToCheck);
+			if (playerToCheck != null) {
+				if (!groupName.contains("Helper")) {
+					String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
+					int var4 = var3.length;
 
-	      return false;
-	   }
-	
+					for (int var5 = 0; var5 < var4; ++var5) {
+						String g = var3[var5];
+						if (g.equalsIgnoreCase(groupName)) {
+							return true;
+						}
+					}
+				}
+			}
+		} catch (NoClassDefFoundError e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	public Resident getRandomMember() {
-        try {
-            final Collection<Resident> members = this.members.values();
-            final Resident[] residents = members.toArray(new Resident[members.size()]);
-            if (residents.length > 2) {
-                return residents[CivCraft.civRandom.nextInt(residents.length - 1)];
-            }
-            return residents[0];
-        }
-        catch (Exception error) {
-            return null;
-        }
-    }	
+		try {
+			final Collection<Resident> members = this.members.values();
+			final Resident[] residents = members.toArray(new Resident[members.size()]);
+			if (residents.length > 2) {
+				return residents[CivCraft.civRandom.nextInt(residents.length - 1)];
+			}
+			return residents[0];
+		} catch (Exception error) {
+			return null;
+		}
+	}
 }

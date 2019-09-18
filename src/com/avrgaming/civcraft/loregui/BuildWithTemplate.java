@@ -46,7 +46,7 @@ public class BuildWithTemplate implements GuiAction {
 						tpl = customTemplate.getTemplate(player, resident.pendingBuildable);
 					} else {
 						CustomPersonalTemplate customPersonalTemplate =  (CustomPersonalTemplate)perk.getComponent("CustomPersonalTemplate");
-						tpl = customPersonalTemplate.getTemplate(player, resident.pendingBuildable.info);
+						tpl = customPersonalTemplate.getTemplate(player, resident.pendingBuildable.getInfo());
 					}
 					
 					resident.pendingBuildable.buildPlayerPreview(player, player.getLocation(), tpl);					

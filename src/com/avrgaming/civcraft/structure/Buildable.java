@@ -90,19 +90,25 @@ import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.SimpleBlock.Type;
+import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.global.perks.Perk;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.Config;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public abstract class Buildable extends SQLObject {
 
 	protected BlockCoord mobSpawnerCoord;
 
 	private Town town;
-	protected BlockCoord corner;
-	public ConfigBuildableInfo info = new ConfigBuildableInfo(); //Blank buildable info for buildables which do not have configs.
-	protected int hitpoints;
+	private BlockCoord corner;
+	private ConfigBuildableInfo info = new ConfigBuildableInfo(); //Blank buildable info for buildables which do not have configs.
+	private int hitpoints;
 
 	public int builtBlockCount = 0;
 	public int savedBlockCount = 0;
@@ -143,22 +149,6 @@ public abstract class Buildable extends SQLObject {
 //	public AABB templateBoundingBox = null;
 	public String invalidLayerMessage = "";
 
-	public BlockCoord getMobSpawnerCoord() {
-
-		return mobSpawnerCoord;
-	}
-
-	public void setMobSpawnerCoord(BlockCoord mobSpawnerCoord) {
-		this.mobSpawnerCoord = mobSpawnerCoord;
-	}
-
-	public Town getTown() {
-		return town;
-	}
-	public void setTown(Town town) {
-		this.town = town;
-	}
-
 	public Civilization getCiv() {
 		if (this.getTown() == null) {
 			return null;
@@ -191,10 +181,7 @@ public abstract class Buildable extends SQLObject {
 	}
 
 	public int getRegenRate() {
-		if (this.info.regenRate == null) {
-			return 0;
-		}
-
+		if (this.info.regenRate == null) return 0;
 		return info.regenRate;
 	}
 
@@ -228,10 +215,8 @@ public abstract class Buildable extends SQLObject {
 	}
 
 	public int getPoints() {
-		if (info.points != null) {
-			return info.points;
-		}
-		return 0;
+		if (info.points == null) return 0;
+		return info.points;
 	}
 
 	public String getEffectEvent() {
@@ -259,64 +244,34 @@ public abstract class Buildable extends SQLObject {
 
 	public abstract void processUndo() throws CivException;
 
-	public int getBuiltBlockCount() {
-		return builtBlockCount;
-	}
 	public void setBuiltBlockCount(int builtBlockCount) {
 		this.builtBlockCount = builtBlockCount;
 		this.savedBlockCount = builtBlockCount;
 	}
-	public int getTotalBlockCount() {
-		return totalBlockCount;
-	}
-	public void setTotalBlockCount(int totalBlockCount) {
-		this.totalBlockCount = totalBlockCount;
-	}
 
 	public boolean isDestroyed() {
-		if ((hitpoints == 0) && (this.getMaxHitPoints() != 0)) {
-			return true;
-		}
-		return false;
+		return (hitpoints == 0) && (this.getMaxHitPoints() != 0);
 	}
 
 	public boolean isDestroyable() {
 		return (info.destroyable != null) && (info.destroyable == true);
 	}
 
-	public boolean isComplete() {
-		return complete;
-	}
-	public void setComplete(boolean complete) {
-		this.complete = complete;
-	}
-
 	public abstract void updateBuildProgess();
-
-	public BlockCoord getCorner() {
-		return corner;
-	}
-
-	public void setCorner(BlockCoord center) {
-		this.corner = center;
-	}
 
 	public Location getCenterLocation() {
 		if (this.centerLocation == null) {
 			int centerX = getCorner().getX() + (getTemplateX() / 2);
 			int centerY = getCorner().getY() + (getTemplateY() / 2);
 			int centerZ = getCorner().getZ() + (getTemplateZ() / 2);
-
 			this.centerLocation = new Location(Bukkit.getWorld(getCorner().getWorldname()), centerX, centerY, centerZ);
 		}
-
 		return this.centerLocation;
 	}
 
 	public double getBlocksPerHammer() {
 		// no hammer cost should be instant...
 		if (this.getHammerCost() == 0) return this.totalBlockCount;
-
 		return this.totalBlockCount / this.getHammerCost();
 	}
 
@@ -619,7 +574,7 @@ public abstract class Buildable extends SQLObject {
 
 		try {
 			tpl = new Template();
-			tpl.resumeTemplate(this.getSavedTemplatePath(), this);
+			tpl.resumeTemplate(this.getTemplateName(), this);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -829,8 +784,7 @@ public abstract class Buildable extends SQLObject {
 					if (tradeOutpost == null) {
 						//not building a trade outpost, prevent protected blocks from being destroyed.
 						ProtectedBlock pb = CivGlobal.getProtectedBlock(coord);
-						if (pb != null) {
-						}
+						if (pb != null) {}
 					} else {
 						if (CivGlobal.getTradeGood(coord) != null) {
 							// Make sure we encompass entire trade good.
@@ -936,7 +890,7 @@ public abstract class Buildable extends SQLObject {
 		} else {
 			this.getTown().setCurrentWonderInProgress(this);
 		}
-		BuildAsyncTask task = new BuildAsyncTask(this, tpl, this.getBuildSpeed(), this.getBlocksPerTick(), center.getBlock());
+		BuildAsyncTask task = new BuildAsyncTask(this, tpl, this.getBlocksPerTick(), center.getBlock());
 
 		this.town.build_tasks.add(task);
 		BukkitObjects.scheduleAsyncDelayedTask(task, 0);
@@ -972,11 +926,7 @@ public abstract class Buildable extends SQLObject {
 		//millisecondsPerBlock = 1;
 
 		double blocks = (500 / millisecondsPerBlock);
-
-		if (blocks < 1) {
-			blocks = 1;
-		}
-
+		if (blocks < 1) blocks = 1;
 		return (int) blocks;
 	}
 
@@ -1034,18 +984,6 @@ public abstract class Buildable extends SQLObject {
 		CivLog.info("No Sign action for this buildable?:" + this.getDisplayName());
 	}
 
-	public String getSavedTemplatePath() {
-		if (templateName == null) return templateName;
-		if (templateName.contains("capital")) {
-			CivLog.debug("getSavedTemplatePath - Replacing Capital occurence");
-			templateName = templateName.replace("capital", "capitol");
-		}
-		return templateName;
-	}
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
-	}
-
 	public void addStructureChest(StructureChest chest) {
 		this.structureChests.put(chest.getCoord(), chest);
 	}
@@ -1098,11 +1036,6 @@ public abstract class Buildable extends SQLObject {
 	/* SessionDB helpers */
 	public void sessionAdd(String key, String value) {
 		CivGlobal.getSessionDB().add(key, value, this.getCiv().getId(), this.getTown().getId(), this.getId());
-	}
-
-	/* Damages this structure by this amount. If hitpoints go to 0, structure is demolished. */
-	public int getHitPoints() {
-		return hitpoints;
 	}
 
 	public int getDamagePercentage() {
@@ -1376,19 +1309,10 @@ public abstract class Buildable extends SQLObject {
 	}
 	public void updateSignText() {
 	}
-
-	//	public boolean isAborted() {
-	//		return aborted;
-	//	}
-	//	
-	//	public void setAborted(boolean aborted) {
-	//		this.aborted = aborted;
-	//	}
-
 	public void repairFromTemplate() throws IOException, CivException {
 		//	Template tpl = new Template();
 		//tpl.load_template(this.getSavedTemplatePath());
-		Template tpl = Template.getTemplate(this.getSavedTemplatePath(), null);
+		Template tpl = Template.getTemplate(this.getTemplateName(), null);
 		this.buildRepairTemplate(tpl, this.getCorner().getBlock());
 		TaskMaster.syncTask(new PostBuildSyncTask(tpl, this));
 	}
@@ -1754,7 +1678,7 @@ public abstract class Buildable extends SQLObject {
 
 			Block block = absCoord.getBlock();
 			if (ItemManager.getTypeId(block) != sb.getType()) {
-				if (this.getCiv() != null && this.getCiv().isAdminCiv()) {
+				if (this.getCiv() != null && this.getCiv().isAdminCiv()) {//TODO если цива админская не ставим двери
 					ItemManager.setTypeIdAndData(block, CivData.AIR, (byte) 0, false);
 				} else {
 					ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
@@ -1780,8 +1704,9 @@ public abstract class Buildable extends SQLObject {
 			techbartask.run();
 		}
 
-		//	if (this instanceof Structure) {
-		this.updateSignText();
-		//}
+		if (this instanceof Village) ((Village) this).updateFirepit();
+		if (this instanceof Structure) {
+			this.updateSignText();
+		}
 	}
 }
