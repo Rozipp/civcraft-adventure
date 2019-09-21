@@ -14,7 +14,7 @@ extends Structure {
     public int virtualPotatoCount = 0;
     public ReentrantLock lock = new ReentrantLock();
 
-    protected SilkWorkFarm(Location center, String id, Town town) throws CivException {
+    public SilkWorkFarm(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

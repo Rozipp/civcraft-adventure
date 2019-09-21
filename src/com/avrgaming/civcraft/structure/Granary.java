@@ -28,7 +28,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class Granary extends Structure {
 
-	protected Granary(Location center, String id, Town town)
+	public Granary(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

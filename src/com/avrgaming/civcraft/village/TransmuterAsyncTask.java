@@ -1,7 +1,6 @@
 package com.avrgaming.civcraft.village;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,7 +13,6 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.StructureChest;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Quarry;
@@ -48,7 +46,6 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 
 	@Override
 	public void run() {
-		Date begin = new Date();
 		ReentrantLock lock = buildable.locks.get(cTranR.id);
 		if (lock.tryLock()) {
 			try {
@@ -66,8 +63,6 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 				lock.unlock();
 			}
 		}
-		Date end = new Date();
-		CivLog.debug("time " + (end.getTime() - begin.getTime()) + " milisecond");
 	}
 
 	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv,

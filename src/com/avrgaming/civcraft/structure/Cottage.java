@@ -49,7 +49,7 @@ public class Cottage extends Structure {
 
 	private ConsumeLevelComponent consumeComp = null;
 	
-	protected Cottage(Location center, String id, Town town) throws CivException {
+	public Cottage(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

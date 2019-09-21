@@ -81,7 +81,7 @@ public class FortifiedWall extends Wall {
 
 //	private HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
 
-	protected FortifiedWall(Location center, String id, Town town) throws CivException {
+	public FortifiedWall(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

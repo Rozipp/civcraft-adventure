@@ -51,7 +51,7 @@ public class Market extends Structure {
 	
 	public static int BULK_AMOUNT = 64;
 		
-	protected Market(Location center, String id, Town town) throws CivException {
+	public Market(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		CivGlobal.addMarket(this);
 	}

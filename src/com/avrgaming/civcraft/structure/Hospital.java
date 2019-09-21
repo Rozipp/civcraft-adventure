@@ -14,7 +14,7 @@ import com.avrgaming.civcraft.object.TownChunk;
 
 public class Hospital extends Structure {
 
-	protected Hospital(Location center, String id, Town town)
+	public Hospital(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

@@ -11,7 +11,7 @@ import com.avrgaming.civcraft.object.Town;
 public class School extends Structure {
 
 	
-	protected School(Location center, String id, Town town) throws CivException {
+	public School(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

@@ -140,7 +140,7 @@ public class Library extends Structure {
 		return "Fee: "+((int)(getNonResidentFee()*100) + "%").toString();		
 	}
 	
-	protected Library(Location center, String id, Town town)
+	public Library(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);

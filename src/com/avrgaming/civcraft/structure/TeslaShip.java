@@ -17,11 +17,11 @@ import com.avrgaming.civcraft.util.BlockCoord;
 public class TeslaShip extends WaterStructure {
 	ProjectileLightningComponent teslaComponent;
 
-	protected TeslaShip(Location center, String id, Town town) throws CivException {
+	public TeslaShip(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 
-	protected TeslaShip(ResultSet rs) throws SQLException, CivException {
+	public TeslaShip(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

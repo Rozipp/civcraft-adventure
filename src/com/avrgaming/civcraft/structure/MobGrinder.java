@@ -34,7 +34,7 @@ public class MobGrinder extends Structure {
 		HUGEPACK
 	}
 	
-	protected MobGrinder(Location center, String id, Town town) throws CivException {
+	public MobGrinder(Location center, String id, Town town) throws CivException {
 		super(center, id, town);	
 	}
 	

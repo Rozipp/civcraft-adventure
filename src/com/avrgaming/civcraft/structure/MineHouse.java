@@ -28,7 +28,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class MineHouse extends Structure {
 
-	protected MineHouse(Location center, String id, Town town)
+	public MineHouse(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

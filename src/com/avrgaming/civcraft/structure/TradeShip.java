@@ -47,7 +47,7 @@ public class TradeShip extends WaterStructure {
 	
 	private TradeLevelComponent consumeComp = null;
 	
-	protected TradeShip(Location center, String id, Town town) throws CivException {
+	public TradeShip(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		setUpgradeLvl(town.saved_tradeship_upgrade_levels);
         this.lastConsume = 128;

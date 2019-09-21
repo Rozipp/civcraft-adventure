@@ -28,7 +28,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class Monument extends Structure {
 
-	protected Monument(Location center, String id, Town town)
+	public Monument(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

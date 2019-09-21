@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.structure.Structure;
 
 public class Theatre
 extends Structure {
-    protected Theatre(Location center, String id, Town town) throws CivException {
+    public Theatre(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

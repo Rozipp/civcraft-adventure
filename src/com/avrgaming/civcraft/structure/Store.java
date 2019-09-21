@@ -46,14 +46,14 @@ public class Store extends Structure {
 	
 	ArrayList<StoreMaterial> materials = new ArrayList<StoreMaterial>();
 	
-	protected Store(Location center, String id, Town town) throws CivException {
+	public Store(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 		setLevel(town.saved_store_level);
 	}
 	
-	protected Store(ResultSet rs) throws SQLException, CivException {
+	public Store(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onLoad();

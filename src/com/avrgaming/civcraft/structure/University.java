@@ -18,7 +18,7 @@ import com.avrgaming.civcraft.util.CivColor;
 public class University extends Structure {
 
 	
-	protected University(Location center, String id, Town town) throws CivException {
+	public University(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

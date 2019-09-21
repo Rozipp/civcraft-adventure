@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.structure.Structure;
 
 public class WareHouse
 extends Structure {
-    protected WareHouse(Location center, String id, Town town) throws CivException {
+    public WareHouse(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

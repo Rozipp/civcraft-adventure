@@ -33,7 +33,7 @@ public class ScoutShip extends WaterStructure {
 		super(rs);
 	}
 
-	protected ScoutShip(Location center, String id, Town town)
+	public ScoutShip(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

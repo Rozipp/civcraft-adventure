@@ -72,7 +72,7 @@ public class Wall extends Structure {
 
 //	private HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
 
-	protected Wall(Location center, String id, Town town) throws CivException {
+	public Wall(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

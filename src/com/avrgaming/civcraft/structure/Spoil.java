@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.structure.Structure;
 
 public class Spoil
 extends Structure {
-    protected Spoil(Location center, String id, Town town) throws CivException {
+    public Spoil(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

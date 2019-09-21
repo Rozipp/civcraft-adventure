@@ -50,7 +50,7 @@ public class FishingBoat extends TradeOutpost {
 	public static int WATER_LEVEL = 62;
 	public static int TOLERANCE = 20;
 	
-	protected FishingBoat(Location center, String id, Town town)
+	public FishingBoat(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

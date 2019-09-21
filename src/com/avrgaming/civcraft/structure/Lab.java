@@ -26,7 +26,7 @@ public class Lab
 extends Structure {
     private ConsumeLevelComponent consumeComp = null;
 
-    protected Lab(Location center, String id, Town town) throws CivException {
+    public Lab(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

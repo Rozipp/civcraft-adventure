@@ -38,7 +38,7 @@ public class WaterStructure extends Structure {
 		super(rs);
 	}
 
-	protected WaterStructure(Location center, String id, Town town)
+	public WaterStructure(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

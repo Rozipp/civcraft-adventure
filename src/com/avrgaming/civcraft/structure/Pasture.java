@@ -41,7 +41,7 @@ public class Pasture extends Structure {
 	
 	private int pendingBreeds = 0;
 	
-	protected Pasture(Location center, String id, Town town)
+	public Pasture(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

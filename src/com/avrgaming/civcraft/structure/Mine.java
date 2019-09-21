@@ -45,7 +45,7 @@ public class Mine extends Structure {
 
 	private ConsumeLevelComponent consumeComp = null;
 	
-	protected Mine(Location center, String id, Town town) throws CivException {
+	public Mine(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

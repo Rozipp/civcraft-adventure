@@ -56,7 +56,7 @@ public class TradeOutpost extends Structure {
 	protected BonusGoodie goodie = null;
 	
 	
-	protected TradeOutpost(Location center, String id, Town town)
+	public TradeOutpost(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 		loadSettings();

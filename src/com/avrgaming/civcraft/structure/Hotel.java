@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.structure.Structure;
 
 public class Hotel
 extends Structure {
-    protected Hotel(Location center, String id, Town town) throws CivException {
+	public Hotel(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

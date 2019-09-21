@@ -43,7 +43,7 @@ public class Grocer extends Structure {
 
 	private NonMemberFeeComponent nonMemberFeeComponent; 
 	
-	protected Grocer(Location center, String id, Town town) throws CivException {
+	public Grocer(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();

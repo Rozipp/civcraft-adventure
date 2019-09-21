@@ -104,7 +104,7 @@ public class Trommel extends Structure {
 		DIRT
 	}
 	
-	protected Trommel(Location center, String id, Town town) throws CivException {
+	public Trommel(Location center, String id, Town town) throws CivException {
 		super(center, id, town);	
 		setLevel(town.saved_trommel_level);
 	}

@@ -16,12 +16,12 @@ import com.avrgaming.civcraft.util.BlockCoord;
 public class MagicTower extends Structure {
 	ProjectileMagicComponent magicComponent;
 
-	protected MagicTower(Location center, String id, Town town) throws CivException {
+	public MagicTower(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		this.setHitpoints(this.getMaxHitPoints());
 	}
 
-	protected MagicTower(ResultSet rs) throws SQLException, CivException {
+	public MagicTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

@@ -75,7 +75,7 @@ public class Stable extends Structure {
 		nonMemberFeeComponent.onLoad();
 	}
 
-	protected Stable(Location center, String id, Town town) throws CivException {
+	public Stable(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();

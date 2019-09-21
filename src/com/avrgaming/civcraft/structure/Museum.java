@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class Museum extends Structure {
 
-	protected Museum(Location center, String id, Town town) throws CivException {
+	public Museum(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

@@ -33,7 +33,7 @@ public class Shipyard extends WaterStructure {
     private StructureSign respawnSign;
     private int index = 0;
 	
-	protected Shipyard(Location center, String id, Town town) throws CivException {
+	public Shipyard(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

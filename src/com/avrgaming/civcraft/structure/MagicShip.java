@@ -17,11 +17,11 @@ import com.avrgaming.civcraft.util.BlockCoord;
 public class MagicShip extends WaterStructure {
 	ProjectileMagicComponent magicComponent;
 
-	protected MagicShip(Location center, String id, Town town) throws CivException {
+	public MagicShip(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 
-	protected MagicShip(ResultSet rs) throws SQLException, CivException {
+	public MagicShip(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

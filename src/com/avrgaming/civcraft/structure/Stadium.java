@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class Stadium extends Structure {
 
-	protected Stadium(Location center, String id, Town town)
+	public Stadium(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

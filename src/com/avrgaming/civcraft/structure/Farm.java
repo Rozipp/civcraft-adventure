@@ -48,7 +48,7 @@ public class Farm extends Structure {
 	private FarmChunk fc = null;
 	private double lastEffectiveGrowthRate = 0;
 	
-	protected Farm(Location center, String id, Town town) throws CivException {
+	public Farm(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

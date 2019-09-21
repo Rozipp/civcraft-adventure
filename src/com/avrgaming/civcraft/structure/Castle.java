@@ -9,7 +9,7 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 
 public class Castle extends Structure {
-    protected Castle(Location center, String id, Town town) throws CivException {
+	public Castle(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

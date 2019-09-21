@@ -45,7 +45,7 @@ extends Structure {
     private TreeMap<Integer, StructureSign> progresBar = new TreeMap<Integer, StructureSign>();
     private Date lastSave = null;
 
-    protected Ordinary(Location center, String id, Town town) throws CivException {
+    public Ordinary(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

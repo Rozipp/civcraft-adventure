@@ -13,7 +13,7 @@ import com.avrgaming.civcraft.object.Town;
 public class Lighthouse extends Structure {
 
 	
-	protected Lighthouse(Location center, String id, Town town) throws CivException {
+	public Lighthouse(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

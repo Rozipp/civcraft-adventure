@@ -11,7 +11,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class ResearchLab extends Structure {
 	
-	protected ResearchLab(Location center, String id, Town town) throws CivException {
+	public ResearchLab(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

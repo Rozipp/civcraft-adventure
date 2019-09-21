@@ -40,7 +40,7 @@ public class Factory extends Structure
     private StructureSign trainSign;
     private int index;
     
-    protected Factory(final Location center, final String id, final Town town) throws CivException {
+    public Factory(final Location center, final String id, final Town town) throws CivException {
         super(center, id, town);
         this.index = 0;
     }

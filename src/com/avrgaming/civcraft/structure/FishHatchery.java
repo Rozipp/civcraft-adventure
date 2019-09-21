@@ -35,7 +35,7 @@ public class FishHatchery extends Structure {
 	public int skippedCounter = 0;
 	public ReentrantLock lock = new ReentrantLock();
 	
-	protected FishHatchery(Location center, String id, Town town) throws CivException {
+	public FishHatchery(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		setLevel(town.saved_fish_hatchery_level);
 	}

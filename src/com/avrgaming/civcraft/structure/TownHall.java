@@ -79,7 +79,7 @@ public class TownHall extends Structure implements RespawnLocationHolder {
 	public ArrayList<BlockCoord> nextGoodieFramePoint = new ArrayList<BlockCoord>();
 	public ArrayList<Integer> nextGoodieFrameDirection = new ArrayList<Integer>();
 
-	protected TownHall(Location center, String id, Town town) throws CivException {
+	public TownHall(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

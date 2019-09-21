@@ -34,13 +34,13 @@ public class TeslaTower extends Structure {
 
 	ProjectileLightningComponent teslaComponent;
 	
-	protected TeslaTower(Location center, String id, Town town)
+	public TeslaTower(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 		this.setHitpoints(this.getMaxHitPoints());
 	}
 	
-	protected TeslaTower(ResultSet rs) throws SQLException, CivException {
+	public TeslaTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

@@ -39,7 +39,7 @@ extends Structure {
         super(rs);
     }
 
-    protected Stable2(Location center, String id, Town town) throws CivException {
+    public Stable2(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 
