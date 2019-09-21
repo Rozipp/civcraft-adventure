@@ -18,7 +18,7 @@ public class VillageHourlyTick extends CivAsyncTask {
 	@Override
 	public void run() {
 		for (Village village : CivGlobal.getVillages()) {
-			ReentrantLock reentrantLock = village.locks.get("longhouse");
+			ReentrantLock reentrantLock = village.lockLonghouse;
 			if (reentrantLock.tryLock()) {
 				try {
 					village.processFirepoints();

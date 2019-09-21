@@ -5,16 +5,13 @@ import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigVillageLonghouseLevel;
 import com.avrgaming.civcraft.config.ConfigVillageUpgrade;
-import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
-import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.items.components.Tagged;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -57,7 +54,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
@@ -82,7 +78,6 @@ import org.bukkit.inventory.ItemStack;
 @Getter
 @Setter
 public class Village extends Buildable {
-	public static HashMap<String, ConfigTransmuterRecipe> enableTransmuterRecipes = new HashMap<>();
 	public static final double SHIFT_OUT = 2.0D;
 	public static final String SUBDIR = "village";
 
@@ -103,14 +98,13 @@ public class Village extends Buildable {
 	/* Transmuter */
 	/** уровни пристроек в селе */
 	private HashMap<String, Integer> annexLevel = new HashMap<>();
-	/** служит замком для рецептов трасмутера, а так же испольжуеться во время проверки купленых рецептов */
-	public HashMap<String, ReentrantLock> locks = new HashMap<>();
 
 	/* Locations that exhibit vanilla growth */
 	public HashSet<BlockCoord> growthLocations = new HashSet<BlockCoord>();
 
 	/* Longhouse Stuff. */
 	private ConsumeLevelComponent consumeComponent;
+	public ReentrantLock lockLonghouse = new ReentrantLock();
 
 	/* Doors we protect. */
 //	public HashSet<BlockCoord> doors = new HashSet<BlockCoord>();
@@ -123,29 +117,48 @@ public class Village extends Buildable {
 	private HashMap<String, ConfigVillageUpgrade> upgrades = new HashMap<String, ConfigVillageUpgrade>();
 
 	public static void newVillage(Resident resident, Player player, String name) {
-		try {
-			Village existVillage = CivGlobal.getVillage(name);
-			if (existVillage != null) {
-				throw new CivException("(" + name + ") " + CivSettings.localize.localizedString("village_nameTaken"));
-			}
-			resident.clearInteractiveMode();
-			ItemStack stack = player.getInventory().getItemInMainHand();
-			BaseCustomMaterial craftMat = CustomMaterial.getBaseCustomMaterial(stack);
-			if (craftMat == null || !craftMat.hasComponent("FoundVillage")) {
-				throw new CivException(CivSettings.localize.localizedString("village_missingItem"));
-			}
-			Village village = new Village(resident, name, player.getLocation());
-			village.buildVillage(player, player.getLocation());
-			village.setUndoable(true);
-			CivGlobal.addVillage(village);
-			village.save();
-			CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("village_createSuccess"));
-			player.getInventory().setItemInMainHand(null);
+		class SyncTask implements Runnable {
+			Resident resident;
+			String name;
+			Player player;
 
-			TagManager.editNameTag(player);
-		} catch (CivException var6) {
-			CivMessage.sendError(player, var6.getMessage());
+			public SyncTask(Resident resident, String name, Player player) {
+				this.resident = resident;
+				this.name = name;
+				this.player = player;
+			}
+
+			public void run() {
+				try {
+					Village existVillage = CivGlobal.getVillage(this.name);
+					if (existVillage != null) {
+						throw new CivException("(" + this.name + ") " + CivSettings.localize.localizedString("village_nameTaken"));
+					}
+
+					ItemStack stack = this.player.getInventory().getItemInMainHand();
+					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
+					if (craftMat == null || !craftMat.hasComponent("FoundVillage")) {
+						throw new CivException(CivSettings.localize.localizedString("village_missingItem"));
+					}
+
+					Village village = new Village(this.resident, this.name, this.player.getLocation());
+					village.buildVillage(this.player, this.player.getLocation());
+					village.setUndoable(true);
+					CivGlobal.addVillage(village);
+					village.save();
+					CivMessage.sendSuccess((CommandSender) this.player, CivSettings.localize.localizedString("village_createSuccess"));
+					ItemStack newStack = new ItemStack(Material.AIR);
+					this.player.getInventory().setItemInMainHand(newStack);
+					this.resident.clearInteractiveMode();
+					TagManager.editNameTag(this.player);
+				} catch (CivException var6) {
+					CivMessage.sendError(this.player, var6.getMessage());
+				}
+
+			}
 		}
+
+		TaskMaster.syncTask(new SyncTask(resident, name, player));
 	}
 
 	public Village(Resident owner, String name, Location corner) throws CivException {
@@ -378,7 +391,7 @@ public class Village extends Buildable {
 		this.addMember(resident);
 		resident.save();
 	}
-	
+
 	@Override
 	public void processValidateCommandBlockRelative(Template tpl) {
 		/* Use the location's of the command blocks in the template and the buildable's corner to find their real positions. Then perform any special building
@@ -517,34 +530,6 @@ public class Village extends Buildable {
 		}
 
 		this.processCommandSigns(tpl);
-	}
-
-	@Override
-	public void processCommandSigns(Template tpl) {
-		for (BlockCoord relativeCoord : tpl.doorRelativeLocations) {
-			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
-			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
-
-			Block block = absCoord.getBlock();
-			if (ItemManager.getTypeId(block) != sb.getType()) {
-				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
-			}
-			this.addVillageBlock(absCoord);
-		}
-
-		for (BlockCoord relativeCoord : tpl.attachableLocations) {
-			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
-			BlockCoord absCoord = new BlockCoord(this.getCorner().getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
-
-			Block block = absCoord.getBlock();
-			if (ItemManager.getTypeId(block) != sb.getType()) {
-				ItemManager.setTypeIdAndData(block, sb.getType(), (byte) sb.getData(), false);
-			}
-			this.addVillageBlock(absCoord);
-		}
-		
-
-		updateFirepit();
 	}
 
 	public void updateFirepit() {
@@ -1197,17 +1182,5 @@ public class Village extends Buildable {
 		this.reprocessCommandSigns();
 		owner.getTreasury().withdraw(upgrade.cost);
 		this.save();
-	}
-
-	public static void loadConfigTransmuterRecipes() {
-		List<?> configLore = CivSettings.villageConfig.getList("transmuter_recipe");
-		if (configLore != null) {
-			for (Object obj : configLore) {
-				if (obj instanceof String) {
-					ConfigTransmuterRecipe ctr = CivSettings.transmuterRecipes.get((String) obj);
-					if (ctr != null) enableTransmuterRecipes.put(ctr.id, ctr);
-				}
-			}
-		}
 	}
 }

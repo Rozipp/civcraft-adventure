@@ -13,23 +13,28 @@ import org.bukkit.inventory.PlayerInventory;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
+import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UnitObject extends SQLObject {
 
 	public static final String TABLE_NAME = "UNITS";
 
-	private int town_id;
-	private Civilization civ_owner;
+	private Town townOwner;
 	private int exp;
 	private int level;
 	private String configUnitId;
@@ -41,8 +46,7 @@ public class UnitObject extends SQLObject {
 	public UnitObject(String configUnitId, int town_id) {
 		this.configUnitId = configUnitId;
 		this.configUnit = UnitStatic.configUnits.get(this.configUnitId);
-		this.town_id = town_id;
-		this.civ_owner = CivGlobal.getTownFromId(this.town_id).getCiv();
+		this.townOwner = CivGlobal.getTownFromId(town_id);
 		this.level = 0;
 		this.exp = 0;
 		this.lastResident = null;
@@ -53,10 +57,18 @@ public class UnitObject extends SQLObject {
 		}
 		UnitMaterial um = UnitStatic.getUnit(this.configUnit.id);
 		um.initUnitObject(this);
+		this.townOwner.addUnitToList(this.getId());
 	}
 
-	public UnitObject(ResultSet rs) throws SQLException, InvalidNameException {
-		this.load(rs);
+	public UnitObject(ResultSet rs) throws SQLException, InvalidNameException, CivException {
+		try {
+			this.load(rs);
+		} catch (CivException e) {
+			// TODO Автоматически созданный блок catch
+			e.printStackTrace();
+			this.delete();
+			throw new CivException(e.getMessage());
+		}
 	}
 
 	//-----------------SQL begin
@@ -78,12 +90,20 @@ public class UnitObject extends SQLObject {
 			CivLog.info(TABLE_NAME + " table OK!");
 		}
 	}
-	public void load(ResultSet rs) throws SQLException, InvalidNameException {
+	public void load(ResultSet rs) throws SQLException, InvalidNameException, CivException {
 		this.setId(rs.getInt("id"));
 		this.configUnitId = rs.getString("configUnitId");
 		this.configUnit = UnitStatic.configUnits.get(this.configUnitId);
-		this.town_id = rs.getInt("town_id");
-		this.civ_owner = CivGlobal.getTownFromId(this.town_id).getCiv();
+		this.townOwner = CivGlobal.getTownFromId(rs.getInt("town_id"));
+		if (this.townOwner == null) {
+			CivLog.warning("TownChunk tried to load without a town...");
+			if (CivGlobal.testFileFlag("cleanupDatabase")) {
+				CivLog.info("CLEANING");
+				this.delete();
+			}
+			throw new CivException("Not fount town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
+		} else
+			this.townOwner.addUnitToList(this.getId());
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
 		this.lastResident = CivGlobal.getResidentFromId(rs.getInt("lastResidentId"));
@@ -108,7 +128,7 @@ public class UnitObject extends SQLObject {
 		final HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("id", this.getId());
 		hashmap.put("configUnitId", this.configUnitId);
-		hashmap.put("town_id", this.town_id);
+		hashmap.put("town_id", this.townOwner.getId());
 		hashmap.put("exp", this.exp);
 		hashmap.put("lastResidentId", (this.lastResident == null ? 0 : this.lastResident.getId()));
 
@@ -119,6 +139,8 @@ public class UnitObject extends SQLObject {
 	}
 	@Override
 	public void delete() throws SQLException {
+		if (townOwner != null) this.townOwner.removeUnitToList(this.getId());
+		CivGlobal.removeUnitObject(this);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 	//-----------------SQL end	
@@ -127,21 +149,6 @@ public class UnitObject extends SQLObject {
 	public String getName() {
 		return this.configUnit.name;
 	}
-
-	public void setConfigUnit(ConfigUnit configUnit) {
-		this.configUnit = configUnit;
-	}
-	public ConfigUnit getConfigUnit() {
-		return configUnit;
-	}
-
-	public Civilization getCivilizationOwner() {
-		return civ_owner;
-	}
-
-	public int getLevel() {
-		return level;
-	}
 	public void addLevel() {
 		this.level = this.level + 1;
 	}
@@ -149,13 +156,8 @@ public class UnitObject extends SQLObject {
 		if (this.level > 0) this.level = this.level - 1;
 		compManager.removeLevelUp();
 	}
-
-	public int getExp() {
-		return this.exp;
-	}
 	public void setLastResident(Resident res) {
 		this.lastResident = res;
-		save();
 	}
 	public Resident getLastResident() {
 		return this.lastResident;
@@ -238,11 +240,11 @@ public class UnitObject extends SQLObject {
 	public boolean validateUnitUse(Player player, ItemStack stack) {
 		if (stack == null) return false;
 		Resident resident = CivGlobal.getResident(player);
-		if (this.civ_owner == null) {
+		if (this.townOwner == null) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorInvalidOwner"));
 			return false;
 		}
-		if (!this.civ_owner.equals(resident.getCiv())) {
+		if (!resident.getCiv().equals(this.townOwner.getCiv())) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorNotOwner"));
 			return false;
 		}

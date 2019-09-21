@@ -55,7 +55,7 @@ public class MobStatic {
 	}
 
 	public static void despawnAll() {
-		MythicMobs.inst().getMobManager().removeAllAllMobs();
+//		MythicMobs.inst().getMobManager().despawnAllMobs();
 	}
 
 	public static void spawnRandomCustomMob(Location location) {

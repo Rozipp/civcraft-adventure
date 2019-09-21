@@ -12,12 +12,12 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.structure.Quarry;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.QuarryAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.TrommelAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.village.TransmuterAsyncTask;
@@ -40,51 +40,37 @@ public class UpdateEventTimer extends CivAsyncTask {
 		try {
 			// Loop through each structure, if it has an update function call it in another async process
 			Iterator<Entry<BlockCoord, Structure>> iter = CivGlobal.getStructureIterator();
-
 			while (iter.hasNext()) {
 				Structure struct = iter.next().getValue();
-
 				if (!struct.isActive()) continue;
-
-				try {
-					if (struct.getUpdateEvent() != null && !struct.getUpdateEvent().equals("")) {
-						if (struct.getUpdateEvent().equals("trommel_process")) {
-							if (!CivGlobal.trommelsEnabled) {
-								continue;
-							}
-
-							TaskMaster.asyncTask("trommel-" + struct.getCorner().toString(), new TrommelAsyncTask(struct), 0);
-						} else
-							if (struct.getUpdateEvent().equals("quarry_process")) {
-								if (!CivGlobal.quarriesEnabled) {
-									continue;
-								}
-
-								TaskMaster.asyncTask("quarry-" + struct.getCorner().toString(), new QuarryAsyncTask(struct), 0);
-							}
+				if (struct.getUpdateEvent() != null && !struct.getUpdateEvent().equals("")) {
+					if (struct.getUpdateEvent().equals("trommel_process")) {
+						if (!CivGlobal.trommelsEnabled) {
+							continue;
+						}
+						TaskMaster.asyncTask("trommel-" + struct.getCorner().toString(), new TrommelAsyncTask(struct), 0);
 					}
-
-					struct.onUpdate();
-				} catch (Exception e) {
-					e.printStackTrace();
-					//We need to catch any exception so that an error in one town/structure/good does not
-					//break things for everybody.
-					//TODO log exception into a file or something...
-					//				if (struct.getTown() == null) {
-					//					RJ.logException("TownUnknown struct:"+struct.config.displayName, e);
-					//				} else {
-					//					RJ.logException(struct.town.getName()+":"+struct.config.displayName, e);
-					//				}
+					if (struct instanceof Quarry) {
+						if (!CivGlobal.quarriesEnabled) continue;
+						for (String ctrId : struct.locks.keySet()) {
+							if (!struct.locks.get(ctrId).isLocked())
+								TaskMaster.asyncTask("quarry-" + struct.getCorner() + ";tr-" + ctrId,
+										new TransmuterAsyncTask(struct, CivSettings.transmuterRecipes.get(ctrId)), 0);
+						}
+					}
 				}
+
+				struct.onUpdate();
 			}
 
 //			for (Wonder wonder : CivGlobal.getWonders()) {
 //				wonder.onUpdate();
 //			}
 			for (Village village : CivGlobal.getVillages()) {
-				for (ConfigTransmuterRecipe cTranR : Village.enableTransmuterRecipes.values()) {
-					if (village.locks.containsKey(cTranR.id) && !village.locks.get(cTranR.id).isLocked())
-						TaskMaster.asyncTask("v-" + village.getCorner() + ";tr-" + cTranR.id, new TransmuterAsyncTask(village, cTranR), 0);
+				for (String ctrId : village.locks.keySet()) {
+					if (!village.locks.get(ctrId).isLocked())
+						TaskMaster.asyncTask("village-" + village.getCorner() + ";tr-" + ctrId,
+								new TransmuterAsyncTask(village, CivSettings.transmuterRecipes.get(ctrId)), 0);
 				}
 			}
 

@@ -59,7 +59,7 @@ public class Bank extends Structure {
 	private static final int DIAMOND_BLOCK_SIGN = 6;
 	private static final int EMERALD_BLOCK_SIGN = 7;
 	
-	protected Bank(Location center, String id, Town town) throws CivException {
+	public Bank(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();

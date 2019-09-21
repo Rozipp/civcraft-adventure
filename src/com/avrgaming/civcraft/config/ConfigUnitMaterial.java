@@ -21,7 +21,7 @@ public class ConfigUnitMaterial extends ConfigMaterial {
 			ConfigUnitMaterial mat = loadOneUnitConfig(b);
 			materials.put(mat.id, mat);
 		}
-		CivLog.info("Loaded " + materials.size() + " Materials.");
+		CivLog.info("Loaded " + materials.size() + " Unit Materials.");
 	}
 
 	@SuppressWarnings("unchecked")

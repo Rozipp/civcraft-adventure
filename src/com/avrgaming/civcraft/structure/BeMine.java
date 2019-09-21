@@ -10,7 +10,7 @@ import com.avrgaming.civcraft.structure.Structure;
 
 public class BeMine
 extends Structure {
-    protected BeMine(Location center, String id, Town town) throws CivException {
+	public BeMine(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 

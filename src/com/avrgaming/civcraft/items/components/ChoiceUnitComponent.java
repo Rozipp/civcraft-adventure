@@ -86,7 +86,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 			if (comp.require_tech != null) { //проверка на изученые технологии
 				String[] split = comp.require_tech.split(",");
 				for (int i = split.length - 1; i >= 0; i--) {
-					if (!uo.getCivilizationOwner().hasTechnology(split[i])) {
+					if (!uo.getTownOwner().getCiv().hasTechnology(split[i])) {
 						loreArray.add(CivColor.Red + "изучите " + CivColor.RedBold + "\"" + split[i] + "\"");
 						type = CivData.OBSIDIAN;
 						isRequire = false;

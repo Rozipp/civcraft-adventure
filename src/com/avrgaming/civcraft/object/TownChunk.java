@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  * 
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.object;
 
 import java.sql.ResultSet;
@@ -48,34 +38,36 @@ import com.avrgaming.civcraft.village.Village;
 @Getter
 @Setter
 public class TownChunk extends SQLObject {
-	
+
 	private ChunkCoord chunkLocation;
 	private Town town;
 	private boolean forSale;
-	/* 
-	 * Price vs value, price is what the owner is currently selling it for,
-	 * value is the amount that it was last purchased at, used for taxes.
-	 */
+	/* Price vs value, price is what the owner is currently selling it for, value is the amount that it was last purchased at, used for taxes. */
 	private double value;
 	private double price;
 	private boolean outpost;
 	private boolean canUnclaim = true;
-	
+
 	public PlotPermissions perms = new PlotPermissions();
-	
+
 	public static final String TABLE_NAME = "TOWNCHUNKS";
-	
-	public TownChunk (ResultSet rs) throws SQLException, CivException {
-		this.load(rs);
+
+	public TownChunk(ResultSet rs) throws SQLException, CivException {
+		try {
+			this.load(rs);
+		} catch (CivException e) {
+			this.delete();
+			throw new CivException(e.getMessage());
+		}
 	}
-	
-	public TownChunk (Town newTown, Location location) {
+
+	public TownChunk(Town newTown, Location location) {
 		ChunkCoord coord = new ChunkCoord(location);
 		setTown(newTown);
 		setChunkCord(coord);
 		perms.addGroup(newTown.getDefaultGroup());
 	}
-	
+
 	public TownChunk(Town newTown, ChunkCoord chunkLocation) {
 		setTown(newTown);
 		setChunkCord(chunkLocation);
@@ -84,53 +76,43 @@ public class TownChunk extends SQLObject {
 
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME+" (" + 
-				"`id` int(11) unsigned NOT NULL auto_increment," +
-				"`town_id` int(11) unsigned NOT NULL," +
-				"`world` VARCHAR(32) NOT NULL," +
-				 "`x` bigint(20) NOT NULL," +
-				 "`z` bigint(20) NOT NULL," +
-				 "`owner_id` int(11) unsigned DEFAULT NULL," +
-				 "`groups` mediumtext DEFAULT NULL," +
-				 "`permissions` mediumtext NOT NULL," +
-				 "`for_sale` bool NOT NULL DEFAULT '0'," +
-				 "`value` float NOT NULL DEFAULT '0'," +
-				 "`price` float NOT NULL DEFAULT '0'," +
-				 "`canunclaim` bool DEFAULT '1'," +
-				 "`outpost` bool DEFAULT '0'," +			 
-			//	 "FOREIGN KEY (owner_id) REFERENCES "+SQL.tb_prefix+Resident.TABLE_NAME+"(id),"+
-			//	 "FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+Town.TABLE_NAME+"(id),"+
-				 "PRIMARY KEY (`id`)" + ")";
-			
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
+					+ "`town_id` int(11) unsigned NOT NULL," + "`world` VARCHAR(32) NOT NULL," + "`x` bigint(20) NOT NULL," + "`z` bigint(20) NOT NULL,"
+					+ "`owner_id` int(11) unsigned DEFAULT NULL," + "`groups` mediumtext DEFAULT NULL," + "`permissions` mediumtext NOT NULL,"
+					+ "`for_sale` bool NOT NULL DEFAULT '0'," + "`value` float NOT NULL DEFAULT '0'," + "`price` float NOT NULL DEFAULT '0',"
+					+ "`canunclaim` bool DEFAULT '1'," + "`outpost` bool DEFAULT '0'," +
+					//	 "FOREIGN KEY (owner_id) REFERENCES "+SQL.tb_prefix+Resident.TABLE_NAME+"(id),"+
+					//	 "FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+Town.TABLE_NAME+"(id),"+
+					"PRIMARY KEY (`id`)" + ")";
+
 			SQL.makeTable(table_create);
-			CivLog.info("Created "+TABLE_NAME+" table");
+			CivLog.info("Created " + TABLE_NAME + " table");
 		} else {
-			CivLog.info(TABLE_NAME+" table OK!");
-		}		
+			CivLog.info(TABLE_NAME + " table OK!");
+		}
 	}
 
 	@Override
 	public void load(ResultSet rs) throws SQLException, CivException {
 		this.setId(rs.getInt("id"));
-		this.setTown(CivGlobal.getTownFromId(rs.getInt("town_id")));
+		this.town = CivGlobal.getTownFromId(rs.getInt("town_id"));
 		if (this.getTown() == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
 			if (CivGlobal.testFileFlag("cleanupDatabase")) {
 				CivLog.info("CLEANING");
 				this.delete();
 			}
-			throw new CivException("No town("+rs.getInt("town_id")+") to load this town chunk("+rs.getInt("id"));
+			throw new CivException("Not found town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
 		}
-		
 		ChunkCoord cord = new ChunkCoord(rs.getString("world"), rs.getInt("x"), rs.getInt("z"));
 		this.setChunkCord(cord);
-		
+
 		try {
-			this.perms.loadFromSaveString(town, rs.getString("permissions"));			
+			this.perms.loadFromSaveString(town, rs.getString("permissions"));
 		} catch (CivException e) {
 			e.printStackTrace();
 		}
-		
+
 		this.perms.setOwner(CivGlobal.getResidentFromId(rs.getInt("owner_id")));
 		//this.perms.setGroup(CivGlobal.getPermissionGroup(this.getTown(), rs.getInt("groups")));
 		String grpString = rs.getString("groups");
@@ -140,13 +122,13 @@ public class TownChunk extends SQLObject {
 				this.perms.addGroup(CivGlobal.getPermissionGroup(this.getTown(), Integer.valueOf(grp)));
 			}
 		}
-			
+
 		this.forSale = rs.getBoolean("for_sale");
 		this.value = rs.getDouble("value");
 		this.price = rs.getDouble("price");
 		this.outpost = rs.getBoolean("outpost");
 		this.setCanUnclaim(rs.getBoolean("canunclaim"));
-		
+
 		if (!this.outpost) {
 			try {
 				this.getTown().addTownChunk(this);
@@ -160,7 +142,7 @@ public class TownChunk extends SQLObject {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -171,7 +153,7 @@ public class TownChunk extends SQLObject {
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		
+
 		hashmap.put("id", this.getId());
 		hashmap.put("town_id", this.getTown().getId());
 		hashmap.put("world", this.getChunkCoord().getWorldname());
@@ -182,23 +164,23 @@ public class TownChunk extends SQLObject {
 		hashmap.put("value", this.getValue());
 		hashmap.put("price", this.getPrice());
 		hashmap.put("outpost", this.outpost);
-		
+
 		if (this.perms.getOwner() != null) {
 			hashmap.put("owner_id", this.perms.getOwner().getId());
 		} else {
 			hashmap.put("owner_id", null);
 		}
-		
+
 		if (this.perms.getGroups().size() != 0) {
 			String out = "";
 			for (PermissionGroup grp : this.perms.getGroups()) {
-				out += grp.getId()+":";
+				out += grp.getId() + ":";
 			}
 			hashmap.put("groups", out);
 		} else {
 			hashmap.put("groups", null);
 		}
-						
+
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
@@ -209,12 +191,12 @@ public class TownChunk extends SQLObject {
 	public void setChunkCord(ChunkCoord chunkLocation) {
 		this.chunkLocation = chunkLocation;
 	}
-	
+
 	public static double getNextPlotCost(Town town) {
-		
+
 		ConfigTownLevel effectiveTownLevel = CivSettings.townLevels.get(CivSettings.townLevels.size());
 		int currentPlotCount = town.getTownChunks().size();
-			
+
 		for (ConfigTownLevel lvl : CivSettings.townLevels.values()) {
 			if (currentPlotCount < lvl.plots) {
 				if (effectiveTownLevel.plots > lvl.plots) {
@@ -222,62 +204,62 @@ public class TownChunk extends SQLObject {
 				}
 			}
 		}
-		
-		
-		return effectiveTownLevel.plot_cost;		
+
+		return effectiveTownLevel.plot_cost;
 	}
 
 	public static TownChunk claim(Town town, ChunkCoord coord, boolean outpost) throws CivException {
 		if (CivGlobal.getTownChunk(coord) != null) {
 			throw new CivException(CivSettings.localize.localizedString("town_chunk_errorClaimed"));
 		}
-		
-		double cost;	
+
+		double cost;
 		cost = getNextPlotCost(town);
-		
+
 		if (!town.hasEnough(cost)) {
-			throw new CivException(CivSettings.localize.localizedString("var_town_chunk_claimTooPoor",cost,CivSettings.CURRENCY_NAME));
+			throw new CivException(CivSettings.localize.localizedString("var_town_chunk_claimTooPoor", cost, CivSettings.CURRENCY_NAME));
 		}
-		
+
 		CultureChunk cultureChunk = CivGlobal.getCultureChunk(coord);
 		if (cultureChunk == null || cultureChunk.getCiv() != town.getCiv()) {
 			throw new CivException(CivSettings.localize.localizedString("town_chunk_claimOutsideCulture"));
 		}
-        if (cultureChunk.getTown() != town) {
-            throw new CivException(CivSettings.localize.localizedString("town_chunk_notOwnCultureChunk"));
-        }
-		
+		if (cultureChunk.getTown() != town) {
+			throw new CivException(CivSettings.localize.localizedString("town_chunk_notOwnCultureChunk"));
+		}
+
 		TownChunk tc = new TownChunk(town, coord);
 		tc.setCanUnclaim(true);
-		
+
 		if (!outpost) {
 			if (!tc.isOnEdgeOfOwnership()) {
 				throw new CivException(CivSettings.localize.localizedString("town_chunk_claimTooFar"));
 			}
-		
+
 			if (!town.canClaim()) {
 				throw new CivException(CivSettings.localize.localizedString("town_chunk_claimTooMany"));
 			}
 		}
-		
+
 		//Test that we are not too close to another civ
 		try {
 			int min_distance = CivSettings.getInteger(CivSettings.civConfig, "civ.min_distance");
-			
+
 			for (TownChunk cc : CivGlobal.getTownChunks()) {
 				if (cc.getCiv() != town.getCiv()) {
 					double dist = coord.distance(cc.getChunkCoord());
 					if (dist <= min_distance) {
 						DecimalFormat df = new DecimalFormat();
-						throw new CivException(CivSettings.localize.localizedString("var_town_chunk_claimTooClose",cc.getCiv().getName(),df.format(dist),min_distance));
+						throw new CivException(
+								CivSettings.localize.localizedString("var_town_chunk_claimTooClose", cc.getCiv().getName(), df.format(dist), min_distance));
 					}
 				}
-			}	
+			}
 		} catch (InvalidConfiguration e1) {
 			e1.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalException"));
 		}
-		
+
 		//Test that we are not too far protruding from our own town chunks
 //		try {
 //			int max_protrude = CivSettings.getInteger(CivSettings.townConfig, "town.max_town_chunk_protrude");
@@ -290,14 +272,14 @@ public class TownChunk extends SQLObject {
 //			e1.printStackTrace();
 //			throw new CivException("Internal configuration exception.");
 //		}
-		
+
 		if (!outpost) {
 			try {
 				town.addTownChunk(tc);
 			} catch (AlreadyRegisteredException e1) {
 				e1.printStackTrace();
 				throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
-	
+
 			}
 		} else {
 			try {
@@ -307,30 +289,30 @@ public class TownChunk extends SQLObject {
 				throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
 			}
 		}
-		
+
 		Village village = CivGlobal.getVillageFromChunk(coord);
 		if (village != null) {
-			CivMessage.sendVillage(village, CivColor.Yellow+ChatColor.BOLD+CivSettings.localize.localizedString("var_town_chunk_dibandvillage",town.getName()));
+			CivMessage.sendVillage(village,
+					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));
 			village.disband();
 		}
-		
+
 		tc.setOutpost(outpost);
 		tc.save();
-		town.withdraw(cost);			
+		town.withdraw(cost);
 		CivGlobal.addTownChunk(tc);
 		CivGlobal.processCulture();
 		return tc;
 	}
-	
-	
+
 	public static TownChunk claim(Town town, Player player, boolean outpost) throws CivException {
 		double cost = getNextPlotCost(town);
 		TownChunk tc = claim(town, new ChunkCoord(player.getLocation()), outpost);
-		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_town_chunk_success",tc.getChunkCoord(),CivColor.Yellow+cost+CivColor.LightGreen,CivSettings.CURRENCY_NAME));
+		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_town_chunk_success", tc.getChunkCoord(),
+				CivColor.Yellow + cost + CivColor.LightGreen, CivSettings.CURRENCY_NAME));
 		return tc;
 	}
-	
-	
+
 	/* Returns true if this townchunk is outside our protrude limits. */
 //	private static boolean isTownChunkProtruding(TownChunk start, int protrude_count, int max_protrude, 
 //			HashSet<ChunkCoord> closedList) {
@@ -373,27 +355,24 @@ public class TownChunk extends SQLObject {
 //		
 //		return isTownChunkProtruding(nextChunk, protrude_count + 1, max_protrude, closedList);
 //	}
-	
+
 	private Civilization getCiv() {
 		return this.getTown().getCiv();
 	}
 
-	/*
-	 * XXX This claim is only called when a town hall is building and needs to be claimed.
-	 * We do not save here since its going to be saved in-order using the SQL save in order
-	 * task. Also certain types of validation and cost cacluation are skipped.
-	 */
+	/* XXX This claim is only called when a town hall is building and needs to be claimed. We do not save here since its going to be saved in-order using the
+	 * SQL save in order task. Also certain types of validation and cost cacluation are skipped. */
 	public static TownChunk townHallClaim(Town town, ChunkCoord coord) throws CivException {
 		//This is only called when the town hall is built and needs to be claimed.
-		
+
 		if (CivGlobal.getTownChunk(coord) != null) {
 			throw new CivException(CivSettings.localize.localizedString("town_chunk_errorClaimed"));
 		}
-		
+
 		TownChunk tc = new TownChunk(town, coord);
-		
+
 		tc.setCanUnclaim(false);
-		
+
 		try {
 			town.addTownChunk(tc);
 		} catch (AlreadyRegisteredException e1) {
@@ -401,29 +380,27 @@ public class TownChunk extends SQLObject {
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
 
 		}
-	
+
 		Village village = CivGlobal.getVillageFromChunk(coord);
 		if (village != null) {
-			CivMessage.sendVillage(village, CivColor.Yellow+ChatColor.BOLD+CivSettings.localize.localizedString("var_town_chunk_dibandvillage",town.getName()));
+			CivMessage.sendVillage(village,
+					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));
 			village.disband();
 		}
-		
+
 		CivGlobal.addTownChunk(tc);
 		tc.save();
 		return tc;
 	}
 
 	private boolean isOnEdgeOfOwnership() {
-		
-		int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-				
+
+		int[][] offset = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
 		for (int i = 0; i < 4; i++) {
-			TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(this.getChunkCoord().getWorldname(), 
-					this.getChunkCoord().getX() + offset[i][0], 
+			TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(this.getChunkCoord().getWorldname(), this.getChunkCoord().getX() + offset[i][0],
 					this.getChunkCoord().getZ() + offset[i][1]));
-			if (tc != null && 
-				tc.getTown() == this.getTown() && 
-				!tc.isOutpost()) {
+			if (tc != null && tc.getTown() == this.getTown() && !tc.isOutpost()) {
 				return true;
 			}
 		}
@@ -439,82 +416,78 @@ public class TownChunk extends SQLObject {
 	/* Called when a player enters this plot. */
 	public String getOnEnterString(Player player, TownChunk fromTc) {
 		String out = "";
-		
+
 		if (this.perms.getOwner() != null) {
-			out += CivColor.LightGray+"["+CivSettings.localize.localizedString("town_chunk_status_owned")+" "+CivColor.LightGreen+this.perms.getOwner().getName()+CivColor.LightGray+"]";
+			out += CivColor.LightGray + "[" + CivSettings.localize.localizedString("town_chunk_status_owned") + " " + CivColor.LightGreen
+					+ this.perms.getOwner().getName() + CivColor.LightGray + "]";
 		}
-		
+
 		if (this.perms.getOwner() == null && fromTc != null && fromTc.perms.getOwner() != null) {
-			out += CivColor.LightGray+"["+CivSettings.localize.localizedString("town_chunk_status_unowned")+"]";
+			out += CivColor.LightGray + "[" + CivSettings.localize.localizedString("town_chunk_status_unowned") + "]";
 		}
-		
+
 		if (this.isForSale()) {
-			out += CivColor.Yellow+"["+CivSettings.localize.localizedString("town_chunk_status_forSale")+" "+this.price+" "+CivSettings.CURRENCY_NAME+"]";
+			out += CivColor.Yellow + "[" + CivSettings.localize.localizedString("town_chunk_status_forSale") + " " + this.price + " "
+					+ CivSettings.CURRENCY_NAME + "]";
 		}
-		
+
 		return out;
 	}
 
 	public void purchase(Resident resident) throws CivException {
 
 		if (!resident.getTreasury().hasEnough(this.price)) {
-			throw new CivException(CivSettings.localize.localizedString("var_town_chunk_purchase_tooPoor",this.price,CivSettings.CURRENCY_NAME));
+			throw new CivException(CivSettings.localize.localizedString("var_town_chunk_purchase_tooPoor", this.price, CivSettings.CURRENCY_NAME));
 		}
-		
+
 		if (this.perms.getOwner() == null) {
 			resident.getTreasury().payTo(this.getTown().getTreasury(), this.price);
 		} else {
 			resident.getTreasury().payTo(this.perms.getOwner().getTreasury(), this.price);
 		}
-	
+
 		this.value = this.price;
 		this.price = 0;
 		this.forSale = false;
 		this.perms.setOwner(resident);
 		this.perms.clearGroups();
-		
+
 		this.save();
 	}
-	
+
 	public String getCenterString() {
-		/* 
-		 * Since the chunk is the floor of the block coords divided by 16.
-		 * The middle of the chunk is 8 more from there....
-		 */
+		/* Since the chunk is the floor of the block coords divided by 16. The middle of the chunk is 8 more from there.... */
 		//int blockx = (this.chunkLocation.getX()*16)+8;
 		//int blockz = (this.chunkLocation.getZ()*16)+8;
 		//TODO work out the bugs with this.
-		
+
 		return this.chunkLocation.toString();
 	}
 
 	public boolean isEdgeBlock() {
 
-		int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-		
+		int[][] offset = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
 		if (this.isOutpost()) {
 			return false;
 		}
-		
+
 		for (int i = 0; i < 4; i++) {
-			TownChunk next = CivGlobal.getTownChunk(new ChunkCoord(this.chunkLocation.getWorldname(), 
-					this.chunkLocation.getX() + offset[i][0], 
-					this.chunkLocation.getZ()+ offset[i][1]));
-			if (next == null || next.isOutpost()) { 
+			TownChunk next = CivGlobal.getTownChunk(
+					new ChunkCoord(this.chunkLocation.getWorldname(), this.chunkLocation.getX() + offset[i][0], this.chunkLocation.getZ() + offset[i][1]));
+			if (next == null || next.isOutpost()) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
 	public static void unclaim(TownChunk tc) throws CivException {
-		
+
 		//TODO check that its not the last chunk
 		//TODO make sure that its not owned by someone else.
-		
-		
-		
+
 		tc.getTown().removeTownChunk(tc);
 		try {
 			tc.delete();
@@ -522,6 +495,6 @@ public class TownChunk extends SQLObject {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
 		}
-		
+
 	}
 }

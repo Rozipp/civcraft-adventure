@@ -72,7 +72,7 @@ public class Blacksmith extends Structure {
 	
 	public static HashMap<BlockCoord, Blacksmith> blacksmithAnvils = new HashMap<BlockCoord, Blacksmith>();
 
-	protected Blacksmith(Location center, String id, Town town)
+	public Blacksmith(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);

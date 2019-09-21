@@ -72,7 +72,7 @@ public class Barracks extends Structure {
 	private TreeMap<Integer, StructureSign> progresBar = new TreeMap<Integer, StructureSign>();
 	private Date lastSave = null;
 
-	protected Barracks(Location center, String id, Town town)
+	public Barracks(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}
@@ -137,13 +137,6 @@ public class Barracks extends Structure {
 		}
 
 		double coinCost = unit.cost;
-//		if (unit.id.equals("u_settler")) {
-//			if (!this.getCiv().getLeaderGroup().hasMember(whoClicked)
-//					&& !this.getCiv().getAdviserGroup().hasMember(whoClicked)) {
-//				throw new CivException(CivSettings.localize.localizedString("barracks_trainSettler_NoPerms"));
-//			}
-//		}
-
 		if (!getTown().getTreasury().hasEnough(coinCost)) {
 			throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost,
 					CivSettings.CURRENCY_NAME));

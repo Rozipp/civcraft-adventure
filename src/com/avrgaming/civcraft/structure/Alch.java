@@ -27,7 +27,7 @@ extends Structure {
     private int level = 1;
     private NonMemberFeeComponent nonMemberFeeComponent;
 
-    protected Alch(Location center, String id, Town town) throws CivException {
+    public Alch(Location center, String id, Town town) throws CivException {
         super(center, id, town);
         this.nonMemberFeeComponent = new NonMemberFeeComponent(this);
         this.nonMemberFeeComponent.onSave();

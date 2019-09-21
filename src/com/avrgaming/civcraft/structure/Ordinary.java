@@ -59,17 +59,17 @@ extends Structure {
     }
 
     private String getArtifactSignText(int index) throws IndexOutOfBoundsException {
-        ArrayList<ConfigUnit> artifactList = this.getTown().getAvailableArtifacts();
-        if (artifactList.size() == 0) {
-            return "\n§7" + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Available");
-        }
-        ConfigUnit unit = artifactList.get(index);
-        String out = "\n";
-        double coinCost = unit.cost;
-        out = out + CivColor.LightPurple + unit.name + "\n";
-        out = out + CivColor.Yellow + coinCost + "\n";
-        out = out + CivColor.Yellow + CivSettings.CURRENCY_NAME;
-        return out;
+//        ArrayList<ConfigUnit> artifactList = this.getTown().getAvailableArtifacts();
+//        if (artifactList.size() == 0) {
+//            return "\n§7" + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Available");
+//        }
+//        ConfigUnit unit = artifactList.get(index);
+//        String out = "\n";
+//        double coinCost = unit.cost;
+//        out = out + CivColor.LightPurple + unit.name + "\n";
+//        out = out + CivColor.Yellow + coinCost + "\n";
+//        out = out + CivColor.Yellow + CivSettings.CURRENCY_NAME;
+        return "";
     }
 
     private void changeIndex(int newIndex) {
@@ -88,37 +88,37 @@ extends Structure {
     }
 
     private void train() throws CivException {
-        ArrayList<ConfigUnit> artifactList = this.getTown().getAvailableArtifacts();
-        ConfigUnit artifact = artifactList.get(this.index);
-        if (artifact == null) {
-            throw new CivException(CivSettings.localize.localizedString("ordinary_unknownArtifact"));
-        }
-        if (artifact.id.contains("u_")) {
-            throw new CivException(CivSettings.localize.localizedString("ordinary_settlerOnlyInBarracks"));
-        }
-        if (artifact.limit != 0 && artifact.limit < this.getTown().getArtifactTypeCount(artifact.id)) {
-            throw new CivException(CivSettings.localize.localizedString("var_ordinary_atLimit", artifact.name));
-        }
-        if (!artifact.isAvailable(this.getTown())) {
-            throw new CivException(CivSettings.localize.localizedString("ordinary_unavailable"));
-        }
-        if (this.trainingArtifact != null) {
-            throw new CivException(CivSettings.localize.localizedString("var_ordinary_inProgress", this.trainingArtifact.name));
-        }
-        double coinCost = artifact.cost;
-        if (!this.getTown().getTreasury().hasEnough(coinCost)) {
-            throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", artifact.name, coinCost, CivSettings.CURRENCY_NAME));
-        }
-        this.getTown().getTreasury().withdraw(coinCost);
-        if (!this.getTown().getTreasury().hasEnough(coinCost)) {
-            throw new CivException(CivSettings.localize.localizedString("var_ordinary_tooPoor", artifact.name, coinCost, CivSettings.CURRENCY_NAME));
-        }
-        this.getTown().getTreasury().withdraw(coinCost);
-        this.setCurrentHammers(0.0);
-        this.setTrainingArtifact(artifact);
-        CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_ordinary_begin", artifact.name));
-        this.updateTraining();
-        this.onTechUpdate();
+//        ArrayList<ConfigUnit> artifactList = this.getTown().getAvailableArtifacts();
+//        ConfigUnit artifact = artifactList.get(this.index);
+//        if (artifact == null) {
+//            throw new CivException(CivSettings.localize.localizedString("ordinary_unknownArtifact"));
+//        }
+//        if (artifact.id.contains("u_")) {
+//            throw new CivException(CivSettings.localize.localizedString("ordinary_settlerOnlyInBarracks"));
+//        }
+//        if (artifact.limit != 0 && artifact.limit < this.getTown().getArtifactTypeCount(artifact.id)) {
+//            throw new CivException(CivSettings.localize.localizedString("var_ordinary_atLimit", artifact.name));
+//        }
+//        if (!artifact.isAvailable(this.getTown())) {
+//            throw new CivException(CivSettings.localize.localizedString("ordinary_unavailable"));
+//        }
+//        if (this.trainingArtifact != null) {
+//            throw new CivException(CivSettings.localize.localizedString("var_ordinary_inProgress", this.trainingArtifact.name));
+//        }
+//        double coinCost = artifact.cost;
+//        if (!this.getTown().getTreasury().hasEnough(coinCost)) {
+//            throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", artifact.name, coinCost, CivSettings.CURRENCY_NAME));
+//        }
+//        this.getTown().getTreasury().withdraw(coinCost);
+//        if (!this.getTown().getTreasury().hasEnough(coinCost)) {
+//            throw new CivException(CivSettings.localize.localizedString("var_ordinary_tooPoor", artifact.name, coinCost, CivSettings.CURRENCY_NAME));
+//        }
+//        this.getTown().getTreasury().withdraw(coinCost);
+//        this.setCurrentHammers(0.0);
+//        this.setTrainingArtifact(artifact);
+//        CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_ordinary_begin", artifact.name));
+//        this.updateTraining();
+//        this.onTechUpdate();
     }
 
     @Override

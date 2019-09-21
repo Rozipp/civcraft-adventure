@@ -1,10 +1,12 @@
 package com.avrgaming.civcraft.village;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,9 +14,10 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
-import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.StructureChest;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Quarry;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -30,15 +33,30 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		this.cTranR = cTranR;
 	}
 
+	class FoundElement {
+		Inventory sInv;
+		Integer slot;
+		ItemStack stack;
+		Integer count;
+		public FoundElement(Inventory sInv, Integer slot, ItemStack stack, Integer count) {
+			this.sInv = sInv;
+			this.slot = slot;
+			this.stack = stack;
+			this.count = count;
+		}
+	}
+
 	@Override
 	public void run() {
-		ReentrantLock lock = ((Village) buildable).locks.get(cTranR.id);
+		Date begin = new Date();
+		ReentrantLock lock = buildable.locks.get(cTranR.id);
 		if (lock.tryLock()) {
 			try {
 				HashMap<String, MultiInventory> multInv = new HashMap<>();
+				ArrayList<FoundElement> foundElements = new ArrayList<>();
 
-				if (hasEnoughToTransmute(this, cTranR, multInv)) // проверка возможности операции
-					processTransmute(this, cTranR, multInv); //выполнение операции
+				if (hasEnoughToTransmute(this, cTranR, multInv, foundElements)) // проверка возможности операции
+					processTransmute(this, cTranR, multInv, foundElements); //выполнение операции
 
 				//уснуть на указанное в ConfigTransmuterRecipe.delay количество секунд
 				if (cTranR.delay != 0) Thread.sleep(1000 * cTranR.delay);
@@ -48,9 +66,12 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 				lock.unlock();
 			}
 		}
+		Date end = new Date();
+		CivLog.debug("time " + (end.getTime() - begin.getTime()) + " milisecond");
 	}
 
-	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv) {
+	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv,
+			ArrayList<FoundElement> foundElements) {
 		if (cTranI == null) return false;
 
 		// Проверка ести ли все сундуки
@@ -74,60 +95,75 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 
 		// Проверка ести ли все предметы в сундуках в нужных количествах
 		for (SourceItem si : cTranI.sourceItems) {
-			MultiInventory source = multInv.get(si.chest);
-			boolean found = false;
-			for (ItemStack stack : source.getContents()) {
-				if (stack == null) continue;
-				if (!ItemManager.isCorrectItemStack(stack, si.item)) continue;
-				//проверка количества предметов.
-				if (si.count > stack.getAmount()) continue;
-				found = true;
-				break; //предмет найден выходим из цикла поисика предмета
+			MultiInventory sMInv = multInv.get(si.chest);
+			ItemStack foundStack = null;
+			Integer foundSlot = -1;
+			for (Inventory sInv : sMInv.invs) {
+				foundStack = null;
+				foundSlot = -1;
+				// находим в каком слоте лежит нужный предмет
+				for (int j = 0; j < sInv.getSize(); j++) {
+					ItemStack st = sInv.getItem(j);
+					if (st == null) continue;
+					for (String s : si.item)
+						if (ItemManager.isCorrectItemStack(st, s)) {
+							foundStack = st;
+							foundSlot = j;
+							break;
+						}
+					if (foundStack != null) break; // Если предмет найден, то другие альтернативы не проверяем
+				}
+				// если не наши в этом инвентаре, то ищем в следующем
+				if (foundStack == null || foundSlot == -1) continue;
+
+				foundElements.add(new FoundElement(sInv, foundSlot, foundStack, si.count));
+				break;
 			}
-			if (!found) return false; //один из предметов не найден, остальные предметы не проверяем
 		}
-		return true;// если сюда дошли, значит можно менять предметы
+		return foundElements.size() == cTranI.sourceItems.size();// Если найдены все предметы, значит можно менять их на новые
 	}
 	/** Заменить все предметы из входных сундуков на нужные предмети в выходном БЕЗ ПРОВЕРКИ НА ВОЗМОЖНОСТЬ ОПЕРАЦИИ */
-	void processTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv) {
-		/* определяем какой предмет нужно возвращать в зависимости от rate */
+	void processTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv, ArrayList<FoundElement> foundElements) {
 		Random rand = new Random();
-		int i = 0;
+		/* определяем какой предмет нужно возвращать в зависимости от rate */
+		double i = 0;
 		double r = rand.nextDouble() * cTranI.getAllRate();
 		ResultItem resI = null;
 		for (ResultItem ri : cTranI.resultItems) {
-			i = i + ri.rate;
+			i = i + ((Quarry) buildable).modifyChance(ri.rate.doubleValue());
 			if (r < i) {
 				resI = ri;
 				break;
 			}
 		}
+		if (resI == null) resI = cTranI.lastResultItems;
+
 		try {
-			// удалить все sourceItems
-			for (SourceItem si : cTranI.sourceItems) {
-				MultiInventory sMInv = multInv.get(si.chest);
-				ItemStack is = ItemManager.createItemStack(si.item, si.count);
-				if (is.getType().getMaxDurability() > 0) { // если инструмент, то вернуть чуть поломанный
-					ItemStack stack = null;
-					for (ItemStack st : sMInv.getContents()) {
-						if (CustomMaterial.getMID(st).equalsIgnoreCase(si.item)) {
-							stack = st;
-							break;
+			// удалить все найденние sourceItems
+			for (FoundElement fe : foundElements) {
+				if (fe.stack.getType().getMaxDurability() > 0) { // если инструмент, то вернуть чуть поломанный
+					int damage = fe.stack.getDurability() + fe.count;
+					if (damage >= fe.stack.getType().getMaxDurability()) { //если урон большой, то удаляем инструмент
+						if (fe.stack.getAmount() == 1)
+							task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.AIR), fe.slot);
+						else {
+							fe.stack.setAmount(fe.stack.getAmount() - 1);
+							task.updateInventory(Action.REPLACE, fe.sInv, fe.stack, fe.slot);
 						}
+					} else {
+						fe.stack.setDurability((short) damage);
+						task.updateInventory(Action.REPLACE, fe.sInv, fe.stack, fe.slot);
 					}
-					if (stack == null) return;
-					short damage = stack.getDurability();
-					if (!task.updateInventory(Action.REMOVE, sMInv, stack)) return;
-					damage += si.count;
-					stack.setDurability(damage);
-					if (damage < stack.getType().getMaxDurability() && stack.getAmount() == 1) {
-						task.updateInventory(Action.ADD, sMInv, stack);
-					}
-				} else {
-					task.updateInventory(Action.REMOVE, sMInv, is);
-					//Если бутылка, то вернуть пустую
-					if (si.item.contains("373")) task.updateInventory(Action.ADD, sMInv, ItemManager.createItemStack("374", si.count));
+					break;
 				}
+				//Если бутылка, то вернуть пустую
+				if (ItemManager.isCorrectItemStack(fe.stack, null, 373, (short) 0)) {
+					task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.GLASS_BOTTLE, fe.count), fe.slot);
+					break;
+				}
+				// в остальных случаях просто удалить предмет
+				task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.AIR), fe.slot);
+				break;
 			}
 			//Добавить предмет в resultChest
 			MultiInventory rMInv = multInv.get(cTranI.resultChest);

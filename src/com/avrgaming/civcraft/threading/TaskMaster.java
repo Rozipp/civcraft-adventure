@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.bukkit.scheduler.BukkitTask;
 
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.BukkitObjects;
 
@@ -178,6 +179,12 @@ public class TaskMaster {
 		tasks.remove(key);
 				
 		return false;
+	}
+	
+	public static void printAllTask() {
+		for (String s : tasks.keySet()) {
+			CivLog.info(s);
+		}
 	}
 
 }

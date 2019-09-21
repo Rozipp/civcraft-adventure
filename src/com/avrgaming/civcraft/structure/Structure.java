@@ -36,11 +36,16 @@ import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
-public class Structure extends Buildable {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class Structure extends Buildable {
+	private int level = 1;
+	
 	public static String TABLE_NAME = "STRUCTURES";
 	public Structure(Location center, String id, Town town) throws CivException {
-
 		this.setInfo(CivSettings.structures.get(id));
 		this.setTown(town);
 		this.setCorner(new BlockCoord(center));
@@ -67,11 +72,11 @@ public class Structure extends Buildable {
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static Structure _newStructure(Location center, String id, Town town, ResultSet rs) throws CivException, SQLException {
 		Structure struct;
-		String[] split = id.split("_");
+		String[] splitId = id.split("_");
 		String name = "com.avrgaming.civcraft.structure.";
-		int length = split.length;
+		int length = splitId.length;
 		for (int i = 1; i < length; i++) {
-			name = name + split[i].substring(0, 1).toUpperCase() + split[i].substring(1).toLowerCase();
+			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
 		}
 		if (rs == null)
 			try {
@@ -106,499 +111,6 @@ public class Structure extends Buildable {
 				struct = new Structure(rs);
 			}
 		}
-
-//		switch (id) {
-//			case "s_bank" :
-//				if (rs == null) {
-//					struct = (Structure) new Bank(center, id, town);
-//				} else {
-//					struct = (Structure) new Bank(rs);
-//				}
-//				break;
-//
-//			case "s_trommel" :
-//				if (rs == null) {
-//					struct = (Structure) new Trommel(center, id, town);
-//				} else {
-//					struct = (Structure) new Trommel(rs);
-//				}
-//				break;
-//
-//			case "s_castle" :
-//				if (rs == null) {
-//					struct = new Castle(center, id, town);
-//					break;
-//				}
-//				struct = new Castle(rs);
-//				break;
-//
-//			case "ti_fish_hatchery" :
-//				if (rs == null) {
-//					struct = (Structure) new FishHatchery(center, id, town);
-//				} else {
-//					struct = (Structure) new FishHatchery(rs);
-//				}
-//				break;
-//
-//			case "s_alch" :
-//				if (rs == null) {
-//					struct = new Alch(center, id, town);
-//					break;
-//				}
-//				struct = new Alch(rs);
-//				break;
-//
-//			case "s_portal" :
-//				if (rs == null) {
-//					struct = new Portal(center, id, town);
-//					break;
-//				}
-//				struct = new Portal(rs);
-//				break;
-//
-//			case "ti_trade_ship" :
-//				if (rs == null) {
-//					struct = (Structure) new TradeShip(center, id, town);
-//				} else {
-//					struct = (Structure) new TradeShip(rs);
-//				}
-//				break;
-//
-//			case "ti_quarry" :
-//				if (rs == null) {
-//					struct = (Structure) new Quarry(center, id, town);
-//				} else {
-//					struct = (Structure) new Quarry(rs);
-//				}
-//				break;
-//
-//			case "s_mob_grinder" :
-//				if (rs == null) {
-//					struct = (Structure) new MobGrinder(center, id, town);
-//				} else {
-//					struct = (Structure) new MobGrinder(rs);
-//				}
-//				break;
-//
-//			case "ti_factory" :
-//				if (rs == null) {
-//					struct = new Factory(center, id, town);
-//					break;
-//				}
-//				struct = new Factory(rs);
-//				break;
-//
-//			case "s_store" :
-//				if (rs == null) {
-//					struct = (Structure) new Store(center, id, town);
-//				} else {
-//					struct = (Structure) new Store(rs);
-//				}
-//				break;
-//
-//			case "s_minehouse" : {
-//				if (rs == null) {
-//					struct = new MineHouse(center, id, town);
-//					break;
-//				}
-//				struct = new MineHouse(rs);
-//				break;
-//			}
-//
-//			case "s_stable2" :
-//				if (rs == null) {
-//					struct = new Stable2(center, id, town);
-//					break;
-//				}
-//				struct = new Stable2(rs);
-//				break;
-//
-//			case "s_stadium" :
-//				if (rs == null) {
-//					struct = (Structure) new Stadium(center, id, town);
-//				} else {
-//					struct = (Structure) new Stadium(rs);
-//				}
-//				break;
-//
-//			case "ti_hospital" :
-//				if (rs == null) {
-//					struct = (Structure) new Hospital(center, id, town);
-//				} else {
-//					struct = (Structure) new Hospital(rs);
-//				}
-//				break;
-//
-//			case "s_grocer" :
-//				if (rs == null) {
-//					struct = (Structure) new Grocer(center, id, town);
-//				} else {
-//					struct = (Structure) new Grocer(rs);
-//				}
-//				break;
-//
-//			case "s_broadcast_tower" :
-//				if (rs == null) {
-//					struct = (BroadcastTower) new BroadcastTower(center, id, town);
-//				} else {
-//					struct = (BroadcastTower) new BroadcastTower(rs);
-//				}
-//				break;
-//
-//			case "s_spoil" :
-//				if (rs == null) {
-//					struct = new Spoil(center, id, town);
-//					break;
-//				}
-//				struct = new Spoil(rs);
-//				break;
-//
-//			case "s_library" :
-//				if (rs == null) {
-//					struct = (Structure) new Library(center, id, town);
-//				} else {
-//					struct = (Structure) new Library(rs);
-//				}
-//				break;
-//
-//			case "s_university" :
-//				if (rs == null) {
-//					struct = (Structure) new University(center, id, town);
-//				} else {
-//					struct = (Structure) new University(rs);
-//				}
-//				break;
-//
-//			case "s_school" :
-//				if (rs == null) {
-//					struct = (Structure) new School(center, id, town);
-//				} else {
-//					struct = (Structure) new School(rs);
-//				}
-//				break;
-//
-//			case "s_hotel" :
-//				if (rs == null) {
-//					struct = new Hotel(center, id, town);
-//					break;
-//				}
-//				struct = new Hotel(rs);
-//				break;
-//			case "s_research_lab" :
-//				if (rs == null) {
-//					struct = (Structure) new ResearchLab(center, id, town);
-//				} else {
-//					struct = (Structure) new ResearchLab(rs);
-//				}
-//				break;
-//
-//			case "s_blacksmith" :
-//				if (rs == null) {
-//					struct = (Structure) new Blacksmith(center, id, town);
-//				} else {
-//					struct = (Structure) new Blacksmith(rs);
-//				}
-//				break;
-//
-//			case "s_granary" :
-//				if (rs == null) {
-//					struct = (Structure) new Granary(center, id, town);
-//				} else {
-//					struct = (Structure) new Granary(rs);
-//				}
-//				break;
-//
-//			case "ti_cottage" :
-//				if (rs == null) {
-//					struct = (Structure) new Cottage(center, id, town);
-//				} else {
-//					struct = (Structure) new Cottage(rs);
-//				}
-//				break;
-//			case "s_monument" :
-//				if (rs == null) {
-//					struct = (Structure) new Monument(center, id, town);
-//				} else {
-//					struct = (Structure) new Monument(rs);
-//				}
-//				break;
-//			case "s_temple" :
-//				if (rs == null) {
-//					struct = (Structure) new Temple(center, id, town);
-//				} else {
-//					struct = (Structure) new Temple(rs);
-//				}
-//				break;
-//			case "ti_lab" :
-//				if (rs == null) {
-//					struct = new Lab(center, id, town);
-//					break;
-//				}
-//				struct = new Lab(rs);
-//				break;
-//			case "ti_mine" :
-//				if (rs == null) {
-//					struct = (Structure) new Mine(center, id, town);
-//				} else {
-//					struct = (Structure) new Mine(rs);
-//				}
-//				break;
-//			case "ti_farm" :
-//				if (rs == null) {
-//					struct = (Structure) new Farm(center, id, town);
-//				} else {
-//					struct = (Structure) new Farm(rs);
-//				}
-//				break;
-//			case "ti_trade_outpost" :
-//				if (rs == null) {
-//					struct = (Structure) new TradeOutpost(center, id, town);
-//				} else {
-//					struct = (Structure) new TradeOutpost(rs);
-//				}
-//				break;
-//			case "ti_fishing_boat" :
-//				if (rs == null) {
-//					struct = (Structure) new FishingBoat(center, id, town);
-//				} else {
-//					struct = (Structure) new FishingBoat(rs);
-//				}
-//				break;
-//			case "s_townhall" :
-//				if (rs == null) {
-//					struct = (Structure) new TownHall(center, id, town);
-//				} else {
-//					struct = (Structure) new TownHall(rs);
-//				}
-//				break;
-//			case "s_ordinary" :
-//				if (rs == null) {
-//					struct = new Ordinary(center, id, town);
-//					break;
-//				}
-//				struct = new Ordinary(rs);
-//				break;
-//			// Just for backwards compatibility with old typos on existing servers:
-//			case "s_capital" :
-//				if (rs == null) {
-//					struct = (Structure) new Capitol(center, id, town);
-//				} else {
-//					struct = (Structure) new Capitol(rs);
-//				}
-//				break;
-//			case "s_capitol" :
-//				if (rs == null) {
-//					struct = (Structure) new Capitol(center, id, town);
-//				} else {
-//					struct = (Structure) new Capitol(rs);
-//				}
-//				break;
-//			case "s_arrowship" :
-//				if (rs == null) {
-//					struct = (ArrowShip) new ArrowShip(center, id, town);
-//				} else {
-//					struct = (ArrowShip) new ArrowShip(rs);
-//				}
-//				break;
-//			case "s_arrowtower" :
-//				if (rs == null) {
-//					struct = (Structure) new ArrowTower(center, id, town);
-//				} else {
-//					struct = (Structure) new ArrowTower(rs);
-//				}
-//				break;
-//			case "s_cannonship" :
-//				if (rs == null) {
-//					struct = (CannonShip) new CannonShip(center, id, town);
-//				} else {
-//					struct = (CannonShip) new CannonShip(rs);
-//				}
-//				break;
-//			case "s_cannontower" :
-//				if (rs == null) {
-//					struct = (Structure) new CannonTower(center, id, town);
-//				} else {
-//					struct = (Structure) new CannonTower(rs);
-//				}
-//				break;
-//			case "s_scoutship" :
-//				if (rs == null) {
-//					struct = (ScoutShip) new ScoutShip(center, id, town);
-//				} else {
-//					struct = (ScoutShip) new ScoutShip(rs);
-//				}
-//				break;
-//			case "s_scouttower" :
-//				if (rs == null) {
-//					struct = (ScoutTower) new ScoutTower(center, id, town);
-//				} else {
-//					struct = (ScoutTower) new ScoutTower(rs);
-//				}
-//				break;
-//			case "s_shipyard" :
-//				if (rs == null) {
-//					struct = (Structure) new Shipyard(center, id, town);
-//				} else {
-//					struct = (Structure) new Shipyard(rs);
-//				}
-//				break;
-//			case "ti_wall" :
-//				if (rs == null) {
-//					struct = (Structure) new Wall(center, id, town);
-//				} else {
-//					struct = (Structure) new Wall(rs);
-//				}
-//				break;
-//			case "ti_fortifiedwall" :
-//				if (rs == null) {
-//					struct = (Structure) new FortifiedWall(center, id, town);
-//				} else {
-//					struct = (Structure) new FortifiedWall(rs);
-//				}
-//				break;
-//			case "ti_road" :
-//				if (rs == null) {
-//					struct = (Structure) new Road(center, id, town);
-//				} else {
-//					struct = (Structure) new Road(rs);
-//				}
-//				break;
-//			case "s_barracks" :
-//				if (rs == null) {
-//					struct = (Structure) new Barracks(center, id, town);
-//				} else {
-//					struct = (Structure) new Barracks(rs);
-//				}
-//				break;
-//			case "ti_windmill" :
-//				if (rs == null) {
-//					struct = (Structure) new Windmill(center, id, town);
-//				} else {
-//					struct = (Structure) new Windmill(rs);
-//				}
-//				break;
-//			case "s_museum" :
-//				if (rs == null) {
-//					struct = (Museum) new Museum(center, id, town);
-//				} else {
-//					struct = (Museum) new Museum(rs);
-//				}
-//				break;
-//			case "s_shopingcenter" :
-//				if (rs == null) {
-//					struct = new ShopingCenter(center, id, town);
-//					break;
-//				}
-//				struct = new ShopingCenter(rs);
-//				break;
-//			case "s_theatre" :
-//				if (rs == null) {
-//					struct = new Theatre(center, id, town);
-//					break;
-//				}
-//				struct = new Theatre(rs);
-//				break;
-//			case "s_powerstation" :
-//				if (rs == null) {
-//					struct = new PowerStation(center, id, town);
-//					break;
-//				}
-//				struct = new PowerStation(rs);
-//				break;
-//			case "s_market" :
-//				if (rs == null) {
-//					struct = (Market) new Market(center, id, town);
-//				} else {
-//					struct = (Market) new Market(rs);
-//				}
-//				break;
-//			case "s_stable" :
-//				if (rs == null) {
-//					struct = (Stable) new Stable(center, id, town);
-//				} else {
-//					struct = (Stable) new Stable(rs);
-//				}
-//				break;
-//			case "ti_pasture" :
-//				if (rs == null) {
-//					struct = (Pasture) new Pasture(center, id, town);
-//				} else {
-//					struct = (Pasture) new Pasture(rs);
-//				}
-//				break;
-//			case "ti_lighthouse" :
-//				if (rs == null) {
-//					struct = (Lighthouse) new Lighthouse(center, id, town);
-//				} else {
-//					struct = (Lighthouse) new Lighthouse(rs);
-//				}
-//				break;
-//			case "s_teslatower" :
-//				if (rs == null) {
-//					struct = (TeslaTower) new TeslaTower(center, id, town);
-//				} else {
-//					struct = (TeslaTower) new TeslaTower(rs);
-//				}
-//				break;
-//			case "s_teslaship" : {
-//				if (rs == null) {
-//					struct = new TeslaShip(center, id, town);
-//					break;
-//				}
-//				struct = new TeslaShip(rs);
-//				break;
-//			}
-//			case "s_magictower" : {
-//				if (rs == null) {
-//					struct = new MagicTower(center, id, town);
-//					break;
-//				}
-//				struct = new MagicTower(rs);
-//				break;
-//			}
-//			case "s_magicship" : {
-//				if (rs == null) {
-//					struct = new MagicShip(center, id, town);
-//					break;
-//				}
-//				struct = new MagicShip(rs);
-//				break;
-//			}
-//			case "s_bemine" : {
-//				if (rs == null) {
-//					struct = new BeMine(center, id, town);
-//					break;
-//				}
-//				struct = new BeMine(rs);
-//				break;
-//			}
-//			case "ti_silkwormfarm" : {
-//				if (rs == null) {
-//					struct = new SilkWorkFarm(center, id, town);
-//					break;
-//				}
-//				struct = new SilkWorkFarm(rs);
-//				break;
-//			}
-//			case "s_warehouse" : {
-//				if (rs == null) {
-//					struct = new WareHouse(center, id, town);
-//					break;
-//				}
-//				struct = new WareHouse(rs);
-//				break;
-//			}
-//			default :
-//				// This structure is generic, just create a structure type. 
-//				// TODO should ANY structure be generic?
-//				if (rs == null) {
-//					struct = new Structure(center, id, town);
-//				} else {
-//					struct = new Structure(rs);
-//				}
-//				break;
-//		}
-
 		struct.loadSettings();
 
 		if (rs == null) {
@@ -639,11 +151,16 @@ public class Structure extends Buildable {
 
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
-					+ "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL," + "`complete` bool NOT NULL DEFAULT '0',"
-					+ "`builtBlockCount` int(11) DEFAULT NULL, " + "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, "
-					+ "`template_x` int(11) DEFAULT NULL, " + "`template_y` int(11) DEFAULT NULL, " + "`template_z` int(11) DEFAULT NULL, "
-					+ "`hitpoints` int(11) DEFAULT '100'," + "PRIMARY KEY (`id`)" + ")";
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" // 
+					+ "`id` int(11) unsigned NOT NULL auto_increment," //
+					+ "`type_id` mediumtext NOT NULL," //
+					+ "`town_id` int(11) DEFAULT NULL," //
+					+ "`complete` bool NOT NULL DEFAULT '0'," //
+					+ "`builtBlockCount` int(11) DEFAULT NULL, " //
+					+ "`cornerBlockHash` mediumtext DEFAULT NULL," //
+					+ "`template_name` mediumtext DEFAULT NULL, " //
+					+ "`hitpoints` int(11) DEFAULT '100'," //
+					+ "PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
 			CivLog.info("Created " + TABLE_NAME + " table");
@@ -672,9 +189,6 @@ public class Structure extends Buildable {
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
 		this.setHitpoints(rs.getInt("hitpoints"));
 		this.setTemplateName(rs.getString("template_name"));
-		this.setTemplateX(rs.getInt("template_x"));
-		this.setTemplateY(rs.getInt("template_y"));
-		this.setTemplateZ(rs.getInt("template_z"));
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
 
@@ -705,9 +219,6 @@ public class Structure extends Buildable {
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
 		hashmap.put("template_name", this.getTemplateName());
-		hashmap.put("template_x", this.getTemplateX());
-		hashmap.put("template_y", this.getTemplateY());
-		hashmap.put("template_z", this.getTemplateZ());
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
@@ -914,11 +425,9 @@ public class Structure extends Buildable {
 
 	@Override
 	public void processUndo() throws CivException {
-
 		if (isTownHall()) {
 			throw new CivException(CivSettings.localize.localizedString("structure_move_notCaporHall"));
 		}
-
 		try {
 			delete();
 			getTown().removeStructure(this);
@@ -926,14 +435,11 @@ public class Structure extends Buildable {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
 		}
-
 		CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_structure_undo_success", getDisplayName()));
-
 		double refund = this.getCost();
 		this.getTown().depositDirect(refund);
 		CivMessage.sendTown(getTown(),
 				CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
-
 		this.unbindStructureBlocks();
 	}
 
@@ -942,7 +448,6 @@ public class Structure extends Buildable {
 	}
 
 	public void onBonusGoodieUpdate() {
-
 	}
 
 	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
@@ -956,7 +461,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public void onComplete() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -965,7 +469,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public void onUnload() {
-
 	}
 
 	public void repairStructureForFree() throws CivException {
@@ -1004,7 +507,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public void loadSettings() {
-
 		/* Build and register all of the components. */
 		List<HashMap<String, String>> compInfoList = this.getComponentInfoList();
 		if (compInfoList != null) {
@@ -1015,22 +517,15 @@ public class Structure extends Buildable {
 					someClass = Class.forName(className);
 					Component compClass = (Component) someClass.newInstance();
 					compClass.setName(compInfo.get("name"));
-
 					for (String key : compInfo.keySet()) {
 						compClass.setAttribute(key, compInfo.get(key));
 					}
-
 					compClass.createComponent(this, false);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-
 		super.loadSettings();
 	}
 

@@ -19,12 +19,12 @@ public class ArrowShip extends WaterStructure {
 	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
 
 	
-	protected ArrowShip(Location center, String id, Town town)
+	public ArrowShip(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}
 	
-	protected ArrowShip(ResultSet rs) throws SQLException, CivException {
+	public ArrowShip(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 	

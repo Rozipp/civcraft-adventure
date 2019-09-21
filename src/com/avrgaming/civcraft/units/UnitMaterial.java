@@ -136,7 +136,10 @@ public abstract class UnitMaterial extends CustomMaterial {
 			//Активация юнита
 			ItemStack unitItemStack = event.getItem();
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(unitItemStack));
-
+			if (uo == null) {
+				CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
+				return;
+			}
 			resident.setUnitId(uo.getId());
 			uo.dressAmmunitions(player);
 
@@ -176,6 +179,12 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 			ItemStack stack = event.getItem().getItemStack();
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+			if (uo == null) {
+				CivMessage.sendErrorNoRepeat(player, "Юнит не найден.");
+				event.setCancelled(true);
+				player.updateInventory();
+				return;
+			}
 			if (!uo.validateUnitUse(player, stack)) {
 				CivMessage.sendErrorNoRepeat(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);

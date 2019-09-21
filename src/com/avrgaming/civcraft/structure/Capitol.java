@@ -61,7 +61,7 @@ public class Capitol extends TownHall {
 	}
 	
 
-	protected Capitol(Location center, String id, Town town)
+	public Capitol(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 	}

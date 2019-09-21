@@ -2,6 +2,7 @@ package com.avrgaming.civcraft.structure;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Location;
@@ -24,38 +25,31 @@ public class Quarry extends Structure {
 	private static final double GOLD_CHANCE = CivSettings.getDoubleStructure("quarry.gold_chance");
 	private static final double TUNGSTEN_CHANCE = CivSettings.getDoubleStructure("quarry.tungsten_chance");
 	private static final double RARE_CHANCE = CivSettings.getDoubleStructure("quarry.rare_chance");
-	
-	private int level = 1;
+
 	public int skippedCounter = 0;
 	public ReentrantLock lock = new ReentrantLock();
-	
+
 	public enum Mineral {
-		RARE,
-		TUNGSTEN,
-		GOLD,
-		REDSTONE,
-		IRON,
-		COAL,
-		OTHER,
-		COBBLESTONE
+		RARE, TUNGSTEN, GOLD, REDSTONE, IRON, COAL, OTHER, COBBLESTONE
 	}
-	
-	protected Quarry(Location center, String id, Town town) throws CivException {
-		super(center, id, town);	
+
+	public Quarry(Location center, String id, Town town) throws CivException {
+		super(center, id, town);
 		setLevel(town.saved_quarry_level);
+		this.rebiuldTransmuterRecipe();
 	}
-	
+
 	public Quarry(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 
 	@Override
 	public String getDynmapDescription() {
-		String out = "<u><b>"+this.getDisplayName()+"</u></b><br/>";
-		out += CivSettings.localize.localizedString("Level")+" "+this.level;
+		String out = "<u><b>" + this.getDisplayName() + "</u></b><br/>";
+		out += CivSettings.localize.localizedString("Level") + " " + this.getLevel();
 		return out;
 	}
-	
+
 	@Override
 	public String getMarkerIconName() {
 		return "minecart";
@@ -64,61 +58,78 @@ public class Quarry extends Structure {
 	public double getChance(Mineral mineral) {
 		double chance = 0;
 		switch (mineral) {
-		case RARE:
-			chance = RARE_CHANCE;
-			break;
-		case TUNGSTEN:
-			chance = TUNGSTEN_CHANCE;
-			break;
-		case GOLD:
-			chance = GOLD_CHANCE;
-			break;
-		case IRON:
-			chance = IRON_CHANCE;
-			break;
-		case REDSTONE:
-			chance = REDSTONE_CHANCE;
-			break;
-		case COAL:
-			chance = COAL_RATE;
-			break;
-		case OTHER:
-			chance = OTHER_RATE;
-			break;
-		case COBBLESTONE:
-			chance = COBBLESTONE_RATE;
-			break;
+			case RARE :
+				chance = RARE_CHANCE;
+				break;
+			case TUNGSTEN :
+				chance = TUNGSTEN_CHANCE;
+				break;
+			case GOLD :
+				chance = GOLD_CHANCE;
+				break;
+			case IRON :
+				chance = IRON_CHANCE;
+				break;
+			case REDSTONE :
+				chance = REDSTONE_CHANCE;
+				break;
+			case COAL :
+				chance = COAL_RATE;
+				break;
+			case OTHER :
+				chance = OTHER_RATE;
+				break;
+			case COBBLESTONE :
+				chance = COBBLESTONE_RATE;
+				break;
 		}
 		return this.modifyChance(chance);
 	}
-	
-	private double modifyChance(Double chance) {
-		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION) + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
+
+	public double modifyChance(Double chance) {
+		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION)
+				+ this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
 		chance += increase;
-		
+
 		try {
 			if (this.getTown().getGovernment().id.equals("gov_despotism")) {
 				chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
-			} else if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")){
-				chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
-			}
+			} else
+				if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) {
+					chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
+				}
+			
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
 		return chance;
 	}
-	
+
+	@Override
+	public ArrayList<String> getTransmuterRecipe() {
+		ArrayList<String> result = new ArrayList<>();
+		switch (getLevel()) {
+			case 1 :
+				result.add("quarry1");
+				break;
+			case 2 :
+				result.add("quarry2");
+				break;
+			case 3 :
+				result.add("quarry3");
+				break;
+			case 4 :
+				result.add("quarry4");
+				break;
+			default :
+				break;
+		}
+		return result;
+	}
+
 	@Override
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
-		this.level = getTown().saved_quarry_level;
+		this.setLevel(getTown().saved_quarry_level);
+		this.rebiuldTransmuterRecipe();
 	}
-
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
-
 }

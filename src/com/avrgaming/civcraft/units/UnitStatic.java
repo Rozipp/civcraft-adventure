@@ -108,7 +108,7 @@ public class UnitStatic {
 		attrs.setName(uo.getName() + " уровень " + level);
 		attrs.setLore("");
 		attrs.setLore(uo.getConfigUnit().lore);
-		attrs.addLore(CivColor.Rose + "Создан в цивилизации: " + CivColor.LightBlue + uo.getCivilizationOwner().getName());
+		attrs.addLore(CivColor.Rose + "Создан в городе: " + CivColor.LightBlue + uo.getTownOwner().getName());
 
 		for (LoreEnhancement ench : attrs.getEnhancements()) {
 			attrs.addLore(CivColor.Gold + ench.getDisplayName());
@@ -301,9 +301,9 @@ public class UnitStatic {
 		return 0;
 	}
 
-	public static ConfigUnit getPlayerConfigUnit(final Player player) {
+	public static UnitObject getPlayerUnitObject(final Player player) {
 		int unitId = CivGlobal.getResident(player).getUnitId();
-		return CivGlobal.getUnitObject(unitId).getConfigUnit();
+		return CivGlobal.getUnitObject(unitId);
 	}
 
 	/** находит предмет класа UnitMaterial в инвентаре игрока */

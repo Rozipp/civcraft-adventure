@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -40,7 +41,7 @@ public class PermissionGroup extends SQLObject {
 
 	private Map<String, Resident> members = new ConcurrentHashMap<String, Resident>();
 	/* Only cache towns as the 'civ' can change when a town gets conquered or gifted/moved. */
-	private Town cacheTown = null;
+	private Town town = null;
 
 	private int civId;
 	private int townId;
@@ -52,12 +53,17 @@ public class PermissionGroup extends SQLObject {
 
 	public PermissionGroup(Town town, String name) throws InvalidNameException {
 		this.townId = town.getId();
-		this.cacheTown = town;
+		this.town = town;
 		this.setName(name);
 	}
 
-	public PermissionGroup(ResultSet rs) throws SQLException, InvalidNameException {
-		this.load(rs);
+	public PermissionGroup(ResultSet rs) throws SQLException, InvalidNameException, CivException {
+		try {
+			this.load(rs);
+		} catch (CivException e) {
+			this.delete();
+			throw new CivException(e.getMessage());
+		}
 	}
 
 	public void addMember(Resident res) {
@@ -93,7 +99,7 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, InvalidNameException {
+	public void load(ResultSet rs) throws SQLException, InvalidNameException, CivException {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));
 		this.setTownId(rs.getInt("town_id"));
@@ -101,15 +107,27 @@ public class PermissionGroup extends SQLObject {
 		loadMembersFromSaveString(rs.getString("members"));
 
 		if (this.getTownId() != 0) {
-			this.cacheTown = CivGlobal.getTownFromId(this.getTownId());
-			this.getTown().addGroup(this);
+			this.town = CivGlobal.getTownFromId(this.getTownId());
+			if (this.town == null) {
+				CivLog.warning("TownChunk tried to load without a town...");
+				if (CivGlobal.testFileFlag("cleanupDatabase")) {
+					CivLog.info("CLEANING");
+					this.delete();
+				}
+				throw new CivException("COUlD NOT FIND TOWN ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
+			} else
+				this.getTown().addGroup(this);
 		} else {
 			Civilization civ = CivGlobal.getCivFromId(this.getCivId());
 			if (civ == null) {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
 				if (civ == null) {
-					CivLog.warning("COUlD NOT FIND CIV ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
-					return;
+					CivLog.warning("TownChunk tried to load without a town...");
+					if (CivGlobal.testFileFlag("cleanupDatabase")) {
+						CivLog.info("CLEANING");
+						this.delete();
+					}
+					throw new CivException("COUlD NOT FIND CIV ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
 				}
 			}
 
@@ -166,7 +184,7 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public Town getTown() {
-		return cacheTown;
+		return town;
 	}
 
 	public int getMemberCount() {
@@ -178,11 +196,11 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public Civilization getCiv() {
-		if (cacheTown == null) {
+		if (town == null) {
 			return null;
 		}
 
-		return cacheTown.getCiv();
+		return town.getCiv();
 	}
 
 	public boolean isProtectedGroup() {
@@ -231,27 +249,27 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public static boolean hasGroup(String playerName, String groupName) {
-		try {
-			RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
-
-			Player playerToCheck = Bukkit.getPlayer(playerName);
-			String group = chat.getProvider().getPrimaryGroup(playerToCheck);
-			if (playerToCheck != null) {
-				if (!groupName.contains("Helper")) {
-					String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
-					int var4 = var3.length;
-
-					for (int var5 = 0; var5 < var4; ++var5) {
-						String g = var3[var5];
-						if (g.equalsIgnoreCase(groupName)) {
-							return true;
-						}
-					}
-				}
-			}
-		} catch (NoClassDefFoundError e) {
-			e.printStackTrace();
-		}
+//		try {
+//			RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
+//
+//			Player playerToCheck = Bukkit.getPlayer(playerName);
+//			String group = chat.getProvider().getPrimaryGroup(playerToCheck);
+//			if (playerToCheck != null) {
+//				if (!groupName.contains("Helper")) {
+//					String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
+//					int var4 = var3.length;
+//
+//					for (int var5 = 0; var5 < var4; ++var5) {
+//						String g = var3[var5];
+//						if (g.equalsIgnoreCase(groupName)) {
+//							return true;
+//						}
+//					}
+//				}
+//			}
+//		} catch (NoClassDefFoundError e) {
+//			e.printStackTrace();
+//		}
 		return false;
 	}
 

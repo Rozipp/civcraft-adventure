@@ -13,7 +13,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.units.ConfigUnit;
+import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.war.War;
@@ -62,8 +62,8 @@ public class Espionage extends ItemComponent {
 				}
 			}
 						
-			ConfigUnit unit = UnitStatic.getPlayerConfigUnit(event.getPlayer());
-			if (unit == null || !unit.id.equals("u_spy")) {
+			UnitObject uo = UnitStatic.getPlayerUnitObject(event.getPlayer());
+			if (uo == null || !uo.getConfigUnitId().equals("u_spy")) {
 				event.getPlayer().getInventory().remove(event.getItem());
 				throw new CivException(CivSettings.localize.localizedString("missionBook_errorNotSpy"));
 			}

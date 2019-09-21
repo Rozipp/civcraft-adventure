@@ -114,7 +114,7 @@ public class CivGlobal {
 	private static Map<String, Resident> residents = new ConcurrentHashMap<String, Resident>();
 	private static Map<UUID, Resident> residentsViaUUID = new ConcurrentHashMap<UUID, Resident>();
 	private static Map<Integer, UnitObject> unitObjects = new ConcurrentHashMap<Integer, UnitObject>();
-	
+
 	private static Map<String, Town> towns = new ConcurrentHashMap<String, Town>();
 	private static Map<String, Civilization> civs = new ConcurrentHashMap<String, Civilization>();
 	private static Map<Integer, Coalition> coalitions = new ConcurrentHashMap<Integer, Coalition>();
@@ -794,8 +794,11 @@ public class CivGlobal {
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				try {
-					UnitObject uo = new UnitObject (rs);
-					CivGlobal.addUnitObject(uo);
+					UnitObject uo = new UnitObject(rs);
+					if (uo.getTownOwner() == null)
+						uo.delete();
+					else
+						CivGlobal.addUnitObject(uo);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -805,7 +808,7 @@ public class CivGlobal {
 			SQL.close(rs, ps, context);
 		}
 	}
-	
+
 	public static void addUnitObject(UnitObject uo) {
 		unitObjects.put(uo.getId(), uo);
 	}
@@ -818,7 +821,7 @@ public class CivGlobal {
 	public static Collection<UnitObject> getUnitObjects() {
 		return unitObjects.values();
 	}
-	
+
 	public static Player getPlayer(Resident resident) throws CivException {
 		Player player = Bukkit.getPlayer(resident.getUid());
 		if (player == null) throw new CivException("No player named" + " " + resident.getName());

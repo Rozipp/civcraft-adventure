@@ -306,9 +306,6 @@ public class CivSettings {
 		alwaysCrumble.add(CivData.BEACON);
 		
 		LoreEnhancement.init();
-		CraftableCustomMaterial.buildStaticMaterials();
-		UnitCustomMaterial.buildStaticMaterials();
-		CraftableCustomMaterial.buildRecipes();
 		Template.initAttachableTypes();
 
         if (CivSettings.plugin.hasPlugin("HolographicDisplays")) {
@@ -519,8 +516,6 @@ public class CivSettings {
 		ConfigPerk.loadTemplates(perkConfig, templates);
 		ConfigVillageLonghouseLevel.loadConfig(villageConfig, longhouseLevels);
 		ConfigVillageUpgrade.loadConfig(villageConfig, villageUpgrades);
-		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
-		Village.loadConfigTransmuterRecipes();
 		
 		ConfigMarketItem.loadConfig(marketConfig, marketItems);
 		ConfigStableItem.loadConfig(structureConfig, stableItems);
@@ -530,8 +525,12 @@ public class CivSettings {
 		ConfigCultureBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
 		ConfigCraftableMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
 		ConfigUnitMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
-		
 		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
+
+		CraftableCustomMaterial.buildStaticMaterials();
+		UnitCustomMaterial.buildStaticMaterials();
+		CraftableCustomMaterial.buildRecipes();
+		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 		
 		ConfigRandomEvent.loadConfig(randomEventsConfig, randomEvents, randomEventIDs);
 		ConfigEndCondition.loadConfig(civConfig, endConditions);

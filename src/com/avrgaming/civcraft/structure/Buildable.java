@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -128,6 +129,8 @@ public abstract class Buildable extends SQLObject {
 
 	private Map<BlockCoord, StructureSign> structureSigns = new ConcurrentHashMap<BlockCoord, StructureSign>();
 	private Map<BlockCoord, StructureChest> structureChests = new ConcurrentHashMap<BlockCoord, StructureChest>();
+	/** служит замком для рецептов трасмутера, а так же испольжуеться во время проверки купленых рецептов */
+	public HashMap<String, ReentrantLock> locks = new HashMap<>();
 
 	/* Used to keep track of which blocks belong to this buildable so they can be removed when the buildable is removed. */
 	protected Map<BlockCoord, Boolean> structureBlocks = new ConcurrentHashMap<BlockCoord, Boolean>();
@@ -1709,4 +1712,16 @@ public abstract class Buildable extends SQLObject {
 			this.updateSignText();
 		}
 	}
+
+	public ArrayList<String> getTransmuterRecipe() {
+		return new ArrayList<>();
+	}
+	public void rebiuldTransmuterRecipe() {
+		this.locks.clear();
+		for (String s : getTransmuterRecipe()) {
+			if (CivSettings.transmuterRecipes.containsKey(s)) this.locks.put(s, new ReentrantLock());
+			else CivLog.error("not Found Transmuter Recipe - " + s);
+		}
+	}
+
 }

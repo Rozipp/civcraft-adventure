@@ -35,13 +35,13 @@ public class CannonTower extends Structure {
 
 	ProjectileCannonComponent cannonComponent;
 	
-	protected CannonTower(Location center, String id, Town town)
+	public CannonTower(Location center, String id, Town town)
 			throws CivException {
 		super(center, id, town);
 		this.setHitpoints(this.getMaxHitPoints());
 	}
 	
-	protected CannonTower(ResultSet rs) throws SQLException, CivException {
+	public CannonTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

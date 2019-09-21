@@ -41,7 +41,7 @@ public class UpdateStructuresWithLock extends CivAsyncTask
                             if (!CivGlobal.quarriesEnabled) {
                                 continue;
                             }
-                            TaskMaster.asyncTask("quarry-" + struct.getCorner().toString(), new QuarryAsyncTask(struct), 0L);
+//                            TaskMaster.asyncTask("quarry-" + struct.getCorner().toString(), new QuarryAsyncTask(struct), 0L);
                         }
                     }
                     struct.onUpdate();

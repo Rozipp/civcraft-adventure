@@ -84,6 +84,7 @@ import com.avrgaming.civcraft.threading.sync.SyncUpdateTags;
 import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.BuildUndoTask;
 import com.avrgaming.civcraft.units.ConfigUnit;
+import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -109,6 +110,8 @@ public class Town extends SQLObject {
 	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<BlockCoord, Wonder>();
 	private ConcurrentHashMap<BlockCoord, Structure> structures = new ConcurrentHashMap<BlockCoord, Structure>();
 	private ConcurrentHashMap<BlockCoord, Buildable> disabledBuildables = new ConcurrentHashMap<BlockCoord, Buildable>();
+
+	private HashSet<Integer> unitList = new HashSet<>();
 
 	private int level;
 	private double taxRate;
@@ -188,7 +191,7 @@ public class Town extends SQLObject {
 	private Date created_date;
 
 	public String tradeGoods = "";
-	private long conquered_date = 0L;
+	private long conqueredDate = 0L;
 	private String quarryPickaxes = "0:0:0:0:0:0:0:0";
 
 	/* Time it takes before a new attribute is calculated Otherwise its loaded from the cache. */
@@ -255,7 +258,7 @@ public class Town extends SQLObject {
 		//this.setHomeChunk(rs.getInt("homechunk_id"));
 		this.setExtraHammers(rs.getDouble("extra_hammers"));
 		this.setAccumulatedCulture(rs.getInt("culture"));
-		this.conquered_date = rs.getLong("conquered_date");
+		this.conqueredDate = rs.getLong("conquered_date");
 		if (rs.getString("quarryPickaxes") != null && !rs.getString("quarryPickaxes").equalsIgnoreCase("")) {
 			this.quarryPickaxes = rs.getString("quarryPickaxes");
 		} else {
@@ -326,7 +329,7 @@ public class Town extends SQLObject {
 		hashmap.put("upgrades", this.getUpgradesString());
 		hashmap.put("coins", this.getTreasury().getBalance());
 		hashmap.put("dbg_civ_name", this.getCiv().getName());
-		hashmap.put("conquered_date", this.conquered_date);
+		hashmap.put("conquered_date", this.conqueredDate);
 		hashmap.put("quarryPickaxes", this.quarryPickaxes);
 		hashmap.put("tradeGoods", this.tradeGoods);
 
@@ -954,8 +957,8 @@ public class Town extends SQLObject {
 			}
 
 			if (!free) {
-				ConfigUnit unit = UnitStatic.getPlayerConfigUnit(player);
-				if (unit == null || !unit.id.equals("u_settler")) {
+				UnitObject uo = UnitStatic.getPlayerUnitObject(player);
+				if (uo == null || !uo.getConfigUnitId().equals("u_settler")) {
 					throw new CivException(CivSettings.localize.localizedString("town_found_errorNotSettler"));
 				}
 			}
@@ -1016,10 +1019,7 @@ public class Town extends SQLObject {
 				throw e;
 			}
 
-			if (!free) {
-				UnitStatic.removeUnit(player, "u_settler");
-				civ.getTreasury().deposit(costTown);
-			}
+			if (!free) civ.getTreasury().deposit(costTown);
 
 			try {
 				if (resident.getTown() != null) {
@@ -2336,27 +2336,11 @@ public class Town extends SQLObject {
 	}
 
 	public void removeStructure(Structure structure) {
-		if (!structure.isComplete()) {
-			this.removeBuildTask(structure);
-		}
-
-		if (currentStructureInProgress == structure) {
-			currentStructureInProgress = null;
-		}
-
+		if (!structure.isComplete()) this.removeBuildTask(structure);
+		if (currentStructureInProgress == structure) currentStructureInProgress = null;
 		this.structures.remove(structure.getCorner());
 		this.invalidStructures.remove(structure);
 		this.disabledBuildables.remove(structure.getCorner());
-	}
-
-	/** @return the buffManager */
-	public BuffManager getBuffManager() {
-		return buffManager;
-	}
-
-	/** @param buffManager the buffManager to set */
-	public void setBuffManager(BuffManager buffManager) {
-		this.buffManager = buffManager;
 	}
 
 	public void repairStructure(Structure struct) throws CivException {
@@ -2390,21 +2374,13 @@ public class Town extends SQLObject {
 
 	public void onGoodiePlaceIntoFrame(ItemFrameStorage framestore, BonusGoodie goodie) {
 		TownHall townhall = this.getTownHall();
-
-		if (townhall == null) {
-			return;
-		}
-
+		if (townhall == null) return;
 		for (ItemFrameStorage fs : townhall.getGoodieFrames()) {
 			if (fs == framestore) {
 				this.bonusGoodies.put(goodie.getOutpost().getCorner().toString(), goodie);
 				for (ConfigBuff cBuff : goodie.getConfigTradeGood().buffs.values()) {
 					String key = "tradegood:" + goodie.getOutpost().getCorner() + ":" + cBuff.id;
-
-					if (buffManager.hasBuffKey(key)) {
-						continue;
-					}
-
+					if (buffManager.hasBuffKey(key)) continue;
 					try {
 						buffManager.addBuff(key, cBuff.id, goodie.getDisplayName());
 					} catch (CivException e) {
@@ -2421,7 +2397,6 @@ public class Town extends SQLObject {
 		for (Wonder wonder : this.wonders.values()) {
 			wonder.onGoodieToFrame();
 		}
-
 	}
 
 	public void loadGoodiePlaceIntoFrame(TownHall townhall, BonusGoodie goodie) {
@@ -2454,38 +2429,38 @@ public class Town extends SQLObject {
 
 	public void onGoodieRemoveFromFrame(ItemFrameStorage framestore, BonusGoodie goodie) {
 		TownHall townhall = this.getTownHall();
-
-		if (townhall == null) {
-			return;
-		}
-
+		if (townhall == null) return;
 		for (ItemFrameStorage fs : townhall.getGoodieFrames()) {
-			if (fs == framestore) {
-				removeGoodie(goodie);
-			}
+			if (fs == framestore) removeGoodie(goodie);
 		}
-
 		for (Structure struct : this.structures.values()) {
 			struct.onGoodieFromFrame();
 		}
-
 		for (Wonder wonder : this.wonders.values()) {
 			wonder.onGoodieToFrame();
 		}
 	}
 
+	public void addUnitToList(Integer uoId) {
+		unitList.add(uoId);
+	}
+	public void removeUnitToList(Integer uoId) {
+		unitList.remove(uoId);
+	}
 	public int getUnitTypeCount(String id) {
-		//TODO find unit limits.
-		return 0;
+		Integer count = 0;
+		for (Integer uoId : unitList) {
+			if (id.equalsIgnoreCase(CivGlobal.getUnitObject(uoId).getConfigUnitId())) count++;
+		}
+		return count;
 	}
 
+	/** проверка, можно ли строить юнита в этом городе */
 	public ArrayList<ConfigUnit> getAvailableUnits() {
 		ArrayList<ConfigUnit> unitList = new ArrayList<ConfigUnit>();
 
 		for (ConfigUnit unit : UnitStatic.configUnits.values()) {
-			if (unit.isAvailable(this)) {
-				unitList.add(unit);
-			}
+			if (unit.isAvailable(this)) unitList.add(unit);
 		}
 		return unitList;
 	}
@@ -3516,29 +3491,9 @@ public class Town extends SQLObject {
 
 	public Capitol getCapitol() {
 		for (final Structure structure : this.structures.values()) {
-			if (structure instanceof Capitol) {
-				return (Capitol) structure;
-			}
+			if (structure instanceof Capitol) return (Capitol) structure;
 		}
 		return null;
-	}
-
-	public ArrayList<ConfigUnit> getAvailableArtifacts() {
-		final ArrayList<ConfigUnit> unitList = new ArrayList<ConfigUnit>();
-		for (final ConfigUnit unit : UnitStatic.configUnits.values()) {
-			if (unit.isAvailable(this) && !unit.id.contains("u_") && !unit.id.contains("ax_")) {
-				unitList.add(unit);
-			}
-		}
-		return unitList;
-	}
-
-	public long getConqueredDate() {
-		return this.conquered_date;
-	}
-
-	public void setConqueredDate(final long conqueredDate) {
-		this.conquered_date = conqueredDate;
 	}
 
 	public String[] getQuarryPickaxes() {
@@ -3565,9 +3520,7 @@ public class Town extends SQLObject {
 		final ConfigTradeGood configTradeGood = CivSettings.goods.get(id);
 		for (final ConfigBuff configBuff : configTradeGood.buffs.values()) {
 			final String key = "tradegood:" + this.tradeGoods.split(", ").length + ":" + configBuff.id;
-			if (this.buffManager.hasBuffKey(key)) {
-				continue;
-			}
+			if (this.buffManager.hasBuffKey(key)) continue;
 			try {
 				this.buffManager.addBuff(key, configBuff.id, configTradeGood.name);
 			} catch (CivException e) {

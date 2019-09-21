@@ -17,11 +17,11 @@ public class CannonShip extends WaterStructure {
 
 	ProjectileCannonComponent cannonComponent;
 
-	protected CannonShip(Location center, String id, Town town) throws CivException {
+	public CannonShip(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 
-	protected CannonShip(ResultSet rs) throws SQLException, CivException {
+	public CannonShip(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

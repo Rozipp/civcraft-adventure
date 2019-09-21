@@ -9,9 +9,8 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class BroadcastTower extends Structure {
-
 	
-	protected BroadcastTower(Location center, String id, Town town) throws CivException {
+	public BroadcastTower(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 

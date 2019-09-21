@@ -16,6 +16,7 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class DebugShowCommand extends CommandBase {
@@ -35,8 +36,15 @@ public class DebugShowCommand extends CommandBase {
 		cs.add("stackinhand", "- show information about item in you hand.");
 		cs.add("setProperty", "- show setProperty");
 		cs.add("getAllProperty", "- show getAllProperty");
+		cs.add("printAllTask", "- show getAllProperty");
 	}
 
+	public void printAllTask_cmd() throws CivException {
+		Player player = this.getPlayer();
+		TaskMaster.printAllTask();
+		CivMessage.send(player, "printAllTask in consol");
+	}
+	
 	public void getAllProperty_cmd() throws CivException {
 		Player player = this.getPlayer();
 		ItemStack is = player.getInventory().getItemInMainHand();
