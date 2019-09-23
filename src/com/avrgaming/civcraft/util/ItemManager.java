@@ -41,6 +41,7 @@ public class ItemManager {
 	}
 
 	public static ItemStack createItemStack(String umid, int amount) {
+		if (umid.equalsIgnoreCase("")) return null;
 		CustomMaterial lcm = CustomMaterial.getCustomMaterial(umid.toLowerCase());
 		if (lcm != null) return CustomMaterial.spawn(lcm, amount);
 		if (umid.contains(":")) {

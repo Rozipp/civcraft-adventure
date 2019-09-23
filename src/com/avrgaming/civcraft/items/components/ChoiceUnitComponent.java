@@ -37,7 +37,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 
 		Player player = event.getPlayer();
 		Resident resident = CivGlobal.getResident(player);
-		int unitid = resident.getUnitId();
+		int unitid = resident.getUnitObjectId();
 		if (unitid <= 0) {
 			CivMessage.send(player, "Юнит не найден");
 			event.setCancelled(true);
@@ -45,7 +45,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 		}
 		Inventory inv = Bukkit.getServer().createInventory((InventoryHolder) player, 54, "Окно выбора новых способностей");
 
-		UnitObject uo = CivGlobal.getUnitObject(CivGlobal.getResident(player).getUnitId());
+		UnitObject uo = CivGlobal.getUnitObject(CivGlobal.getResident(player).getUnitObjectId());
 		if (uo == null) {
 			CivMessage.send(player, "Юнит не найден");
 			return;

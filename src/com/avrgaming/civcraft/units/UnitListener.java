@@ -30,8 +30,8 @@ public class UnitListener implements Listener {
 					Resident res = CivGlobal.getResident(player);
 					int exp = UnitStatic.exp_for_player;
 					if (res.isUnitActive()) {
-						UnitObject uo = CivGlobal.getUnitObject(res.getUnitId());
-						exp = exp + CivGlobal.getUnitObject(res.getUnitId()).getLevel() * CivSettings.unitConfig.getInt("exp_for_unit_per_level");
+						UnitObject uo = CivGlobal.getUnitObject(res.getUnitObjectId());
+						exp = exp + CivGlobal.getUnitObject(res.getUnitObjectId()).getLevel() * CivSettings.unitConfig.getInt("exp_for_unit_per_level");
 						exp = (int) (exp + uo.getExpToNextLevel() * UnitStatic.percent_exp_per_level_unit);
 					}
 					UnitStatic.addExpToPlayer(killer, exp);
@@ -46,13 +46,13 @@ public class UnitListener implements Listener {
 		Player player = event.getEntity();
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
-		int unitId = resident.getUnitId();
+		int unitId = resident.getUnitObjectId();
 		if (unitId <= 0) return;
 		UnitObject uo = CivGlobal.getUnitObject(unitId);
 
 		UnitStatic.removeChildrenItems(player);
 		uo.removeExp((int) Math.round(UnitStatic.percent_exp_lost_when_dead * uo.getExpToNextLevel()));
-		resident.setUnitId(0);
+		resident.setUnitObjectId(0);
 		UnitStatic.updateUnitForPlaeyr(player);
 		resident.calculateWalkingModifier(player);
 //		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin) ItemJoin.getInstance(), (Runnable) new Runnable() {

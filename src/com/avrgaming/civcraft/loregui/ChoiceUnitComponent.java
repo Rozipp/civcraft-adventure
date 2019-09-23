@@ -15,7 +15,7 @@ public class ChoiceUnitComponent implements GuiAction {
 	public void performAction(InventoryClickEvent event, ItemStack stack) {
 		Player player = (Player) event.getWhoClicked();
 		Resident resident = CivGlobal.getResident(player);
-		UnitObject uo = CivGlobal.getUnitObject(resident.getUnitId());
+		UnitObject uo = CivGlobal.getUnitObject(resident.getUnitObjectId());
 
 		String component = LoreGuiItem.getActionData(stack, "component");
 

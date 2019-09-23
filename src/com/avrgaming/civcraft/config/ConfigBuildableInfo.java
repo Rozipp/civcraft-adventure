@@ -40,7 +40,6 @@ public class ConfigBuildableInfo {
 	public String check_event = "";
 	public String effect_event= "";
 	public String update_event = "";
-	public String onBuild_event = "";
 	public int limit = 0;
 	public ArrayList<String> signs = new ArrayList<String>();
 	public double cost = 0;
@@ -108,7 +107,6 @@ public class ConfigBuildableInfo {
 			sinfo.check_event = (String)obj.get("check_event");
 			sinfo.effect_event = (String)obj.get("effect_event");
 			sinfo.update_event = (String)obj.get("update_event");
-			sinfo.onBuild_event = (String)obj.get("onBuild_event");
 			sinfo.limit = (Integer)obj.get("limit");
 			//TODO handle signs
 			sinfo.cost = (Double)obj.get("cost");

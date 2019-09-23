@@ -235,6 +235,8 @@ public class CivSettings {
 	public static boolean hasCustomMobs = false;
 
 	public static Material previewMaterial = Material.GLASS;
+	public static Integer scaffoldingType = 7;
+	public static Integer scaffoldingData = 0;
 	public static Boolean showPreview = true;
 
     public static Map<String, ConfigNewspaper> newspapers = new HashMap<String, ConfigNewspaper>();
@@ -338,6 +340,13 @@ public class CivSettings {
 		try {
 			String materialName = CivSettings.getString(structureConfig, "previewBlock");
 			previewMaterial = Material.getMaterial(materialName);
+		} catch (InvalidConfiguration e) {
+			CivLog.warning("Unable to change Preview Block. Defaulting to Glass.");
+		}
+		
+		try {
+			scaffoldingType = CivSettings.getInteger(structureConfig, "scaffoldingType");
+			scaffoldingData = CivSettings.getInteger(structureConfig, "scaffoldingData");
 		} catch (InvalidConfiguration e) {
 			CivLog.warning("Unable to change Preview Block. Defaulting to Glass.");
 		}

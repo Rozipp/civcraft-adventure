@@ -100,7 +100,7 @@ public class TownCommand extends CommandBase {
 		String townName = this.getNamedString(1, "Введите название города");
 		Player player = this.getPlayer();
 		Resident resident = this.getResident();
-		if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
+		if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
 			((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
 		} else //TODO
 			throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");

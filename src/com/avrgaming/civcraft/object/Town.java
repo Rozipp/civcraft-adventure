@@ -1997,7 +1997,7 @@ public class Town extends SQLObject {
 		if (!struct.allowDemolish() && !isAdmin) {
 			throw new CivException(CivSettings.localize.localizedString("town_demolish_Cannot"));
 		}
-		if ((struct instanceof TradeOutpost || struct instanceof FishingBoat) && !CivGlobal.allowDemolishOutPost()) {
+		if ((struct instanceof TradeOutpost) && !CivGlobal.allowDemolishOutPost()) {
 			throw new CivException(CivSettings.localize.localizedString("town_demolish_CannotNotNow"));
 		}
 

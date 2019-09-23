@@ -132,7 +132,7 @@ public class PlayerListener implements Listener {
 	public void OnPlayerJoinEvent(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Resident resident = CivGlobal.getResident(player);
-		resident.setUnitId(0);
+		resident.setUnitObjectId(0);
 		UnitStatic.removeChildrenItems(player);
 		UnitStatic.updateUnitForPlaeyr(player);
 		UnitStatic.setModifiedMovementSpeed(player);

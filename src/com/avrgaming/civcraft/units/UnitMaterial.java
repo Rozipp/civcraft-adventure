@@ -128,7 +128,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 		if (resident.isUnitActive()) {
 			//Деактивация юнита
-			resident.setUnitId(0);
+			resident.setUnitObjectId(0);
 			UnitStatic.removeChildrenItems(player);
 
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
@@ -140,7 +140,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 				CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
 				return;
 			}
-			resident.setUnitId(uo.getId());
+			resident.setUnitObjectId(uo.getId());
 			uo.dressAmmunitions(player);
 
 			CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + "Юнит активирован ");

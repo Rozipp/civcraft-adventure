@@ -125,7 +125,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 				return;
 			}
 			
-			resident.setUnitId(-1); 
+			resident.setUnitObjectId(-1); 
 			UnitStatic.removeChildrenItems(getPlayer());
 			if (!resident.isGivenKit()) {
 				TaskMaster.syncTask(new GivePlayerStartingKit(resident.getName()));

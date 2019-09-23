@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,12 +39,19 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.PlayerBlockChangeUtil;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Template {
 	/* Handles the processing of CivTemplates which store cubiods of blocks for later use. */
 	public enum TemplateType {
@@ -148,6 +154,15 @@ public class Template {
 		attachableTypes.add(ItemManager.getMaterialId(Material.REDSTONE_COMPARATOR_OFF));
 		attachableTypes.add(ItemManager.getMaterialId(Material.DAYLIGHT_DETECTOR));
 		attachableTypes.add(ItemManager.getMaterialId(Material.ACTIVATOR_RAIL));
+		attachableTypes.add(CivData.WOOD_DOOR);
+		attachableTypes.add(CivData.IRON_DOOR);
+		attachableTypes.add(CivData.SPRUCE_DOOR);
+		attachableTypes.add(CivData.BIRCH_DOOR);
+		attachableTypes.add(CivData.JUNGLE_DOOR);
+		attachableTypes.add(CivData.ACACIA_DOOR);
+		attachableTypes.add(CivData.DARK_OAK_DOOR);
+		attachableTypes.add(CivData.SIGN);
+		attachableTypes.add(CivData.WALL_SIGN);
 	}
 
 	public static boolean isAttachable(int blockID) {
@@ -264,43 +279,99 @@ public class Template {
 	}
 
 	public void buildScaffolding(Location center) {
+		class AsyncTask extends CivAsyncTask {
+			Template tpl;
+			public AsyncTask(Template tpl) {
+				this.tpl = tpl;
+			}
+			@Override
+			public void run() {
+				int blocksPerTick = 100000;
+				try {
+					int count = 0;
+					Queue<SimpleBlock> sBs = new LinkedList<SimpleBlock>();
+					for (int y = 0; y < tpl.size_y; y++) {
+						for (int x = 0; x < tpl.size_x; x++) {
+							for (int z = 0; z < tpl.size_z; z++) {
+								// Must set to air in a different loop, since setting to air can break attachables.
+								Block b = center.getBlock().getRelative(x, y, z);
+								int type_id = 0;
+								int data_id = 0;
+								if ((x == 0 || x == tpl.size_x - 1) || (z == 0 || z == tpl.size_z - 1) //
+										|| (y == 0) //
+										|| (y == tpl.size_y - 1)// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) 
+								) {//здесь записан предмет рамки
+									type_id = CivSettings.scaffoldingType;
+									data_id = CivSettings.scaffoldingData;
+								}
 
-		for (int y = 0; y < this.size_y; y++) {
-			Block b = center.getBlock().getRelative(0, y, 0);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
+								SimpleBlock sb = new SimpleBlock(type_id, data_id);
+								sb.worldname = center.getWorld().getName();
+								sb.x = b.getX();
+								sb.y = b.getY();
+								sb.z = b.getZ();
+								sBs.add(sb);
+								count++;
 
-			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
+								if (count < blocksPerTick) continue;
 
-			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-
-			b = center.getBlock().getRelative(0, y, this.size_z - 1);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-		}
-
-		for (int x = 0; x < this.size_x; x++) {
-			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-
-			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-		}
-
-		for (int z = 0; z < this.size_z; z++) {
-			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-
-			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
-			ItemManager.setTypeId(b, CivData.BEDROCK);
-		}
-
-		for (int z = 0; z < this.size_z; z++) {
-			for (int x = 0; x < this.size_x; x++) {
-				Block b = center.getBlock().getRelative(x, 0, z);
-				ItemManager.setTypeId(b, CivData.BEDROCK);
+								SyncBuildUpdateTask.queueSimpleBlock(sBs);
+								sBs.clear();
+								count = 0;
+								Thread.sleep(1000);
+							}
+						}
+					}
+					if (!sBs.isEmpty()) {
+						SyncBuildUpdateTask.queueSimpleBlock(sBs);
+						sBs.clear();
+					}
+				} catch (
+//				CivException | 
+				InterruptedException e) {
+//					abort task.
+				}
 			}
 		}
+
+		TaskMaster.asyncTask(new AsyncTask(this), 0);
+//
+//		for (int y = 0; y < this.size_y; y++) {
+//			Block b = center.getBlock().getRelative(0, y, 0);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//
+//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//
+//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//
+//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//		}
+//
+//		for (int x = 0; x < this.size_x; x++) {
+//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//
+//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//		}
+//
+//		for (int z = 0; z < this.size_z; z++) {
+//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//
+//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
+//			ItemManager.setTypeId(b, CivData.BEDROCK);
+//		}
+//
+//		for (int z = 0; z < this.size_z; z++) {
+//			for (int x = 0; x < this.size_x; x++) {
+//				Block b = center.getBlock().getRelative(x, 0, z);
+//				ItemManager.setTypeId(b, CivData.BEDROCK);
+//			}
+//		}
 
 	}
 
@@ -367,7 +438,8 @@ public class Template {
 
 	public static void moveUndoTemplate(String string, String subdirInput, String subdirOutput) {
 		try {
-			Files.move(Paths.get("templates/undo", subdirInput, string), Paths.get("templates/undo", subdirOutput, string), StandardCopyOption.REPLACE_EXISTING);
+			Files.move(Paths.get("templates/undo", subdirInput, string), Paths.get("templates/undo", subdirOutput, string),
+					StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -406,18 +478,6 @@ public class Template {
 			}
 		}
 		writer.close();
-
-		for (int x = 0; x < this.size_x; x++) {
-			for (int y = 0; y < this.size_y; y++) {
-				for (int z = 0; z < this.size_z; z++) {
-					// Must set to air in a different loop, since setting to air can break attachables.
-					Block b = center.getBlock().getRelative(x, y, z);
-
-					ItemManager.setTypeId(b, CivData.AIR);
-					ItemManager.setData(b, 0x0);
-				}
-			}
-		}
 	}
 
 	public void initUndoTemplate(String structureHash, String subdir) throws IOException, CivException {
@@ -556,10 +616,8 @@ public class Template {
 	}
 
 	private void getTemplateBlocks(BufferedReader reader, int regionX, int regionY, int regionZ) throws NumberFormatException, IOException {
-
 		String line;
 		SimpleBlock blocks[][][] = new SimpleBlock[regionX][regionY][regionZ];
-
 		// Read blocks from file.
 		while ((line = reader.readLine()) != null) {
 			String locTypeSplit[] = line.split(",");
@@ -588,9 +646,7 @@ public class Template {
 
 			// look for signs.
 			if (blockId == CivData.WALL_SIGN || blockId == CivData.SIGN) {
-
 				if (locTypeSplit.length > 2) {
-
 					// The first character on special signs needs to be a /.
 					if (locTypeSplit[2] != null && !locTypeSplit[2].equals("") && locTypeSplit[2].charAt(0) == '/') {
 						block.specialType = SimpleBlock.Type.COMMAND;
@@ -617,38 +673,20 @@ public class Template {
 
 					} else {
 						block.specialType = SimpleBlock.Type.LITERAL;
-
 						// Literal sign, copy the sign into the simple block
-						try {
-							block.message[0] = locTypeSplit[2];
-						} catch (ArrayIndexOutOfBoundsException e) {
-							block.message[0] = "";
-						}
-						try {
-							block.message[1] = locTypeSplit[3];
-						} catch (ArrayIndexOutOfBoundsException e) {
-							block.message[1] = "";
-						}
-						try {
-							block.message[2] = locTypeSplit[4];
-						} catch (ArrayIndexOutOfBoundsException e) {
-							block.message[2] = "";
-						}
-						try {
-							block.message[3] = locTypeSplit[5];
-						} catch (ArrayIndexOutOfBoundsException e) {
-							block.message[3] = "";
+						for (int i = 0; i < 4; i++) {
+							try {
+								block.message[i] = locTypeSplit[i + 2];
+							} catch (ArrayIndexOutOfBoundsException e) {
+								block.message[i] = "";
+							}
 						}
 					}
 				}
 			}
 
-			if (isAttachable(blockId)) {
-				this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
-			}
-
+			if (isAttachable(blockId)) this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
 			blocks[blockX][blockY][blockZ] = block;
-
 		}
 
 		this.blocks = blocks;
@@ -717,14 +755,6 @@ public class Template {
 		templateFile.delete();
 	}
 
-	public String getFilepath() {
-		return filepath;
-	}
-
-	public void setFilepath(String filepath) {
-		this.filepath = filepath;
-	}
-
 	public void previewEntireTemplate(Template tpl, Block cornerBlock, Player player) {
 		//HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
 		//	NMSHandler nms = new NMSHandler();
@@ -757,28 +787,21 @@ public class Template {
 			for (int y = 0; y < tpl.size_y; y++) {
 				for (int z = 0; z < tpl.size_z; z++) {
 					Block b = centerBlock.getRelative(x, y, z);
-
-					SimpleBlock sb = tpl.blocks[x][y][z];
-					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) {
-						//continue;
-						sb.setType(CivData.AIR);
+					if (isAttachable(b.getTypeId())) {
+						SimpleBlock sb = new SimpleBlock(b);
+						sb.setTypeAndData(0, 0);
+						sbs.add(sb);
 					}
-					// Convert relative x,y,z to real x,y,z in world.
-					sb.x = x + centerBlock.getX();
-					sb.y = y + centerBlock.getY();
-					sb.z = z + centerBlock.getZ();
-					sb.worldname = centerBlock.getWorld().getName();
-//						sb.buildable = buildable;
-					sbs.add(sb);
+				}
+			}
+		}
+		updateBlocksQueue(sbs);
+		sbs.clear();
 
-//						ItemManager.setTypeIdAndData(b, tpl.blocks[x][y][z].getType(), (byte)tpl.blocks[x][y][z].getData(), false);
-//						try {
-//							nms.setBlockFast(b.getWorld(), b.getX(), b.getY(), b.getZ(), tpl.blocks[x][y][z].getType(), 
-//								(byte)tpl.blocks[x][y][z].getData());
-//						} catch (Exception e) {
-//							e.printStackTrace();
-//							//throw new CivException("Couldn't build undo template unknown error:"+e.getMessage());
-//						}
+		for (int x = 0; x < tpl.size_x; x++) {
+			for (int y = 0; y < tpl.size_y; y++) {
+				for (int z = 0; z < tpl.size_z; z++) {
+					Block b = centerBlock.getRelative(x, y, z);
 
 					chunkUpdates.put(b.getChunk(), b.getChunk());
 
@@ -790,10 +813,23 @@ public class Template {
 						s2.setLine(3, tpl.blocks[x][y][z].message[3]);
 						s2.update();
 					}
+					
+					SimpleBlock sb = tpl.blocks[x][y][z];
+					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) {
+						sb.setType(CivData.AIR);
+					}
+					// Convert relative x,y,z to real x,y,z in world.
+					sb.x = x + centerBlock.getX();
+					sb.y = y + centerBlock.getY();
+					sb.z = z + centerBlock.getZ();
+					sb.worldname = centerBlock.getWorld().getName();
+//						sb.buildable = buildable;
+					sbs.add(sb);
 				}
 			}
 		}
 		updateBlocksQueue(sbs);
+		sbs.clear();
 	}
 
 	public String dir() {

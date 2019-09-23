@@ -229,10 +229,6 @@ public abstract class Buildable extends SQLObject {
 	public void onEffectEvent() {
 	}
 
-	public String getOnBuildEvent() {
-		return info.onBuild_event;
-	}
-
 	public boolean allowDemolish() {
 		return info.allow_demolish;
 	}
@@ -896,7 +892,7 @@ public abstract class Buildable extends SQLObject {
 		BuildAsyncTask task = new BuildAsyncTask(this, tpl, this.getBlocksPerTick(), center.getBlock());
 
 		this.town.build_tasks.add(task);
-		BukkitObjects.scheduleAsyncDelayedTask(task, 0);
+		TaskMaster.asyncTask(task, 10);
 	}
 
 	public int getBuildSpeed() {

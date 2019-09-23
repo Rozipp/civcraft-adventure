@@ -1470,14 +1470,11 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public void setUnitId(int uId) {
+	public void setUnitObjectId(int uId) {
 		if (uId > 0) {
 			CivGlobal.getUnitObject(uId).setLastResident(this);
 		}
 		this.unitObjectId = uId;
-	}
-	public int getUnitId() {
-		return this.unitObjectId;
 	}
 	public boolean isUnitActive() {
 		return this.unitObjectId > 0;

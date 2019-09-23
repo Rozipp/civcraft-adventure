@@ -43,7 +43,7 @@ import lombok.Setter;
 @Setter
 public class Structure extends Buildable {
 	private int level = 1;
-	
+
 	public static String TABLE_NAME = "STRUCTURES";
 	public Structure(Location center, String id, Town town) throws CivException {
 		this.setInfo(CivSettings.structures.get(id));
@@ -377,39 +377,20 @@ public class Structure extends Buildable {
 		resident.undoPreview();
 		this.startBuildTask(tpl, cornerLoc);
 
-		bind();
+		CivGlobal.addStructure(this);
 		this.getTown().addStructure(this);
-
 	}
 
 	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
-		if (this.getOnBuildEvent() == null || this.getOnBuildEvent().equals("")) {
+		if (this instanceof Farm) {
+			((Farm) this).build_farm(centerLoc);
 			return;
 		}
-
-		if (this.getOnBuildEvent().equals("build_farm")) {
-			if (this instanceof Farm) {
-				Farm farm = (Farm) this;
-				farm.build_farm(centerLoc);
-			}
+		if (this instanceof TradeOutpost) {
+			((TradeOutpost) this).build_trade_outpost(centerLoc);
+			return;
 		}
-
-		if (this.getOnBuildEvent().equals("build_trade_outpost")) {
-			if (this instanceof TradeOutpost) {
-				TradeOutpost tradeoutpost = (TradeOutpost) this;
-				tradeoutpost.build_trade_outpost(centerLoc);
-			}
-		}
-
 		return;
-	}
-
-	public void unbind() {
-		CivGlobal.removeStructure(this);
-	}
-
-	public void bind() {
-		CivGlobal.addStructure(this);
 	}
 
 	@Override
@@ -419,7 +400,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public String getMarkerIconName() {
-		// options at https://github.com/webbukkit/dynmap/wiki/Using-markers
 		return "bighouse";
 	}
 
@@ -473,7 +453,6 @@ public class Structure extends Buildable {
 
 	public void repairStructureForFree() throws CivException {
 		setHitpoints(getMaxHitPoints());
-
 		try {
 			repairFromTemplate();
 		} catch (CivException | IOException e) {
@@ -489,17 +468,17 @@ public class Structure extends Buildable {
 		}
 
 		double cost = getRepairCost();
+		if (this instanceof ArrowShip || this instanceof ArrowTower || this instanceof Barracks || this instanceof BroadcastTower || this instanceof CannonShip
+				|| this instanceof CannonTower || this instanceof ScoutTower || this instanceof TeslaTower || this instanceof TownHall) {
+			cost = cost * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
+		}
+		
 		if (!getTown().getTreasury().hasEnough(cost)) {
 			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
 					getDisplayName()));
 		}
 
 		repairStructureForFree();
-		//XXX Import from furnex
-		if (this instanceof ArrowShip || this instanceof ArrowTower || this instanceof Barracks || this instanceof BroadcastTower || this instanceof CannonShip
-				|| this instanceof CannonTower || this instanceof ScoutTower || this instanceof TeslaTower || this instanceof TownHall) {
-			cost = cost * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
-		}
 		getTown().getTreasury().withdraw(cost);
 		CivMessage.sendTown(getTown(),
 				CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));

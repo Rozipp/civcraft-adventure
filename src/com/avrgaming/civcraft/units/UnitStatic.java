@@ -241,7 +241,7 @@ public class UnitStatic {
 	public static void updateUnitForPlaeyr(Player player) {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
-		int unitId = resident.getUnitId();
+		int unitId = resident.getUnitObjectId();
 		if (unitId > 0) {
 			UnitObject uo = CivGlobal.getUnitObject(unitId);
 			ItemStack is = findUnit(player);
@@ -267,7 +267,7 @@ public class UnitStatic {
 
 	public static void addExpToPlayer(Player player, int exp) {
 		Resident res = CivGlobal.getResident(player);
-		UnitObject uo = CivGlobal.getUnitObject(res.getUnitId());
+		UnitObject uo = CivGlobal.getUnitObject(res.getUnitObjectId());
 		if (uo == null) return;
 		CivMessage.send(player, CivColor.LightGray + "   " + "Ваш " + CivColor.PurpleBold + uo.getName() + CivColor.LightGray + " получил " + CivColor.Yellow
 				+ exp + CivColor.LightGray + " единиц опыта");
@@ -302,7 +302,7 @@ public class UnitStatic {
 	}
 
 	public static UnitObject getPlayerUnitObject(final Player player) {
-		int unitId = CivGlobal.getResident(player).getUnitId();
+		int unitId = CivGlobal.getResident(player).getUnitObjectId();
 		return CivGlobal.getUnitObject(unitId);
 	}
 
@@ -326,7 +326,7 @@ public class UnitStatic {
 	public static void removeChildrenItems(Player player) {
 		if (player == null) return;
 		Resident res = CivGlobal.getResident(player);
-		int unitId = res.getUnitId();
+		int unitId = res.getUnitObjectId();
 		if (unitId <= 0) unitId = UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player));
 		UnitObject uo = CivGlobal.getUnitObject(unitId);
 		for (int i = 0; i <= 40; i++) {
@@ -352,7 +352,7 @@ public class UnitStatic {
 			}
 			player.updateInventory();
 		}
-		CivGlobal.getResident(player).setUnitId(0);
+		CivGlobal.getResident(player).setUnitObjectId(0);
 	}
 
 	public static void setModifiedMovementSpeed(Player player) {
