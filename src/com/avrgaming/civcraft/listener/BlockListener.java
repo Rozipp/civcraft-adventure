@@ -795,7 +795,6 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockFromTo(BlockFromToEvent event) {
-		Block block = event.getBlock();
 		bcoord.setFromLocation(event.getToBlock().getLocation());
 		VillageBlock vb = CivGlobal.getVillageBlock(bcoord);
 		if (vb != null) {

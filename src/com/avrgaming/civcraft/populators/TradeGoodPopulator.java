@@ -106,11 +106,9 @@ public class TradeGoodPopulator extends BlockPopulator {
 
         final Location loc = new Location(coord.getBlock().getWorld(), coord.getBlock().getX() + 0.5, (double)(coord.getBlock().getY() + 5), coord.getBlock().getZ() + 0.5);
         final Hologram holoTradeGood = HologramsAPI.createHologram(CivCraftGoods, loc);
-        @SuppressWarnings("unused")
-		ItemLine tradeGoodItem;
-        @SuppressWarnings("unused")
+
+        ItemLine tradeGoodItem;
 		TextLine tradeGoodName;
-        @SuppressWarnings("unused")
 		TextLine tradeGoodValue;
         String color;
         if (good.water) {
@@ -125,7 +123,6 @@ public class TradeGoodPopulator extends BlockPopulator {
             tradeGoodValue = holoTradeGood.appendTextLine(CivColor.LightPurpleBold + "\u0414\u0430\u0435\u0442: ");
             color = "§c";
         }
-        @SuppressWarnings("unused")
 		final TextLine tradeGoodBuffs = holoTradeGood.appendTextLine(color + getHumanBuffList(good));
     	Block signBlock = top.getRelative(direction);
     	signBlock.setType(Material.WALL_SIGN);

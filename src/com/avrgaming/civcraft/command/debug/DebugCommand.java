@@ -208,10 +208,10 @@ public class DebugCommand extends CommandBase {
 	}
 
 	public void cannon_cmd() throws CivException {
-		Resident resident = getResident();
-		Cannon.newCannon(resident);
+		Player player = getPlayer();
+		Cannon.newCannon(player);
 
-		CivMessage.sendSuccess(resident, "built cannon.");
+		CivMessage.sendSuccess(player, "built cannon.");
 	}
 
 	public void world_cmd() {

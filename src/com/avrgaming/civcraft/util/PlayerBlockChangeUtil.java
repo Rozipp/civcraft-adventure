@@ -30,19 +30,8 @@ public class PlayerBlockChangeUtil {
 	
 	TreeMap<String, PacketPlayOutMultiBlockChange> preparedPackets = new TreeMap<String, PacketPlayOutMultiBlockChange>();
 	//private static ReentrantLock taskLock = new ReentrantLock();
-
-	
 	
 	public void addUpdateBlock(String playerName, BlockCoord bcoord, int type_id, int data) {
-//		HashMap<BlockCoord, SimpleBlock> blocks = blocksToUpdate.get(playerName);
-//		if (blocks == null) {
-//			blocks = new HashMap<BlockCoord, SimpleBlock>();
-//		}
-//		
-//		
-//		SimpleBlock sb = new SimpleBlock(type_id, data);
-//		blocks.put(bcoord, sb);
-//		blocksToUpdate.put(playerName, blocks);
 		
 		HashMap<ChunkCoord, LinkedList<SimpleBlock>> blocksInChunk = blocksInChunkToUpdate.get(playerName);
 		if (blocksInChunk == null) {

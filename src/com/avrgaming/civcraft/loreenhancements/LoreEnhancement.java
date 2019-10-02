@@ -37,6 +37,7 @@ public class LoreEnhancement implements Listener {
 		LoreEnhancement.enhancements.put("LoreEnhancementUnitItem", new LoreEnhancementUnitItem());
 		LoreEnhancement.enhancements.put("LoreEnhancementThorns", new LoreEnhancementThorns());
 		LoreEnhancement.enhancements.put("LoreEnhancementJumping", new LoreEnhancementJumping());
+		LoreEnhancement.enhancements.put("LoreEnhancementCritical", new LoreEnhancementCritical());
 	}
 
 	public static LoreEnhancement getFromName(String name) {
@@ -45,14 +46,14 @@ public class LoreEnhancement implements Listener {
 
 	public static void addLoreEnchancementValue(AttributeUtil attrs, String name, Integer level) {
 		LoreEnhancement le = getFromName(name);
-		Double amount = Double.valueOf(le.variables.getOrDefault("amount", "1.0"));
+		Double amount = (le != null) ? Double.valueOf(le.variables.getOrDefault("amount", "1.0")) : 1;
 		Double value = amount * level;
 		attrs.addEnhancement(name, "level", level.toString());
 		attrs.addEnhancement(name, "value", value.toString());
 		attrs.addLore(le.getLoreString(value));
 	}
 
-	public String getLoreString(double baseLevel) {
+	public String getLoreString(Double baseLevel) {
 		if (baseLevel == 0) return CivColor.Blue + this.getDisplayName();
 		return CivColor.Blue + this.getDisplayName() + " " + baseLevel;
 	}

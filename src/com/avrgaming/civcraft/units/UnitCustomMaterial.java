@@ -23,7 +23,6 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class UnitCustomMaterial extends BaseCustomMaterial {
 
-	private UnitMaterial parent = null;
 	private int socketSlot = 0;
 
 	public UnitCustomMaterial(String id, int minecraftId, short damage) {
@@ -50,14 +49,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 		}
 	}
 
-	public UnitMaterial getParent() {
-		return parent;
-	}
-
-	public void setParent(UnitMaterial parent) {
-		this.parent = parent;
-	}
-
 	@Override
 	public void onItemSpawn(ItemSpawnEvent event) {
 		// Never let these spawn as items.
@@ -69,7 +60,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 		for (String str : lore) {
 			this.addLore(str);
 		}
-		this.addLore(CivColor.Gold + CivSettings.localize.localizedString("Soulbound"));
 	}
 
 	public int getSocketSlot() {
@@ -90,7 +80,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	public boolean isCanUseInventoryTypes(Inventory inv) {
 		switch (inv.getType()) {
 			case CHEST :
-			case CRAFTING :
 			case DROPPER :
 			case ENDER_CHEST :
 			case HOPPER :

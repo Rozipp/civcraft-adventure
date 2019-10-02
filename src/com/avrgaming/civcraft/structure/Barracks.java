@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  *
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  *
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- *
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
 import gpl.AttributeUtil;
@@ -61,7 +51,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class Barracks extends Structure {
 
-	private static final long SAVE_INTERVAL = 60*1000;
+	private static final long SAVE_INTERVAL = 60 * 1000;
 
 	private int index = 0;
 	private StructureSign unitNameSign;
@@ -72,8 +62,7 @@ public class Barracks extends Structure {
 	private TreeMap<Integer, StructureSign> progresBar = new TreeMap<Integer, StructureSign>();
 	private Date lastSave = null;
 
-	public Barracks(Location center, String id, Town town)
-			throws CivException {
+	public Barracks(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 
@@ -85,16 +74,17 @@ public class Barracks extends Structure {
 		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
 
 		if (unitList.size() == 0) {
-			return "\n"+CivColor.LightGray+CivSettings.localize.localizedString("Nothing")+"\n"+CivColor.LightGray+CivSettings.localize.localizedString("Available");
+			return "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray
+					+ CivSettings.localize.localizedString("Available");
 		}
 
 		ConfigUnit unit = unitList.get(index);
 		String out = "\n";
 		double coinCost = unit.cost;
 
-		out += CivColor.LightPurple+unit.name+"\n";
-		out += CivColor.Yellow+coinCost+"\n";
-		out += CivColor.Yellow+CivSettings.CURRENCY_NAME;
+		out += CivColor.LightPurple + unit.name + "\n";
+		out += CivColor.Yellow + coinCost + "\n";
+		out += CivColor.Yellow + CivSettings.CURRENCY_NAME;
 
 		return out;
 	}
@@ -110,12 +100,15 @@ public class Barracks extends Structure {
 			}
 			this.unitNameSign.update();
 		} else {
-			CivLog.warning("Could not find unit name sign for barracks:"+this.getId()+" at "+this.getCorner());
+			CivLog.warning("Could not find unit name sign for barracks:" + this.getId() + " at " + this.getCorner());
 		}
 	}
 
-
 	private void train(Resident whoClicked) throws CivException {
+		if (!getTown().getAssistantGroup().hasMember(whoClicked) && !getTown().getMayorGroup().hasMember(whoClicked)) {
+			throw new CivException(CivSettings.localize.localizedString("barracks_actionNoPerms"));
+		}
+
 		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
 
 		ConfigUnit unit = unitList.get(index);
@@ -132,14 +125,12 @@ public class Barracks extends Structure {
 		}
 
 		if (this.trainingUnit != null) {
-			throw new CivException(
-					CivSettings.localize.localizedString("var_barracks_inProgress", this.trainingUnit.name));
+			throw new CivException(CivSettings.localize.localizedString("var_barracks_inProgress", this.trainingUnit.name));
 		}
 
 		double coinCost = unit.cost;
 		if (!getTown().getTreasury().hasEnough(coinCost)) {
-			throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost,
-					CivSettings.CURRENCY_NAME));
+			throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost, CivSettings.CURRENCY_NAME));
 		}
 
 		getTown().getTreasury().withdraw(coinCost);
@@ -153,34 +144,26 @@ public class Barracks extends Structure {
 
 	@Override
 	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
-		//int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
-
-		if (resident == null) {
-			return;
-		}
+		if (resident == null) return;
 
 		switch (sign.getAction()) {
-			case "prev":
-				changeIndex((index-1));
+			case "prev" :
+				changeIndex((index - 1));
 				break;
-			case "next":
-				changeIndex((index+1));
+			case "next" :
+				changeIndex((index + 1));
 				break;
-			case "train":
+			case "train" :
 				if (resident.hasTown()) {
 					try {
-						if (getTown().getAssistantGroup().hasMember(resident) || getTown().getMayorGroup().hasMember(resident)) {
-							train(resident);
-						} else {
-							throw new CivException(CivSettings.localize.localizedString("barracks_actionNoPerms"));
-						}
+						train(resident);
 					} catch (CivException e) {
-						CivMessage.send(player, CivColor.Rose+e.getMessage());
+						CivMessage.send(player, CivColor.Rose + e.getMessage());
 					}
 				}
 				break;
-			case "repair_item":
+			case "repair_item" :
 				repairItem(player, resident, event);
 				break;
 		}
@@ -215,14 +198,14 @@ public class Barracks extends Structure {
 			try {
 				double totalCost;
 				if (craftMat.hasComponent("RepairCost")) {
-					RepairCost repairCost = (RepairCost)craftMat.getComponent("RepairCost");
+					RepairCost repairCost = (RepairCost) craftMat.getComponent("RepairCost");
 					totalCost = repairCost.getDouble("value");
 				} else {
 					double baseTierRepair = CivSettings.getDouble(CivSettings.structureConfig, "barracks.base_tier_repair");
 					double tierDamp = CivSettings.getDouble(CivSettings.structureConfig, "barracks.tier_damp");
 					double tierCost = Math.pow((craftMat.getConfigMaterial().tier), tierDamp);
 					double fromTier = Math.pow(baseTierRepair, tierCost);
-					totalCost = Math.round(fromTier+0);
+					totalCost = Math.round(fromTier + 0);
 				}
 
 				InteractiveRepairItem repairItem = new InteractiveRepairItem(totalCost, player.getName(), craftMat);
@@ -234,8 +217,6 @@ public class Barracks extends Structure {
 				e.printStackTrace();
 				throw new CivException(CivSettings.localize.localizedString("internalException"));
 			}
-
-
 
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
@@ -255,7 +236,7 @@ public class Barracks extends Structure {
 		Resident resident = CivGlobal.getResident(player);
 
 		if (!resident.getTreasury().hasEnough(cost)) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_barracks_repair_TooPoor",cost,CivSettings.CURRENCY_NAME));
+			CivMessage.sendError(player, CivSettings.localize.localizedString("var_barracks_repair_TooPoor", cost, CivSettings.CURRENCY_NAME));
 			return;
 		}
 
@@ -267,9 +248,10 @@ public class Barracks extends Structure {
 		}
 
 		resident.getTreasury().withdraw(cost);
-		player.getInventory().getItemInMainHand().setDurability((short)0);
+		player.getInventory().getItemInMainHand().setDurability((short) 0);
 
-		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_barracks_repair_Success",craftMat.getName(),cost,CivSettings.CURRENCY_NAME));
+		CivMessage.sendSuccess(player,
+				CivSettings.localize.localizedString("var_barracks_repair_Success", craftMat.getName(), cost, CivSettings.CURRENCY_NAME));
 
 	}
 
@@ -301,11 +283,11 @@ public class Barracks extends Structure {
 		StructureSign structSign;
 
 		switch (sb.command) {
-			case "/prev":
+			case "/prev" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 				structSign = new StructureSign(absCoord, this);
-				structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("barracks_sign_previousUnit"));
+				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_previousUnit"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("prev");
 				structSign.update();
@@ -313,7 +295,7 @@ public class Barracks extends Structure {
 				CivGlobal.addStructureSign(structSign);
 
 				break;
-			case "/unitname":
+			case "/unitname" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
@@ -329,12 +311,12 @@ public class Barracks extends Structure {
 				CivGlobal.addStructureSign(structSign);
 
 				break;
-			case "/next":
+			case "/next" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
 				structSign = new StructureSign(absCoord, this);
-				structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("barracks_sign_nextUnit"));
+				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_nextUnit"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("next");
 				structSign.update();
@@ -342,12 +324,12 @@ public class Barracks extends Structure {
 				CivGlobal.addStructureSign(structSign);
 
 				break;
-			case "/train":
+			case "/train" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
 				structSign = new StructureSign(absCoord, this);
-				structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("barracks_sign_train"));
+				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_train"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("train");
 				structSign.update();
@@ -355,7 +337,7 @@ public class Barracks extends Structure {
 				CivGlobal.addStructureSign(structSign);
 
 				break;
-			case "/progress":
+			case "/progress" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
@@ -370,12 +352,12 @@ public class Barracks extends Structure {
 				this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
 
 				break;
-			case "/repair":
+			case "/repair" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
 				structSign = new StructureSign(absCoord, this);
-				structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("barracks_sign_repairItem"));
+				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_repairItem"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("repair_item");
 				structSign.update();
@@ -419,7 +401,7 @@ public class Barracks extends Structure {
 			return;
 		}
 
-		Chest chest = (Chest)chests.get(0).getCoord().getBlock().getState();
+		Chest chest = (Chest) chests.get(0).getCoord().getBlock().getState();
 
 //XXX from original
 //		try {
@@ -453,7 +435,7 @@ public class Barracks extends Structure {
 		try {
 			UnitStatic.spawn(chest.getInventory(), this.getTown(), unit.id);
 
-			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_barracks_completedTraining",unit.name));
+			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_barracks_completedTraining", unit.name));
 			this.trainingUnit = null;
 			this.currentHammers = 0.0;
 
@@ -464,7 +446,7 @@ public class Barracks extends Structure {
 			this.currentHammers = 0.0;
 			e.getCause().getMessage();
 			e.printStackTrace();
-			CivMessage.sendTown(getTown(), CivColor.Rose+e.getMessage());
+			CivMessage.sendTown(getTown(), CivColor.Rose + e.getMessage());
 		}
 
 	}
@@ -474,7 +456,7 @@ public class Barracks extends Structure {
 
 		percentageDone = this.currentHammers / this.trainingUnit.hammer_cost;
 		int size = this.progresBar.size();
-		int textCount = (int)(size*16*percentageDone);
+		int textCount = (int) (size * 16 * percentageDone);
 		int textIndex = 0;
 
 		for (int i = 0; i < size; i++) {
@@ -487,19 +469,21 @@ public class Barracks extends Structure {
 			for (int j = 0; j < 16; j++) {
 				if (textIndex == 0) {
 					text[2] += "[";
-				} else if (textIndex == ((size*15)+3)) {
-					text[2] += "]";
-				} else if (textIndex < textCount) {
-					text[2] += "=";
-				} else {
-					text[2] += "_";
-				}
+				} else
+					if (textIndex == ((size * 15) + 3)) {
+						text[2] += "]";
+					} else
+						if (textIndex < textCount) {
+							text[2] += "=";
+						} else {
+							text[2] += "_";
+						}
 
 				textIndex++;
 			}
 
-			if (i == (size/2)) {
-				text[1] = CivColor.LightGreen+this.trainingUnit.name;
+			if (i == (size / 2)) {
+				text[1] = CivColor.LightGreen + this.trainingUnit.name;
 			}
 
 			structSign.setText(text);
@@ -509,13 +493,13 @@ public class Barracks extends Structure {
 	}
 
 	public String getSessionKey() {
-		return this.getTown().getName()+":"+"barracks"+":"+this.getId();
+		return this.getTown().getName() + ":" + "barracks" + ":" + this.getId();
 	}
 
 	public void saveProgress() {
 		if (this.getTrainingUnit() != null) {
 			String key = getSessionKey();
-			String value = this.getTrainingUnit().id+":"+this.currentHammers;
+			String value = this.getTrainingUnit().id + ":" + this.currentHammers;
 			ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
 
 			if (entries.size() > 0) {
@@ -552,7 +536,7 @@ public class Barracks extends Structure {
 			this.trainingUnit = UnitStatic.configUnits.get(values[0]);
 
 			if (trainingUnit == null) {
-				CivLog.error("Couldn't find in-progress unit id:"+values[0]+" for town "+this.getTown().getName());
+				CivLog.error("Couldn't find in-progress unit id:" + values[0] + " for town " + this.getTown().getName());
 				return;
 			}
 
@@ -566,13 +550,11 @@ public class Barracks extends Structure {
 		}
 	}
 
-
 	public void updateTraining() {
 		if (this.trainingUnit != null) {
 			// Hammers are per hour, this runs per min. We need to adjust the hammers we add.
 			double addedHammers = (getTown().getHammers().total / 60) / 60;
 			this.currentHammers += addedHammers;
-
 
 			this.updateProgressBar();
 			Date now = new Date();

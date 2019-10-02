@@ -35,8 +35,9 @@ import com.avrgaming.civcraft.fishing.FishingListener;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
+import com.avrgaming.civcraft.mythicmob.MobAsynckSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobListener;
-import com.avrgaming.civcraft.mythicmob.MobSpawnerTimer;
+import com.avrgaming.civcraft.mythicmob.MobPoolSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.*;
 import com.avrgaming.civcraft.permission.PermissionGroup;
@@ -140,7 +141,8 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("SessionDBAsyncTimer", new SessionDBAsyncTimer(), 10);
 		TaskMaster.asyncTimer("pvptimer", new PvPTimer(), TimeTools.toTicks(30));
 		
-		TaskMaster.syncTimer("MobSpawner", new MobSpawnerTimer(), TimeTools.toTicks(15)); // 15 ������
+		TaskMaster.syncTimer("MobAsynckSpawner", new MobAsynckSpawnTimer(), TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
+		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), 500);
 		//TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		TaskMaster.syncTimer("ValidateAll", new ValidateAll(), TimeTools.toTicks(10800L));

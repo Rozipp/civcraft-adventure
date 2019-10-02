@@ -295,6 +295,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 
 	@Override
 	public boolean isCanUseInventoryTypes(Inventory inv) {
+		if (inv == null) return true;
 		switch (inv.getType()) {
 			case CHEST :
 			case CRAFTING :

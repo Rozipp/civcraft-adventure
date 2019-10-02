@@ -76,9 +76,7 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 	public double getLevel(AttributeUtil attrs) {	
 		if (attrs.hasEnhancement("LoreEnhancementAttack")) {
 			/* Get base Level. */
-			Double baseLevel = Double.valueOf(attrs.getEnhancementData("LoreEnhancementAttack", "level")); 
-			CivLog.debug("getLevel " + baseLevel);
-			return baseLevel;
+			return Double.valueOf(attrs.getEnhancementData("LoreEnhancementAttack", "level"));
 		}
 		return 0;
 	}
@@ -90,14 +88,6 @@ public class LoreEnhancementAttack extends LoreEnhancement {
 	}
 
 	public double getExtraAttack(AttributeUtil attrs) {
-//		double m;
-//		try {
-//			m = CivSettings.getDouble(CivSettings.civConfig, "global.attack_catalyst_multiplier");
-//			return getLevel(attrs)*m;
-//		} catch (InvalidConfiguration e) {
-//			e.printStackTrace();
-//		}
-		
 		return getLevel(attrs);
 	}
 	

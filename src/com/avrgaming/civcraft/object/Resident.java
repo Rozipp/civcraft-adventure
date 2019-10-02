@@ -914,26 +914,14 @@ public class Resident extends SQLObject {
 		this.previewUndo.clear();
 		this.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
 	}
-	
+
 	public void onRoadTest(BlockCoord coord, Player player) {
 		/* Test the block beneath us for a road, if so, set the road flag. */
 		BlockCoord feet = new BlockCoord(coord);
 		feet.setY(feet.getY() - 1);
 		RoadBlock rb = CivGlobal.getRoadBlock(feet);
 
-		if (rb == null) {
-			onRoad = false;
-//			if (player.hasPotionEffect(PotionEffectType.SPEED)) {
-//				player.removePotionEffect(PotionEffectType.SPEED);
-//			}
-		} else {
-			onRoad = true;
-
-//			if (!player.hasPotionEffect(PotionEffectType.SPEED)) {
-//				CivLog.debug("setting effect.");
-//				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5, 5));
-//			}
-		}
+		onRoad = rb != null;
 	}
 
 	public void giveTemplate(String name) {
@@ -1304,7 +1292,7 @@ public class Resident extends SQLObject {
 	}
 
 	public boolean canDamageControlBlock() {
-		return (!this.hasTown()) || (this.getCiv().getCapitolStructure().isValid()); 
+		return (!this.hasTown()) || (this.getCiv().getCapitolStructure().isValid());
 	}
 
 	public void saveInventory() {
@@ -1346,7 +1334,7 @@ public class Resident extends SQLObject {
 	public void calculateWalkingModifier(Player player) {
 		Double sumValue = 0.0;
 		ItemStack[] stacks = player.getInventory().getArmorContents();
-		for (ItemStack is : stacks) { 
+		for (ItemStack is : stacks) {
 			if (is == null) continue;
 			if (UnitStatic.isWearingAnyIron(is.getType())) sumValue = sumValue + UnitStatic.T1_metal_speed;
 			if (UnitStatic.isWearingAnyChain(is.getType())) sumValue = sumValue + UnitStatic.T2_metal_speed;

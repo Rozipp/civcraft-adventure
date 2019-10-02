@@ -23,13 +23,9 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class SyncBuildUpdateTask implements Runnable {
 
-//	private boolean ff = false;
-//	private Date date;
-
 	public static int UPDATE_LIMIT = Integer.MAX_VALUE;
 //	public static final int QUEUE_SIZE = 4096;
 
-//	public static BlockingQueue<SimpleBlock> updateBlocks = new ArrayBlockingQueue<SimpleBlock>(QUEUE_SIZE);
 	private static Queue<SimpleBlock> updateBlocks = new LinkedList<SimpleBlock>();
 
 	public static ReentrantLock buildBlockLock = new ReentrantLock();

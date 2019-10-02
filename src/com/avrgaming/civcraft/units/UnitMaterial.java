@@ -51,7 +51,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 	//=============== EquipmentElemen
 	public HashMap<String, EquipmentElement> equipmentElemens = new HashMap<>();
 	public abstract void initAmmunitions();
-	public String getCustMatTir(String eq, Integer tir) {
+	public String getAmuntMatTir(String eq, Integer tir) {
 		EquipmentElement e = equipmentElemens.get(eq);
 		if (e == null) return "";
 		return e.getMatTir(tir);
@@ -242,9 +242,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 			Player player = (Player) toInv.getHolder();
 
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-			if (uo == null) {
-				CivLog.error("Не найден UnitObject");
-			}
+			if (uo == null) CivLog.error("Не найден UnitObject");
 			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок этого юнита 
 				CivMessage.sendError(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);

@@ -19,6 +19,7 @@ import org.bukkit.entity.LivingEntity;
 import com.avrgaming.civcraft.main.CivLog;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
+import io.lumine.xikage.mythicmobs.api.bukkit.BukkitAPIHelper;
 import io.lumine.xikage.mythicmobs.api.exceptions.InvalidMobTypeException;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
@@ -36,18 +37,24 @@ public class MobStatic {
 		}
 	}
 
+	public static BukkitAPIHelper API() {
+		return MythicMobs.inst().getAPIHelper();
+	}
+	
 	public static boolean isMithicMobEntity(LivingEntity e) {
-		return MythicMobs.inst().getAPIHelper().isMythicMob(e);
+		return API().isMythicMob(e);
 	}
 	public static boolean isMithicMobEntity(Entity e) {
-		return isMithicMobEntity((LivingEntity) e);
+		if (e instanceof LivingEntity)
+			return isMithicMobEntity((LivingEntity) e);
+		else
+			return false;
 	}
 
 	public static ActiveMob getMithicMob(Entity entity) {
-		return MythicMobs.inst().getAPIHelper().getMythicMobInstance(entity);
+		return API().getMythicMobInstance(entity);
 	}
-	
-	
+
 	public static LinkedList<ConfigMobs> getValidMobsForBiome(Biome biome) {
 		LinkedList<ConfigMobs> mobs = biomes.get(biome.name());
 		if (mobs == null) mobs = new LinkedList<ConfigMobs>();
@@ -58,13 +65,13 @@ public class MobStatic {
 //		MythicMobs.inst().getMobManager().despawnAllMobs();
 	}
 
-	public static void spawnRandomCustomMob(Location location) {
+	public static void spawnValidCustomMob(Location location) {
 		LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
 		if (validMobs.isEmpty()) return;
 
 		String mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
 		try {
-			MythicMobs.inst().getAPIHelper().spawnMythicMob(mmid, location);
+			API().spawnMythicMob(mmid, location);
 		} catch (InvalidMobTypeException e) {
 			CivLog.error("MythicMobs can not spawn mobType " + mmid);
 		}

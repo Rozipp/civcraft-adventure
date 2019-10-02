@@ -17,9 +17,9 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.items.ItemDurabilityEntry;
-import com.avrgaming.civcraft.items.components.Catalyst;
 import com.avrgaming.civcraft.listener.armor.ArmorType;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
+import com.avrgaming.civcraft.loreenhancements.LoreEnhancementCritical;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancementSoulBound;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancementUnitItem;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
@@ -40,6 +40,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
@@ -269,6 +270,7 @@ public class CustomItemListener implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
+		Double baseDamage = event.getDamage();
 
 		Player defendingPlayer = null;
 		if (event.getEntity() instanceof Player) {
@@ -336,14 +338,7 @@ public class CustomItemListener implements Listener {
 			}
 		}
 
-		if (defendingPlayer == null) {
-//			if (event.getEntity() instanceof LivingEntity) {
-//				if (MobLib.isMobLibEntity((LivingEntity) event.getEntity())) {
-//					MobComponent.onDefense(event.getEntity(), event);
-//				}	
-//			}
-			return;
-		} else {
+		if (defendingPlayer != null) {
 			/* Search equipt items for defense event. */
 			for (ItemStack stack : defendingPlayer.getEquipment().getArmorContents()) {
 				CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
@@ -355,6 +350,23 @@ public class CustomItemListener implements Listener {
 				AttributeUtil attrs = new AttributeUtil(chestplate);
 				if (attrs.hasEnhancement("LoreEnhancementThorns")) {
 					le.damage(event.getDamage() * Double.valueOf(attrs.getEnhancementData("LoreEnhancementThorns", "value")), defendingPlayer);
+				}
+			}
+		}
+		Entity e = event.getDamager();
+		if (e instanceof Player) {
+			Player player = (Player) e;
+			AttributeUtil au = new AttributeUtil(player.getInventory().getItemInMainHand());
+			if (au.hasEnhancement("LoreEnhancementCritical") && LoreEnhancementCritical.randomCriticalAttack(au)) {
+				if (event.getEntity() instanceof LivingEntity) {
+					LivingEntity le = (LivingEntity) event.getEntity();
+					TaskMaster.syncTask(new Runnable() {
+						@Override
+						public void run() {
+							CivLog.debug("dddd");
+							le.damage(baseDamage, player);
+						}
+					}, 10);
 				}
 			}
 		}
@@ -904,33 +916,6 @@ public class CustomItemListener implements Listener {
 		if (event.getWhoClicked() instanceof Player) {
 			removeUnwantedVanillaItems((Player) event.getWhoClicked(), event.getView().getBottomInventory());
 		}
-	}
-
-	public CraftableCustomMaterial getCompatibleCatalyst(CraftableCustomMaterial craftMat) {
-		/* Setup list of catalysts to refund. */
-		LinkedList<CustomMaterial> cataList = new LinkedList<CustomMaterial>();
-		cataList.add(CustomMaterial.getCustomMaterial("mat_common_attack_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_common_defense_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_uncommon_attack_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_uncommon_defense_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_rare_attack_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_rare_defense_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_legendary_attack_catalyst"));
-		cataList.add(CustomMaterial.getCustomMaterial("mat_legendary_defense_catalyst"));
-
-		for (CustomMaterial mat : cataList) {
-			CraftableCustomMaterial cMat = (CraftableCustomMaterial) mat;
-
-			Catalyst cat = (Catalyst) cMat.getComponent("Catalyst");
-			String allowedMats = cat.getString("allowed_materials");
-			String[] matSplit = allowedMats.split(",");
-
-			for (String mid : matSplit) {
-				if (mid.trim().equalsIgnoreCase(craftMat.getId())) return cMat;
-			}
-
-		}
-		return null;
 	}
 
 //	/*

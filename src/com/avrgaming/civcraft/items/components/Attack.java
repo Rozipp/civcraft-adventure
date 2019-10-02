@@ -113,25 +113,6 @@ public class Attack extends ItemComponent {
 			}
 			CivMessage.send((Object) event.getDamager(), CivColor.LightBlueItalic + CivSettings.localize.localizedString("loreEnh_LightStrike_warning"));
 		}
-//		if (artifact != null && artifact.id.equals("a_archer")) {
-//            dmg -= dmg * 0.1;
-//        } else if (artifact != null && artifact.id.equals("a_warrior")) {
-//            dmg *= 1.25;
-//        } else if (artifact != null && artifact.id.equals("a_berserker")) {
-//            dmg *= 1.05;
-//        } else if (artifact != null && artifact.id.equals("a_crossbowman")) {
-//            dmg -= dmg * 0.2;
-//        } else if (artifact != null && artifact.id.equals("a_swordsman")) {
-//            dmg *= 1.4;
-//        } else if (artifact != null && artifact.id.equals("a_spearman")) {
-//            dmg *= 1.05;
-//        } else if (artifact != null && artifact.id.equals("a_slinger")) {
-//            dmg -= dmg * 0.25;
-//        } else if (artifact != null && artifact.id.equals("a_musketman")) {
-//            dmg *= 1.5;
-//        } else if (artifact != null && artifact.id.equals("a_knight")) {
-//            dmg *= 1.1;
-//        }
 
 		if (event.getDamager() instanceof Player) {
 			Resident resident = CivGlobal.getResident(((Player) event.getDamager()));

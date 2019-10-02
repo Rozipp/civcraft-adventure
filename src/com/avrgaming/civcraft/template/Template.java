@@ -756,22 +756,15 @@ public class Template {
 	}
 
 	public void previewEntireTemplate(Template tpl, Block cornerBlock, Player player) {
-		//HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
-		//	NMSHandler nms = new NMSHandler();
 		PlayerBlockChangeUtil util = new PlayerBlockChangeUtil();
 		for (int x = 0; x < tpl.size_x; x++) {
 			for (int y = 0; y < tpl.size_y; y++) {
 				for (int z = 0; z < tpl.size_z; z++) {
 					Block b = cornerBlock.getRelative(x, y, z);
-					//b.setTypeIdAndData(tpl.blocks[x][y][z].getType(), (byte)tpl.blocks[x][y][z].getData(), false);
 					try {
 						util.addUpdateBlock("", new BlockCoord(b), tpl.blocks[x][y][z].getType(), tpl.blocks[x][y][z].getData());
-
-//							nms.setBlockFast(b.getWorld(), b.getX(), b.getY(), b.getZ(), tpl.blocks[x][y][z].getType(), 
-//								(byte)tpl.blocks[x][y][z].getData());
 					} catch (Exception e) {
 						e.printStackTrace();
-						//throw new CivException("Couldn't build undo template unknown error:"+e.getMessage());
 					}
 				}
 			}

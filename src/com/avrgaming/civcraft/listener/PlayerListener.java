@@ -59,7 +59,6 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.mythicmob.MobSpawnerTimer;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
@@ -117,8 +116,6 @@ public class PlayerListener implements Listener {
 		Bukkit.getScheduler().runTaskLater((Plugin) CivCraft.getPlugin(), () -> TagManager.editNameTag(player), 4L);
 		CivGlobal.playerFirstLoginMap.put(player.getName(), new Date());
 		PlayerLocationCacheUpdate.playerQueue.add(player.getName());
-		 
-		MobSpawnerTimer.playerQueue.add((event.getPlayer().getName()));
 		
 		if (player.isOp()) {
 			//Bukkit.dispatchCommand(event.getPlayer(), "vanish");
@@ -301,7 +298,6 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity() instanceof Player) {
-			//Unit.removeUnit(((Player)event.getEntity()));
 			Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
 			if (!keepInventory) {
 				ArrayList<ItemStack> stacksToRemove = new ArrayList<ItemStack>();

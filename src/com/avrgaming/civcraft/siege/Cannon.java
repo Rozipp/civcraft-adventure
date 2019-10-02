@@ -100,13 +100,9 @@ public class Cannon extends Buildable {
 		}
 	}
 
-	public static void newCannon(Resident resident) throws CivException {
-		
-		Player player = CivGlobal.getPlayer(resident);
-		
+	public static void newCannon(Player player) throws CivException {
 		Cannon cannon = new Cannon();
 		cannon.buildCannon(player, player.getLocation());
-		
 	}
 	
 	public static void cleanupAll() {

@@ -114,17 +114,11 @@ public class UnitStatic {
 			attrs.addLore(CivColor.Gold + ench.getDisplayName());
 		}
 		attrs.addEnhancement("LoreEnhancementSoulBound", null, null);
-//		attrs.addLore(CivColor.Gold + CivSettings.localize.localizedString("Soulbound"));
-
 		attrs.addLore(CivColor.Rose + "Опыт: " + CivColor.YellowBold + uo.getExp() + "/" + uo.getTotalExpToNextLevel());
 
 		UnitStatic.getUnit(uo.getConfigUnit().id).initLore(attrs, uo);
 		is = attrs.getStack();
 		return is;
-	}
-
-	public static ItemStack initLoreStatic(ItemStack is) {
-		return initLoreStatic(is, CivGlobal.getUnitObject(getUnitIdNBTTag(is)));
 	}
 
 	public static void putItemSlot(PlayerInventory inv, ItemStack newStack, int slot, ArrayList<ItemStack> removes) {
@@ -198,6 +192,11 @@ public class UnitStatic {
 			case "swordattack" :
 				attrs = new AttributeUtil(stack);
 				LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementAttack", value);
+				stack = attrs.getStack();
+				break;
+			case "critical" :
+				attrs = new AttributeUtil(stack);
+				LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementCritical", value);
 				stack = attrs.getStack();
 				break;
 			case "swordknockback" :

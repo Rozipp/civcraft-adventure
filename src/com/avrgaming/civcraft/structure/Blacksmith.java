@@ -209,7 +209,7 @@ public class Blacksmith extends Structure {
 		int old_tir = uo.getComponent(equip);
 		if (new_tir == old_tir) throw new CivException("На Вас надета такая же аммуниция");
 
-		String old_mat = (old_tir == 0) ? "" : um.getCustMatTir(equip, old_tir);
+		String old_mat = (old_tir == 0) ? "" : um.getAmuntMatTir(equip, old_tir);
 		CivGlobal.getResident(player).getTreasury().withdraw(cost);
 
 		player.getInventory().setItemInMainHand(ItemManager.createItemStack(old_mat, 1));

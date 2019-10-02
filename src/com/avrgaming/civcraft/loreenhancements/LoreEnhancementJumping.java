@@ -9,7 +9,7 @@ public class LoreEnhancementJumping extends LoreEnhancement {
 	}
 
 	@Override
-	public String getLoreString(double baseLevel) {
+	public String getLoreString(Double baseLevel) {
 		return CivColor.Blue + "Пригучесть уровень " + baseLevel;
 	}
 	

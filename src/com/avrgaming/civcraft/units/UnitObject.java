@@ -296,7 +296,7 @@ public class UnitObject extends SQLObject {
 		NewStackList newStack = new NewStackList();
 		for (String equip : EquipmentElement.allEquipments) {
 			Integer tir = compManager.getBaseComponentValue(equip);
-			String mat = um.getCustMatTir(equip, tir);
+			String mat = um.getAmuntMatTir(equip, tir);
 			if (mat == null || mat == "") continue;
 			newStack.addItem(equip, ItemManager.createItemStack(mat, 1), um.getSlot(equip));
 		}
