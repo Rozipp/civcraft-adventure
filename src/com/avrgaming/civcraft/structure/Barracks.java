@@ -70,6 +70,11 @@ public class Barracks extends Structure {
 		super(rs);
 	}
 
+	@Override
+	public double getRepairCost() {
+		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
+	}
+	
 	private String getUnitSignText(int index) throws IndexOutOfBoundsException {
 		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
 

@@ -48,7 +48,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.avrgaming.civcraft.village.Village;
-//TODO import com.avrgaming.civcraft.endgame.ConfigEndCondition;
 import com.avrgaming.civcraft.config.ConfigEndCondition;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -61,9 +60,8 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.mythicmob.ConfigMobs;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
-import com.avrgaming.civcraft.structure.FortifiedWall;
 import com.avrgaming.civcraft.structure.Wall;
-import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.units.UnitStatic;
@@ -308,7 +306,7 @@ public class CivSettings {
 		alwaysCrumble.add(CivData.BEACON);
 		
 		LoreEnhancement.init();
-		Template.initAttachableTypes();
+		TemplateStatic.initAttachableTypes();
 
         if (CivSettings.plugin.hasPlugin("HolographicDisplays")) {
             CivSettings.hasHoloDisp = true;
@@ -554,7 +552,6 @@ public class CivSettings {
 		ConfigRemovedRecipes.removeRecipes(craftableMaterialsConfig, removedRecipies );
 		CivGlobal.tradeGoodPreGenerator.preGenerate();
 		Wall.init_settings();
-		FortifiedWall.init_settings();
 	}
 
 	private static void initRestrictedItems() {

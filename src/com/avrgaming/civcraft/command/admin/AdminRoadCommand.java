@@ -11,8 +11,8 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Road;
 
 public class AdminRoadCommand extends CommandBase {
 

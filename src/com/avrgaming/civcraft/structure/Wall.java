@@ -82,7 +82,7 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void bindStructureBlocks() {
+	public void bindBuildableBlocks() {
 	}
 
 	@Override
@@ -515,7 +515,7 @@ public class Wall extends Structure {
 	@Override
 	public void repairStructureForFree() throws CivException {
 		setHitpoints(getMaxHitPoints());
-		bindStructureBlocks();
+		bindBuildableBlocks();
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
@@ -539,7 +539,7 @@ public class Wall extends Structure {
 		}
 
 		setHitpoints(this.getMaxHitPoints());
-		bindStructureBlocks();
+		bindBuildableBlocks();
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();

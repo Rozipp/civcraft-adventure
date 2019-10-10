@@ -23,15 +23,12 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.road.Road;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -52,10 +49,10 @@ public class Structure extends Buildable {
 		this.setHitpoints(getInfo().max_hitpoints);
 
 		// Disallow duplicate structures with the same hash.
-		Structure struct = CivGlobal.getStructure(this.getCorner());
-		if (struct != null) {
-			throw new CivException(CivSettings.localize.localizedString("structure_alreadyExistsHere"));
-		}
+//		Structure struct = CivGlobal.getStructure(this.getCorner());
+//		if (struct != null) {
+//			throw new CivException(CivSettings.localize.localizedString("structure_alreadyExistsHere"));
+//		}
 	}
 
 	public Structure(ResultSet rs) throws SQLException, CivException {
@@ -67,10 +64,41 @@ public class Structure extends Buildable {
 		/* Override in children */
 	}
 
-	/* I'm being a bit lazy here, I don't want to switch on the type id in more than one place so I've overloaded this function to handle both new structures
-	 * and loaded ones. Either the center,id, and town are set (new structure being created now) or result set is not null (structure being loaded) */
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	private static Structure _newStructure(Location center, String id, Town town, ResultSet rs) throws CivException, SQLException {
+	/* Public interfaces to _newStructure. */
+	public static Structure newStructure(ResultSet rs) throws CivException, SQLException {
+		Structure struct;
+		String id = rs.getString("type_id");
+		String[] splitId = id.split("_");
+		String name = "com.avrgaming.civcraft.structure.";
+		int length = splitId.length;
+		for (int i = 1; i < length; i++) {
+			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
+		}
+		try {
+			Class<?> cls = null;
+			cls = Class.forName(name);
+			Class<?> partypes[] = {ResultSet.class};
+			Constructor<?> cntr = cls.getConstructor(partypes);
+			Object arglist[] = {rs};
+			struct = (Structure) cntr.newInstance(arglist);
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			CivLog.error("-----Structure class '" + name + "' creation error-----");
+			e.printStackTrace();
+			// This structure is generic, just create a structure type. 
+			// TODO should ANY structure be generic?
+			struct = new Structure(rs);
+		}
+		struct.loadSettings();
+
+		for (Component comp : struct.attachedComponents) {
+			comp.onSave();
+		}
+
+		return struct;
+	}
+
+	public static Structure newStructure(Location center, String id, Town town) throws CivException {
 		Structure struct;
 		String[] splitId = id.split("_");
 		String name = "com.avrgaming.civcraft.structure.";
@@ -78,75 +106,28 @@ public class Structure extends Buildable {
 		for (int i = 1; i < length; i++) {
 			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
 		}
-		if (rs == null)
-			try {
-				Class cls = null;
-				cls = Class.forName(name);
-				Class partypes[] = {Location.class, String.class, Town.class};
-				Constructor cntr = cls.getConstructor(partypes);
-				Object arglist[] = {center, id, town};
-				struct = (Structure) cntr.newInstance(arglist);
-			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-					| IllegalArgumentException | InvocationTargetException e) {
-				CivLog.error("-----Structure class '" + name + "' creation error-----");
-				e.printStackTrace();
-				// This structure is generic, just create a structure type. 
-				// TODO should ANY structure be generic?
-				struct = new Structure(center, id, town);
-			}
-		else {
-			try {
-				Class cls = null;
-				cls = Class.forName(name);
-				Class partypes[] = {ResultSet.class};
-				Constructor cntr = cls.getConstructor(partypes);
-				Object arglist[] = {rs};
-				struct = (Structure) cntr.newInstance(arglist);
-			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-					| IllegalArgumentException | InvocationTargetException e) {
-				CivLog.error("-----Structure class '" + name + "' creation error-----");
-				e.printStackTrace();
-				// This structure is generic, just create a structure type. 
-				// TODO should ANY structure be generic?
-				struct = new Structure(rs);
-			}
+		try {
+			Class<?> cls = null;
+			cls = Class.forName(name);
+			Class<?> partypes[] = {Location.class, String.class, Town.class};
+			Constructor<?> cntr = cls.getConstructor(partypes);
+			Object arglist[] = {center, id, town};
+			struct = (Structure) cntr.newInstance(arglist);
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			CivLog.error("-----Structure class '" + name + "' creation error-----");
+			e.printStackTrace();
+			// This structure is generic, just create a structure type. 
+			// TODO should ANY structure be generic?
+			struct = new Structure(center, id, town);
 		}
 		struct.loadSettings();
 
-		if (rs == null) {
-			struct.saveComponents();
-		} else {
-			struct.loadComponents();
+		for (Component comp : struct.attachedComponents) {
+			comp.onLoad();
 		}
 
 		return struct;
-	}
-
-	private void loadComponents() {
-		for (Component comp : this.attachedComponents) {
-			comp.onLoad();
-		}
-	}
-
-	private void saveComponents() {
-		for (Component comp : this.attachedComponents) {
-			comp.onSave();
-		}
-	}
-
-	/* Public interfaces to _newStructure. */
-	public static Structure newStructure(ResultSet rs) throws CivException, SQLException {
-		return _newStructure(null, rs.getString("type_id"), null, rs);
-	}
-
-	public static Structure newStructure(Location center, String id, Town town) throws CivException {
-		try {
-			return _newStructure(center, id, town, null);
-		} catch (SQLException e) {
-			//This should never happen here..
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	public static void init() throws SQLException {
@@ -170,30 +151,27 @@ public class Structure extends Buildable {
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, CivException {
+	public void load(ResultSet rs) throws CivException, SQLException {
 		this.setId(rs.getInt("id"));
 		this.setInfo(CivSettings.structures.get(rs.getString("type_id")));
 		this.setTown(CivGlobal.getTownFromId(rs.getInt("town_id")));
 
 		if (this.getTown() == null) {
-			//if (CivGlobal.testFileFlag("cleanupDatabase")) {
-			//CivLog.info("CLEANING");
 			this.delete();
-			//}
-			//		CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for structure "+this.getDisplayName()+" ID:"+this.getId());
 			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
-			//	SQL.deleteNamedObject(this, TABLE_NAME);
-			//return;
 		}
 
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
 		this.setHitpoints(rs.getInt("hitpoints"));
-		this.setTemplateName(rs.getString("template_name"));
+		String s = rs.getString("template_name");
+		if (s == null)
+			this.setTemplateName("");
+		else
+			this.setTemplateName(s);
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
-
 		this.getTown().addStructure(this);
-		bindStructureBlocks();
+		bindBuildableBlocks();
 
 		if (!this.isComplete()) {
 			try {
@@ -202,11 +180,6 @@ public class Structure extends Buildable {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 
 	@Override
@@ -239,7 +212,7 @@ public class Structure extends Buildable {
 				}
 			}
 
-			if (!(this instanceof Wall || this instanceof FortifiedWall || this instanceof Road)) {
+			if (!(this instanceof Wall || this instanceof Road)) {
 				CivLog.debug("Delete with Undo! " + this.getDisplayName());
 				/* Remove StructureSigns */
 				for (StructureSign sign : this.getSigns()) {
@@ -270,11 +243,7 @@ public class Structure extends Buildable {
 					if (this instanceof Wall) {
 						Wall wall = (Wall) this;
 						wall.deleteOnDisband();
-					} else
-						if (this instanceof FortifiedWall) {
-							FortifiedWall wall = (FortifiedWall) this;
-							wall.deleteOnDisband();
-						}
+					}
 			}
 
 		}
@@ -332,36 +301,18 @@ public class Structure extends Buildable {
 	}
 
 	@Override
-	public void build(Player player, Location centerLoc, Template tpl) throws Exception {
+	public void build(Player player, Location location, Template tpl) throws Exception {
+		this.onPreBuild(location);
 
-		this.onPreBuild(centerLoc);
-
-//		// Start building from the structure's template.
-//		Template tpl;
-//		try {
-//			tpl = new Template();
-//			tpl.initTemplate(centerLoc, this);
-//		} catch (Exception e) {
-//			unbind();
-//			throw e;
-//		}
-
-		doBuild(player, centerLoc, tpl);
-	}
-
-	public void doBuild(Player player, Location location, Template tpl) throws CivException, IOException, SQLException {
 		// We take the player's current position and make it the 'center' by moving the center location
 		// to the 'corner' of the structure.
-		Location cornerLoc = repositionCenter(location, tpl.dir(), (double) tpl.size_x, (double) tpl.size_z);
+		Location cornerLoc = repositionCenter(location, tpl.getDirection(), tpl.size_x, tpl.size_z);
 		this.setCorner(new BlockCoord(cornerLoc));
+		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
 		this.setTotalBlockCount(tpl.size_x * tpl.size_y * tpl.size_z);
 		// Save the template x,y,z for later. This lets us know our own dimensions.
 		// this is saved in the db so it remains valid even if the template changes.
 		this.setTemplateName(tpl.getFilepath());
-		this.setTemplateX(tpl.size_x);
-		this.setTemplateY(tpl.size_y);
-		this.setTemplateZ(tpl.size_z);
-//		this.setTemplateAABB(new BlockCoord(cornerLoc), tpl);	
 
 		checkBlockPermissionsAndRestrictions(player, this.getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z, location);
 		// Before we place the blocks, give our build function a chance to work on it
@@ -369,12 +320,11 @@ public class Structure extends Buildable {
 
 		// Setup undo information
 		getTown().lastBuildableBuilt = this;
-		tpl.saveUndoTemplate(this.getCorner().toString(), this.getTown().getName(), cornerLoc);
+		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getTown().getName(), cornerLoc);
 		tpl.buildScaffolding(cornerLoc);
 
 		// Player's center was converted to this building's corner, save it as such.
-		Resident resident = CivGlobal.getResident(player);
-		resident.undoPreview();
+		CivGlobal.getResident(player).undoPreview();
 		this.startBuildTask(tpl, cornerLoc);
 
 		CivGlobal.addStructure(this);
@@ -382,15 +332,6 @@ public class Structure extends Buildable {
 	}
 
 	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
-		if (this instanceof Farm) {
-			((Farm) this).build_farm(centerLoc);
-			return;
-		}
-		if (this instanceof TradeOutpost) {
-			((TradeOutpost) this).build_trade_outpost(centerLoc);
-			return;
-		}
-		return;
 	}
 
 	@Override
@@ -458,7 +399,7 @@ public class Structure extends Buildable {
 		} catch (CivException | IOException e) {
 			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
 		}
-		bindStructureBlocks();
+		bindBuildableBlocks();
 		save();
 	}
 
@@ -468,11 +409,7 @@ public class Structure extends Buildable {
 		}
 
 		double cost = getRepairCost();
-		if (this instanceof ArrowShip || this instanceof ArrowTower || this instanceof Barracks || this instanceof BroadcastTower || this instanceof CannonShip
-				|| this instanceof CannonTower || this instanceof ScoutTower || this instanceof TeslaTower || this instanceof TownHall) {
-			cost = cost * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
-		}
-		
+
 		if (!getTown().getTreasury().hasEnough(cost)) {
 			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
 					getDisplayName()));
@@ -506,6 +443,10 @@ public class Structure extends Buildable {
 			}
 		}
 		super.loadSettings();
+	}
+
+	@Override
+	public void setTurretLocation(BlockCoord absCoord) {
 	}
 
 }

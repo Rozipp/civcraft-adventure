@@ -146,11 +146,6 @@ public class TownChunk extends SQLObject {
 	}
 
 	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
-
-	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 

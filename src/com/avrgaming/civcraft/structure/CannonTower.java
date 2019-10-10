@@ -46,6 +46,11 @@ public class CannonTower extends Structure {
 	}
 
 	@Override
+	public double getRepairCost() {
+		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
+	}
+	
+	@Override
 	public void loadSettings() {
 		super.loadSettings();
 		cannonComponent = new ProjectileCannonComponent(this, this.getCenterLocation()); 
@@ -109,13 +114,13 @@ double build_distanceSqr = Math.pow(CivSettings.getDouble(CivSettings.warConfig,
 							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToCannonTower",(center.getX()+","+center.getY()+","+center.getZ())));
 						}
 					}
-					if (struct instanceof CannonShip) {
-						Location center = struct.getCenterLocation();
-						double distanceSqr = center.distanceSquared(this.getCenterLocation());
-						if (distanceSqr <= build_distanceSqr) {
-							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToCannonShip",(center.getX()+","+center.getY()+","+center.getZ())));
-						}
-					}
+//					if (struct instanceof CannonShip) {
+//						Location center = struct.getCenterLocation();
+//						double distanceSqr = center.distanceSquared(this.getCenterLocation());
+//						if (distanceSqr <= build_distanceSqr) {
+//							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToCannonShip",(center.getX()+","+center.getY()+","+center.getZ())));
+//						}
+//					}
 				}
 			}
 		} catch (InvalidConfiguration e) {

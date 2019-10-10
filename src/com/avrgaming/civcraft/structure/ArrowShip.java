@@ -7,6 +7,7 @@ import java.util.HashMap;
 import org.bukkit.Location;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
@@ -33,6 +34,11 @@ public class ArrowShip extends WaterStructure {
 		super.loadSettings();
 		arrowComponent = new ProjectileArrowComponent(this, this.getCenterLocation());
 		arrowComponent.createComponent(this);
+	}
+	
+	@Override
+	public double getRepairCost() {
+		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
 	}
 	
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {		

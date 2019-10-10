@@ -27,9 +27,9 @@ import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.Blacksmith;
 import com.avrgaming.civcraft.structure.Grocer;
 import com.avrgaming.civcraft.structure.Library;
-import com.avrgaming.civcraft.structure.ScoutShip;
+//import com.avrgaming.civcraft.structure.ScoutShip;
 import com.avrgaming.civcraft.structure.ScoutTower;
-import com.avrgaming.civcraft.structure.Stable;
+//import com.avrgaming.civcraft.structure.Stable;
 import com.avrgaming.civcraft.structure.Store;
 import com.avrgaming.civcraft.structure.Structure;
 
@@ -47,32 +47,32 @@ public class TownSetCommand extends CommandBase {
 		cs.add("grocerfee", CivSettings.localize.localizedString("cmd_town_set_grocerfeeDesc"));
 		cs.add("libraryfee", CivSettings.localize.localizedString("cmd_town_set_libraryfeeDesc"));
 		cs.add("blacksmithfee", CivSettings.localize.localizedString("cmd_town_set_blacksmithfeeDesc"));
-		cs.add("stablefee", CivSettings.localize.localizedString("cmd_town_set_stablefeeDesc"));
+//		cs.add("stablefee", CivSettings.localize.localizedString("cmd_town_set_stablefeeDesc"));
 		
 		cs.add("scoutrate", CivSettings.localize.localizedString("cmd_town_set_scoutrateDesc"));
 		
 	}
 	
-	public void stablefee_cmd() throws CivException {
-		Town town = getSelectedTown();
-		Integer feeInt = getNamedInteger(1);
-		
-		Structure struct = town.findStructureByConfigId("s_stable");
-		if (struct == null) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_stablefeeNone"));
-		}
-		
-		Stable stable = (Stable)struct;
-		
-		if (feeInt < Stable.FEE_MIN || feeInt > Stable.FEE_MAX) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_stablefeeRates"));
-		}
-	
-		stable.setNonResidentFee(((double)feeInt/100));
-		stable.updateSignText();
-		
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess",feeInt));
-	}
+//	public void stablefee_cmd() throws CivException {
+//		Town town = getSelectedTown();
+//		Integer feeInt = getNamedInteger(1);
+//		
+//		Structure struct = town.findStructureByConfigId("s_stable");
+//		if (struct == null) {
+//			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_stablefeeNone"));
+//		}
+//		
+//		Stable stable = (Stable)struct;
+//		
+//		if (feeInt < Stable.FEE_MIN || feeInt > Stable.FEE_MAX) {
+//			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_stablefeeRates"));
+//		}
+//	
+//		stable.setNonResidentFee(((double)feeInt/100));
+//		stable.updateSignText();
+//		
+//		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess",feeInt));
+//	}
 	
 	public void scoutrate_cmd() throws CivException {
 		Town town = getSelectedTown();
@@ -85,9 +85,10 @@ public class TownSetCommand extends CommandBase {
 		for (Structure struct : town.getStructures()) {
 			if (struct instanceof ScoutTower) {
 				((ScoutTower)struct).setReportSeconds(rate);
-			} else if (struct instanceof ScoutShip) {
-				((ScoutShip)struct).setReportSeconds(rate);
-			}
+			} 
+//			else if (struct instanceof ScoutShip) {
+//				((ScoutShip)struct).setReportSeconds(rate);
+//			}
 		}
 		
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_scoutrateSuccess",rate));

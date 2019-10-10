@@ -74,8 +74,8 @@ public class TheHangingGardens extends Wonder {
 	}
 	
 	@Override
-	public void onUpdate() {
-		super.onUpdate();
+	public void onMinuteUpdate() {
+		super.onMinuteUpdate();
 		
 		for (Town t : this.getTown().getCiv().getTowns()) {
 			for (Resident res : t.getResidents()) {

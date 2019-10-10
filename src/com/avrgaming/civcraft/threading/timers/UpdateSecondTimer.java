@@ -12,10 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.village.Village;
 
-public class UpdateMinuteEventTimer extends CivAsyncTask {
+public class UpdateSecondTimer extends CivAsyncTask {
 
 	public static ReentrantLock lock = new ReentrantLock();
 
@@ -26,11 +26,10 @@ public class UpdateMinuteEventTimer extends CivAsyncTask {
 			// Loop through each structure, if it has an update function call it in another async process
 			for (Structure struct : CivGlobal.getStructures()) {
 				if (!struct.isActive()) continue;
-				struct.onMinuteUpdate();
+				struct.onSecondUpdate();
 			}
-
-			for (Wonder wonder : CivGlobal.getWonders()) {
-				wonder.onMinuteUpdate();
+			for (Village village : CivGlobal.getVillages()) {
+				village.onSecondUpdate();
 			}
 		} finally {
 			lock.unlock();

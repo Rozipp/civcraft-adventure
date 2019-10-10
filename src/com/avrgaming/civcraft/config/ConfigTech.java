@@ -26,7 +26,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 
@@ -135,11 +134,6 @@ public class ConfigTech {
 	}
 	
 	public boolean isAvailable(Civilization civ) {
-		if (CivGlobal.testFileFlag("debug-norequire")) {
-			CivMessage.global("Ignoring requirements! debug-norequire found.");
-			return true;
-		}
-		
 		if (require_techs == null || require_techs.equals("")) {
 			return true;			
 		}

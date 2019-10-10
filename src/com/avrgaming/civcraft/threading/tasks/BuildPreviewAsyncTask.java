@@ -57,10 +57,8 @@ public class BuildPreviewAsyncTask extends CivAsyncTask {
 
 	@Override
 	public void run() {
-
 		try {
 			int count = 0;
-
 			for (int y = 0; y < tpl.size_y; y++) {
 				for (int x = 0; x < tpl.size_x; x++) {
 					for (int z = 0; z < tpl.size_z; z++) {

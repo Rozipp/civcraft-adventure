@@ -44,11 +44,11 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
-import com.avrgaming.civcraft.road.RoadBlock;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.siege.CannonListener;
 import com.avrgaming.civcraft.structure.Farm;
+import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.farm.FarmGrowthSyncTask;
 import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
@@ -60,7 +60,6 @@ import com.avrgaming.civcraft.threading.sync.*;
 import com.avrgaming.civcraft.threading.tasks.ArrowProjectileTask;
 import com.avrgaming.civcraft.threading.tasks.ChangePlayerTime;
 import com.avrgaming.civcraft.threading.tasks.ProjectileComponentTimer;
-import com.avrgaming.civcraft.threading.tasks.ScoutTowerTask;
 import com.avrgaming.civcraft.threading.tasks.ValidateAll;
 import com.avrgaming.civcraft.threading.timers.*;
 import com.avrgaming.civcraft.trade.TradeInventoryListener;
@@ -110,7 +109,7 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.syncTimer(PlayerLocationCacheUpdate.class.getName(), new PlayerLocationCacheUpdate(), 0, 10);
 		TaskMaster.asyncTimer("RandomEventSweeper", new RandomEventSweeper(), 0, TimeTools.toTicks(10));
 		// Structure event timers
-		TaskMaster.asyncTimer("UpdateEventTimer", new UpdateEventTimer(), TimeTools.toTicks(1));
+		TaskMaster.asyncTimer("UpdateEventTimer", new UpdateSecondTimer(), TimeTools.toTicks(1));
 		TaskMaster.asyncTimer("UpdateMinuteEventTimer", new UpdateMinuteEventTimer(), TimeTools.toTicks(20));
 		TaskMaster.asyncTimer("RegenTimer", new RegenTimer(), TimeTools.toTicks(5));
 		TaskMaster.asyncTimer("BeakerTimer", new BeakerTimer(60), TimeTools.toTicks(60));
@@ -118,8 +117,6 @@ public final class CivCraft extends JavaPlugin {
 		try {
 			double arrow_firerate = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.fire_rate");
 			TaskMaster.syncTimer("arrowTower", new ProjectileComponentTimer(), (int) (arrow_firerate * 20));
-			TaskMaster.asyncTimer("ScoutTowerTask", new ScoutTowerTask(), TimeTools.toTicks(1));
-
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			return;
@@ -134,7 +131,6 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("CalculateScoreTimer", new CalculateScoreTimer(), 0, TimeTools.toTicks(60));
 		TaskMaster.asyncTimer(PlayerProximityComponentTimer.class.getName(), new PlayerProximityComponentTimer(), TimeTools.toTicks(1));
 		TaskMaster.asyncTimer(EventTimerTask.class.getName(), new EventTimerTask(), TimeTools.toTicks(5));
-		TaskMaster.syncTimer("WindmillTimer", new WindmillTimer(), TimeTools.toTicks(60));
 		TaskMaster.asyncTimer("EndGameNotification", new EndConditionNotificationTask(), TimeTools.toTicks(3600));
 		TaskMaster.asyncTask(new StructureValidationChecker(), TimeTools.toTicks(120));
 		TaskMaster.asyncTimer("StructureValidationPunisher", new StructureValidationPunisher(), TimeTools.toTicks(3600));
@@ -146,7 +142,6 @@ public final class CivCraft extends JavaPlugin {
 		//TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		TaskMaster.syncTimer("ValidateAll", new ValidateAll(), TimeTools.toTicks(10800L));
-		TaskMaster.asyncTimer("UpdateStructuresWithLock", new UpdateStructuresWithLock(), TimeTools.toTicks(2L));
 		TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
 	}
 

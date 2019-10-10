@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -56,11 +55,6 @@ public class Coalition extends SQLObject {
 		this.setName(rs.getString("name"));
 		this.creatorId = rs.getInt("creatorId");
 		this.loadCoalitions(rs.getString("civsId"));
-	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 
 	@Override

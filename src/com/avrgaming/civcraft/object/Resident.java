@@ -51,7 +51,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -66,11 +65,11 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
-import com.avrgaming.civcraft.road.RoadBlock;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TeslaShip;
+// import com.avrgaming.civcraft.structure.TeslaShip;
 import com.avrgaming.civcraft.structure.TeslaTower;
 import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.template.Template;
@@ -410,11 +409,6 @@ public class Resident extends SQLObject {
 					break;
 			}
 		}
-	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 
 	@Override
@@ -900,19 +894,31 @@ public class Resident extends SQLObject {
 
 		try {
 			Player player = CivGlobal.getPlayer(this);
-			PlayerBlockChangeUtil util = new PlayerBlockChangeUtil();
-			for (BlockCoord coord : this.previewUndo.keySet()) {
-				SimpleBlock sb = this.previewUndo.get(coord);
-				util.addUpdateBlock(player.getName(), coord, sb.getType(), sb.getData());
-			}
-
-			util.sendUpdate(player.getName());
+			Resident resident = this;
+			TaskMaster.asyncTask(new Runnable() {
+				@Override
+				public void run() {
+					for (BlockCoord coord : resident.previewUndo.keySet()) {
+//						int count = 0;
+						SimpleBlock sb = resident.previewUndo.get(coord);
+						ItemManager.sendBlockChange(player, coord.getLocation(), sb.getType(), sb.getData());
+//						count++;
+//						if (count > 50) {
+//							count = 0;
+//							try {
+//								Thread.sleep(1000);
+//							} catch (InterruptedException e) {
+//								e.printStackTrace();
+//							}
+//						}
+					}
+					resident.previewUndo.clear();
+					resident.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
+				}
+			}, 0);
 		} catch (CivException e) {
-			//Fall down and return.
+			return;//Fall down and return.
 		}
-
-		this.previewUndo.clear();
-		this.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
 	}
 
 	public void onRoadTest(BlockCoord coord, Player player) {
@@ -1440,10 +1446,10 @@ public class Resident extends SQLObject {
 		if (tesla != null) {
 			dmg = ((TeslaTower) tesla).getDamage();
 		}
-		tesla = source.getStructureByType("s_teslaship");
-		if (tesla != null) {
-			dmg = ((TeslaShip) tesla).getDamage();
-		}
+//		tesla = source.getStructureByType("s_teslaship");
+//		if (tesla != null) {
+//			dmg = ((TeslaShip) tesla).getDamage();
+//		}
 		final LivingEntity target = (LivingEntity) player;
 		if (target.getHealth() - dmg > 0.0) {
 			target.setHealth(target.getHealth() - dmg);

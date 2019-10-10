@@ -17,15 +17,16 @@ import org.bukkit.block.Block;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivData;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
@@ -62,12 +63,11 @@ public class BuildAsyncTask extends CivAsyncTask {
 
 	@Override
 	public void run() {
-
 		try {
 			start();
 			// Do something if we aborted???
 		} catch (Exception e) {
-			CivLog.exception("BuildAsyncTask town:" + buildable.getTown() + " struct:" + buildable.getDisplayName() + " template:" + tpl.dir(), e);
+			CivLog.exception("BuildAsyncTask town:" + buildable.getTown() + " struct:" + buildable.getDisplayName() + " template:" + tpl.getDirection(), e);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 			// Add all of the blocks from this tick to the sync task.
 			synchronized (this.aborted) {
 				if (!this.aborted) {
-					this.updateBlocksQueue(sbs);
+					SyncBuildUpdateTask.queueSimpleBlock(sbs);
 					sbs.clear();
 				} else {
 					return aborted;
@@ -145,11 +145,9 @@ public class BuildAsyncTask extends CivAsyncTask {
 					this.percent_complete = nextPercentComplete;
 					if ((this.percent_complete % 10 == 0)) {
 						if (this.buildable instanceof Wonder) {
-							CivGlobal.updateTownGui(this.buildable.getTown());
 							CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_progressWonder", this.buildable.getDisplayName(),
 									this.buildable.getTown().getName(), nextPercentComplete, this.buildable.getCiv().getName()));
 						} else {
-
 							CivMessage.sendTown(buildable.getTown(), CivColor.Yellow
 									+ CivSettings.localize.localizedString("var_buildAsync_progressOther", buildable.getDisplayName(), nextPercentComplete));
 						}
@@ -194,7 +192,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 		}
 		// Make sure the last iteration makes it on to the queue.
 		if (sbs.size() > 0) {
-			updateBlocksQueue(sbs);
+			SyncBuildUpdateTask.queueSimpleBlock(sbs);
 			sbs.clear();
 		}
 		//structures are always available
@@ -217,7 +215,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 
 		tpl.deleteInProgessTemplate(buildable.getCorner().toString(), buildable.getTown());
 		buildable.getTown().build_tasks.remove(this);
-		TaskMaster.syncTask(new PostBuildSyncTask(tpl, buildable), 10);
+		buildable.postBuildSyncTask(tpl, 10);
 		if (this.buildable instanceof Structure) {
 			CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completed", this.buildable.getTown().getName(),
 					"§2" + this.buildable.getDisplayName() + CivColor.RESET));
@@ -276,22 +274,14 @@ public class BuildAsyncTask extends CivAsyncTask {
 		// of the build task async.
 		synchronized (this.aborted) {
 			if (!this.aborted) {
-				if (sb.getType() == CivData.WOOD_DOOR || sb.getType() == CivData.IRON_DOOR || sb.getType() == CivData.SPRUCE_DOOR
-						|| sb.getType() == CivData.BIRCH_DOOR || sb.getType() == CivData.JUNGLE_DOOR || sb.getType() == CivData.ACACIA_DOOR
-						|| sb.getType() == CivData.DARK_OAK_DOOR || Template.isAttachable(sb.getType())) {
-					// dont build doors, save it for post sync build.
-				} else {
-					sbs.add(sb);
-				}
-
+				if (!TemplateStatic.isAttachable(sb.getMaterial())) sbs.add(sb);
 				if (buildable.isDestroyable() == false && sb.getType() != CivData.AIR) {
 					if (sb.specialType != Type.COMMAND) {
 						BlockCoord coord = new BlockCoord(sb.worldname, sb.x, sb.y, sb.z);
-						if (sb.y == 0) {
+						if (sb.y == 0)
 							buildable.addStructureBlock(coord, false);
-						} else {
+						else
 							buildable.addStructureBlock(coord, true);
-						}
 					}
 				}
 			} else {

@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.object.StructureChest;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Quarry;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -31,7 +30,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		this.cTranR = cTranR;
 	}
 
-	class FoundElement {
+	class FoundElement { // найденые в MultiInventory предметы
 		Inventory sInv;
 		Integer slot;
 		ItemStack stack;
@@ -101,7 +100,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 					ItemStack st = sInv.getItem(j);
 					if (st == null) continue;
 					for (String s : si.item)
-						if (ItemManager.isCorrectItemStack(st, s)) {
+						if (ItemManager.isCorrectItemStack(st, s) && st.getAmount() >= si.count) {
 							foundStack = st;
 							foundSlot = j;
 							break;
@@ -125,7 +124,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		double r = rand.nextDouble() * cTranI.getAllRate();
 		ResultItem resI = null;
 		for (ResultItem ri : cTranI.resultItems) {
-			i = i + ((Quarry) buildable).modifyChance(ri.rate.doubleValue());
+			i = i + buildable.modifyChance(ri.rate.doubleValue());
 			if (r < i) {
 				resI = ri;
 				break;
@@ -136,7 +135,8 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		try {
 			// удалить все найденние sourceItems
 			for (FoundElement fe : foundElements) {
-				if (fe.stack.getType().getMaxDurability() > 0) { // если инструмент, то вернуть чуть поломанный
+				// если инструмент, то вернуть чуть поломанный
+				if (fe.stack.getType().getMaxDurability() > 0) { 
 					int damage = fe.stack.getDurability() + fe.count;
 					if (damage >= fe.stack.getType().getMaxDurability()) { //если урон большой, то удаляем инструмент
 						if (fe.stack.getAmount() == 1)
@@ -157,7 +157,8 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 					break;
 				}
 				// в остальных случаях просто удалить предмет
-				task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.AIR), fe.slot);
+				fe.stack.setAmount(fe.stack.getAmount() - fe.count);
+				task.updateInventory(Action.REPLACE, fe.sInv, fe.stack, fe.slot);
 				break;
 			}
 			//Добавить предмет в resultChest

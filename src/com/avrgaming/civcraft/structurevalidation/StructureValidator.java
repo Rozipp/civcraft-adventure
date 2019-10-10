@@ -206,59 +206,59 @@ public class StructureValidator implements Runnable {
 
 	@Override
 	public void run() {
-		if (!isEnabled()) {
-			iBuildable.validated = true;
-			iBuildable.setValid(true);
-			return;
-		}
-
-		/* Wait for validation lock to open. */
-		validationLock.lock();
-
-		try {
-			/* Copy over instance variables to static variables. */
-			playerName = iPlayerName;
-			if (iBuildable != null) {
-				if (iBuildable.isIgnoreFloating()) {
-					iBuildable.validated = true;
-					iBuildable.setValid(true);
-					return;
-				}
-				buildable = iBuildable;
-				cornerLoc = this.iBuildable.getCorner();
-				templateFilepath = this.iBuildable.getTemplateName();
-			} else {
-				cornerLoc = this.iCornerLoc;
-				templateFilepath = this.iTemplateName;
-			}
-			callback = this.iCallback;
-
-			List<SimpleBlock> bottomLayer;
-
-			/* Load the template stream. */
-			if (tplStream == null) {
-				tplStream = new TemplateStream(templateFilepath);
-			} else {
-				tplStream.setSource(templateFilepath);
-			}
-
-			bottomLayer = tplStream.getBlocksForLayer(0);
-
-			/* Launch sync layer load task. */
-			layerLoadTask.bottomLayer = bottomLayer;
-			layerLoadTask.notifyTask = this;
-			TaskMaster.syncTask(layerLoadTask);
-
-			/* Wait for sync task to notify us to continue. */
-			synchronized (this) {
-				this.wait();
-			}
-
-			this.finishValidate(chunks, bottomLayer);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			cleanup();
-		}
+//		if (!isEnabled()) {
+//			iBuildable.validated = true;
+//			iBuildable.setValid(true);
+//			return;
+//		}
+//
+//		/* Wait for validation lock to open. */
+//		validationLock.lock();
+//
+//		try {
+//			/* Copy over instance variables to static variables. */
+//			playerName = iPlayerName;
+//			if (iBuildable != null) {
+//				if (iBuildable.isIgnoreFloating()) {
+//					iBuildable.validated = true;
+//					iBuildable.setValid(true);
+//					return;
+//				}
+//				buildable = iBuildable;
+//				cornerLoc = this.iBuildable.getCorner();
+//				templateFilepath = this.iBuildable.getTemplateName();
+//			} else {
+//				cornerLoc = this.iCornerLoc;
+//				templateFilepath = this.iTemplateName;
+//			}
+//			callback = this.iCallback;
+//
+//			List<SimpleBlock> bottomLayer;
+//
+//			/* Load the template stream. */
+//			if (tplStream == null) {
+//				tplStream = new TemplateStream(templateFilepath);
+//			} else {
+//				tplStream.setSource(templateFilepath);
+//			}
+//
+//			bottomLayer = tplStream.getBlocksForLayer(0);
+//
+//			/* Launch sync layer load task. */
+//			layerLoadTask.bottomLayer = bottomLayer;
+//			layerLoadTask.notifyTask = this;
+//			TaskMaster.syncTask(layerLoadTask);
+//
+//			/* Wait for sync task to notify us to continue. */
+//			synchronized (this) {
+//				this.wait();
+//			}
+//
+//			this.finishValidate(chunks, bottomLayer);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//			cleanup();
+//		}
 	}
 }

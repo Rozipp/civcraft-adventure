@@ -42,8 +42,6 @@ public class SimpleBlock {
 	
 	private int type = 0;
 	private byte data = 0;
-	//public int special = 0;
-//	public int special_id = -1;
 	public int x;
 	public int y;
 	public int z;

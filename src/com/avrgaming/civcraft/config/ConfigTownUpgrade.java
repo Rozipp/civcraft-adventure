@@ -18,13 +18,12 @@ import java.util.Set;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.LibraryEnchantment;
 import com.avrgaming.civcraft.object.StoreMaterial;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Alch;
+//import com.avrgaming.civcraft.structure.Alch;
 import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.FishHatchery;
 import com.avrgaming.civcraft.structure.Grocer;
@@ -252,17 +251,17 @@ public class ConfigTownUpgrade {
 				if (town.saved_alch_levels < Integer.valueOf(args[1].trim())) {
 					town.saved_alch_levels = Integer.valueOf(args[1].trim());
 				}
-				for (Structure structure : town.getStructures()) {
-					if (structure != null && structure instanceof Alch) {
-						final Alch alch = (Alch) structure;
-						if (alch.getLevel() < town.saved_alch_levels) {
-							alch.setLevel(town.saved_alch_levels);
-							alch.updateSignText();
-							CivMessage.sendTown(town, CivSettings.localize.localizedString("var_townupgrade_alch", alch.getLevel()));
-						}
-						break;
-					}
-				}
+//				for (Structure structure : town.getStructures()) {
+//					if (structure != null && structure instanceof Alch) {
+//						final Alch alch = (Alch) structure;
+//						if (alch.getLevel() < town.saved_alch_levels) {
+//							alch.setLevel(town.saved_alch_levels);
+//							alch.updateSignText();
+//							CivMessage.sendTown(town, CivSettings.localize.localizedString("var_townupgrade_alch", alch.getLevel()));
+//						}
+//						break;
+//					}
+//				}
 				break;
 			case "set_trommel_level" :
 				boolean didUpgrade = false;
@@ -305,11 +304,6 @@ public class ConfigTownUpgrade {
 	}
 
 	public boolean isAvailable(Town town) {
-		if (CivGlobal.testFileFlag("debug-norequire")) {
-			CivMessage.global("Ignoring requirements! debug-norequire found.");
-			return true;
-		}
-
 		if (town.hasUpgrade(this.require_upgrade)) {
 			if (town.getCiv().hasTechnology(this.require_tech)) {
 				if (town.hasStructure(require_structure)) {

@@ -476,7 +476,6 @@ public class TownCommand extends CommandBase {
 
 		resident.setSelectedTown(selectTown);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_selecteSuccess", selectTown.getName()));
-		CivGlobal.addTownAppearance(resident);
 	}
 
 	public void leavegroup_cmd() throws CivException {

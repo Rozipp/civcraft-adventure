@@ -9,7 +9,6 @@
 package com.avrgaming.civcraft.main;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -59,20 +58,19 @@ import com.avrgaming.civcraft.populators.TradeGoodPreGenerate;
 import com.avrgaming.civcraft.questions.QuestionBaseTask;
 import com.avrgaming.civcraft.questions.QuestionResponseInterface;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
-import com.avrgaming.civcraft.road.Road;
-import com.avrgaming.civcraft.road.RoadBlock;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.Market;
+import com.avrgaming.civcraft.structure.Road;
+import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.CivLeaderQuestionTask;
 import com.avrgaming.civcraft.threading.tasks.CivQuestionTask;
@@ -242,11 +240,6 @@ public class CivGlobal {
 		EventTimer.loadGlobalEvents();
 		EndGameCondition.init();
 		War.init();
-		try {
-			Template.init();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 
 		CivLog.heading("--- Done <3 ---");
 
@@ -255,8 +248,7 @@ public class CivGlobal {
 		processCulture();
 
 		/* Finish with an onLoad event. */
-		onLoadTask postBuildSyncTask = new onLoadTask();
-		TaskMaster.syncTask(postBuildSyncTask);
+		TaskMaster.syncTask(new onLoadTask());
 
 		/* Check for orphan civs now */
 		for (Civilization civ : civs.values()) {
@@ -2321,47 +2313,6 @@ public class CivGlobal {
 			return "http://95.216.74.3:5551";
 		}
 		return "https://wiki.furnex.ru/index.php?title=Введение\u041a\u0430\u0440\u0442\u044b_\u0441\u0435\u0440\u0432\u0435\u0440\u043e\u0432";
-	}
-
-	public static void updateTownGui(final Town town) {
-		editTownGui(town);
-		for (final Resident resident : town.getCiv().getOnlineResidents()) {
-			addTownAppearance(resident);
-		}
-	}
-
-	public static void addTownAppearance(final Resident resident) {
-		Player player;
-		try {
-			player = getPlayer(resident);
-		} catch (CivException offline) {
-			return;
-		}
-		if (resident.getTown() == null) {
-			return;
-		}
-		final Town town = resident.getSelectedTown(player);
-		@SuppressWarnings("unused")
-		final Civilization civ = town.getCiv();
-	}
-
-	public static void editTownGui(final Town town) {
-		try {
-			@SuppressWarnings("unused")
-			Resident fakeResident = town.getMayorGroup().getRandomMember();
-			fakeResident = null;
-			for (final Resident resident : getResidents()) {
-				final Civilization fakeCiv = resident.getCiv();
-				if (fakeCiv == null) {
-					fakeResident = resident;
-					break;
-				}
-				if (fakeCiv != town.getCiv()) {
-					fakeResident = resident;
-					break;
-				}
-			}
-		} catch (NullPointerException e) {}
 	}
 
 	public static int getTotalVillages() {

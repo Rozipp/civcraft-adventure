@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -133,11 +132,6 @@ public class PermissionGroup extends SQLObject {
 
 			civ.addGroup(this);
 		}
-	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 
 	@Override

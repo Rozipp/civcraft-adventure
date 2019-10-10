@@ -23,89 +23,85 @@ public class onLoadTask implements Runnable {
 	@Override
 	public void run() {
 
-		/* Run all post-build sync tasks first. */
-		for (Structure struct : CivGlobal.getStructures()) {
-			try {
-				Template tpl;
-				try {
-					if (struct.getTemplateName() == null && struct.hasTemplate()) {
-						CivLog.warning("structure:" + struct.getDisplayName() + " did not have a template name set but says it needs one!");
-						continue;
-					}
-					if (!struct.hasTemplate()) continue;
-					tpl = Template.getTemplate(struct.getTemplateName(), null);
-				} catch (CivException | IOException e) {
-					e.printStackTrace();
-					return;
-				}
-				/* Re-run the post build on the command blocks we found. */
-				if (struct.isPartOfAdminCiv())
-					struct.processValidateCommandBlockRelative(tpl);
-				else
-					if (struct.isActive()) struct.processCommandSigns(tpl);
-			} catch (Exception e) {
-				CivLog.error("-----ON LOAD EXCEPTION-----");
-				if (struct != null) {
-					CivLog.error("Structure:" + struct.getDisplayName());
-					if (struct.getTown() != null) CivLog.error("Town:" + struct.getTown().getName());
-				}
-				CivLog.error(e.getMessage());
-				e.printStackTrace();
-			}
-		}
-
-		for (Wonder wonder : CivGlobal.getWonders()) {
-			Template tpl;
-			try {
-				try {
-					tpl = Template.getTemplate(wonder.getTemplateName(), null);
-				} catch (CivException | IOException e) {
-					e.printStackTrace();
-					return;
-				}
-				/* Re-run the post build on the command blocks we found. */
-				if (wonder.isActive()) wonder.processCommandSigns(tpl);
-			} catch (Exception e) {
-				CivLog.error("-----ON LOAD EXCEPTION-----");
-				if (wonder != null) {
-					CivLog.error("Structure:" + wonder.getDisplayName());
-					if (wonder.getTown() != null) {
-						CivLog.error("Town:" + wonder.getTown().getName());
-					}
-				}
-				CivLog.error(e.getMessage());
-				e.printStackTrace();
-
-			}
-		}
-
-		/* Now everything should be loaded and ready to go. */
-		for (Structure struct : CivGlobal.getStructures()) {
-			try {
-				struct.onLoad();
-			} catch (Exception e) {
-				CivLog.error("-----ON LOAD EXCEPTION-----");
-				if (struct != null) {
-					CivLog.error("Structure:" + struct.getDisplayName());
-					if (struct.getTown() != null) CivLog.error("Town:" + struct.getTown().getName());
-				}
-				CivLog.error(e.getMessage());
-				e.printStackTrace();
-			}
-		}
-		for (Wonder wonder : CivGlobal.getWonders()) {
-			try {
-				wonder.onLoad();
-			} catch (Exception e) {
-				CivLog.error("-----ON LOAD EXCEPTION-----");
-				if (wonder != null) {
-					CivLog.error("Structure:" + wonder.getDisplayName());
-					if (wonder.getTown() != null) CivLog.error("Town:" + wonder.getTown().getName());
-				}
-				CivLog.error(e.getMessage());
-				e.printStackTrace();
-
-			}
-		}
+//		/* Run all post-build sync tasks first. */
+//		for (Structure struct : CivGlobal.getStructures()) {
+//			try {
+//				Template tpl;
+//				try {
+//					if (struct.getTemplateName() == null && struct.hasTemplate()) {
+//						CivLog.warning("structure:" + struct.getDisplayName() + " did not have a template name set but says it needs one!");
+//						continue;
+//					}
+//					if (!struct.hasTemplate()) continue;
+//					tpl = Template.getTemplate(struct.getTemplateName(), null);
+//				} catch (CivException | IOException e) {
+//					e.printStackTrace();
+//					return;
+//				}
+//				/* Re-run the post build on the command blocks we found. */
+//				if (struct.isPartOfAdminCiv())
+//					struct.processValidateCommandBlockRelative(tpl);
+//				else
+//					if (struct.isActive()) struct.processCommandSigns(tpl);
+//			} catch (Exception e) {
+//				CivLog.error("-----ON LOAD EXCEPTION-----");
+//				if (struct != null) {
+//					CivLog.error("Structure:" + struct.getDisplayName());
+//					if (struct.getTown() != null) CivLog.error("Town:" + struct.getTown().getName());
+//				}
+//				CivLog.error(e.getMessage());
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		for (Wonder wonder : CivGlobal.getWonders()) {
+//			Template tpl;
+//			try {
+//				try {
+//					tpl = Template.getTemplate(wonder.getTemplateName(), null);
+//				} catch (CivException | IOException e) {
+//					e.printStackTrace();
+//					return;
+//				}
+//				/* Re-run the post build on the command blocks we found. */
+//				if (wonder.isActive()) wonder.processCommandSigns(tpl);
+//			} catch (Exception e) {
+//				CivLog.error("-----ON LOAD EXCEPTION-----");
+//				if (wonder != null) {
+//					CivLog.error("Structure:" + wonder.getDisplayName());
+//					if (wonder.getTown() != null) CivLog.error("Town:" + wonder.getTown().getName());
+//				}
+//				CivLog.error(e.getMessage());
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		/* Now everything should be loaded and ready to go. */
+//		for (Structure struct : CivGlobal.getStructures()) {
+//			try {
+//				struct.onLoad();
+//			} catch (Exception e) {
+//				CivLog.error("-----ON LOAD EXCEPTION-----");
+//				if (struct != null) {
+//					CivLog.error("Structure:" + struct.getDisplayName());
+//					if (struct.getTown() != null) CivLog.error("Town:" + struct.getTown().getName());
+//				}
+//				CivLog.error(e.getMessage());
+//				e.printStackTrace();
+//			}
+//		}
+//		for (Wonder wonder : CivGlobal.getWonders()) {
+//			try {
+//				wonder.onLoad();
+//			} catch (Exception e) {
+//				CivLog.error("-----ON LOAD EXCEPTION-----");
+//				if (wonder != null) {
+//					CivLog.error("Structure:" + wonder.getDisplayName());
+//					if (wonder.getTown() != null) CivLog.error("Town:" + wonder.getTown().getName());
+//				}
+//				CivLog.error(e.getMessage());
+//				e.printStackTrace();
+//			}
+//		}
 	}
 }

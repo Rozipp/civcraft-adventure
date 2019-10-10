@@ -228,10 +228,9 @@ public class ConfigMarketItem {
 			SQL.close(null, ps, context);
 		}
 	}
-
+	
 	public void save() {
 		class SyncTask implements Runnable {
-
 			@Override
 			public void run() {
 				try {

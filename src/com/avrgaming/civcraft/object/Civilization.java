@@ -44,7 +44,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.endgame.EndConditionScience;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.exception.CivException;
@@ -311,11 +310,6 @@ public class Civilization extends SQLObject {
 	public void setOwnerGroupName() {
         this.ownerGroupName = "owner";
     }
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
 	
 	@Override
 	public void saveNow() throws SQLException {

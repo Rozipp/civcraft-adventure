@@ -34,8 +34,8 @@ public class Hospital extends Structure {
 	}
 	
 	@Override
-	public void onUpdate() {
-		super.onUpdate();
+	public void onMinuteUpdate() {
+		super.onMinuteUpdate();
 		
 		for (Town t : this.getTown().getCiv().getTowns()) {
 			for (Resident res : t.getResidents()) {

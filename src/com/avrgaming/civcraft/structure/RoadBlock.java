@@ -1,4 +1,4 @@
-package com.avrgaming.civcraft.road;
+package com.avrgaming.civcraft.structure;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
@@ -21,7 +20,6 @@ import com.avrgaming.civcraft.object.BuildableDamageBlock;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.SQLObject;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.StructureBlockHitEvent;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -94,10 +92,6 @@ public class RoadBlock extends SQLObject implements BuildableDamageBlock {
 		
 		this.setCoord(new BlockCoord(rs.getString("coord")));
 		road.addRoadBlock(this);
-	}
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 	
 	@Override

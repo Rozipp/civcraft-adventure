@@ -105,11 +105,6 @@ public class ConfigUnit {
 	}
 
 	public boolean isAvailable(Town town) {
-		if (CivGlobal.testFileFlag("debug-norequire")) {
-			CivMessage.global("Ignoring requirements! debug-norequire found.");
-			return true;
-		}
-
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {
 				if (town.hasStructure(require_struct)) {

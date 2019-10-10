@@ -10,22 +10,16 @@ import org.bukkit.Location;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import com.avrgaming.civcraft.village.TransmuterAsyncTask;
 
 public class Quarry extends Structure {
 	public static final int MAX_CHANCE = CivSettings.getIntegerStructure("quarry.max");
-	private static final double COBBLESTONE_RATE = CivSettings.getDoubleStructure("quarry.cobblestone_rate"); //100%
-	private static final double OTHER_RATE = CivSettings.getDoubleStructure("quarry.other_rate"); //10%
-	private static final double COAL_RATE = CivSettings.getDoubleStructure("quarry.coal_rate"); //10%
-	private static final double REDSTONE_CHANCE = CivSettings.getDoubleStructure("quarry.redstone_chance");
-	private static final double IRON_CHANCE = CivSettings.getDoubleStructure("quarry.iron_chance");
-	private static final double GOLD_CHANCE = CivSettings.getDoubleStructure("quarry.gold_chance");
-	private static final double TUNGSTEN_CHANCE = CivSettings.getDoubleStructure("quarry.tungsten_chance");
-	private static final double RARE_CHANCE = CivSettings.getDoubleStructure("quarry.rare_chance");
-
 	public int skippedCounter = 0;
 	public ReentrantLock lock = new ReentrantLock();
 
@@ -44,6 +38,15 @@ public class Quarry extends Structure {
 	}
 
 	@Override
+	public void onSecondUpdate() {
+		if (!CivGlobal.quarriesEnabled) return;
+		for (String ctrId : this.locks.keySet()) {
+			if (!this.locks.get(ctrId).isLocked())
+				TaskMaster.asyncTask("quarry-" + this.getCorner() + ";tr-" + ctrId, new TransmuterAsyncTask(this, CivSettings.transmuterRecipes.get(ctrId)), 0);
+		}
+	}
+
+	@Override
 	public String getDynmapDescription() {
 		String out = "<u><b>" + this.getDisplayName() + "</u></b><br/>";
 		out += CivSettings.localize.localizedString("Level") + " " + this.getLevel();
@@ -55,37 +58,7 @@ public class Quarry extends Structure {
 		return "minecart";
 	}
 
-	public double getChance(Mineral mineral) {
-		double chance = 0;
-		switch (mineral) {
-			case RARE :
-				chance = RARE_CHANCE;
-				break;
-			case TUNGSTEN :
-				chance = TUNGSTEN_CHANCE;
-				break;
-			case GOLD :
-				chance = GOLD_CHANCE;
-				break;
-			case IRON :
-				chance = IRON_CHANCE;
-				break;
-			case REDSTONE :
-				chance = REDSTONE_CHANCE;
-				break;
-			case COAL :
-				chance = COAL_RATE;
-				break;
-			case OTHER :
-				chance = OTHER_RATE;
-				break;
-			case COBBLESTONE :
-				chance = COBBLESTONE_RATE;
-				break;
-		}
-		return this.modifyChance(chance);
-	}
-
+	@Override
 	public double modifyChance(Double chance) {
 		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION)
 				+ this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
@@ -98,7 +71,7 @@ public class Quarry extends Structure {
 				if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) {
 					chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
 				}
-			
+
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}

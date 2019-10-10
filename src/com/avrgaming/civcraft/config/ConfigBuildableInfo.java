@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  * 
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.config;
 
 import java.util.ArrayList;
@@ -34,12 +24,12 @@ public class ConfigBuildableInfo {
 	public String template_base_name = "";
 	public int templateYShift = 0;
 	public String displayName = "";
+	public String replace_structure = "";
 	public String require_tech = "";
 	public String require_upgrade = "";
 	public String require_structure = "";
-	public String check_event = "";
-	public String effect_event= "";
-	public String update_event = "";
+	public int gui_item_id;
+	public int gui_slot;
 	public int limit = 0;
 	public ArrayList<String> signs = new ArrayList<String>();
 	public double cost = 0;
@@ -52,31 +42,20 @@ public class ConfigBuildableInfo {
 	public Integer regenRate = 0;
 	public Boolean tile_improvement = false;
 	public Integer points = 0;
-	public boolean allow_demolish = false;
+	public boolean allow_demolish = true;
 	public boolean strategic = false;
 	public boolean ignore_floating = false;
 	public List<HashMap<String, String>> components = new LinkedList<HashMap<String, String>>();
 	public boolean has_template = true;
-	public boolean requires_capitol = false;
-	
+
 	public boolean isAvailable(Town town) {
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {
 				if (town.hasStructure(require_structure)) {
-					if (limit == 0 || town.getStructureTypeCount(id) < limit) {					
-						boolean capitol = town.isCapitol();
-
-						if (id.equals("s_townhall") && capitol) {
-							return false;
-						}
-						
-						if (id.equals("s_capitol") && !capitol) {
-							return false;
-						}
-						if (requires_capitol && (!capitol || town.getStructureTypeCount(id) > 0)) {
-							return false;
-						}		
-						
+					if (limit == 0 || town.getStructureTypeCount(id) < limit) {
+						boolean isCapitol = town.isCapitol();
+						if (id.equals("s_townhall") && isCapitol) return false;
+						if (id.equals("s_capitol") && !isCapitol) return false;
 						return true;
 					}
 				}
@@ -84,84 +63,58 @@ public class ConfigBuildableInfo {
 		}
 		return false;
 	}
-	
+
 	public static void loadConfig(FileConfiguration cfg, String path, Map<String, ConfigBuildableInfo> structureMap, boolean isWonder) {
 		structureMap.clear();
 		List<Map<?, ?>> structures = cfg.getMapList(path);
-		for (Map<?, ?> obj : structures) {
+		for (Map<?, ?> struct : structures) {
+			Object obj;
 			ConfigBuildableInfo sinfo = new ConfigBuildableInfo();
-			
-			sinfo.id = (String)obj.get("id");
-			String templateName = (String)obj.get("template");
-			if (templateName.contains("capital"))
-			{
-				CivLog.debug("loadConfig - Replacing Capital occurence");
-				templateName = templateName.replace("capital", "capitol");
-			}
-			sinfo.template_base_name = templateName;
-			sinfo.templateYShift = (Integer)obj.get("template_y_shift");
-			sinfo.displayName = (String)obj.get("displayName");
-			sinfo.require_tech = (String)obj.get("require_tech");
-			sinfo.require_upgrade = (String)obj.get("require_upgrade");
-			sinfo.require_structure = (String)obj.get("require_structure");
-			sinfo.check_event = (String)obj.get("check_event");
-			sinfo.effect_event = (String)obj.get("effect_event");
-			sinfo.update_event = (String)obj.get("update_event");
-			sinfo.limit = (Integer)obj.get("limit");
-			//TODO handle signs
-			sinfo.cost = (Double)obj.get("cost");
-			sinfo.upkeep = (Double)obj.get("upkeep");
-			sinfo.hammer_cost = (Double)obj.get("hammer_cost");
-			sinfo.max_hitpoints = (Integer)obj.get("max_hitpoints");
-			sinfo.destroyable = (Boolean)obj.get("destroyable");
-			sinfo.allow_outside_town = (Boolean)obj.get("allow_outside_town");
-			sinfo.regenRate = (Integer)obj.get("regen_rate");
+
+			sinfo.id = (String) struct.get("id");
+			sinfo.template_base_name = (String) struct.get("template");
+			sinfo.templateYShift = ((obj = struct.get("template_y_shift")) == null) ? 0 : (Integer) obj;
+			sinfo.displayName = (String) struct.get("displayName");
+			sinfo.replace_structure = ((obj = struct.get("replace_structure")) == null) ? null : (String) obj;
+			sinfo.require_tech = (String) struct.get("require_tech");
+			sinfo.require_upgrade = (String) struct.get("require_upgrade");
+			sinfo.require_structure = (String) struct.get("require_structure");
+			sinfo.gui_item_id = ((obj = struct.get("gui_item_id")) == null) ? 0 : (Integer) obj;
+			sinfo.gui_slot = ((obj = struct.get("gui_slot")) == null) ? 0 : (Integer) obj;
+			sinfo.limit = (Integer) struct.get("limit");
+			sinfo.cost = (Double) struct.get("cost");
+			sinfo.upkeep = (Double) struct.get("upkeep");
+			sinfo.hammer_cost = (Double) struct.get("hammer_cost");
+			sinfo.max_hitpoints = (Integer) struct.get("max_hitpoints");
+			sinfo.destroyable = (Boolean) struct.get("destroyable");
+			sinfo.allow_outside_town = (Boolean) struct.get("allow_outside_town");
+			sinfo.regenRate = (Integer) struct.get("regen_rate");
 			sinfo.isWonder = isWonder;
-			sinfo.points = (Integer)obj.get("points");
-			
-				@SuppressWarnings("unchecked")
-				List<Map<?, ?>> comps = (List<Map<?, ?>>) obj.get("components");
-				if (comps != null) {
-					for (Map<?, ?> compObj : comps) {
-						
-						HashMap<String, String> compMap = new HashMap<String, String>();
-						for (Object key : compObj.keySet()) {
-							compMap.put((String)key, (String)compObj.get(key));
-						}
-				
-						sinfo.components.add(compMap);	
+			sinfo.points = (Integer) struct.get("points");
+
+			@SuppressWarnings("unchecked")
+			List<Map<?, ?>> comps = (List<Map<?, ?>>) struct.get("components");
+			if (comps != null) {
+				for (Map<?, ?> compObj : comps) {
+					HashMap<String, String> compMap = new HashMap<String, String>();
+					for (Object key : compObj.keySet()) {
+						compMap.put((String) key, (String) compObj.get(key));
 					}
+					sinfo.components.add(compMap);
 				}
-			
-			
-			Boolean tileImprovement = (Boolean)obj.get("tile_improvement");
-			sinfo.tile_improvement = (tileImprovement != null && tileImprovement);
-			Boolean allowDemolish = (Boolean)obj.get("allow_demolish");
-			sinfo.allow_demolish = (allowDemolish == null || allowDemolish);
-			Boolean strategic = (Boolean)obj.get("strategic");
-			sinfo.strategic = (strategic != null && strategic); 
-			Boolean ignore_floating = (Boolean)obj.get("ignore_floating");
-			if (ignore_floating != null) {
-				sinfo.ignore_floating = ignore_floating;
 			}
-			
-			Boolean has_template = (Boolean)obj.get("has_template");
-			if (has_template != null) {
-				sinfo.has_template = has_template;
-			}
-			
-			Boolean requires_capitol = (Boolean)obj.get("requires_capitol");
-			if (requires_capitol != null) {
-				sinfo.requires_capitol = requires_capitol;
-			}
-			
-			if (isWonder) {
-				sinfo.strategic = true;
-			}
-	
+
+			sinfo.tile_improvement = ((obj = struct.get("tile_improvement")) == null) ? false : (Boolean) obj;
+			sinfo.allow_demolish = ((obj = struct.get("allow_demolish")) == null) ? true : (Boolean) obj;
+			sinfo.strategic = ((obj = struct.get("strategic")) == null) ? false : (Boolean) obj;
+			sinfo.ignore_floating = ((obj = struct.get("ignore_floating")) == null) ? false : (Boolean) obj;
+			sinfo.has_template = ((obj = struct.get("has_template")) == null) ? true : (Boolean) obj;
+
+			if (isWonder) sinfo.strategic = true;
+
 			structureMap.put(sinfo.id, sinfo);
 		}
-		CivLog.info("Loaded "+structureMap.size()+" structures.");
+		CivLog.info("Loaded " + structureMap.size() + " structures.");
 	}
-	
+
 }

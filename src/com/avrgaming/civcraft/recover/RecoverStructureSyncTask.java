@@ -31,6 +31,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock.Type;
@@ -54,7 +55,7 @@ public class RecoverStructureSyncTask implements Runnable {
 		Template tpl;
 		try {
 			//tpl.load_template(struct.getSavedTemplatePath());
-			tpl = Template.getTemplate(struct.getTemplateName(), null);
+			tpl = TemplateStatic.getTemplate(struct.getTemplateName(), null);
 		} catch (IOException | CivException e) {
 			e.printStackTrace();
 			return;

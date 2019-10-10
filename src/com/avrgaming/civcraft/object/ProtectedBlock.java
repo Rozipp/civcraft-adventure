@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -86,11 +85,6 @@ public class ProtectedBlock extends SQLObject {
 //		}
 	}
 
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
-	
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();

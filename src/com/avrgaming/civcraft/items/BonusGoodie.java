@@ -45,7 +45,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -668,18 +667,6 @@ public class BonusGoodie extends LoreItem {
 		}
 	}
 	
-	@Override
-	public void save() {
-//		try {
-//			update(sync);
-//		} catch (CivException e) {
-//			e.printStackTrace();
-//		}
-		
-		SQLUpdate.add(this);
-		
-	}
-
 	@Override
 	public void delete() throws SQLException {
 		if (this.item != null) {

@@ -1,4 +1,4 @@
-package com.avrgaming.civcraft.road;
+package com.avrgaming.civcraft.structure;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -32,7 +32,6 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.StructureBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -396,8 +395,8 @@ public class Road extends Structure {
 	private int buildRoadSegment(Player player, Location locFirst, Location locSecond, int blockCount, 
 			HashMap<String, SimpleBlock> simpleBlocks, int segments) throws CivException {		
 		
-		Vector dir = new Vector(locFirst.getX() - locSecond.getX(),
-								locFirst.getY() - locSecond.getY(),
+		Vector dir = new Vector(locFirst.getX() - locSecond.getX(),//
+								locFirst.getY() - locSecond.getY(),//
 								locFirst.getZ() - locSecond.getZ());
 		dir.normalize();
 				
@@ -551,7 +550,8 @@ public class Road extends Structure {
 	}
 	
 	@Override
-	public void bindStructureBlocks() {
+	public void bindBuildableBlocks() {
+		this.setCenterLocation(this.getCorner().getLocation());
 	}
 	
 	public void addBlocksAbove(RoadBlock rb) {

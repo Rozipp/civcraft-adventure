@@ -21,6 +21,7 @@ package com.avrgaming.civcraft.object;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
@@ -35,11 +36,13 @@ import lombok.Setter;
 @Setter
 public abstract class SQLObject extends NamedObject {
 	
-	private boolean isDeleted = false;
+	private boolean deleted = false;
 
 	public abstract void load(ResultSet rs) throws SQLException, InvalidNameException, InvalidObjectException, CivException;
 		
-	public abstract void save();
+	public void save() {
+		SQLUpdate.add(this);
+	}
 	
 	public abstract void saveNow() throws SQLException;
 	

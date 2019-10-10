@@ -12,7 +12,6 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.CustomMaterial;
@@ -119,10 +118,6 @@ public class UnitObject extends SQLObject {
 		compManager.loadComponents(rs.getString("components"));
 	}
 
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
 	@Override
 	public void saveNow() throws SQLException {
 		final HashMap<String, Object> hashmap = new HashMap<String, Object>();

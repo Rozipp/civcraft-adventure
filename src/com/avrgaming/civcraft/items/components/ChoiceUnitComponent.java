@@ -63,7 +63,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 			//проверка на требуемый урвоень
 			int oldValue = uo.getComponent(comp.id);
 			int neadLevel = comp.require_level + comp.require_level_upgrade * oldValue;
-			if (neadLevel > uo.getLevel()) { 
+			if (neadLevel > uo.getLevel()) {
 				loreArray.add(CivColor.Red + "требуемый уровень: " + CivColor.RedBold + neadLevel);
 				type = CivData.OBSIDIAN;
 				isRequire = false;
@@ -75,8 +75,8 @@ public class ChoiceUnitComponent extends ItemComponent {
 						String levelString = ((comp.require_component.get(key) > 1)
 								? (CivColor.Red + " уровня " + CivColor.RedBold + comp.require_component.get(key))
 								: "");
-						loreArray.add(
-								CivColor.Red + "требуеться способность " + CivColor.RedBold + "\"" + UnitStatic.configUnitComponents.get(key).name + "\"" + levelString);
+						loreArray.add(CivColor.Red + "требуеться способность " + CivColor.RedBold + "\"" + UnitStatic.configUnitComponents.get(key).name + "\""
+								+ levelString);
 						type = CivData.OBSIDIAN;
 						isRequire = false;
 					}
@@ -95,12 +95,12 @@ public class ChoiceUnitComponent extends ItemComponent {
 			}
 
 			// проверка на максимальный уровень
-						if (comp.max_upgrade <= oldValue) {
-							loreArray.add(CivColor.Red + "Достигнуто максимаьное улучшение");
-							type = CivData.DIAMOND_BLOCK;
-							isRequire = false;
-						}
-			
+			if (comp.max_upgrade <= oldValue) {
+				loreArray.add(CivColor.Red + "Достигнуто максимаьное улучшение");
+				type = CivData.DIAMOND_BLOCK;
+				isRequire = false;
+			}
+
 			if (isRequire) {
 				loreArray.add(CivColor.LightGreen + "Клик для выбора компонента");
 			}
@@ -119,7 +119,14 @@ public class ChoiceUnitComponent extends ItemComponent {
 			ItemMeta im = itemStack.getItemMeta();
 			im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 			itemStack.setItemMeta(im);
-			inv.setItem(comp.gui_slot, itemStack);
+			if (inv.getItem(comp.gui_slot) == null)
+				inv.setItem(comp.gui_slot, itemStack);
+			else {
+				int j = 0;
+				for (j = 55; j >= 0 || inv.getItem(j) == null; j--) {}
+				inv.setItem(j, itemStack);
+			}
+
 		}
 
 		LoreGuiItemListener.guiInventories.put(inv.getName(), inv);

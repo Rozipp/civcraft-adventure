@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import org.bukkit.Location;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
@@ -42,7 +43,12 @@ public class ArrowTower extends Structure {
 	public ArrowTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
-
+	
+	@Override
+	public double getRepairCost() {
+		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
+	}
+	
 	@Override
 	public void loadSettings() {
 		super.loadSettings();
@@ -80,7 +86,8 @@ public class ArrowTower extends Structure {
 	public void setPower(double power) {
 		arrowComponent.setPower(power);
 	}
-
+	
+	@Override
 	public void setTurretLocation(BlockCoord absCoord) {
 		arrowComponent.setTurretLocation(absCoord);
 	}	

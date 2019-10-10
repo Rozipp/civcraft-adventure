@@ -33,6 +33,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -56,7 +57,7 @@ public class RecoverStructuresAsyncTask implements Runnable {
 		Template tpl;
 		try {
 			//tpl.load_template(struct.getSavedTemplatePath());
-			tpl = Template.getTemplate(struct.getTemplateName(), null);
+			tpl = TemplateStatic.getTemplate(struct.getTemplateName(), null);
 		} catch (IOException | CivException e) {
 			e.printStackTrace();
 			return false;

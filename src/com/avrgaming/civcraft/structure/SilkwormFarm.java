@@ -9,16 +9,16 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 
-public class SilkWorkFarm
+public class SilkwormFarm
 extends Structure {
     public int virtualPotatoCount = 0;
     public ReentrantLock lock = new ReentrantLock();
 
-    public SilkWorkFarm(Location center, String id, Town town) throws CivException {
+    public SilkwormFarm(Location center, String id, Town town) throws CivException {
         super(center, id, town);
     }
 
-    public SilkWorkFarm(ResultSet rs) throws SQLException, CivException {
+    public SilkwormFarm(ResultSet rs) throws SQLException, CivException {
         super(rs);
     }
 

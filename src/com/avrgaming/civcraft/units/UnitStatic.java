@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.road.Road;
+import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.util.CivColor;
 
 import org.bukkit.Material;

@@ -33,7 +33,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.Template.TemplateType;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -145,9 +145,9 @@ public class Cannon extends Buildable {
 		/* Load in the template. */
 		Template tpl;
 		try {
-			String templatePath = Template.getTemplateFilePath(templateFile, Template.getDirection(center), TemplateType.STRUCTURE, "default");
+			String templatePath = TemplateStatic.getTemplateFilePath(templateFile, TemplateStatic.getDirection(center), "structures", "default");
 			this.setTemplateName(templatePath);
-			tpl = Template.getTemplate(templatePath, center);
+			tpl = TemplateStatic.getTemplate(templatePath, center);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
@@ -157,7 +157,8 @@ public class Cannon extends Buildable {
 		}
 		
 		this.setCorner(new BlockCoord(center));
-		this.getCorner().setFromLocation(this.repositionCenter(center, tpl.dir(), tpl.size_x, tpl.size_z));
+		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
+		this.getCorner().setFromLocation(this.repositionCenter(center, tpl.getDirection(), tpl.size_x, tpl.size_z));
 		checkBlockPermissionsAndRestrictions(player, getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
 		buildCannonFromTemplate(tpl, getCorner());
 		processCommandSigns(tpl, getCorner());

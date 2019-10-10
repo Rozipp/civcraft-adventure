@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
@@ -119,11 +118,6 @@ public class WallBlock extends SQLObject {
 		this.type_id = rs.getInt("type_id");
 		this.data = rs.getInt("data");
 		
-	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
 	}
 	
 	@Override

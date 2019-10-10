@@ -14,6 +14,7 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.global.perks.Perk;
 import com.avrgaming.global.perks.components.CustomPersonalTemplate;
@@ -32,7 +33,7 @@ public class BuildWithPersonalTemplate implements GuiAction {
 			Perk perk = Perk.staticPerks.get(perk_id);
 			CustomPersonalTemplate customTemplate = (CustomPersonalTemplate)perk.getComponent("CustomPersonalTemplate");
 			Template tpl = customTemplate.getTemplate(player, resident.pendingBuildableInfo);
-			Location centerLoc = Buildable.repositionCenterStatic(player.getLocation(), info, Template.getDirection(player.getLocation()), (double)tpl.size_x, (double)tpl.size_z);	
+			Location centerLoc = Buildable.repositionCenterStatic(player.getLocation(), info, TemplateStatic.getDirection(player.getLocation()), tpl.size_x, tpl.size_z);	
 			TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, resident.pendingCallback), 0);
 			resident.desiredTemplate = tpl;
 			player.closeInventory();

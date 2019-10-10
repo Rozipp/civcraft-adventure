@@ -42,7 +42,7 @@ import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.RespawnLocationHolder;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.Template.TemplateType;
+import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -184,9 +184,9 @@ public class WarCamp extends Buildable implements RespawnLocationHolder {
 		/* Load in the template. */
 		Template tpl;
 		try {
-			String templatePath = Template.getTemplateFilePath(templateFile, Template.getDirection(center), TemplateType.STRUCTURE, "default");
+			String templatePath = TemplateStatic.getTemplateFilePath(templateFile, TemplateStatic.getDirection(center), "structures", "default");
 			this.setTemplateName(templatePath);
-			tpl = Template.getTemplate(templatePath, center);
+			tpl = TemplateStatic.getTemplate(templatePath, center);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CivException("Internal Error.");
@@ -195,7 +195,7 @@ public class WarCamp extends Buildable implements RespawnLocationHolder {
 			throw new CivException("Internal Error.");
 		}
 
-		getCorner().setFromLocation(this.repositionCenter(center, tpl.dir(), tpl.size_x, tpl.size_z));
+		getCorner().setFromLocation(repositionCenter(center, tpl.getDirection(), tpl.size_x, tpl.size_z));
 		checkBlockPermissionsAndRestrictions(player, getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
 		buildWarCampFromTemplate(tpl, getCorner());
 		processCommandSigns(tpl, getCorner());
@@ -403,17 +403,14 @@ public class WarCamp extends Buildable implements RespawnLocationHolder {
 
 	@Override
 	public void load(ResultSet rs) throws SQLException, InvalidNameException, InvalidObjectException, CivException {
-
 	}
 
 	@Override
 	public void save() {
-
 	}
 
 	@Override
 	public void saveNow() throws SQLException {
-
 	}
 
 	public void createControlPoint(BlockCoord absCoord, String info) {

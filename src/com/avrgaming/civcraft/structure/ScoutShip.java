@@ -83,6 +83,13 @@ public class ScoutShip extends WaterStructure {
 		}
 	}
 	
+	@Override
+	public void onTickUpdate() {
+		if (!CivGlobal.towersEnabled) return;
+		HashSet<String> announced = new HashSet<String>();
+		this.process(announced);
+	}
+	
 	/*
 	 * Asynchronously sweeps for players within the scout tower's radius. If
 	 * it finds a player that is not in the civ, then it informs the town.

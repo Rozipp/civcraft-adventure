@@ -32,6 +32,11 @@ public class CannonShip extends WaterStructure {
 		cannonComponent.createComponent(this);
 	}
 
+	@Override
+	public double getRepairCost() {
+		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
+	}
+	
 	public int getDamage() {
 		double rate = 1;
 		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
