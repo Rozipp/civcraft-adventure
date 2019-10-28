@@ -29,12 +29,12 @@ implements GuiAction {
         Player player = (Player)event.getWhoClicked();
         inv = Bukkit.getServer().createInventory((InventoryHolder)player, 54, CivSettings.localize.localizedString("resident_perksGuiHeading"));
         resident.perks.values().stream().forEachOrdered(perk -> {
-            if (perk.getIdent().startsWith("temp")) {
+            if (perk.getConfigId().startsWith("temp")) {
                 ItemStack itemStack = LoreGuiItem.build(perk.configPerk.display_name, perk.configPerk.type_id, perk.configPerk.data, "§b" + CivSettings.localize.localizedString("resident_perksGuiClickToView"), "§b" + CivSettings.localize.localizedString("resident_perksGuiTheseTemplates"));
                 itemStack = LoreGuiItem.setAction(itemStack, "ShowTemplateType");
                 itemStack = LoreGuiItem.setActionData(itemStack, "perk", perk.configPerk.id);
                 inv.addItem(itemStack);
-            } else if (perk.getIdent().startsWith("perk")) {
+            } else if (perk.getConfigId().startsWith("perk")) {
                 ItemStack itemStack = LoreGuiItem.build(perk.getDisplayName(), perk.configPerk.type_id, perk.configPerk.data, "§6" + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), CivSettings.localize.localizedString("unlimited"));
                 itemStack = LoreGuiItem.setAction(itemStack, "ActivatePerk");
                 itemStack = LoreGuiItem.setActionData(itemStack, "perk", perk.configPerk.id);

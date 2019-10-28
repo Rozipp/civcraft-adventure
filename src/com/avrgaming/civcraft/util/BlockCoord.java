@@ -86,11 +86,12 @@ public class BlockCoord {
 	}
 
 	public void setFromLocation(Location location) {
-		dirty = true;
+		dirty = false;
 		this.setWorldname(location.getWorld().getName());
 		this.setX(location.getBlockX());
 		this.setY(location.getBlockY());
 		this.setZ(location.getBlockZ());
+		this.location = location.clone();
 	}
 
 	public void setWorldname(String worldname) {
@@ -149,6 +150,9 @@ public class BlockCoord {
 		return Bukkit.getWorld(this.worldname).getBlockAt(this.x, this.y, this.z);
 	}
 
+	public ChunkCoord getChunkCoord() {
+		return new ChunkCoord(this);
+	}
 	public double distance(BlockCoord corner) {
 		return Math.sqrt(distanceSquared(corner));
 	}

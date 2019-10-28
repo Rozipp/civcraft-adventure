@@ -35,7 +35,8 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.questions.CapitulateRequest;
 import com.avrgaming.civcraft.questions.ChangeRelationResponse;
-import com.avrgaming.civcraft.threading.tasks.CivQuestionTask;
+import com.avrgaming.civcraft.questions.CivQuestionTask;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
 
@@ -106,7 +107,7 @@ public class CivDiplomacyCommand extends CommandBase {
 		capitulateResponse.capitulator = town;
 		capitulateResponse.to = town.getCiv().getName();
 		
-		CivGlobal.requestRelation(motherCiv, town.getCiv(), requestMessage,INVITE_TIMEOUT, capitulateResponse);
+		Question.requestRelation(motherCiv, town.getCiv(), requestMessage,INVITE_TIMEOUT, capitulateResponse);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_civ_dip_capitulateSuccess"));
 		
 	}
@@ -203,7 +204,7 @@ public class CivDiplomacyCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_respondPrompt"));
 		}
 	
-		CivQuestionTask task = CivGlobal.getCivQuestionTask(getSenderCiv());
+		CivQuestionTask task = Question.getCivQuestionTask(getSenderCiv());
 		if (task == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_respondNoRequest"));
 		}		
@@ -284,7 +285,7 @@ public class CivDiplomacyCommand extends CommandBase {
 			relationresponse.toCiv = otherCiv;
 			relationresponse.status = status;
 			
-			CivGlobal.requestRelation(ourCiv, otherCiv, 
+			Question.requestRelation(ourCiv, otherCiv, 
 					message,
 					INVITE_TIMEOUT, relationresponse);
 			

@@ -24,10 +24,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.threading.tasks.PlayerQuestionTask;
-import com.avrgaming.civcraft.threading.tasks.TemplateSelectQuestionTask;
+import com.avrgaming.civcraft.questions.PlayerQuestionTask;
+import com.avrgaming.civcraft.questions.Question;
+import com.avrgaming.civcraft.questions.TemplateSelectQuestionTask;
 
 public class SelectCommand implements CommandExecutor {
 
@@ -46,7 +46,7 @@ public class SelectCommand implements CommandExecutor {
 		
 		Player player = (Player)sender;
 		
-		PlayerQuestionTask task = (PlayerQuestionTask) CivGlobal.getQuestionTask(player.getName());
+		PlayerQuestionTask task = (PlayerQuestionTask) Question.getQuestionTask(player.getName());
 		if (task == null) {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_acceptError"));
 			return false;

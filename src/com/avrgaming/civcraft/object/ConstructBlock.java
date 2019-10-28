@@ -26,30 +26,33 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.war.War;
 
 @Getter
 @Setter
-public class StructureBlock implements BuildableDamageBlock {
+public class ConstructBlock implements ConstructDamageBlock {
 
 	private BlockCoord coord = null;
-	private Buildable owner = null;
+	private Construct owner = null;
 	private boolean damageable = true;
 	private boolean alwaysDamage = false;
 	
 	/* This is a block that can be damaged. */
-	public StructureBlock(BlockCoord coord, Buildable owner) {
+	public ConstructBlock(BlockCoord coord, Construct owner) {
 		this.coord = coord;
 		this.owner = owner;
 	}
 	
 	public Town getTown() {
-		return this.owner.getTown();
+		if (this.owner instanceof Buildable) return ((Buildable)this.owner).getTown();
+		return null;
 	}
 	
 	public Civilization getCiv() {
-		return this.owner.getCiv();
+		if (this.owner instanceof Buildable) return ((Buildable)this.owner).getCiv();
+		return null;
 	}
 	
 	public int getX() {

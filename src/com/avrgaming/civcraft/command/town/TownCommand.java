@@ -41,6 +41,7 @@ import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.questions.ChangeTownRequest;
 import com.avrgaming.civcraft.questions.JoinTownResponse;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask2;
@@ -163,7 +164,7 @@ public class TownCommand extends CommandBase {
 		request.civ = resident.getCiv();
 		final String fullPlayerName = player.getDisplayName();
 		try {
-			CivGlobal.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_changetownrequest_requestMessage", fullPlayerName,
+			Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_changetownrequest_requestMessage", fullPlayerName,
 					"§c" + resident.getTown().getName(), "§c" + town.getName()), 30000L, request);
 			CivMessage.send(this.sender, "§7" + CivSettings.localize.localizedString("var_switchtown_pleaseWait"));
 		} catch (CivException e) {
@@ -291,7 +292,7 @@ public class TownCommand extends CommandBase {
 				town.getName() + " " + CivSettings.localize.localizedString("cmd_town_templatesHeading"));
 
 		for (ConfigBuildableInfo info : CivSettings.structures.values()) {
-			for (Perk p : CustomTemplate.getTemplatePerksForBuildable(town, info.template_base_name)) {
+			for (Perk p : CustomTemplate.getTemplatePerksForBuildable(town, info.template_name)) {
 
 				ItemStack stack = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,
 						CivColor.Gray + CivSettings.localize.localizedString("cmd_town_templateProvider") + " " + CivColor.LightBlue + p.provider);
@@ -799,7 +800,7 @@ public class TownCommand extends CommandBase {
 
 		newResident.validateJoinTown(town);
 
-		CivGlobal.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()),
+		Question.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()),
 				INVITE_TIMEOUT, join);
 
 		CivMessage.sendSuccess(sender, CivColor.LightGray + CivSettings.localize.localizedString("var_cmd_town_addSuccess", args[1], town.getName()));

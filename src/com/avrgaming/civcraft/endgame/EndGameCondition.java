@@ -74,7 +74,7 @@ public abstract class EndGameCondition {
 	}
 
 	public void onFailure(Civilization civ) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 		if (entries.size() == 0) {
 			return;
 		}
@@ -82,7 +82,7 @@ public abstract class EndGameCondition {
 		for (SessionEntry entry : entries) {
 			if (civ == EndGameCondition.getCivFromSessionData(entry.value)) {
 				CivMessage.global(CivSettings.localize.localizedString("var_end_warLoss",CivColor.LightBlue+CivColor.BOLD+civ.getName()+CivColor.White,CivColor.LightPurple+CivColor.BOLD+this.victoryName+CivColor.White));
-				CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+				CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 				onVictoryReset(civ);
 				return;
 			}
@@ -125,7 +125,7 @@ public abstract class EndGameCondition {
 	 * meeting winning conditions.
 	 */
 	public boolean isActive(Civilization civ) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 		
 		if (entries.size() == 0) {
 			return false;
@@ -135,7 +135,7 @@ public abstract class EndGameCondition {
 	}
 	
 	public int getDaysLeft(Civilization civ) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 		if (entries.size() == 0) {
 			return -1;
 		}
@@ -152,7 +152,7 @@ public abstract class EndGameCondition {
 	
 	public void checkForWin(Civilization civ) {
 		/* All win conditions are met, now check for time left. */
- 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+ 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 
 		int daysToHold = getDaysToHold();
 		
@@ -179,7 +179,7 @@ public abstract class EndGameCondition {
 	 				}
 	 			}
 	 			
-	 			CivGlobal.getSessionDB().update(entries.get(0).request_id, entries.get(0).key, getSessionData(civ, daysHeld));
+	 			CivGlobal.getSessionDatabase().update(entries.get(0).request_id, entries.get(0).key, getSessionData(civ, daysHeld));
  			}
  		}
  		

@@ -27,7 +27,7 @@ import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Report;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.object.TradeGood;
@@ -109,7 +109,7 @@ public class SQL {
 		Village.init();
 		ConfigMarketItem.init();
 		RandomEvent.init();
-		StructureSign.init();
+		ConstructSign.init();
 		Report.init();
 
 		CivLog.heading("Building Global Tables!!");

@@ -260,14 +260,14 @@ public class AdminCommand extends CommandBase {
 		String key = getNamedString(1, "enter key.");
 		Civilization civ = getNamedCiv(2);
 
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 		if (entries.size() == 0) {
 			throw new CivException(CivSettings.localize.localizedString("adcmd_clearEndGameNoKey"));
 		}
 
 		for (SessionEntry entry : entries) {
 			if (EndGameCondition.getCivFromSessionData(entry.value) == civ) {
-				CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+				CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_clearEndGameSuccess", civ.getName()));
 			}
 		}

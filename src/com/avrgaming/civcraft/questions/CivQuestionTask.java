@@ -16,7 +16,7 @@
  * is strictly forbidden unless prior written permission is obtained
  * from AVRGAMING LLC.
  */
-package com.avrgaming.civcraft.threading.tasks;
+package com.avrgaming.civcraft.questions;
 
 import org.bukkit.entity.Player;
 
@@ -26,7 +26,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.questions.QuestionResponseInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CivQuestionTask implements Runnable {
@@ -138,6 +137,6 @@ public class CivQuestionTask implements Runnable {
 	
 	/* When this task finishes, remove itself from the hashtable. */
 	private void cleanup() {
-		CivGlobal.removeRequest(askedCiv.getName());
+		Question.removeRequest(askedCiv.getName());
 	}
 }

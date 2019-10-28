@@ -47,7 +47,7 @@ public class PerkComponent {
 	public void markAsUsed(Resident resident) {
 		this.getParent().count--;
 		if (this.getParent().count <= 0) {
-			resident.perks.remove(this.getParent().getIdent());
+			resident.perks.remove(this.getParent().getConfigId());
 		}
 		
 		try {

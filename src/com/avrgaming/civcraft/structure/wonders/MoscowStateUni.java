@@ -19,7 +19,7 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -71,7 +71,7 @@ public class MoscowStateUni extends Wonder
 
 	@Override
 	public void updateSignText() {
-		for (final StructureSign sign : this.getSigns()) {
+		for (final ConstructSign sign : this.getSigns()) {
 			final String lowerCase = sign.getAction().toLowerCase();
 			switch (lowerCase) {
 			case "0": {
@@ -100,7 +100,7 @@ public class MoscowStateUni extends Wonder
 	}
 
 	@Override
-	public void processSignAction(Player player, final StructureSign sign, final PlayerInteractEvent event) {
+	public void processSignAction(Player player, final ConstructSign sign, final PlayerInteractEvent event) {
 		final Resident resident = CivGlobal.getResident(player);
 		if (resident == null) {
 			return;

@@ -29,7 +29,7 @@ public class DamagedStructureTimer implements Runnable {
 			Structure struct = iter.next().getValue();
 
 			if (struct.isDestroyed()) {
-				int size = struct.getStructureBlocks().size();
+				int size = struct.getConstructBlocks().size();
 				World world = struct.getCorner().getBlock().getWorld();
 
 				for (int i = 0; i < size / 10; i++) {
@@ -38,8 +38,7 @@ public class DamagedStructureTimer implements Runnable {
 
 					// slower but uses less memory.
 					int j = 0;
-					for (BlockCoord coord : struct.getStructureBlocks().keySet()) {
-
+					for (BlockCoord coord : struct.getConstructBlocks().keySet()) {
 						if (j < index) {
 							j++;
 							continue;

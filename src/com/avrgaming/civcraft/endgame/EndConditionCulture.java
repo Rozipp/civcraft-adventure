@@ -27,10 +27,10 @@ extends EndGameCondition {
 
     private void getStartDate() {
         String key = "endcondition:culture:startdate";
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
         if (entries.isEmpty()) {
             this.startDate = new Date();
-            CivGlobal.getSessionDB().add(key, "" + this.startDate.getTime(), 0, 0, 0);
+            CivGlobal.getSessionDatabase().add(key, "" + this.startDate.getTime(), 0, 0, 0);
         } else {
             long time = Long.valueOf(entries.get((int)0).value);
             this.startDate = new Date(time);

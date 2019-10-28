@@ -189,7 +189,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 			resident.calculateWalkingModifier(getPlayer());
 	
 			// Check for pending respawns.
-			ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("global:respawnPlayer");
+			ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("global:respawnPlayer");
 			ArrayList<SessionEntry> deleted = new ArrayList<SessionEntry>();
 		
 			for (SessionEntry e : entries) {
@@ -201,13 +201,13 @@ public class PlayerLoginAsyncTask implements Runnable {
 			}
 			
 			for (SessionEntry e : deleted) {
-				CivGlobal.getSessionDB().delete(e.request_id, "global:respawnPlayer");
+				CivGlobal.getSessionDatabase().delete(e.request_id, "global:respawnPlayer");
 			}
 			
 			try {
 				Player p = CivGlobal.getPlayer(resident);
 
-				ArrayList<SessionEntry> deathEvents = CivGlobal.getSessionDB().lookup("pvplogger:death:"+resident.getName());
+				ArrayList<SessionEntry> deathEvents = CivGlobal.getSessionDatabase().lookup("pvplogger:death:"+resident.getName());
 				if (deathEvents.size() != 0) {
 					CivMessage.send(resident, CivColor.Rose+CivColor.BOLD+CivSettings.localize.localizedString("PlayerLoginAsync_killedWhilePVPLogged"));
 					class SyncTask implements Runnable {
@@ -223,7 +223,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 							try {
 								p = CivGlobal.getPlayer(playerName);
 								p.setHealth(0);
-								CivGlobal.getSessionDB().delete_all("pvplogger:death:"+p.getName());
+								CivGlobal.getSessionDatabase().delete_all("pvplogger:death:"+p.getName());
 							} catch (CivException e) {
 								// You cant excape death that easily!
 							}

@@ -69,7 +69,7 @@ public class War {
 		String key = "capturedTown";
 		String value = townName+":"+master.getId();
 		
-		CivGlobal.getSessionDB().add(key, value, master.getId(), 0, 0);
+		CivGlobal.getSessionDatabase().add(key, value, master.getId(), 0, 0);
 	}
 	
 	public static void saveDefeatedCiv(Civilization defeated, Civilization master) {
@@ -79,14 +79,14 @@ public class War {
 		String value = defeated.getName()+":"+master.getId();
 		
 		EndGameCondition.onCivilizationWarDefeat(defeated);
-		CivGlobal.getSessionDB().add(key, value, master.getId(), 0, 0);
+		CivGlobal.getSessionDatabase().add(key, value, master.getId(), 0, 0);
 	}
 	
 	/*
 	 * Rebuild the defeated civs session db vars when a transfer of defeated towns occurs.
 	 */
 	public static void resaveAllDefeatedCivs() {
-		CivGlobal.getSessionDB().delete_all("capturedCiv");
+		CivGlobal.getSessionDatabase().delete_all("capturedCiv");
 
 		for (String civName : defeatedCivs.keySet()) {
 			Civilization master = defeatedCivs.get(civName);
@@ -95,7 +95,7 @@ public class War {
 	}
 	
 	public static void resaveAllDefeatedTowns() {
-		CivGlobal.getSessionDB().delete_all("capturedTown");
+		CivGlobal.getSessionDatabase().delete_all("capturedTown");
 		
 		for (String townName : defeatedTowns.keySet()) {
 			Civilization master = defeatedTowns.get(townName);
@@ -104,7 +104,7 @@ public class War {
 	}
 	
 	public static void loadDefeatedTowns() {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("capturedTown");
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("capturedTown");
 		
 		for (SessionEntry entry : entries) {
 			String[] split = entry.value.split(":");
@@ -113,7 +113,7 @@ public class War {
 	}
 	
 	public static void loadDefeatedCivs() {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("capturedCiv");
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("capturedCiv");
 		
 		for (SessionEntry entry : entries) {
 			String[] split = entry.value.split(":");
@@ -122,8 +122,8 @@ public class War {
 	}
 	
 	public static void clearSavedDefeats() {
-		CivGlobal.getSessionDB().delete_all("capturedTown");
-		CivGlobal.getSessionDB().delete_all("capturedCiv");
+		CivGlobal.getSessionDatabase().delete_all("capturedTown");
+		CivGlobal.getSessionDatabase().delete_all("capturedCiv");
 	}
 	
 	public static void init() {

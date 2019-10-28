@@ -30,7 +30,7 @@ import com.avrgaming.civcraft.interactive.InteractiveVillageName;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -65,11 +65,11 @@ public class FoundVillage extends ItemComponent implements CallbackInterface {
 		info.id = "village";
 		info.displayName = "Village";
 		info.ignore_floating = false;
-		info.template_base_name = "village";
+		info.template_name = "village";
 		info.tile_improvement = false;
 		info.templateYShift = -1;
 		
-		Buildable.buildVerifyStatic(player, info, player.getLocation(), this);
+		BuildableStatic.buildVerifyStatic(player, info, player.getLocation(), this);
 	}
 	
 	public void onInteract(PlayerInteractEvent event) {

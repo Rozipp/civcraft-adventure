@@ -86,7 +86,7 @@ public class Pasture extends Structure {
 	}
 	
 	public void bindPastureChunks() {
-		for (BlockCoord bcoord : this.structureBlocks.keySet()) {
+		for (BlockCoord bcoord : this.getConstructBlocks().keySet()) {
 			ChunkCoord coord = new ChunkCoord(bcoord);
 			this.chunks.add(coord);
 			pastureChunks.put(coord, this);
@@ -180,7 +180,7 @@ public class Pasture extends Structure {
 	
 	public void loadEntities() {
 		Queue<SessionEntry> entriesToLoad = new LinkedList<SessionEntry>();
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getEntityKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getEntityKey());
 		entriesToLoad.addAll(entries);
 		TaskMaster.syncTask(new LoadPastureEntityTask(entriesToLoad, this));
 	}

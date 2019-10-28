@@ -41,7 +41,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ProtectedBlock;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -143,12 +143,12 @@ public class TradeGoodPopulator extends BlockPopulator {
     		sign.setLine(3, "");
     		sign.update(true);
 
-    		StructureSign structSign = new StructureSign(new BlockCoord(signBlock), null);
+    		ConstructSign structSign = new ConstructSign(new BlockCoord(signBlock), null);
     		structSign.setAction("");
     		structSign.setType("");
     		structSign.setText(sign.getLines());
     		structSign.setDirection(ItemManager.getData(sign.getData()));
-    		CivGlobal.addStructureSign(structSign);
+    		CivGlobal.addConstructSign(structSign);
             ProtectedBlock pbsign = new ProtectedBlock(new BlockCoord(signBlock), ProtectedBlock.Type.TRADE_MARKER);
             CivGlobal.addProtectedBlock(pbsign);
             if (sync) {

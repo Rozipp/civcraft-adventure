@@ -120,12 +120,12 @@ public class CraftableCustomMaterialListener implements Listener {
 					@Override
 					public void run() {
 						String key = resident.getName()+":platinumCrafted";
-						ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+						ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 						Integer amount = 0;
 						
 						if (entries.size() == 0) {
 							amount = craftAmount;
-							CivGlobal.getSessionDB().add(key, ""+amount, 0, 0, 0);
+							CivGlobal.getSessionDatabase().add(key, ""+amount, 0, 0, 0);
 							
 						} else {
 							amount = Integer.valueOf(entries.get(0).value);
@@ -137,7 +137,7 @@ public class CraftableCustomMaterialListener implements Listener {
 								amount -= 100;
 							}
 						
-							CivGlobal.getSessionDB().update(entries.get(0).request_id, key, ""+amount);
+							CivGlobal.getSessionDatabase().update(entries.get(0).request_id, key, ""+amount);
 						}
 					}
 				}

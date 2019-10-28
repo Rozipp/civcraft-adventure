@@ -13,8 +13,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.bukkit.block.Block;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
@@ -23,9 +21,7 @@ import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -40,7 +36,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 	public int speed;
 	public int blocks_per_tick;
 	public Template tpl;
-	public Block centerBlock;
+	public BlockCoord centerBlock;
 
 	private int count;
 	private int extra_blocks;
@@ -51,12 +47,13 @@ public class BuildAsyncTask extends CivAsyncTask {
 
 	private final int SAVE_INTERVAL = 5 * 1000; /* once every 5 sec. */
 
-	public BuildAsyncTask(Buildable bld, Template t, int blocks_per_tick, Block center) {
+	public BuildAsyncTask(Buildable bld) {
 		buildable = bld;
 		speed = 500;
-		tpl = t;
-		centerBlock = center;
-		this.blocks_per_tick = blocks_per_tick;
+		tpl = buildable.getTemplate();
+		centerBlock = buildable.getCorner();
+		CivLog.debug("centerBlock " + centerBlock);
+		this.blocks_per_tick = buildable.getBlocksPerTick();
 		this.percent_complete = 0;
 		sbs = new LinkedList<SimpleBlock>();
 	}
@@ -79,14 +76,10 @@ public class BuildAsyncTask extends CivAsyncTask {
 			blocks_per_tick = buildable.getBlocksPerTick();
 
 			synchronized (aborted) {
-				if (aborted) {
-					return aborted;
-				}
+				if (aborted) return aborted;
 			}
 
-			if (buildable.isComplete()) {
-				break;
-			}
+			if (buildable.isComplete()) break;
 
 			if (buildable instanceof Wonder) {
 				if (buildable.getTown().getMotherCiv() != null) {
@@ -134,9 +127,8 @@ public class BuildAsyncTask extends CivAsyncTask {
 				if (!this.aborted) {
 					SyncBuildUpdateTask.queueSimpleBlock(sbs);
 					sbs.clear();
-				} else {
+				} else
 					return aborted;
-				}
 			}
 
 			try {
@@ -144,13 +136,12 @@ public class BuildAsyncTask extends CivAsyncTask {
 				if (nextPercentComplete > this.percent_complete) {
 					this.percent_complete = nextPercentComplete;
 					if ((this.percent_complete % 10 == 0)) {
-						if (this.buildable instanceof Wonder) {
+						if (this.buildable instanceof Wonder)
 							CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_progressWonder", this.buildable.getDisplayName(),
 									this.buildable.getTown().getName(), nextPercentComplete, this.buildable.getCiv().getName()));
-						} else {
+						else
 							CivMessage.sendTown(buildable.getTown(), CivColor.Yellow
 									+ CivSettings.localize.localizedString("var_buildAsync_progressOther", buildable.getDisplayName(), nextPercentComplete));
-						}
 					}
 				}
 
@@ -204,18 +195,17 @@ public class BuildAsyncTask extends CivAsyncTask {
 		}
 
 		buildable.setComplete(true);
-		if (buildable instanceof Wonder) {
+		if (buildable instanceof Wonder)
 			buildable.getTown().setCurrentWonderInProgress(null);
-		} else {
+		else
 			buildable.getTown().setCurrentStructureInProgress(null);
-		}
 		buildable.savedBlockCount = buildable.builtBlockCount;
 		buildable.updateBuildProgess();
 		buildable.save();
 
-		tpl.deleteInProgessTemplate(buildable.getCorner().toString(), buildable.getTown());
+		Template.deleteFilePath(Template.getInprogressFilePath(buildable.getCorner().toString()));
 		buildable.getTown().build_tasks.remove(this);
-		buildable.postBuildSyncTask(tpl, 10);
+		buildable.postBuildSyncTask();
 		if (this.buildable instanceof Structure) {
 			CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completed", this.buildable.getTown().getName(),
 					"§2" + this.buildable.getDisplayName() + CivColor.RESET));
@@ -258,7 +248,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 		sb.x = x + centerBlock.getX();
 		sb.y = y + centerBlock.getY();
 		sb.z = z + centerBlock.getZ();
-		sb.worldname = centerBlock.getWorld().getName();
+		sb.worldname = centerBlock.getWorldname();
 		sb.buildable = buildable;
 		/* // посрока по спирали. на неквадратные постройки не работает int n = buildable.builtBlockCount % (tpl.size_x * tpl.size_z); int p = (int)
 		 * Math.floor(Math.sqrt(n)); int q = n - p * p; int k = (p % 2) * 2 - 1; //p парне, то -1, непарне, то 1 int x = Math.floorDiv(p + 1, 2) * k; int z =
@@ -274,14 +264,14 @@ public class BuildAsyncTask extends CivAsyncTask {
 		// of the build task async.
 		synchronized (this.aborted) {
 			if (!this.aborted) {
-				if (!TemplateStatic.isAttachable(sb.getMaterial())) sbs.add(sb);
-				if (buildable.isDestroyable() == false && sb.getType() != CivData.AIR) {
+				if (!Template.isAttachable(sb.getMaterial())) {
+					sbs.add(sb);
+					
+				}
+				if (!buildable.isDestroyable() && sb.getType() != CivData.AIR) {
 					if (sb.specialType != Type.COMMAND) {
 						BlockCoord coord = new BlockCoord(sb.worldname, sb.x, sb.y, sb.z);
-						if (sb.y == 0)
-							buildable.addStructureBlock(coord, false);
-						else
-							buildable.addStructureBlock(coord, true);
+						buildable.addConstructBlock(coord, sb.y != 0);
 					}
 				}
 			} else {
@@ -294,10 +284,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 	}
 
 	private boolean checkOtherWonderAlreadyBuilt() {
-		if (buildable.isComplete()) {
-			return false; //We are completed, other wonders are not already built. 
-		}
-
+		if (buildable.isComplete()) return false; //We are completed, other wonders are not already built. 
 		return (!Wonder.isWonderAvailable(buildable.getConfigId()));
 	}
 
@@ -315,11 +302,9 @@ public class BuildAsyncTask extends CivAsyncTask {
 	}
 
 	private void abortWonder() {
-		class SyncTask implements Runnable {
-
-			@SuppressWarnings("unlikely-arg-type")
-			@Override
-			public void run() {
+//		class SyncTask implements Runnable {
+//			@Override
+//			public void run() {
 				//Remove build task from town..
 				buildable.getTown().build_tasks.remove(this);
 				buildable.unbindStructureBlocks();
@@ -337,14 +322,12 @@ public class BuildAsyncTask extends CivAsyncTask {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-			}
-		}
-		TaskMaster.syncTask(new SyncTask());
-
+//			}
+//		}
+//		TaskMaster.syncTask(new SyncTask());
 	}
 
 	public double setExtraHammers(double extra_hammers) {
-
 		double leftover_hammers = 0.0;
 		//Get the total number of blocks represented by the extra hammers.
 		synchronized (this) {

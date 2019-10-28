@@ -33,7 +33,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -93,8 +93,8 @@ public class Grocer extends Structure {
 		return "Fee: "+((int)(getNonResidentFee()*100) + "%").toString();		
 	}
 	
-	private StructureSign getSignFromSpecialId(int special_id) {
-		for (StructureSign sign : getSigns()) {
+	private ConstructSign getSignFromSpecialId(int special_id) {
+		for (ConstructSign sign : getSigns()) {
 			int id = Integer.valueOf(sign.getAction());
 			if (id == special_id) {
 				return sign;
@@ -137,7 +137,7 @@ public class Grocer extends Structure {
 		int count = 0;
 	
 		for (count = 0; count < level; count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:"+count);
 				return;
@@ -152,7 +152,7 @@ public class Grocer extends Structure {
 		}
 		
 		for (; count < getSigns().size(); count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:"+count);
 				return;
@@ -164,7 +164,7 @@ public class Grocer extends Structure {
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		int special_id = Integer.valueOf(sign.getAction());
 		if (special_id < this.level) {
 			ConfigGrocerLevel grocerlevel = CivSettings.grocerLevels.get(special_id+1);

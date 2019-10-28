@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.listener.MarkerPlacementManager;
@@ -31,7 +32,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.CultureChunk;
-import com.avrgaming.civcraft.object.StructureBlock;
+import com.avrgaming.civcraft.object.ConstructBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.object.WallBlock;
@@ -82,16 +83,12 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void bindBuildableBlocks() {
-	}
-
-	@Override
 	public boolean hasTemplate() {
 		return false;
 	}
 
 	@Override
-	public boolean canRestoreFromTemplate() {
+	public boolean isCanRestoreFromTemplate() {
 		return false;
 	}
 
@@ -134,26 +131,8 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	protected Location repositionCenter(Location center, String dir, double x_size, double z_size) {
+	public Location repositionCenter(Location center, Template tpl) {
 		return center;
-	}
-
-	@Override
-	public void resumeBuildFromTemplate() throws Exception {
-	}
-
-	public void deleteOnDisband() throws SQLException {
-		if (this.wallBlocks != null) {
-			for (WallBlock wb : this.wallBlocks.values()) {
-				wb.delete();
-			}
-		}
-
-		if (wallChunks != null) {
-			for (ChunkCoord coord : wallChunks) {
-				CivGlobal.removeWallChunk(this, coord);
-			}
-		}
 	}
 
 	@Override
@@ -169,8 +148,11 @@ public class Wall extends Structure {
 				CivGlobal.removeWallChunk(this, coord);
 			}
 		}
+		CivGlobal.removeStructure(this);
+		this.getTown().removeStructure(this);
+		this.unbindStructureBlocks();
 
-		super.delete();
+		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	@Override
@@ -201,16 +183,12 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	protected void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ, Location savedLocation)
+	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ)
 			throws CivException {
 	}
 
 	@Override
-	public synchronized void buildRepairTemplate(Template tpl, Block centerBlock) {
-	}
-
-	@Override
-	public void buildPlayerPreview(Player player, Location centerLoc) throws CivException, IOException {
+	public void afterBuildCommand(Player player, Location centerLoc) throws CivException, IOException {
 		// Set the player into "place mode" which allows them to place down
 		// markers.
 		if (!this.getTown().hasTechnology(this.getRequiredTechnology())) {
@@ -225,7 +203,7 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void build(Player player, Location centerLoc, Template tpl) throws Exception {
+	public void build(Player player) throws Exception {
 //		// Set the player into "place mode" which allows them to place down
 //		// markers.
 //		//XXX never called anymore??
@@ -239,7 +217,7 @@ public class Wall extends Structure {
 			for (int y = 0; y < 256; y++) {
 				bcoord.setY(y);
 
-				StructureBlock sb = CivGlobal.getStructureBlock(bcoord);
+				ConstructBlock sb = CivGlobal.getConstructBlock(bcoord);
 				if (sb != null) {
 					if (sb.getOwner() != this) {
 						return false;
@@ -345,7 +323,7 @@ public class Wall extends Structure {
 			throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
 		}
 
-		if (CivGlobal.getStructureBlock(coord) != null) {
+		if (CivGlobal.getConstructBlock(coord) != null) {
 			throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay") + " " + coord);
 		}
 
@@ -364,7 +342,7 @@ public class Wall extends Structure {
 		BlockCoord bcoord = new BlockCoord(loc);
 		for (int y = 0; y < 256; y++) {
 			bcoord.setY(y);
-			StructureBlock sb = CivGlobal.getStructureBlock(bcoord);
+			ConstructBlock sb = CivGlobal.getConstructBlock(bcoord);
 			if (sb != null) {
 				throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
 			}
@@ -472,7 +450,7 @@ public class Wall extends Structure {
 					WallBlock wb = new WallBlock(bcoord, this, old_id, old_data, sb.getType(), sb.getData());
 
 					wallBlocks.put(bcoord, wb);
-					this.addStructureBlock(bcoord, true);
+					this.addConstructBlock(bcoord, true);
 					wb.save();
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -515,7 +493,7 @@ public class Wall extends Structure {
 	@Override
 	public void repairStructureForFree() throws CivException {
 		setHitpoints(getMaxHitPoints());
-		bindBuildableBlocks();
+		bindBlocks();
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();
@@ -539,7 +517,7 @@ public class Wall extends Structure {
 		}
 
 		setHitpoints(this.getMaxHitPoints());
-		bindBuildableBlocks();
+		bindBlocks();
 
 		for (WallBlock wb : this.wallBlocks.values()) {
 			BlockCoord bcoord = wb.getCoord();

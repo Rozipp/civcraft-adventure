@@ -38,7 +38,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -47,7 +47,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class Market extends Structure {
 
-	public HashMap<Integer, LinkedList<StructureSign>> signIndex = new HashMap<Integer, LinkedList<StructureSign>>();
+	public HashMap<Integer, LinkedList<ConstructSign>> signIndex = new HashMap<Integer, LinkedList<ConstructSign>>();
 	
 	public static int BULK_AMOUNT = 64;
 		
@@ -70,12 +70,12 @@ public class Market extends Structure {
 	public static void globalSignUpdate(int id) {
 		for (Market market : CivGlobal.getMarkets()) {
 			
-			LinkedList<StructureSign> signs = market.signIndex.get(id);
+			LinkedList<ConstructSign> signs = market.signIndex.get(id);
 			if (signs == null) {
 				continue;
 			}
 			
-			for (StructureSign sign : signs) {			
+			for (ConstructSign sign : signs) {			
 				ConfigMarketItem item = CivSettings.marketItems.get(id);
 				if (item != null) {
 					try {
@@ -98,7 +98,7 @@ public class Market extends Structure {
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) throws CivException {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
 		
 		Integer id = Integer.valueOf(sign.getType());
 		ConfigMarketItem item = CivSettings.marketItems.get(id);
@@ -133,7 +133,7 @@ public class Market extends Structure {
 		Market.globalSignUpdate(id);
 	}
 	
-	public void setSignText(StructureSign sign, ConfigMarketItem item) throws ClassCastException {
+	public void setSignText(ConstructSign sign, ConfigMarketItem item) throws ClassCastException {
 
 		String itemColor;
 		switch (item.lastaction) {
@@ -202,9 +202,9 @@ public class Market extends Structure {
 		
 		ItemManager.setTypeIdAndData(b, ItemManager.getMaterialId(Material.WALL_SIGN), (byte)commandBlock.getData(), false);
 		
-		StructureSign structSign = CivGlobal.getStructureSign(absCoord);
+		ConstructSign structSign = CivGlobal.getConstructSign(absCoord);
 		if (structSign == null) {
-			structSign = new StructureSign(absCoord, this);
+			structSign = new ConstructSign(absCoord, this);
 		}
 		
 		structSign.setDirection(ItemManager.getData(b.getState()));
@@ -212,12 +212,12 @@ public class Market extends Structure {
 		structSign.setAction(action);
 
 		structSign.setOwner(this);
-		this.addStructureSign(structSign);
-		CivGlobal.addStructureSign(structSign);
+		this.addBuildableSign(structSign);
+		CivGlobal.addConstructSign(structSign);
 		
-		LinkedList<StructureSign> signs = this.signIndex.get(id);
+		LinkedList<ConstructSign> signs = this.signIndex.get(id);
 		if (signs == null) {
-			signs = new LinkedList<StructureSign>();
+			signs = new LinkedList<ConstructSign>();
 		}
 	
 		signs.add(structSign);

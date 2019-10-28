@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.StructureChest;
+import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
@@ -80,10 +80,10 @@ public class Temple extends Structure {
 
 		MultiInventory multiInv = new MultiInventory();
 
-		ArrayList<StructureChest> chests = this.getAllChestsById("1");
+		ArrayList<ConstructChest> chests = this.getAllChestsById("1");
 
 		// Make sure the chest is loaded and add it to the multi inv.
-		for (StructureChest c : chests) {
+		for (ConstructChest c : chests) {
 			task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
 			Inventory tmp;
 			try {

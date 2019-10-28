@@ -36,7 +36,7 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -86,7 +86,7 @@ public class GreatLibrary extends Wonder {
 	@Override
 	public void updateSignText() {
 		
-		for (StructureSign sign : getSigns()) {
+		for (ConstructSign sign : getSigns()) {
 			ConfigEnchant enchant;
 			switch (sign.getAction().toLowerCase()) {
 			case "0":
@@ -112,7 +112,7 @@ public class GreatLibrary extends Wonder {
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		//int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
 		

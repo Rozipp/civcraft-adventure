@@ -34,7 +34,7 @@ import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 
 import gpl.AttributeUtil;
 
@@ -194,7 +194,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public int onStructureBlockBreak(BuildableDamageBlock sb, int damage) {
+	public int onStructureBlockBreak(ConstructDamageBlock sb, int damage) {
 		for (ItemComponent component : this.components.values()) {
 			damage = component.onStructureBlockBreak(sb, damage);
 		}

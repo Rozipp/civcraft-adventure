@@ -50,7 +50,7 @@ public class FoundTownSync implements Runnable {
 		}
 		
 		try {
-			Town.newTown(resident, resident.desiredTownName, resident.getCiv(), false, false, resident.desiredTownLocation);
+			Town.newTown(resident, resident.desiredTownName, resident.getCiv(), false, resident.desiredTownLocation);
 		} catch (CivException | SQLException e) {
 			CivLog.error("Caught exception:" + e.getMessage());
 			if (e.getMessage().contains("Duplicate entry")) {

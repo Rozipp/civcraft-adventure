@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  * 
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
 import java.sql.ResultSet;
@@ -36,19 +26,19 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class Bank extends Structure {
-	
+
 	private int level = 1;
 	private double interestRate = 0;
-	
+
 	private NonMemberFeeComponent nonMemberFeeComponent;
-	
+
 //	private static final int EMERALD_SIGN = 3;
 	private static final int IRON_SIGN = 0;
 	private static final int GOLD_SIGN = 1;
@@ -58,7 +48,7 @@ public class Bank extends Structure {
 	private static final int GOLD_BLOCK_SIGN = 5;
 	private static final int DIAMOND_BLOCK_SIGN = 6;
 	private static final int EMERALD_BLOCK_SIGN = 7;
-	
+
 	public Bank(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
@@ -66,7 +56,7 @@ public class Bank extends Structure {
 		setLevel(town.saved_bank_level);
 		setInterestRate(town.saved_bank_interest_amount);
 	}
-	
+
 	public Bank(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
@@ -76,267 +66,252 @@ public class Bank extends Structure {
 	public double getBankExchangeRate() {
 		double exchange_rate = 0.0;
 		switch (level) {
-		case 1:
-			exchange_rate = 0.40;
-			break;
-		case 2:
-			exchange_rate = 0.50;
-			break;
-		case 3:
-			exchange_rate = 0.60;
-			break;
-		case 4:
-			exchange_rate = 0.70;
-			break;
-		case 5:
-			exchange_rate = 0.80;
-			break;
-		case 6:
-			exchange_rate = 0.90;
-			break;
-		case 7:
-			exchange_rate = 1;
-			break;
-		case 8:
-			exchange_rate = 1.20;
-			break;
-		case 9:
-			exchange_rate = 1.50;
-			break;
-		case 10:
-			exchange_rate = 2;
-			break;
+			case 1 :
+				exchange_rate = 0.40;
+				break;
+			case 2 :
+				exchange_rate = 0.50;
+				break;
+			case 3 :
+				exchange_rate = 0.60;
+				break;
+			case 4 :
+				exchange_rate = 0.70;
+				break;
+			case 5 :
+				exchange_rate = 0.80;
+				break;
+			case 6 :
+				exchange_rate = 0.90;
+				break;
+			case 7 :
+				exchange_rate = 1;
+				break;
+			case 8 :
+				exchange_rate = 1.20;
+				break;
+			case 9 :
+				exchange_rate = 1.50;
+				break;
+			case 10 :
+				exchange_rate = 2;
+				break;
 		}
-		
+
 		double rate = 1;
-		double addtional = rate*this.getTown().getBuffManager().getEffectiveDouble(Buff.BARTER);
+		double addtional = rate * this.getTown().getBuffManager().getEffectiveDouble(Buff.BARTER);
 		rate += addtional;
 		if (rate > 1) {
 			exchange_rate *= rate;
 		}
-        if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
-            exchange_rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level4_extraBankTown");
-        }
-        if (this.getCiv().getStockExchangeLevel() >= 3) {
-            exchange_rate *= 1.25;
-        }
+		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
+			exchange_rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level4_extraBankTown");
+		}
+		if (this.getCiv().getStockExchangeLevel() >= 3) {
+			exchange_rate *= 1.25;
+		}
 		return exchange_rate;
 	}
-	
+
 	@Override
 	public void onBonusGoodieUpdate() {
 		this.updateSignText();
 	}
-	
+
 	private String getExchangeRateString() {
-		return ((int)(getBankExchangeRate()*100) + "%").toString();		
+		return ((int) (getBankExchangeRate() * 100) + "%").toString();
 	}
-	
+
 	private String getNonResidentFeeString() {
-		return CivSettings.localize.localizedString("bank_sign_fee")+" "+((int)(this.nonMemberFeeComponent.getFeeRate()*100) + "%").toString();		
+		return CivSettings.localize.localizedString("bank_sign_fee") + " " + ((int) (this.nonMemberFeeComponent.getFeeRate() * 100) + "%").toString();
 	}
-	
+
 	private String getSignItemPrice(int signId) {
 		double itemPrice;
 		if (signId == IRON_SIGN) {
 			itemPrice = CivSettings.iron_rate;
-		}
-		else if (signId == IRON_BLOCK_SIGN) {
-			itemPrice = CivSettings.iron_rate*9;
-		}
-		else if (signId == GOLD_SIGN) {
-			itemPrice = CivSettings.gold_rate;
-		}
-		else if (signId == GOLD_BLOCK_SIGN) {
-			itemPrice = CivSettings.gold_rate*9;
-		}
-		else if (signId == DIAMOND_SIGN) {
-			itemPrice = CivSettings.diamond_rate;
-		} 
-		else if (signId == DIAMOND_BLOCK_SIGN) {
-			itemPrice = CivSettings.diamond_rate*9;
-		}
-		else if (signId == EMERALD_SIGN) {
-			itemPrice = CivSettings.emerald_rate;
-		} else {
-			itemPrice = CivSettings.emerald_rate*9;
-		}
-		
-		
+		} else
+			if (signId == IRON_BLOCK_SIGN) {
+				itemPrice = CivSettings.iron_rate * 9;
+			} else
+				if (signId == GOLD_SIGN) {
+					itemPrice = CivSettings.gold_rate;
+				} else
+					if (signId == GOLD_BLOCK_SIGN) {
+						itemPrice = CivSettings.gold_rate * 9;
+					} else
+						if (signId == DIAMOND_SIGN) {
+							itemPrice = CivSettings.diamond_rate;
+						} else
+							if (signId == DIAMOND_BLOCK_SIGN) {
+								itemPrice = CivSettings.diamond_rate * 9;
+							} else
+								if (signId == EMERALD_SIGN) {
+									itemPrice = CivSettings.emerald_rate;
+								} else {
+									itemPrice = CivSettings.emerald_rate * 9;
+								}
+
 		String out = "1 = ";
-		out += (int)(itemPrice*getBankExchangeRate());
+		out += (int) (itemPrice * getBankExchangeRate());
 		out += " Coins";
 		return out;
 	}
-	
+
 	public void exchange_for_coins(Resident resident, int itemId, double coins) throws CivException {
 		double exchange_rate = 0.0;
 		String itemName;
 		Player player = CivGlobal.getPlayer(resident);
-		
+
 		if (itemId == CivData.IRON_INGOT || itemId == CivData.IRON_BLOCK)
 			itemName = CivSettings.localize.localizedString("bank_itemName_iron");
-		else if (itemId == CivData.GOLD_INGOT || itemId == CivData.GOLD_BLOCK)
-			itemName = CivSettings.localize.localizedString("bank_itemName_gold");
-		else if (itemId == CivData.DIAMOND || itemId == CivData.DIAMOND_BLOCK)
-			itemName = CivSettings.localize.localizedString("bank_itemName_diamond");
-		else if (itemId == CivData.EMERALD || itemId == CivData.EMERALD_BLOCK)
-			itemName = CivSettings.localize.localizedString("bank_itemName_emerald");
-		else 
-			itemName = CivSettings.localize.localizedString("bank_itemName_stuff");
-		
+		else
+			if (itemId == CivData.GOLD_INGOT || itemId == CivData.GOLD_BLOCK)
+				itemName = CivSettings.localize.localizedString("bank_itemName_gold");
+			else
+				if (itemId == CivData.DIAMOND || itemId == CivData.DIAMOND_BLOCK)
+					itemName = CivSettings.localize.localizedString("bank_itemName_diamond");
+				else
+					if (itemId == CivData.EMERALD || itemId == CivData.EMERALD_BLOCK)
+						itemName = CivSettings.localize.localizedString("bank_itemName_emerald");
+					else
+						itemName = CivSettings.localize.localizedString("bank_itemName_stuff");
+
 		exchange_rate = getBankExchangeRate();
 		int count = resident.takeItemsInHand(itemId, 0);
-		if (count == 0)
-		{
-			throw new CivException(CivSettings.localize.localizedString("var_bank_notEnoughInHand",itemName));
+		if (count == 0) {
+			throw new CivException(CivSettings.localize.localizedString("var_bank_notEnoughInHand", itemName));
 		}
-		
+
 		Town usersTown = resident.getTown();
-		
+
 		// Resident is in his own town.
-		if (usersTown == this.getTown()) {		
+		if (usersTown == this.getTown()) {
 			DecimalFormat df = new DecimalFormat();
-			resident.getTreasury().deposit((double)((int)((coins*count)*exchange_rate)));
-			CivMessage.send(player,
-					CivColor.LightGreen + CivSettings.localize.localizedString("var_bank_exchanged",count,itemName,(df.format((coins*count)*exchange_rate)),CivSettings.CURRENCY_NAME));	
+			resident.getTreasury().deposit((double) ((int) ((coins * count) * exchange_rate)));
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_bank_exchanged", count, itemName,
+					(df.format((coins * count) * exchange_rate)), CivSettings.CURRENCY_NAME));
 			return;
 		}
-		
+
 		// non-resident must pay the town's non-resident tax
-		double giveToPlayer = (double)((int)((coins*count)*exchange_rate));
-		double giveToTown = (double)((int)giveToPlayer*this.getNonResidentFee());
+		double giveToPlayer = (double) ((int) ((coins * count) * exchange_rate));
+		double giveToTown = (double) ((int) giveToPlayer * this.getNonResidentFee());
 		giveToPlayer -= giveToTown;
-		
+
 		giveToTown = Math.round(giveToTown);
 		giveToPlayer = Math.round(giveToPlayer);
-		
-			this.getTown().depositDirect(giveToTown);
-			resident.getTreasury().deposit(giveToPlayer);
-		
-		CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_bank_exchanged",count,itemName,giveToPlayer,CivSettings.CURRENCY_NAME));
-		CivMessage.send(player,CivColor.Yellow+" "+CivSettings.localize.localizedString("var_taxes_paid",giveToTown,CivSettings.CURRENCY_NAME));
+
+		this.getTown().depositDirect(giveToTown);
+		resident.getTreasury().deposit(giveToPlayer);
+
+		CivMessage.send(player,
+				CivColor.LightGreen + CivSettings.localize.localizedString("var_bank_exchanged", count, itemName, giveToPlayer, CivSettings.CURRENCY_NAME));
+		CivMessage.send(player, CivColor.Yellow + " " + CivSettings.localize.localizedString("var_taxes_paid", giveToTown, CivSettings.CURRENCY_NAME));
 		return;
-		
+
 	}
-	
+
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		//int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
-		
+
 		if (resident == null) {
 			return;
 		}
-		
+
 		try {
 			ItemStack itemStack = player.getInventory().getItemInMainHand();
 			if (CustomMaterial.isCustomMaterial(itemStack) || CivGlobal.isBonusGoodie(itemStack))
 				throw new CivException(CivSettings.localize.localizedString("bank_invalidItem"));
-			
+
 			switch (sign.getAction()) {
-			case "iron":
-				exchange_for_coins(resident, CivData.IRON_INGOT, CivSettings.iron_rate);
-				break;
-			case "gold":
-				exchange_for_coins(resident, CivData.GOLD_INGOT, CivSettings.gold_rate);
-				break;
-			case "diamond":
-				exchange_for_coins(resident, CivData.DIAMOND, CivSettings.diamond_rate);
-				break;
-			case "emerald":
-				exchange_for_coins(resident, CivData.EMERALD, CivSettings.emerald_rate);
-				break;
-			case "ironB":
-				exchange_for_coins(resident, CivData.IRON_INGOT, CivSettings.iron_rate*9);
-				break;
-			case "goldB":
-				exchange_for_coins(resident, CivData.GOLD_INGOT, CivSettings.gold_rate*9);
-				break;
-			case "diamondB":
-				exchange_for_coins(resident, CivData.DIAMOND, CivSettings.diamond_rate*9);
-				break;
-			case "emeraldB":
-				exchange_for_coins(resident, CivData.EMERALD, CivSettings.emerald_rate*9);
-				break;
+				case "iron" :
+					exchange_for_coins(resident, CivData.IRON_INGOT, CivSettings.iron_rate);
+					break;
+				case "gold" :
+					exchange_for_coins(resident, CivData.GOLD_INGOT, CivSettings.gold_rate);
+					break;
+				case "diamond" :
+					exchange_for_coins(resident, CivData.DIAMOND, CivSettings.diamond_rate);
+					break;
+				case "emerald" :
+					exchange_for_coins(resident, CivData.EMERALD, CivSettings.emerald_rate);
+					break;
+				case "ironB" :
+					exchange_for_coins(resident, CivData.IRON_INGOT, CivSettings.iron_rate * 9);
+					break;
+				case "goldB" :
+					exchange_for_coins(resident, CivData.GOLD_INGOT, CivSettings.gold_rate * 9);
+					break;
+				case "diamondB" :
+					exchange_for_coins(resident, CivData.DIAMOND, CivSettings.diamond_rate * 9);
+					break;
+				case "emeraldB" :
+					exchange_for_coins(resident, CivData.EMERALD, CivSettings.emerald_rate * 9);
+					break;
 			}
 		} catch (CivException e) {
-			CivMessage.send(player, CivColor.Rose+e.getMessage());
+			CivMessage.send(player, CivColor.Rose + e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void updateSignText() {
-		for (StructureSign sign : getSigns()) {
-			
+		for (ConstructSign sign : getSigns()) {
+
 			switch (sign.getAction().toLowerCase()) {
-			case "iron":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_iron")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(IRON_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;
-			case "gold":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_gold")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(GOLD_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;
-			case "diamond":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_diamond")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(DIAMOND_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;			
-			case "emerald":
-					sign.setText(CivSettings.localize.localizedString("bank_itemName_emerald")+"\n"+
-							"At "+getExchangeRateString()+"\n"+
-							getSignItemPrice(EMERALD_SIGN)+"\n"+
-							getNonResidentFeeString());
+				case "iron" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_iron") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(IRON_SIGN) + "\n" + getNonResidentFeeString());
 					break;
-			case "ironb":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_ironBlock")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(IRON_BLOCK_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;
-			case "goldb":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_goldBlock")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(GOLD_BLOCK_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;
-			case "diamondb":
-				sign.setText(CivSettings.localize.localizedString("bank_itemName_diamondBlock")+"\n"+
-						"At "+getExchangeRateString()+"\n"+
-						getSignItemPrice(DIAMOND_BLOCK_SIGN)+"\n"+
-						getNonResidentFeeString());
-				break;			
-			case "emeraldb":
-					sign.setText(CivSettings.localize.localizedString("bank_itemName_emeraldBlock")+"\n"+
-							"At "+getExchangeRateString()+"\n"+
-							getSignItemPrice(EMERALD_BLOCK_SIGN)+"\n"+
-							getNonResidentFeeString());
+				case "gold" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_gold") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(GOLD_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "diamond" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_diamond") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(DIAMOND_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "emerald" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_emerald") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(EMERALD_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "ironb" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_ironBlock") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(IRON_BLOCK_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "goldb" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_goldBlock") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(GOLD_BLOCK_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "diamondb" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_diamondBlock") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(DIAMOND_BLOCK_SIGN) + "\n" + getNonResidentFeeString());
+					break;
+				case "emeraldb" :
+					sign.setText(CivSettings.localize.localizedString("bank_itemName_emeraldBlock") + "\n" + "At " + getExchangeRateString() + "\n"
+							+ getSignItemPrice(EMERALD_BLOCK_SIGN) + "\n" + getNonResidentFeeString());
 					break;
 			}
-				
-			
+
 			sign.update();
 		}
 	}
 
 	@Override
 	public String getDynmapDescription() {
-		String out = "<u><b>"+CivSettings.localize.localizedString("bank_dynmapName")+"</u></b><br/>";
-		out += CivSettings.localize.localizedString("Level")+" "+this.level;
+		String out = "<u><b>" + CivSettings.localize.localizedString("bank_dynmapName") + "</u></b><br/>";
+		out += CivSettings.localize.localizedString("Level") + " " + this.level;
 		return out;
 	}
-	
+
 	@Override
 	public String getMarkerIconName() {
 		return "bank";
 	}
-	
+
 	public int getLevel() {
 		return level;
 	}
@@ -360,7 +335,7 @@ public class Bank extends Structure {
 	public void setInterestRate(double interestRate) {
 		this.interestRate = interestRate;
 	}
-	
+
 	@Override
 	public void onLoad() {
 		/* Process the interest rate. */
@@ -368,48 +343,49 @@ public class Bank extends Structure {
 			this.getTown().getTreasury().setPrincipalAmount(Double.valueOf(0));
 			return;
 		}
-		
+
 		/* Update the principal with the new value. */
-        this.getTown().getTreasury().setPrincipalAmount(this.getTown().getTreasury().getBalance());
+		this.getTown().getTreasury().setPrincipalAmount(this.getTown().getTreasury().getBalance());
 	}
-	
+
 	@Override
-	public void onDailyEvent() {
-		
+	public void onDailyUpdate() {
+
 		/* Process the interest rate. */
 		double effectiveInterestRate = interestRate;
 		if (effectiveInterestRate == 0.0) {
 			this.getTown().getTreasury().setPrincipalAmount(Double.valueOf(0));
 			return;
 		}
-		
+
 		double principal = this.getTown().getTreasury().getPrincipalAmount();
-		
+
 		if (this.getTown().getBuffManager().hasBuff("buff_greed")) {
 			double increase = this.getTown().getBuffManager().getEffectiveDouble("buff_greed");
 			effectiveInterestRate += increase;
-			CivMessage.sendTown(this.getTown(), CivColor.LightGray+CivSettings.localize.localizedString("bank_greed"));
+			CivMessage.sendTown(this.getTown(), CivColor.LightGray + CivSettings.localize.localizedString("bank_greed"));
 		}
 
-        if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
-        	effectiveInterestRate *= 2.0;
-        }
-		double newCoins = principal*effectiveInterestRate;
+		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
+			effectiveInterestRate *= 2.0;
+		}
+		double newCoins = principal * effectiveInterestRate;
 
 		//Dont allow fractional coins.
 		newCoins = Math.floor(newCoins);
-		
+
 		if (newCoins != 0) {
-			CivMessage.sendTown(this.getTown(), CivColor.LightGreen+CivSettings.localize.localizedString("var_bank_interestMsg1",newCoins,CivSettings.CURRENCY_NAME,principal));
+			CivMessage.sendTown(this.getTown(),
+					CivColor.LightGreen + CivSettings.localize.localizedString("var_bank_interestMsg1", newCoins, CivSettings.CURRENCY_NAME, principal));
 			this.getTown().getTreasury().deposit(newCoins);
-			
+
 		}
-		
+
 		/* Update the principal with the new value. */
 		this.getTown().getTreasury().setPrincipalAmount(this.getTown().getTreasury().getBalance());
-		
+
 	}
-	
+
 	@Override
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
 		this.level = getTown().saved_bank_level;
@@ -423,48 +399,42 @@ public class Bank extends Structure {
 	public void setNonMemberFeeComponent(NonMemberFeeComponent nonMemberFeeComponent) {
 		this.nonMemberFeeComponent = nonMemberFeeComponent;
 	}
-	
-	public void onGoodieFromFrame() {
+
+	public void onGoodieFrame() {
 		this.updateSignText();
 	}
 
-	public void onGoodieToFrame() {
-		this.updateSignText();
+	public String getHoloItemPrice(int signId) {
+		double itemPrice;
+		switch (signId) {
+			case 0 :
+				itemPrice = CivSettings.iron_rate;
+				break;
+			case 4 :
+				itemPrice = CivSettings.iron_rate * 9.0D;
+				break;
+			case 1 :
+				itemPrice = CivSettings.gold_rate;
+				break;
+			case 5 :
+				itemPrice = CivSettings.gold_rate * 9.0D;
+				break;
+			case 2 :
+				itemPrice = CivSettings.diamond_rate;
+				break;
+			case 6 :
+				itemPrice = CivSettings.diamond_rate * 9.0D;
+				break;
+			case 3 :
+				itemPrice = CivSettings.emerald_rate;
+				break;
+			default :
+				itemPrice = CivSettings.emerald_rate * 9.0D;
+		}
+		int plusars = (int) (itemPrice * getBankExchangeRate());
+		String out = "1 штука = ";
+		out = out + (int) (itemPrice * getBankExchangeRate());
+		out = out + Resident.plurals(plusars, new String[]{" Монеты", " Монета", " Монет"});
+		return out;
 	}
-
-	public String getHoloItemPrice(int signId)
-	  {
-	    double itemPrice;
-	    switch (signId)
-	    {
-	    case 0: 
-	      itemPrice = CivSettings.iron_rate;
-	      break;
-	    case 4: 
-	      itemPrice = CivSettings.iron_rate * 9.0D;
-	      break;
-	    case 1: 
-	      itemPrice = CivSettings.gold_rate;
-	      break;
-	    case 5: 
-	      itemPrice = CivSettings.gold_rate * 9.0D;
-	      break;
-	    case 2: 
-	      itemPrice = CivSettings.diamond_rate;
-	      break;
-	    case 6: 
-	      itemPrice = CivSettings.diamond_rate * 9.0D;
-	      break;
-	    case 3: 
-	      itemPrice = CivSettings.emerald_rate;
-	      break;
-	    default: 
-	      itemPrice = CivSettings.emerald_rate * 9.0D;
-	    }
-	    int plusars = (int)(itemPrice * getBankExchangeRate());
-	    String out = "1 штука = ";
-	    out = out + (int)(itemPrice * getBankExchangeRate());
-	    out = out + Resident.plurals(plusars, new String[] { " Монеты", " Монета", " Монет" });
-	    return out;
-	  }
 }

@@ -51,7 +51,7 @@ public class AdminVillageCommand extends CommandBase {
 		} catch (CivException e) {
 			e.printStackTrace();
 		}
-		village.reprocessCommandSigns();
+		village.processCommandSigns();
 		CivMessage.send(sender, CivSettings.localize.localizedString("Repaired"));
 	}
 	

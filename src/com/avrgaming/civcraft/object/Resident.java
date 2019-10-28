@@ -80,7 +80,6 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.PlayerBlockChangeUtil;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.global.perks.Perk;
@@ -288,9 +287,12 @@ public class Resident extends SQLObject {
 				/* When a town fails to load, we wont be able to find it above. However this can cause a cascade effect where because we couldn't find the town
 				 * above, we save this resident's town as NULL which wipes their town information from the database when the resident gets saved. Just to make
 				 * sure this doesn't happen the boolean below guards resident saves. There ought to be a better way... */
-				if (CivGlobal.testFileFlag("cleanupDatabase")) {
-					this.saveNow();
-				} else {
+				try {
+					if (CivSettings.getStringBase("cleanupDatabase").equalsIgnoreCase("true"))
+						this.saveNow();
+					else
+						this.dontSaveTown = true;
+				} catch (InvalidConfiguration e) {
 					this.dontSaveTown = true;
 				}
 				return;
@@ -606,7 +608,7 @@ public class Resident extends SQLObject {
 	public String getGroupsString() {
 		String out = "";
 
-		for (PermissionGroup grp : CivGlobal.getGroups()) {
+		for (PermissionGroup grp : CivGlobal.getPermissionGroups()) {
 			if (grp.hasMember(this)) {
 				if (grp.getTown() != null) {
 					if (grp.isProtectedGroup()) {
@@ -941,9 +943,9 @@ public class Resident extends SQLObject {
 		for (ConfigPerk p : CivSettings.perks.values()) {
 			Perk perk = new Perk(p);
 
-			if (perk.getIdent().startsWith(("tpl_" + name).toLowerCase()) || perk.getIdent().startsWith(("template_" + name).toLowerCase())) {
+			if (perk.getConfigId().startsWith(("tpl_" + name).toLowerCase()) || perk.getConfigId().startsWith(("template_" + name).toLowerCase())) {
 				perk.count = perkCount;
-				this.perks.put(perk.getIdent(), perk);
+				this.perks.put(perk.getConfigId(), perk);
 			}
 		}
 
@@ -961,9 +963,9 @@ public class Resident extends SQLObject {
 		for (ConfigPerk p : CivSettings.perks.values()) {
 			Perk perk = new Perk(p);
 
-			if (perk.getIdent().startsWith("perk_")) {
+			if (perk.getConfigId().startsWith("perk_")) {
 				perk.count = perkCount;
-				this.perks.put(perk.getIdent(), perk);
+				this.perks.put(perk.getConfigId(), perk);
 			}
 		}
 
@@ -1031,7 +1033,7 @@ public class Resident extends SQLObject {
 	public void setRejoinCooldown(Town town) {
 		String value = "" + town.getCiv().getId();
 		String key = getCooldownKey();
-		CivGlobal.getSessionDB().add(key, value, 0, 0, 0);
+		CivGlobal.getSessionDatabase().add(key, value, 0, 0, 0);
 	}
 
 	public String getCooldownKey() {
@@ -1039,7 +1041,7 @@ public class Resident extends SQLObject {
 	}
 
 	public void cleanupCooldown() {
-		CivGlobal.getSessionDB().delete_all(getCooldownKey());
+		CivGlobal.getSessionDatabase().delete_all(getCooldownKey());
 	}
 
 	public void validateJoinTown(Town town) throws CivException {
@@ -1059,7 +1061,7 @@ public class Resident extends SQLObject {
 
 		cooldownTime = cooldownHours * 60 * 60 * 1000; /* convert hours to milliseconds. */
 
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getCooldownKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getCooldownKey());
 		if (entries.size() > 0) {
 			Civilization oldCiv = CivGlobal.getCivFromId(Integer.valueOf(entries.get(0).value));
 			if (oldCiv == null) {
@@ -1105,20 +1107,20 @@ public class Resident extends SQLObject {
 		ArrayList<Perk> unboundPerks = new ArrayList<Perk>();
 		for (Perk ourPerk : perks.values()) {
 
-			if (!ourPerk.getIdent().contains("template")) {
+			if (!ourPerk.getConfigId().contains("template")) {
 				CustomTemplate customTemplate = (CustomTemplate) ourPerk.getComponent("CustomTemplate");
 				if (customTemplate == null) {
 					continue;
 				}
 
-				if (!customTemplate.getString("template").equals(info.template_base_name)) {
+				if (!customTemplate.getString("template").equals(info.template_name)) {
 					/* Not the correct template. */
 					continue;
 				}
 
 				boolean has = false;
 				for (Perk perk : alreadyBoundPerkList) {
-					if (perk.getIdent().equals(ourPerk.getIdent())) {
+					if (perk.getConfigId().equals(ourPerk.getConfigId())) {
 						/* Perk is already bound in this town, do not display for binding. */
 						has = true;
 						continue;

@@ -8,31 +8,20 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveWarCampFound;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.village.WarCamp;
 import com.avrgaming.civcraft.war.War;
 
 public class FoundWarCamp extends ItemComponent implements CallbackInterface {
-	
-	public static ConfigBuildableInfo info = new ConfigBuildableInfo();
-	static {
-		info.id = "warcamp";
-		info.displayName = "War Camp";
-		info.ignore_floating = false;
-		info.template_base_name = "warcamp";
-		info.tile_improvement = false;
-		info.templateYShift = -1;
-		info.max_hitpoints = 100;
-	}
 	
 	@Override
 	public void onPrepareCreate(AttributeUtil attrUtil) {
@@ -62,7 +51,7 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 		CivMessage.send(player, CivColor.LightGreen+CivColor.BOLD+CivSettings.localize.localizedString("build_checking_position"));
 
 		
-		Buildable.buildVerifyStatic(player, info, player.getLocation(), this);
+		BuildableStatic.buildVerifyStatic(player, WarCamp.info, player.getLocation(), this);
 	}
 	
 	public void onInteract(PlayerInteractEvent event) {
@@ -128,6 +117,6 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 		CivMessage.send(player, CivColor.LightGreen+ChatColor.BOLD+CivSettings.localize.localizedString("buildWarCamp_prompt5"));
 		CivMessage.send(player, CivColor.LightGray+CivSettings.localize.localizedString("buildWarCamp_prompt6"));
 		
-		resident.setInteractiveMode(new InteractiveWarCampFound(info));
+		resident.setInteractiveMode(new InteractiveWarCampFound());
 	}
 }

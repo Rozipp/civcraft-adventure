@@ -26,6 +26,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.questions.JoinVillageResponse;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.village.Village;
@@ -127,7 +128,7 @@ public class VillageCommand extends CommandBase {
 		} catch (IOException e) {} catch (CivException e) {
 			e.printStackTrace();
 		}
-		village.reprocessCommandSigns();
+		village.processCommandSigns();
 		CivMessage.send(sender, CivSettings.localize.localizedString("cmd_village_refreshSuccess"));
 		resident.setNextRefresh(now.getTime() + (buildable_refresh_cooldown * 60 * 1000));
 	}
@@ -195,7 +196,7 @@ public class VillageCommand extends CommandBase {
 		join.resident = resident;
 		join.sender = player;
 
-		CivGlobal.questionPlayer(player, CivGlobal.getPlayer(resident),
+		Question.questionPlayer(player, CivGlobal.getPlayer(resident),
 				CivSettings.localize.localizedString("var_cmd_village_addInvite", player.getName(), village.getName()), INVITE_TIMEOUT, join);
 
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_village_addSuccess", resident.getName()));

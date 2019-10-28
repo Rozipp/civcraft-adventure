@@ -36,8 +36,8 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureChest;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructChest;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -54,12 +54,12 @@ public class Barracks extends Structure {
 	private static final long SAVE_INTERVAL = 60 * 1000;
 
 	private int index = 0;
-	private StructureSign unitNameSign;
+	private ConstructSign unitNameSign;
 
 	private ConfigUnit trainingUnit = null;
 	private double currentHammers = 0.0;
 
-	private TreeMap<Integer, StructureSign> progresBar = new TreeMap<Integer, StructureSign>();
+	private TreeMap<Integer, ConstructSign> progresBar = new TreeMap<Integer, ConstructSign>();
 	private Date lastSave = null;
 
 	public Barracks(Location center, String id, Town town) throws CivException {
@@ -148,7 +148,7 @@ public class Barracks extends Structure {
 	}
 
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
 
@@ -265,9 +265,9 @@ public class Barracks extends Structure {
 
 		class BarracksSyncUpdate implements Runnable {
 
-			StructureSign unitNameSign;
+			ConstructSign unitNameSign;
 
-			public BarracksSyncUpdate(StructureSign unitNameSign) {
+			public BarracksSyncUpdate(ConstructSign unitNameSign) {
 				this.unitNameSign = unitNameSign;
 			}
 
@@ -285,26 +285,26 @@ public class Barracks extends Structure {
 
 	@Override
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock sb) {
-		StructureSign structSign;
+		ConstructSign structSign;
 
 		switch (sb.command) {
 			case "/prev" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_previousUnit"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("prev");
 				structSign.update();
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				break;
 			case "/unitname" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText(getUnitSignText(0));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("info");
@@ -312,47 +312,47 @@ public class Barracks extends Structure {
 
 				this.unitNameSign = structSign;
 
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				break;
 			case "/next" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_nextUnit"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("next");
 				structSign.update();
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				break;
 			case "/train" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_train"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("train");
 				structSign.update();
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				break;
 			case "/progress" :
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("");
 				structSign.setDirection(sb.getData());
 				structSign.setAction("");
 				structSign.update();
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
 
@@ -361,13 +361,13 @@ public class Barracks extends Structure {
 				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new StructureSign(absCoord, this);
+				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_repairItem"));
 				structSign.setDirection(sb.getData());
 				structSign.setAction("repair_item");
 				structSign.update();
-				this.addStructureSign(structSign);
-				CivGlobal.addStructureSign(structSign);
+				this.addBuildableSign(structSign);
+				CivGlobal.addConstructSign(structSign);
 
 				break;
 
@@ -401,7 +401,7 @@ public class Barracks extends Structure {
 	public void createUnit(ConfigUnit unit) {
 
 		// Find the chest inventory
-		ArrayList<StructureChest> chests = this.getAllChestsById("0");
+		ArrayList<ConstructChest> chests = this.getAllChestsById("0");
 		if (chests.size() == 0) {
 			return;
 		}
@@ -444,7 +444,7 @@ public class Barracks extends Structure {
 			this.trainingUnit = null;
 			this.currentHammers = 0.0;
 
-			CivGlobal.getSessionDB().delete_all(getSessionKey());
+			CivGlobal.getSessionDatabase().delete_all(getSessionKey());
 
 		} catch (CivException e) {
 			this.trainingUnit = null;
@@ -465,7 +465,7 @@ public class Barracks extends Structure {
 		int textIndex = 0;
 
 		for (int i = 0; i < size; i++) {
-			StructureSign structSign = this.progresBar.get(i);
+			ConstructSign structSign = this.progresBar.get(i);
 			String[] text = new String[4];
 			text[0] = "";
 			text[1] = "";
@@ -505,16 +505,16 @@ public class Barracks extends Structure {
 		if (this.getTrainingUnit() != null) {
 			String key = getSessionKey();
 			String value = this.getTrainingUnit().id + ":" + this.currentHammers;
-			ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+			ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 
 			if (entries.size() > 0) {
 				SessionEntry entry = entries.get(0);
-				CivGlobal.getSessionDB().update(entry.request_id, key, value);
+				CivGlobal.getSessionDatabase().update(entry.request_id, key, value);
 
 				/* delete any bad extra entries. */
 				for (int i = 1; i < entries.size(); i++) {
 					SessionEntry bad_entry = entries.get(i);
-					CivGlobal.getSessionDB().delete(bad_entry.request_id, key);
+					CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
 				}
 			} else {
 				this.sessionAdd(key, value);
@@ -532,7 +532,7 @@ public class Barracks extends Structure {
 	@Override
 	public void onLoad() {
 		String key = getSessionKey();
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 
 		if (entries.size() > 0) {
 			SessionEntry entry = entries.get(0);
@@ -550,7 +550,7 @@ public class Barracks extends Structure {
 			/* delete any bad extra entries. */
 			for (int i = 1; i < entries.size(); i++) {
 				SessionEntry bad_entry = entries.get(i);
-				CivGlobal.getSessionDB().delete(bad_entry.request_id, key);
+				CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
 			}
 		}
 	}

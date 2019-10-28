@@ -23,8 +23,8 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.CultureChunk;
-import com.avrgaming.civcraft.object.StructureChest;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructChest;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -79,7 +79,7 @@ public class FishHatchery extends Structure {
 	}
 
 	public double getChance(double chance) {
-		return this.modifyChance(chance);
+		return this.modifyTransmuterChance(chance);
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class FishHatchery extends Structure {
 		this.level = level;
 	}
 
-	private StructureSign getSignFromSpecialId(int special_id) {
-		for (StructureSign sign : getSigns()) {
+	private ConstructSign getSignFromSpecialId(int special_id) {
+		for (ConstructSign sign : getSigns()) {
 			int id = Integer.valueOf(sign.getAction());
 			if (id == special_id) {
 				return sign;
@@ -111,7 +111,7 @@ public class FishHatchery extends Structure {
 		int count = 0;
 
 		for (count = 0; count < level; count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:" + count);
 				return;
@@ -121,7 +121,7 @@ public class FishHatchery extends Structure {
 		}
 
 		for (; count < getSigns().size(); count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:" + count);
 				return;
@@ -133,7 +133,7 @@ public class FishHatchery extends Structure {
 	}
 
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		int special_id = Integer.valueOf(sign.getAction());
 		if (special_id < this.level) {
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_fishery_pool_msg_online", (special_id + 1)));
@@ -180,11 +180,11 @@ public class FishHatchery extends Structure {
 			}
 			
 			// Grab each CivChest object we'll require.
-			ArrayList<StructureChest> sources = fishHatchery.getAllChestsById("0");
+			ArrayList<ConstructChest> sources = fishHatchery.getAllChestsById("0");
 			sources.addAll(fishHatchery.getAllChestsById("1"));
 			sources.addAll(fishHatchery.getAllChestsById("2"));
 			sources.addAll(fishHatchery.getAllChestsById("3"));
-			ArrayList<StructureChest> destinations = fishHatchery.getAllChestsById("4");
+			ArrayList<ConstructChest> destinations = fishHatchery.getAllChestsById("4");
 			
 			if (sources.size() != 4 || destinations.size() != 2) {
 				CivLog.error("Bad chests for fish hatchery in town:"+fishHatchery.getTown().getName()+" sources:"+sources.size()+" dests:"+destinations.size());
@@ -199,7 +199,7 @@ public class FishHatchery extends Structure {
 			MultiInventory dest_inv = new MultiInventory();
 
 			try {
-				for (StructureChest src : sources) {
+				for (ConstructChest src : sources) {
 					//this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());				
 					Inventory tmp;
 					try {
@@ -226,7 +226,7 @@ public class FishHatchery extends Structure {
 				}
 				
 				boolean full = true;
-				for (StructureChest dst : destinations) {
+				for (ConstructChest dst : destinations) {
 					//this.syncLoadChunk(dst.getCoord().getWorldname(), dst.getCoord().getX(), dst.getCoord().getZ());
 					Inventory tmp;
 					try {

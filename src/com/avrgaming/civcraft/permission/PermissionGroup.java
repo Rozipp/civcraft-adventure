@@ -109,7 +109,7 @@ public class PermissionGroup extends SQLObject {
 			this.town = CivGlobal.getTownFromId(this.getTownId());
 			if (this.town == null) {
 				CivLog.warning("TownChunk tried to load without a town...");
-				if (CivGlobal.testFileFlag("cleanupDatabase")) {
+				if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
 					CivLog.info("CLEANING");
 					this.delete();
 				}
@@ -122,7 +122,7 @@ public class PermissionGroup extends SQLObject {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
 				if (civ == null) {
 					CivLog.warning("TownChunk tried to load without a town...");
-					if (CivGlobal.testFileFlag("cleanupDatabase")) {
+					if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
 						CivLog.info("CLEANING");
 						this.delete();
 					}

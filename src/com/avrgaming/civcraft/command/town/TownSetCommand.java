@@ -206,7 +206,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(args[1]+" "+CivSettings.localize.localizedString("cmd_enterNumerError"));
 		}
 		
-		town.quicksave();
+		town.save();
 		CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_set_taxrateSuccess",args[1]));
 	}
 
@@ -222,7 +222,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(args[1]+" "+CivSettings.localize.localizedString("cmd_enterNumerError"));
 		}
 		
-		town.quicksave();
+		town.save();
 		CivMessage.send(town, CivSettings.localize.localizedString("var_cmd_town_set_flattaxSuccess",args[1]));
 	}
 	

@@ -11,7 +11,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -37,8 +37,8 @@ public class University extends Structure {
 		return "bronzestar";
 	}
 	
-	private StructureSign getSignFromSpecialId(int special_id) {
-		for (StructureSign sign : getSigns()) {
+	private ConstructSign getSignFromSpecialId(int special_id) {
+		for (ConstructSign sign : getSigns()) {
 			int id = Integer.valueOf(sign.getAction());
 			if (id == special_id) {
 				return sign;
@@ -51,7 +51,7 @@ public class University extends Structure {
 	public void updateSignText() {
 		int count = 0;
 		for (; count < getSigns().size(); count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("University sign was null");
 				return;
@@ -65,7 +65,7 @@ public class University extends Structure {
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		CivMessage.send(player, CivColor.Green+CivSettings.localize.localizedString("university_sign")+" "+this.getTown().getName());
 	}
 

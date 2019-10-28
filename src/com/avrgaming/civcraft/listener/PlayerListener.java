@@ -116,7 +116,7 @@ public class PlayerListener implements Listener {
 		Bukkit.getScheduler().runTaskLater((Plugin) CivCraft.getPlugin(), () -> TagManager.editNameTag(player), 4L);
 		CivGlobal.playerFirstLoginMap.put(player.getName(), new Date());
 		PlayerLocationCacheUpdate.playerQueue.add(player.getName());
-		
+
 		if (player.isOp()) {
 			//Bukkit.dispatchCommand(event.getPlayer(), "vanish");
 			//Bukkit.dispatchCommand(event.getPlayer(), "dynmap hide");
@@ -124,7 +124,7 @@ public class PlayerListener implements Listener {
 		event.getPlayer().setFlying(false);
 		event.getPlayer().setAllowFlight(false);
 	}
-	
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void OnPlayerJoinEvent(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
@@ -146,7 +146,6 @@ public class PlayerListener implements Listener {
 			Player player = event.getPlayer();
 			if (!player.isOp() && !(player.hasPermission("civ.admin") || player.hasPermission(CivSettings.TPALL))) {
 				CultureChunk cc = CivGlobal.getCultureChunk(new ChunkCoord(event.getTo()));
-				Village tovillage = CivGlobal.getVillageFromChunk(new ChunkCoord(event.getTo()));
 				Resident resident = CivGlobal.getResident(player);
 				if (cc != null && cc.getCiv() != resident.getCiv() && !cc.getCiv().isAdminCiv()) {
 					Relation.Status status = cc.getCiv().getDiplomacyManager().getRelationStatus(player);
@@ -166,7 +165,8 @@ public class PlayerListener implements Listener {
 						}
 					}
 				}
-
+				
+				Village tovillage = (Village) CivGlobal.getConstructAt(new ChunkCoord(event.getTo()));
 				if (tovillage != null && tovillage != resident.getVillage() && !player.hasPermission(CivSettings.TPVILLAGE)) {
 					/* Deny telportation into Civ if not allied. */
 					event.setTo(event.getFrom());

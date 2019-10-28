@@ -28,12 +28,12 @@ import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.object.StructureBlock;
+import com.avrgaming.civcraft.object.ConstructBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TradeGood;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -103,11 +103,11 @@ public class TradeOutpost extends Structure {
 	}
 
 	@Override
-	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
-		this.build_trade_outpost(centerLoc);
+	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+		this.build_trade_outpost(cChunk);
 	}
 
-	public void build_trade_outpost(Location centerLoc) throws CivException {
+	public void build_trade_outpost(ChunkCoord cChunk) throws CivException {
 
 		/* Add trade good to town. */
 		TradeGood good = CivGlobal.getTradeGood(tradeGoodCoord);
@@ -154,8 +154,8 @@ public class TradeOutpost extends Structure {
 			ItemManager.setTypeId(b, CivData.BEDROCK);
 			ItemManager.setData(b, 0);
 
-			StructureBlock sb = new StructureBlock(new BlockCoord(b), this);
-			this.addStructureBlock(sb.getCoord(), false);
+			ConstructBlock sb = new ConstructBlock(new BlockCoord(b), this);
+			this.addConstructBlock(sb.getCoord(), false);
 			//CivGlobal.addStructureBlock(sb.getCoord(), this);
 		}
 
@@ -166,16 +166,16 @@ public class TradeOutpost extends Structure {
 		Sign s = (Sign) b.getState();
 		s.setLine(0, good.getInfo().name);
 		s.update();
-		StructureBlock sb = new StructureBlock(new BlockCoord(b), this);
+		ConstructBlock sb = new ConstructBlock(new BlockCoord(b), this);
 		//CivGlobal.addStructureBlock(sb.getCoord(), this);
-		this.addStructureBlock(sb.getCoord(), false);
+		this.addConstructBlock(sb.getCoord(), false);
 
 		/* Place the itemframe. */
 		b = centerLoc.getBlock().getRelative(1, 1, 0);
-		this.addStructureBlock(new BlockCoord(b), false);
+		this.addConstructBlock(new BlockCoord(b), false);
 		Block b2 = b.getRelative(0, 0, 0);
 		Entity entity = CivGlobal.getEntityAtLocation(b2.getLocation());
-		this.addStructureBlock(new BlockCoord(b2), false);
+		this.addConstructBlock(new BlockCoord(b2), false);
 
 		if (entity == null || (!(entity instanceof ItemFrame))) {
 			this.frameStore = new ItemFrameStorage(b.getLocation(), BlockFace.EAST);
@@ -219,7 +219,12 @@ public class TradeOutpost extends Structure {
 		if (this.goodie != null) {
 			this.goodie.delete();
 		}
-
+//		if (this.getGood() != null) {
+//			this.getGood().setStruct(null);
+//			this.getGood().setTown(null);
+//			this.getGood().setCiv(null);
+//			this.getGood().save();
+//		}
 		super.delete();
 	}
 
@@ -291,13 +296,13 @@ public class TradeOutpost extends Structure {
 	}
 
 	public void fancyDestroyStructureBlocks() {
-		for (BlockCoord coord : this.structureBlocks.keySet()) {
+		for (BlockCoord coord : this.getConstructBlocks().keySet()) {
 
-			if (CivGlobal.getStructureChest(coord) != null) {
+			if (CivGlobal.getConstructChest(coord) != null) {
 				continue;
 			}
 
-			if (CivGlobal.getStructureSign(coord) != null) {
+			if (CivGlobal.getConstructSign(coord) != null) {
 				continue;
 			}
 

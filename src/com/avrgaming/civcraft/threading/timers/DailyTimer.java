@@ -68,7 +68,7 @@ public class DailyTimer implements Runnable {
 					while (iter.hasNext()) {
 						try { 
 							Structure struct = iter.next().getValue();
-							struct.onDailyEvent();
+							struct.onDailyUpdate();
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -76,7 +76,7 @@ public class DailyTimer implements Runnable {
 					
 					for (Wonder wonder : CivGlobal.getWonders()) {
 						try {
-							wonder.onDailyEvent();
+							wonder.onDailyUpdate();
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

@@ -23,14 +23,14 @@ import org.bukkit.ChatColor;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.questions.CivQuestionTask;
 import com.avrgaming.civcraft.questions.DiplomacyGiftResponse;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.questions.QuestionResponseInterface;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.CivQuestionTask;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
 
@@ -48,7 +48,7 @@ public class CivDiplomacyGiftCommand extends CommandBase {
 
 	private void sendGiftRequest(Civilization toCiv, Civilization fromCiv, String message, 
 			QuestionResponseInterface finishedFunction) throws CivException {
-		CivQuestionTask task = CivGlobal.civQuestions.get(toCiv.getName()); 
+		CivQuestionTask task = Question.civQuestions.get(toCiv.getName()); 
 		if (task != null) {
 			/* Civ already has a question pending. Lets deny this question until it times out
 			 * this will allow questions to come in on a pseduo 'first come first serve' and 
@@ -58,7 +58,7 @@ public class CivDiplomacyGiftCommand extends CommandBase {
 		}
 		
 		task = new CivQuestionTask(toCiv, fromCiv, message, 30000, finishedFunction);
-		CivGlobal.civQuestions.put(toCiv.getName(), task);
+		Question.civQuestions.put(toCiv.getName(), task);
 		TaskMaster.asyncTask("", task, 0);
 	}
 	

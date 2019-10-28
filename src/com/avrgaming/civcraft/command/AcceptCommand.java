@@ -27,8 +27,9 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.tasks.CivLeaderQuestionTask;
-import com.avrgaming.civcraft.threading.tasks.PlayerQuestionTask;
+import com.avrgaming.civcraft.questions.CivLeaderQuestionTask;
+import com.avrgaming.civcraft.questions.PlayerQuestionTask;
+import com.avrgaming.civcraft.questions.Question;
 
 public class AcceptCommand implements CommandExecutor {
 
@@ -42,7 +43,7 @@ public class AcceptCommand implements CommandExecutor {
 		
 		Player player = (Player)sender;
 		
-		PlayerQuestionTask task = (PlayerQuestionTask) CivGlobal.getQuestionTask(player.getName());
+		PlayerQuestionTask task = (PlayerQuestionTask) Question.getQuestionTask(player.getName());
 		if (task != null) {
 			/* We have a question, and the answer was "Accepted" so notify the task. */
 			synchronized(task) {
@@ -55,7 +56,7 @@ public class AcceptCommand implements CommandExecutor {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident.hasTown()) {
 			if (resident.getCiv().getLeaderGroup().hasMember(resident)) {
-				CivLeaderQuestionTask civTask = (CivLeaderQuestionTask) CivGlobal.getQuestionTask("civ:"+resident.getCiv().getName());
+				CivLeaderQuestionTask civTask = (CivLeaderQuestionTask) Question.getQuestionTask("civ:"+resident.getCiv().getName());
 				
 				if (civTask != null)
 					synchronized(civTask) {

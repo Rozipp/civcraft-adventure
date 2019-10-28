@@ -24,16 +24,14 @@ import org.bukkit.util.Vector;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.exception.InvalidObjectException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -134,9 +132,9 @@ public class Cannon extends Buildable {
 	}
 	
 	public void buildCannon(Player player, Location center) throws CivException {
-		String templateFile;
+		String templateName;
 		try {
-			templateFile = CivSettings.getString(CivSettings.warConfig, "cannon.template");
+			templateName = CivSettings.getString(CivSettings.warConfig, "cannon.template");
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			return;
@@ -145,9 +143,8 @@ public class Cannon extends Buildable {
 		/* Load in the template. */
 		Template tpl;
 		try {
-			String templatePath = TemplateStatic.getTemplateFilePath(templateFile, TemplateStatic.getDirection(center), "structures", "default");
-			this.setTemplateName(templatePath);
-			tpl = TemplateStatic.getTemplate(templatePath, center);
+			String templatePath = Template.getTemplateFilePath(templateName, Template.getDirection(center), null);
+			tpl = Template.getTemplate(templatePath);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
@@ -158,7 +155,7 @@ public class Cannon extends Buildable {
 		
 		this.setCorner(new BlockCoord(center));
 		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		this.getCorner().setFromLocation(this.repositionCenter(center, tpl.getDirection(), tpl.size_x, tpl.size_z));
+		this.getCorner().setFromLocation(this.repositionCenter(center, tpl));
 		checkBlockPermissionsAndRestrictions(player, getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
 		buildCannonFromTemplate(tpl, getCorner());
 		processCommandSigns(tpl, getCorner());
@@ -174,7 +171,7 @@ public class Cannon extends Buildable {
 		
 	}
 
-	protected void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ) throws CivException {
+	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ) throws CivException {
 		
 		if (!War.isWarTime()) {
 			throw new CivException(CivSettings.localize.localizedString("buildCannon_NotWar"));
@@ -189,7 +186,7 @@ public class Cannon extends Buildable {
 		}
 		
 		if (!player.isOp()) {
-			Buildable.validateDistanceFromSpawn(centerBlock.getLocation());
+			BuildableStatic.validateDistanceFromSpawn(centerBlock.getLocation());
 		}
 		
 		int yTotal = 0;
@@ -210,14 +207,10 @@ public class Cannon extends Buildable {
 						throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
 					}
 					
-					if (CivGlobal.getStructureBlock(coord) != null) {
+					if (CivGlobal.getConstructBlock(coord) != null) {
 						throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
 					}
 								
-					if (CivGlobal.getVillageBlock(coord) != null) {
-						throw new CivException(CivSettings.localize.localizedString("cannotBuild_campinWay"));
-					}
-					
 					if (Cannon.cannonBlocks.containsKey(coord)) {
 						throw new CivException(CivSettings.localize.localizedString("cannon_build_cannonInWay"));
 					}
@@ -380,13 +373,8 @@ public class Cannon extends Buildable {
 	}
 
 	@Override
-	public void build(Player player, Location centerLoc, Template tpl)
+	public void build(Player player)
 			throws Exception {		
-	}
-
-	@Override
-	protected void runOnBuild(Location centerLoc, Template tpl)
-			throws CivException {		
 	}
 
 	@Override
@@ -412,8 +400,7 @@ public class Cannon extends Buildable {
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, InvalidNameException,
-			InvalidObjectException, CivException {		
+	public void load(ResultSet rs) throws SQLException, CivException {		
 	}
 
 	@Override
@@ -464,25 +451,27 @@ public class Cannon extends Buildable {
 	}
 	
 	@Override
-	protected Location repositionCenter(Location center, String dir, double x_size, double z_size) throws CivException {
+	public Location repositionCenter(Location center, Template tpl) throws CivException {
 		Location loc = center.clone();
-		
+		String dir = tpl.getDirection();
+		double x_size = tpl.getSize_x();
+		double z_size = tpl.getSize_z();
 		if (dir.equalsIgnoreCase("east")) {
 			loc.setZ(loc.getZ() - (z_size / 2));
-			loc.setX(loc.getX() + SHIFT_OUT);
+			loc.setX(loc.getX());
 		}
 		else if (dir.equalsIgnoreCase("west")) {
 			loc.setZ(loc.getZ() - (z_size / 2));
-			loc.setX(loc.getX() - (SHIFT_OUT+x_size));
+			loc.setX(loc.getX() - (x_size));
 
 		}
 		else if (dir.equalsIgnoreCase("north")) {
 			loc.setX(loc.getX() - (x_size / 2));
-			loc.setZ(loc.getZ() - (SHIFT_OUT+z_size));
+			loc.setZ(loc.getZ() - (z_size));
 		}
 		else if (dir.equalsIgnoreCase("south")) {
 			loc.setX(loc.getX() - (x_size / 2));
-			loc.setZ(loc.getZ() + SHIFT_OUT);
+			loc.setZ(loc.getZ());
 
 		}
 		

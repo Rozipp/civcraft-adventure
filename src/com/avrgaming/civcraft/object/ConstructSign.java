@@ -27,32 +27,31 @@ import lombok.Setter;
 import org.bukkit.block.Sign;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 @Getter
 @Setter
-    public class StructureSign extends SQLObject {
+    public class ConstructSign extends SQLObject {
 
 	private String text;
-	private Buildable owner;
+	private Construct owner;
 	private String type;
 	private String action;
 	private BlockCoord coord;
 	private int direction;
 	private boolean allowRightClick = false;
 	
-	public StructureSign(BlockCoord coord, Buildable owner) {
+	public ConstructSign(BlockCoord coord, Construct owner) {
 		this.coord = coord;
 		this.owner = owner;
 	}
 	
-	public StructureSign(ResultSet rs) throws SQLException {
+	public ConstructSign(ResultSet rs) throws SQLException {
 		load(rs);
 	}
 
@@ -93,12 +92,11 @@ import com.avrgaming.civcraft.util.BlockCoord;
 			this.owner = CivGlobal.getWonderById(wonder_id);
 		} 
 		
-		
 		this.coord = new BlockCoord(rs.getString("coordHash"));
 		this.direction = rs.getInt("direction");
 
 		if (this.owner != null) {
-			owner.addStructureSign(this);
+			owner.addBuildableSign(this);
 		}
 	}
 
@@ -129,7 +127,7 @@ import com.avrgaming.civcraft.util.BlockCoord;
 	@Override
 	public void delete() throws SQLException {
 		SQL.deleteNamedObject(this, TABLE_NAME);
-		CivGlobal.removeStructureSign(this);	
+		CivGlobal.removeConstructSign(this);	
 	}
 
 	public String getText() {

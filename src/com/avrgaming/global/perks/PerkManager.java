@@ -91,7 +91,7 @@ public class PerkManager {
 				
 				Perk p = new Perk(configPerk);
 				p.count = count;
-				resident.perks.put(p.getIdent(), p);
+				resident.perks.put(p.getConfigId(), p);
 			}
 			
 			return;

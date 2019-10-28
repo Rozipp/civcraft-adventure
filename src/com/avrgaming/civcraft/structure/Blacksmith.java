@@ -29,7 +29,7 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.tasks.NotificationTask;
@@ -90,7 +90,7 @@ public class Blacksmith extends Structure {
 	}
 
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) throws CivException {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
 		int special_id = Integer.valueOf(sign.getAction());
 		Date now = new Date();
 		long diff = now.getTime() - lastUse.getTime();
@@ -117,7 +117,7 @@ public class Blacksmith extends Structure {
 	@Override
 	public void updateSignText() {
 		double cost = CivSettings.getDoubleStructure("blacksmith.forge_cost");
-		for (StructureSign sign : getSigns()) {
+		for (ConstructSign sign : getSigns()) {
 			int special_id = Integer.valueOf(sign.getAction());
 			switch (special_id) {
 				case 0 :
@@ -272,7 +272,7 @@ public class Blacksmith extends Structure {
 			throw new CivException(CivSettings.localize.localizedString("blacksmith_smelt_notMember"));
 		}
 
-		entries = CivGlobal.getSessionDB().lookup(key);
+		entries = CivGlobal.getSessionDatabase().lookup(key);
 
 		if (entries == null || entries.size() == 0) {
 			throw new CivException(CivSettings.localize.localizedString("blacksmith_smelt_nothingInSmelter"));
@@ -304,7 +304,7 @@ public class Blacksmith extends Structure {
 
 			// If this stack was successfully withdrawn, delete it from the DB.
 			if (leftovers.size() == 0) {
-				CivGlobal.getSessionDB().delete(se.request_id, se.key);
+				CivGlobal.getSessionDatabase().delete(se.request_id, se.key);
 				CivMessage.send(player, CivSettings.localize.localizedString("var_cmd_civ_withdrawSuccess", amount, CivData.getDisplayName(itemId)));
 
 				break;
@@ -321,12 +321,12 @@ public class Blacksmith extends Structure {
 
 				if (leftoverAmount == 0) {
 					//just in case we somehow get an entry with 0 items in it.
-					CivGlobal.getSessionDB().delete(se.request_id, se.key);
+					CivGlobal.getSessionDatabase().delete(se.request_id, se.key);
 				} else {
 					// Some of the items were deposited into the players inventory but the sessionDB 
 					// still has the full amount stored, update the db to only contain the leftovers.
 					String newValue = itemId + ":" + leftoverAmount;
-					CivGlobal.getSessionDB().update(se.request_id, se.key, newValue);
+					CivGlobal.getSessionDatabase().update(se.request_id, se.key, newValue);
 				}
 			}
 

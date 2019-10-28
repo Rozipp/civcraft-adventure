@@ -1,4 +1,4 @@
-/************************************************************************* AVRGAMING LLC __________________
+/*************************** AVRGAMING LLC __________________
  * 
  * [2013] AVRGAMING LLC All Rights Reserved.
  * 
@@ -25,11 +25,7 @@ import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class EffectEventTimer extends CivAsyncTask {
-
 	public static ReentrantLock runningLock = new ReentrantLock();
-
-	public EffectEventTimer() {
-	}
 
 	@Override
 	public void run() {

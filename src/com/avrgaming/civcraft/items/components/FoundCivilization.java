@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.interactive.InteractiveCivName;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
@@ -48,7 +48,7 @@ public class FoundCivilization extends ItemComponent implements CallbackInterfac
 		/* Build a preview for the Capitol structure. */
 		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
 		ConfigBuildableInfo info = CivSettings.structures.get("s_capitol");
-		Buildable.buildVerifyStatic(player, info, player.getLocation(), this);
+		BuildableStatic.buildVerifyStatic(player, info, player.getLocation(), this);
 	}
 
 	public void onInteract(PlayerInteractEvent event) {
@@ -100,7 +100,6 @@ public class FoundCivilization extends ItemComponent implements CallbackInterfac
 		CivMessage.send(player, " ");
 		CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("foundCiv_Prompt5"));
 		CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
-
 		resident.setInteractiveMode(new InteractiveCivName());
 	}
 

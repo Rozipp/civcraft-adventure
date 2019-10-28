@@ -8,6 +8,7 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,13 +18,13 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -45,15 +46,7 @@ public class Farm extends Structure {
 
 	public Farm(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		build_farm(this.getCorner().getLocation());
-	}
-
-	public void removeFarmChunk() throws SQLException {
-		if (this.getCorner() != null) {
-			ChunkCoord coord = new ChunkCoord(this.getCorner().getLocation());
-			CivGlobal.removeFarmChunk(coord);
-			CivGlobal.getSessionDB().delete_all(getSessionKey());
-		}
+		build_farm(this.getCorner().getChunkCoord());
 	}
 
 	@Override
@@ -61,9 +54,21 @@ public class Farm extends Structure {
 		if (this.getCorner() != null) {
 			ChunkCoord coord = new ChunkCoord(this.getCorner().getLocation());
 			CivGlobal.removeFarmChunk(coord);
-			CivGlobal.getSessionDB().delete_all(getSessionKey());
+			CivGlobal.getSessionDatabase().delete_all(getSessionKey());
 		}
-		super.delete();
+
+		try {
+			this.undoFromTemplate();
+		} catch (IOException | CivException e1) {
+			e1.printStackTrace();
+			this.fancyDestroyStructureBlocks();
+		}
+
+		CivGlobal.removeStructure(this);
+		this.getTown().removeStructure(this);
+		this.unbindStructureBlocks();
+
+		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	@Override
@@ -72,7 +77,7 @@ public class Farm extends Structure {
 	}
 
 	@Override
-	public boolean canRestoreFromTemplate() {
+	public boolean isCanRestoreFromTemplate() {
 		return false;
 	}
 
@@ -81,13 +86,13 @@ public class Farm extends Structure {
 		return "basket";
 	}
 	@Override
-	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
-		build_farm(centerLoc);
+	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+		build_farm(cChunk);
 	}
 
-	public void build_farm(Location centerLoc) {
+	public void build_farm(ChunkCoord cChunk) {
 		// A new farm, add it to the farm chunk table ...
-		Chunk chunk = centerLoc.getChunk();
+		Chunk chunk = cChunk.getChunk();
 		FarmChunk fc = new FarmChunk(chunk, this.getTown(), this);
 		CivGlobal.addFarmChunk(fc.getCoord(), fc);
 		this.fc = fc;
@@ -128,7 +133,7 @@ public class Farm extends Structure {
 
 			@Override
 			public void run() {
-				ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+				ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 
 				if (entries == null || entries.size() == 0) {
 					if (missedTicks > 0) {
@@ -138,9 +143,9 @@ public class Farm extends Structure {
 				}
 
 				if (missedTicks == 0) {
-					CivGlobal.getSessionDB().delete_all(getSessionKey());
+					CivGlobal.getSessionDatabase().delete_all(getSessionKey());
 				} else {
-					CivGlobal.getSessionDB().update(entries.get(0).request_id, getSessionKey(), "" + missedTicks);
+					CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getSessionKey(), "" + missedTicks);
 				}
 			}
 
@@ -156,7 +161,7 @@ public class Farm extends Structure {
 	@Override
 	public void onLoad() {
 		ArrayList<SessionEntry> entries = new ArrayList<SessionEntry>();
-		entries = CivGlobal.getSessionDB().lookup(getSessionKey());
+		entries = CivGlobal.getSessionDatabase().lookup(getSessionKey());
 		int missedGrowths = 0;
 
 		if (entries.size() > 0) {

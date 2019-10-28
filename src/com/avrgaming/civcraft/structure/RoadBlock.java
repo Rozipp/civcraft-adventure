@@ -16,7 +16,7 @@ import com.avrgaming.civcraft.exception.InvalidObjectException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.SQLObject;
 import com.avrgaming.civcraft.object.Town;
@@ -25,7 +25,7 @@ import com.avrgaming.civcraft.threading.tasks.StructureBlockHitEvent;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
-public class RoadBlock extends SQLObject implements BuildableDamageBlock {
+public class RoadBlock extends SQLObject implements ConstructDamageBlock {
 	private BlockCoord coord;
 	private Road road;
 	private boolean aboveRoadBlock = false;
@@ -165,7 +165,7 @@ public class RoadBlock extends SQLObject implements BuildableDamageBlock {
 	}
 
 	@Override
-	public void setOwner(Buildable owner) {
+	public void setOwner(Construct owner) {
 		this.road = (Road)owner;
 	}
 

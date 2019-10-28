@@ -38,7 +38,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.LibraryEnchantment;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -168,8 +168,8 @@ public class Library extends Structure {
 		this.level = level;
 	}
 	
-	private StructureSign getSignFromSpecialId(int special_id) {
-		for (StructureSign sign : getSigns()) {
+	private ConstructSign getSignFromSpecialId(int special_id) {
+		for (ConstructSign sign : getSigns()) {
 			int id = Integer.valueOf(sign.getAction());
 			if (id == special_id) {
 				return sign;
@@ -184,7 +184,7 @@ public class Library extends Structure {
 		int count = 0;
 		
 		for (LibraryEnchantment enchant : this.enchantments) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:"+count);
 				return;
@@ -203,7 +203,7 @@ public class Library extends Structure {
 		}
 	
 		for (; count < getSigns().size(); count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			sign.setText("Library Slot\nEmpty");
 			sign.update();
 		}
@@ -241,7 +241,7 @@ public class Library extends Structure {
 		return item;
 	}
 	
-	public void add_enchantment_to_tool(Player player, StructureSign sign, PlayerInteractEvent event) throws CivException {
+	public void add_enchantment_to_tool(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
 		int special_id = Integer.valueOf(sign.getAction());
 
 		if (!event.hasItem()) {
@@ -290,7 +290,7 @@ public class Library extends Structure {
 	}
 
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		try {
 			add_enchantment_to_tool(player, sign, event);
 		} catch (CivException e) {

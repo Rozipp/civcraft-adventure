@@ -36,7 +36,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -91,7 +91,7 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
 		ConfigBuildableInfo info = CivSettings.structures.get("s_townhall");
 		try {
-			Buildable.buildVerifyStatic(player, info, player.getLocation(), this);
+			BuildableStatic.buildVerifyStatic(player, info, player.getLocation(), this);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}

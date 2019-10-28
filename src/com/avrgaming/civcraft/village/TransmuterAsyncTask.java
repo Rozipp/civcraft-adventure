@@ -13,8 +13,8 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
-import com.avrgaming.civcraft.object.StructureChest;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.object.ConstructChest;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -22,11 +22,11 @@ import com.avrgaming.civcraft.util.MultiInventory;
 
 public class TransmuterAsyncTask extends CivAsyncTask {
 
-	Buildable buildable;
+	Construct construct;
 	ConfigTransmuterRecipe cTranR;
 
-	public TransmuterAsyncTask(Buildable buildable, ConfigTransmuterRecipe cTranR) {
-		this.buildable = buildable;
+	public TransmuterAsyncTask(Construct construct, ConfigTransmuterRecipe cTranR) {
+		this.construct = construct;
 		this.cTranR = cTranR;
 	}
 
@@ -45,7 +45,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 
 	@Override
 	public void run() {
-		ReentrantLock lock = buildable.locks.get(cTranR.id);
+		ReentrantLock lock = construct.transmuterLocks.get(cTranR.id);
 		if (lock.tryLock()) {
 			try {
 				HashMap<String, MultiInventory> multInv = new HashMap<>();
@@ -124,7 +124,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		double r = rand.nextDouble() * cTranI.getAllRate();
 		ResultItem resI = null;
 		for (ResultItem ri : cTranI.resultItems) {
-			i = i + buildable.modifyChance(ri.rate.doubleValue());
+			i = i + construct.modifyTransmuterChance(ri.rate.doubleValue());
 			if (r < i) {
 				resI = ri;
 				break;
@@ -171,11 +171,11 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 	}
 
 	private MultiInventory getMultiInventoryChest(CivAsyncTask task, String chest) {
-		ArrayList<StructureChest> chests = buildable.getAllChestsById(chest);
+		ArrayList<ConstructChest> chests = construct.getAllChestsById(chest);
 		MultiInventory multiInv = new MultiInventory();
 		try {
 
-			for (StructureChest c : chests) {
+			for (ConstructChest c : chests) {
 				task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
 				Inventory tmp;
 				try {

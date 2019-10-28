@@ -337,7 +337,7 @@ public class RandomEvent extends SQLObject {
 	public static double getUnhappiness(Town town) {
 	//	CivGlobal.getSessionDB().add("randomevent:unhappiness", unhappiness+":"+duration, this.getParentTown().getCiv().getId(), this.getParentTown().getId(), 0);	
 
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(Unhappiness.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(Unhappiness.getKey(town));
 		double unhappy = 0.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -361,14 +361,14 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return unhappy;
 	}
 
 	public static double getHappiness(Town town) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(Happiness.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(Happiness.getKey(town));
 		double happy = 0.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -392,14 +392,14 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return happy;
 	}
 
 	public static double getHammerRate(Town town) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(HammerRate.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(HammerRate.getKey(town));
 		double hammerrate = 1.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -423,7 +423,7 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return hammerrate;	

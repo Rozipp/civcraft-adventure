@@ -38,7 +38,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -332,7 +332,7 @@ public abstract class CustomMaterial {
 	public abstract void onInventoryClose(InventoryCloseEvent event);
 	public void onDefense(EntityDamageByEntityEvent event, ItemStack stack) {
 	}
-	public int onStructureBlockBreak(BuildableDamageBlock dmgBlock, int damage) {
+	public int onStructureBlockBreak(ConstructDamageBlock dmgBlock, int damage) {
 		return damage;
 	}
 	public void onInventoryOpen(InventoryOpenEvent event, ItemStack stack) {

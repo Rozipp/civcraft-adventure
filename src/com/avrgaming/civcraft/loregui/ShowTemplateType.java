@@ -20,39 +20,39 @@ public class ShowTemplateType implements GuiAction {
 		String perk_id = LoreGuiItem.getActionData(stack, "perk");
 		Perk perk = resident.perks.get(perk_id);
 		if (perk != null) {
-			if (perk.getIdent().startsWith("template_arctic"))
+			if (perk.getConfigId().startsWith("template_arctic"))
 			{
 				GuiPage.showTemplatePerks(resident, "arctic");
 			}
-			else if (perk.getIdent().startsWith("template_atlantean"))
+			else if (perk.getConfigId().startsWith("template_atlantean"))
 			{
 				GuiPage.showTemplatePerks(resident, "atlantean");
 			}
-			else if (perk.getIdent().startsWith("template_aztec"))
+			else if (perk.getConfigId().startsWith("template_aztec"))
 			{
 				GuiPage.showTemplatePerks(resident, "aztec");
 			}
-			else if (perk.getIdent().startsWith("template_cultist"))
+			else if (perk.getConfigId().startsWith("template_cultist"))
 			{
 				GuiPage.showTemplatePerks(resident, "cultist");
 			}
-			else if (perk.getIdent().startsWith("template_egyptian"))
+			else if (perk.getConfigId().startsWith("template_egyptian"))
 			{
 				GuiPage.showTemplatePerks(resident, "egyptian");
 			}
-			else if (perk.getIdent().startsWith("template_elven"))
+			else if (perk.getConfigId().startsWith("template_elven"))
 			{
 				GuiPage.showTemplatePerks(resident, "elven");
 			}
-			else if (perk.getIdent().startsWith("template_roman"))
+			else if (perk.getConfigId().startsWith("template_roman"))
 			{
 				GuiPage.showTemplatePerks(resident, "roman");
 			}
-			else if (perk.getIdent().startsWith("template_hell"))
+			else if (perk.getConfigId().startsWith("template_hell"))
 			{
 				GuiPage.showTemplatePerks(resident, "hell");
 			}
-			else if (perk.getIdent().startsWith("template_medieval"))
+			else if (perk.getConfigId().startsWith("template_medieval"))
 			{
 				GuiPage.showTemplatePerks(resident, "medieval");
 			}

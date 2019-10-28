@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTownLevel;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -46,7 +45,7 @@ public class TownChunk extends SQLObject {
 	private double value;
 	private double price;
 	private boolean outpost;
-	private boolean canUnclaim = true;
+	private boolean canUnclaim = true; //TODO  надо убрать
 
 	public PlotPermissions perms = new PlotPermissions();
 
@@ -98,7 +97,7 @@ public class TownChunk extends SQLObject {
 		this.town = CivGlobal.getTownFromId(rs.getInt("town_id"));
 		if (this.getTown() == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
-			if (CivGlobal.testFileFlag("cleanupDatabase")) {
+			if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
 				CivLog.info("CLEANING");
 				this.delete();
 			}
@@ -224,7 +223,7 @@ public class TownChunk extends SQLObject {
 		}
 
 		TownChunk tc = new TownChunk(town, coord);
-		tc.setCanUnclaim(true);
+		tc.setCanUnclaim(true); //TODO  надо убрать
 
 		if (!outpost) {
 			if (!tc.isOnEdgeOfOwnership()) {
@@ -239,14 +238,15 @@ public class TownChunk extends SQLObject {
 		//Test that we are not too close to another civ
 		try {
 			int min_distance = CivSettings.getInteger(CivSettings.civConfig, "civ.min_distance");
+			double min_distanceSqr = Math.pow(min_distance, 2);
 
 			for (TownChunk cc : CivGlobal.getTownChunks()) {
 				if (cc.getCiv() != town.getCiv()) {
-					double dist = coord.distance(cc.getChunkCoord());
-					if (dist <= min_distance) {
+					double distSqr = coord.distanceSqr(cc.getChunkCoord());
+					if (distSqr <= min_distanceSqr) {
 						DecimalFormat df = new DecimalFormat();
-						throw new CivException(
-								CivSettings.localize.localizedString("var_town_chunk_claimTooClose", cc.getCiv().getName(), df.format(dist), min_distance));
+						throw new CivException(CivSettings.localize.localizedString("var_town_chunk_claimTooClose", cc.getCiv().getName(),
+								df.format(Math.sqrt(distSqr)), min_distance));
 					}
 				}
 			}
@@ -285,7 +285,7 @@ public class TownChunk extends SQLObject {
 			}
 		}
 
-		Village village = CivGlobal.getVillageFromChunk(coord);
+		Village village = (Village) CivGlobal.getConstructAt(coord);
 		if (village != null) {
 			CivMessage.sendVillage(village,
 					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));
@@ -357,26 +357,24 @@ public class TownChunk extends SQLObject {
 
 	/* XXX This claim is only called when a town hall is building and needs to be claimed. We do not save here since its going to be saved in-order using the
 	 * SQL save in order task. Also certain types of validation and cost cacluation are skipped. */
-	public static TownChunk townHallClaim(Town town, ChunkCoord coord) throws CivException {
+	public static TownChunk autoClaim(Town town, ChunkCoord coord) throws CivException {
 		//This is only called when the town hall is built and needs to be claimed.
 
-		if (CivGlobal.getTownChunk(coord) != null) {
+		if (CivGlobal.getTownChunk(coord) != null) 
 			throw new CivException(CivSettings.localize.localizedString("town_chunk_errorClaimed"));
-		}
 
 		TownChunk tc = new TownChunk(town, coord);
 
-		tc.setCanUnclaim(false);
+		tc.setCanUnclaim(false); //TODO  надо убрать
 
 		try {
 			town.addTownChunk(tc);
 		} catch (AlreadyRegisteredException e1) {
 			e1.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
-
 		}
 
-		Village village = CivGlobal.getVillageFromChunk(coord);
+		Village village = (Village) CivGlobal.getConstructAt(coord);
 		if (village != null) {
 			CivMessage.sendVillage(village,
 					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));

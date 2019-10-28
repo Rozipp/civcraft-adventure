@@ -433,7 +433,7 @@ public class Spy extends UnitMaterial {
 			throw new CivException(CivSettings.localize.localizedString("missionBook_poison_errorTooFar"));
 		}
 		
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("posiongranary:"+tc.getTown().getName());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("posiongranary:"+tc.getTown().getName());
 		if (entries != null && entries.size() != 0) {
 			throw new CivException(CivSettings.localize.localizedString("missionBook_poison_errorPoisoned"));
 		}
@@ -459,7 +459,7 @@ public class Spy extends UnitMaterial {
 			int posion_ticks = rand.nextInt((max -min)) + min;
 			String value = ""+posion_ticks;
 			
-			CivGlobal.getSessionDB().add("posiongranary:"+tc.getTown().getName(), value, tc.getTown().getId(), tc.getTown().getId(), granary.getId());
+			CivGlobal.getSessionDatabase().add("posiongranary:"+tc.getTown().getName(), value, tc.getTown().getId(), tc.getTown().getId(), granary.getId());
 			
 			try {
 				double famine_chance = CivSettings.getDouble(CivSettings.unitMaterialsConfig, "espionage.poison_granary_famine_chance");

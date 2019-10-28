@@ -8,10 +8,7 @@ import com.avrgaming.civcraft.village.WarCamp;
 
 public class InteractiveWarCampFound implements InteractiveResponse {
 
-	ConfigBuildableInfo info;
-	
-	public InteractiveWarCampFound(ConfigBuildableInfo info) {
-		this.info = info;
+	public InteractiveWarCampFound() {
 	}
 	
 	@Override
@@ -23,7 +20,7 @@ public class InteractiveWarCampFound implements InteractiveResponse {
 			return;
 		}
 		
-		WarCamp.newCamp(resident, info);
+		WarCamp.newCamp(resident);
 	}
 
 }

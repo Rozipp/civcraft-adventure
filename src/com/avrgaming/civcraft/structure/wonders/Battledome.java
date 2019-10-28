@@ -60,7 +60,7 @@ public class Battledome extends Wonder {
 	}
 	
 	public void bindBattledomeChunks() {
-		for (BlockCoord bcoord : this.structureBlocks.keySet()) {
+		for (BlockCoord bcoord : this.getConstructBlocks().keySet()) {
 			ChunkCoord coord = new ChunkCoord(bcoord);
 			this.chunks.add(coord);
 			battledomeChunks.put(coord, this);
@@ -138,7 +138,7 @@ public class Battledome extends Wonder {
 	
 	public void loadEntities() {
 		Queue<SessionEntry> entriesToLoad = new LinkedList<SessionEntry>();
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getEntityKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getEntityKey());
 		entriesToLoad.addAll(entries);
 		TaskMaster.syncTask(new LoadBattledomeEntityTask(entriesToLoad, this));
 	}

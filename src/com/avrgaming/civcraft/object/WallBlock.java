@@ -111,7 +111,7 @@ public class WallBlock extends SQLObject {
 		this.setCoord(new BlockCoord(rs.getString("coord")));
 		
 		CivGlobal.addWallChunk(this.struct, new ChunkCoord(getCoord().getLocation()));
-		this.struct.addStructureBlock(this.getCoord(), true);
+		this.struct.addConstructBlock(this.getCoord(), true);
 		this.struct.wallBlocks.put(this.getCoord(), this);
 		this.old_id = rs.getInt("old_id");
 		this.old_data = rs.getInt("old_data");
@@ -137,7 +137,7 @@ public class WallBlock extends SQLObject {
 	@Override
 	public void delete() throws SQLException {
 		if (this.coord != null) {
-			CivGlobal.removeStructureBlock(this.coord);
+			CivGlobal.removeConstructBlock(this.coord);
 		}
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}

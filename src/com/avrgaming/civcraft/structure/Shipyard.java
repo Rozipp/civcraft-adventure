@@ -21,7 +21,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -30,7 +30,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
 
 public class Shipyard extends WaterStructure {
-    private StructureSign respawnSign;
+    private ConstructSign respawnSign;
     private int index = 0;
 	
 	public Shipyard(Location center, String id, Town town) throws CivException {
@@ -94,7 +94,7 @@ public class Shipyard extends WaterStructure {
     }
 
     @Override
-    public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+    public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
         Resident resident = CivGlobal.getResident(player);
         if (resident == null) {
             return;
@@ -179,37 +179,37 @@ public class Shipyard extends WaterStructure {
             case "/next": {
                 ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
                 ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
-                StructureSign structSign = new StructureSign(absCoord, this);
+                ConstructSign structSign = new ConstructSign(absCoord, this);
                 structSign.setText("\n" + (Object)ChatColor.BOLD + (Object)ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_nextLocation"));
                 structSign.setDirection(commandBlock.getData());
                 structSign.setAction("next");
                 structSign.update();
-                this.addStructureSign(structSign);
-                CivGlobal.addStructureSign(structSign);
+                this.addBuildableSign(structSign);
+                CivGlobal.addConstructSign(structSign);
                 break;
             }
             case "/prev": {
                 ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
                 ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
-                StructureSign structSign = new StructureSign(absCoord, this);
+                ConstructSign structSign = new ConstructSign(absCoord, this);
                 structSign.setText("\n" + (Object)ChatColor.BOLD + (Object)ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_previousLocation"));
                 structSign.setDirection(commandBlock.getData());
                 structSign.setAction("prev");
                 structSign.update();
-                this.addStructureSign(structSign);
-                CivGlobal.addStructureSign(structSign);
+                this.addBuildableSign(structSign);
+                CivGlobal.addConstructSign(structSign);
                 break;
             }
             case "/respawn": {
                 ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
                 ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
-                StructureSign structSign = new StructureSign(absCoord, this);
+                ConstructSign structSign = new ConstructSign(absCoord, this);
                 structSign.setText(CivSettings.localize.localizedString("shipyard_sign"));
                 structSign.setDirection(commandBlock.getData());
                 structSign.setAction("respawn");
                 structSign.update();
-                this.addStructureSign(structSign);
-                CivGlobal.addStructureSign(structSign);
+                this.addBuildableSign(structSign);
+                CivGlobal.addConstructSign(structSign);
                 this.respawnSign = structSign;
                 this.changeIndex(this.index);
             }

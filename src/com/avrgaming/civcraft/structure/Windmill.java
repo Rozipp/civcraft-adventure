@@ -24,7 +24,7 @@ import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.object.StructureChest;
+import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
@@ -56,17 +56,14 @@ public class Windmill extends Structure {
 			@Override
 			public void run() {
 				/* Find adjacent farms, get their chunk snapshots and continue processing in our thread. */
-				ChunkCoord cc = new ChunkCoord(windmill.getCorner());
+				ChunkCoord ccB = new ChunkCoord(windmill.getCorner());
 				ArrayList<ChunkSnapshot> snapshots = new ArrayList<ChunkSnapshot>();
 
-				int[][] offset = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
+				int[][] move = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
 				for (int i = 0; i < 8; i++) {
-					cc.setX(cc.getX() + offset[i][0]);
-					cc.setZ(cc.getZ() + offset[i][1]);
-
+					ChunkCoord cc = new ChunkCoord(ccB.getWorldname(), ccB.getX() + move[i][0], ccB.getZ() + move[i][1]);
 					FarmChunk farmChunk = CivGlobal.getFarmChunk(cc);
 					if (farmChunk != null) snapshots.add(farmChunk.getChunk().getChunkSnapshot());
-					cc.setFromLocation(windmill.getCorner().getLocation());
 				}
 				if (snapshots.size() == 0) return;
 				/* Fire off an async task to do some post processing. */
@@ -98,10 +95,10 @@ public class Windmill extends Structure {
 			}
 
 			/* Read in the source inventory's contents. Make sure we have seeds to plant. */
-			ArrayList<StructureChest> sources = windmill.getAllChestsById("0");
+			ArrayList<ConstructChest> sources = windmill.getAllChestsById("0");
 			MultiInventory source_inv = new MultiInventory();
 
-			for (StructureChest src : sources) {
+			for (ConstructChest src : sources) {
 				try {
 					this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());
 					Inventory tmp;

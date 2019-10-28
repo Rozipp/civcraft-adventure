@@ -1,7 +1,6 @@
 
 package com.avrgaming.civcraft.structure;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -27,7 +26,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -92,33 +90,17 @@ public class TradeShip extends WaterStructure {
 
 	public void reprocessCommandSigns() {
 		/* Load in the template. */
-		//Template tpl = new Template();
-		Template tpl;
-		try {
-			//tpl.load_template(this.getSavedTemplatePath());
-			tpl = TemplateStatic.getTemplate(this.getTemplateName(), null);
-		} catch (IOException | CivException e) {
-			e.printStackTrace();
-			return;
-		}
+		Template tpl = this.getTemplate();
+		if (tpl == null) return;
+		
+		BlockCoord structCorner = this.getCorner();
 		class SyncTask implements Runnable {
-			Template template;
-			BlockCoord structCorner;
-
-			public SyncTask(Template template, BlockCoord structCorner) {
-				this.template = template;
-				this.structCorner = structCorner;
-			}
-
 			@Override
 			public void run() {
-
-				processCommandSigns(template, structCorner);
+				processCommandSigns(tpl, structCorner);
 			}
 		}
-
-		TaskMaster.syncTask(new SyncTask(tpl, getCorner()), TimeTools.toTicks(1));
-
+		TaskMaster.syncTask(new SyncTask(), TimeTools.toTicks(1));
 	}
 
 	private void processCommandSigns(Template tpl, BlockCoord corner) {
@@ -138,7 +120,7 @@ public class TradeShip extends WaterStructure {
 						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
 						ItemManager.setData(absCoord.getBlock(), sb.getData());
 					}
-					this.addStructureBlock(absCoord, false);
+					this.addConstructBlock(absCoord, false);
 					break;
 				}
 				case "/inSign" : {
@@ -164,7 +146,7 @@ public class TradeShip extends WaterStructure {
 						sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line3"));
 						sign.update();
 					}
-					this.addStructureBlock(absCoord, false);
+					this.addConstructBlock(absCoord, false);
 					break;
 				}
 				case "/outgoing" : {
@@ -175,7 +157,7 @@ public class TradeShip extends WaterStructure {
 						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
 						byte data3 = CivData.convertSignDataToChestData((byte) sb.getData());
 						ItemManager.setData(absCoord.getBlock(), data3);
-						this.addStructureBlock(absCoord, false);
+						this.addConstructBlock(absCoord, false);
 					} else {
 						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
 						ItemManager.setData(absCoord.getBlock(), sb.getData());
@@ -205,7 +187,7 @@ public class TradeShip extends WaterStructure {
 						sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_output_notupgraded_line3"));
 						sign.update();
 					}
-					this.addStructureBlock(absCoord, false);
+					this.addConstructBlock(absCoord, false);
 					break;
 				}
 				case "/in" : {
@@ -231,7 +213,7 @@ public class TradeShip extends WaterStructure {
 						sign.setLine(3, "");
 						sign.update();
 					}
-					this.addStructureBlock(absCoord, false);
+					this.addConstructBlock(absCoord, false);
 					break;
 				}
 				default : {
@@ -246,7 +228,7 @@ public class TradeShip extends WaterStructure {
 					sign.setLine(3, sb.message[3]);
 					sign.update();
 
-					this.addStructureBlock(absCoord, false);
+					this.addConstructBlock(absCoord, false);
 					break;
 				}
 			}

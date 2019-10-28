@@ -26,6 +26,7 @@ import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.util.AsciiMap;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -104,8 +105,9 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		TownChunk toTc = CivGlobal.getTownChunk(to);
 		CultureChunk fromCc = CivGlobal.getCultureChunk(from);
 		CultureChunk toCc = CivGlobal.getCultureChunk(to);
-		Village tovillage = CivGlobal.getVillageFromChunk(new ChunkCoord(to));
-		Village fromvillage = CivGlobal.getVillageFromChunk(new ChunkCoord(from));
+		Construct tConstr;
+		Village tovillage = (tConstr = CivGlobal.getConstructAt(new ChunkCoord(to))) instanceof Village ? (Village) tConstr : null;
+		Village fromvillage = (tConstr = CivGlobal.getConstructAt(new ChunkCoord(from))) instanceof Village ? (Village) tConstr : null;
 
 		Player player;
 		Resident resident;
@@ -123,7 +125,8 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 
 		//We've entered a village.
 		if (tovillage != null && tovillage != fromvillage) {
-			title += CivColor.Gold + CivSettings.localize.localizedString("var_playerChunkNotify_entervillage", tovillage.getName()) + " " + CivColor.Rose + "[PvP]";
+			title += CivColor.Gold + CivSettings.localize.localizedString("var_playerChunkNotify_entervillage", tovillage.getName()) + " " + CivColor.Rose
+					+ "[PvP]";
 		} else
 			if (tovillage == null && fromvillage != null) {
 				title += getToWildMessage();

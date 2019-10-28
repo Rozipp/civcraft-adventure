@@ -40,8 +40,8 @@ public class Quarry extends Structure {
 	@Override
 	public void onSecondUpdate() {
 		if (!CivGlobal.quarriesEnabled) return;
-		for (String ctrId : this.locks.keySet()) {
-			if (!this.locks.get(ctrId).isLocked())
+		for (String ctrId : this.transmuterLocks.keySet()) {
+			if (!this.transmuterLocks.get(ctrId).isLocked())
 				TaskMaster.asyncTask("quarry-" + this.getCorner() + ";tr-" + ctrId, new TransmuterAsyncTask(this, CivSettings.transmuterRecipes.get(ctrId)), 0);
 		}
 	}
@@ -59,7 +59,7 @@ public class Quarry extends Structure {
 	}
 
 	@Override
-	public double modifyChance(Double chance) {
+	public double modifyTransmuterChance(Double chance) {
 		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION)
 				+ this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
 		chance += increase;

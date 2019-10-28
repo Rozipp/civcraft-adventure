@@ -17,24 +17,29 @@
  * from AVRGAMING LLC.
  */
 package com.avrgaming.civcraft.object;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.util.BlockCoord;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class StructureChest {
+public class ConstructChest {
 
 	private BlockCoord coord;
-	private Buildable owner;
+	private Construct owner;
 	private int direction;
 	
 	/* The chest id defines which chests are 'paired' for double chests. */
 	private String chestId;
 	
-	public StructureChest(BlockCoord coord, Buildable owner) {
+	public ConstructChest(BlockCoord coord, Construct owner) {
 		this.setCoord(coord);
 		this.setOwner(owner);
+	}
+
+	public void delete() {
+		CivGlobal.removeConstructChest(this);
 	}
 }

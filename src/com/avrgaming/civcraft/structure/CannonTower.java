@@ -101,7 +101,7 @@ public class CannonTower extends Structure {
 //	}
 	
 	@Override
-	public void onCheck() throws CivException {
+	public void onCheckBlockPAR() throws CivException {
 		try {
 double build_distanceSqr = Math.pow(CivSettings.getDouble(CivSettings.warConfig, "cannon_tower.build_distance"),2);
 			

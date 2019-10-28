@@ -22,7 +22,7 @@ public class AttributeBiome extends AttributeBiomeBase {
 	}
 	
 	public double getGenerated(CultureChunk cc) {
-		if (!this.getBuildable().isActive()) {
+		if (!this.getConstruct().isActive()) {
 			return 0;
 		}
 		

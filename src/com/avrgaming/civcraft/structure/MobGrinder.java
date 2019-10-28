@@ -19,7 +19,7 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.StructureChest;
+import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -120,8 +120,8 @@ public class MobGrinder extends Structure {
 			}
 
 			// Grab each CivChest object we'll require.
-			ArrayList<StructureChest> sources = mobGrinder.getAllChestsById("1");
-			ArrayList<StructureChest> destinations = mobGrinder.getAllChestsById("2");
+			ArrayList<ConstructChest> sources = mobGrinder.getAllChestsById("1");
+			ArrayList<ConstructChest> destinations = mobGrinder.getAllChestsById("2");
 
 			if (sources.size() != 2 || destinations.size() != 2) {
 				CivLog.error(
@@ -134,7 +134,7 @@ public class MobGrinder extends Structure {
 			MultiInventory dest_inv = new MultiInventory();
 
 			try {
-				for (StructureChest src : sources) {
+				for (ConstructChest src : sources) {
 					//this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());				
 					Inventory tmp;
 					try {
@@ -152,7 +152,7 @@ public class MobGrinder extends Structure {
 				}
 
 				boolean full = true;
-				for (StructureChest dst : destinations) {
+				for (ConstructChest dst : destinations) {
 					//this.syncLoadChunk(dst.getCoord().getWorldname(), dst.getCoord().getX(), dst.getCoord().getZ());
 					Inventory tmp;
 					try {

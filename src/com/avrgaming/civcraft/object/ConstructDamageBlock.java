@@ -2,12 +2,12 @@ package com.avrgaming.civcraft.object;
 
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.util.BlockCoord;
 
-public interface BuildableDamageBlock {
-	public Buildable getOwner();
-	public void setOwner(Buildable owner);
+public interface ConstructDamageBlock {
+	public Construct getOwner();
+	public void setOwner(Construct owner);
 	public Town getTown();
 	public Civilization getCiv();
 	public BlockCoord getCoord();

@@ -25,6 +25,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.questions.TownNewRequest;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -56,7 +57,7 @@ public class InteractiveConfirmTownCreation implements InteractiveResponse {
 		join.resident = resident;
 		join.civ = resident.getCiv();
 		try {
-			CivGlobal.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_interactive_town_alert",player.getName(),resident.desiredTownName,(player.getLocation().getBlockX()+","+player.getLocation().getBlockY()+","+player.getLocation().getBlockZ())),
+			Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_interactive_town_alert",player.getName(),resident.desiredTownName,(player.getLocation().getBlockX()+","+player.getLocation().getBlockY()+","+player.getLocation().getBlockZ())),
 					30*1000, join);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());

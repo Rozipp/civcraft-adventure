@@ -12,7 +12,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -48,7 +48,7 @@ extends Structure {
     }
 
     @Override
-    public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) throws CivException {
+    public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
         Resident resident = CivGlobal.getResident(player);
         if (resident == null) {
             return;
@@ -77,13 +77,13 @@ extends Structure {
         if (commandBlock.command.equals("/teleport")) {
             ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
             ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
-            StructureSign structSign = new StructureSign(absCoord, this);
+            ConstructSign structSign = new ConstructSign(absCoord, this);
             structSign.setText(CivSettings.localize.localizedString("structure_portal_sign"));
             structSign.setDirection(commandBlock.getData());
             structSign.setAction("teleport");
             structSign.update();
-            this.addStructureSign(structSign);
-            CivGlobal.addStructureSign(structSign);
+            this.addBuildableSign(structSign);
+            CivGlobal.addConstructSign(structSign);
             if (this.spawnLocation == null) {
                 this.spawnLocation = structSign.getCoord().getLocation();
             }

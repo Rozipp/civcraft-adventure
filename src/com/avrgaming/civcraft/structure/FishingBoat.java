@@ -39,6 +39,8 @@ import com.avrgaming.civcraft.object.TradeGood;
 //import com.avrgaming.civcraft.util.BlockCoord;
 //import com.avrgaming.civcraft.util.ItemFrameStorage;
 //import com.avrgaming.civcraft.util.ItemManager;
+import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.util.ChunkCoord;
 
 public class FishingBoat extends TradeOutpost {
 
@@ -65,7 +67,7 @@ public class FishingBoat extends TradeOutpost {
 	}
 	
 	@Override
-	public void build_trade_outpost(Location centerLoc) throws CivException {
+	public void build_trade_outpost(ChunkCoord cChunk) throws CivException {
 		
 		/* Add trade good to town. */
 		TradeGood good = CivGlobal.getTradeGood(tradeGoodCoord);
@@ -144,11 +146,11 @@ public class FishingBoat extends TradeOutpost {
 	
 	
 	@Override
-	protected Location repositionCenter(Location center, String dir, double x_size, double z_size) {
-		Location loc = new Location(center.getWorld(), 
-				center.getX(), center.getY(), center.getZ(), 
-				center.getYaw(), center.getPitch());
-		
+	public Location repositionCenter(Location center, Template tpl) {
+		Location loc = center.clone();
+		String dir = tpl.getDirection();
+		double x_size = tpl.getSize_x();
+		double z_size = tpl.getSize_z();
 		// Reposition tile improvements
 		if (this.isTileImprovement()) {
 			// just put the center at 0,0 of this chunk?
@@ -157,20 +159,20 @@ public class FishingBoat extends TradeOutpost {
 		} else {
 			if (dir.equalsIgnoreCase("east")) {
 				loc.setZ(loc.getZ() - (z_size / 2));
-				loc.setX(loc.getX() + SHIFT_OUT);
+				loc.setX(loc.getX());
 			}
 			else if (dir.equalsIgnoreCase("west")) {
 				loc.setZ(loc.getZ() - (z_size / 2));
-				loc.setX(loc.getX() - (SHIFT_OUT+x_size));
+				loc.setX(loc.getX() - (x_size));
 	
 			}
 			else if (dir.equalsIgnoreCase("north")) {
 				loc.setX(loc.getX() - (x_size / 2));
-				loc.setZ(loc.getZ() - (SHIFT_OUT+z_size));
+				loc.setZ(loc.getZ() - (z_size));
 			}
 			else if (dir.equalsIgnoreCase("south")) {
 				loc.setX(loc.getX() - (x_size / 2));
-				loc.setZ(loc.getZ() + SHIFT_OUT);
+				loc.setZ(loc.getZ());
 	
 			}
 		}
@@ -189,8 +191,8 @@ public class FishingBoat extends TradeOutpost {
 	}
 	
 	@Override
-	protected void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ, Location savedLocation) throws CivException {
-		super.checkBlockPermissionsAndRestrictions(player, centerBlock, regionX, regionY, regionZ, savedLocation);
+	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ) throws CivException {
+		super.checkBlockPermissionsAndRestrictions(player, centerBlock, regionX, regionY, regionZ);
 		
 		if ((player.getLocation().getBlockY() - WATER_LEVEL) > TOLERANCE) {
 			throw new CivException(CivSettings.localize.localizedString("fishingBoat_tooDeep"));

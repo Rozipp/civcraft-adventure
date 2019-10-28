@@ -1,14 +1,11 @@
-package com.avrgaming.civcraft.threading.tasks;
+package com.avrgaming.civcraft.questions;
 
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.questions.QuestionBaseTask;
-import com.avrgaming.civcraft.questions.QuestionResponseInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CivLeaderQuestionTask extends QuestionBaseTask implements Runnable {
@@ -91,7 +88,7 @@ public class CivLeaderQuestionTask extends QuestionBaseTask implements Runnable 
 	
 	/* When this task finishes, remove itself from the hashtable. */
 	private void cleanup() {
-		CivGlobal.removeQuestion("civ:"+askedCivilization.getName());
+		Question.removeQuestion("civ:"+askedCivilization.getName());
 	}
 
 	public void setResponder(Resident resident) {

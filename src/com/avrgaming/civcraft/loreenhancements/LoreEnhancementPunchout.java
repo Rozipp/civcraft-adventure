@@ -7,7 +7,7 @@ import java.util.Random;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class LoreEnhancementPunchout extends LoreEnhancement {
@@ -22,7 +22,7 @@ public class LoreEnhancementPunchout extends LoreEnhancement {
 		return attrs;
 	}
 	
-	public int onStructureBlockBreak(BuildableDamageBlock sb, int damage) {
+	public int onStructureBlockBreak(ConstructDamageBlock sb, int damage) {
 		Random rand = new Random();
 		
 		if (damage <= 1) {

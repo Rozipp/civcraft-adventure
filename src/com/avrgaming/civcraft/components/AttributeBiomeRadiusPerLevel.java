@@ -71,7 +71,7 @@ public class AttributeBiomeRadiusPerLevel extends AttributeBiomeBase {
 	}
 	
 	public double getGenerated(CultureChunk cc) {		
-		if (!this.getBuildable().isActive()) {
+		if (!this.getConstruct().isActive()) {
 			return 0.0;
 		}
 		
@@ -80,7 +80,7 @@ public class AttributeBiomeRadiusPerLevel extends AttributeBiomeBase {
 		}
 		
 		int mineLevel = -1;
-		for (Component comp : this.getBuildable().attachedComponents) {
+		for (Component comp : this.getConstruct().attachedComponents) {
 			if (comp instanceof ConsumeLevelComponent) {
 				ConsumeLevelComponent consumeComp = (ConsumeLevelComponent)comp;
 				mineLevel = consumeComp.getLevel();
@@ -88,7 +88,7 @@ public class AttributeBiomeRadiusPerLevel extends AttributeBiomeBase {
 		}
 		
 		if (mineLevel == -1) {
-			CivLog.warning("Couldn't find consume component for buildable "+this.getBuildable().getDisplayName()+
+			CivLog.warning("Couldn't find consume component for buildable "+this.getConstruct().getDisplayName()+
 					" but it has an AttributeBiomeRadiusPerLevel component attached.");
 			return 0.0;
 		}

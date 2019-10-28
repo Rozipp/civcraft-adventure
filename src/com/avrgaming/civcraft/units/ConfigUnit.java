@@ -15,9 +15,7 @@ import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
 
 public class ConfigUnit {

@@ -135,7 +135,7 @@ public class Trommel extends Structure {
 			default :
 				break;
 		}
-		return this.modifyChance(chance);
+		return this.modifyTransmuterChance(chance);
 	}
 
 	public double getGraniteChance(Mineral mineral) {
@@ -181,7 +181,7 @@ public class Trommel extends Structure {
 				chance = GRANITE_DIRT_RATE;
 				break;
 		}
-		return this.modifyChance(chance);
+		return this.modifyTransmuterChance(chance);
 	}
 
 	public double getDioriteChance(Mineral mineral) {
@@ -227,7 +227,7 @@ public class Trommel extends Structure {
 				chance = DIORITE_DIRT_RATE;
 				break;
 		}
-		return this.modifyChance(chance);
+		return this.modifyTransmuterChance(chance);
 	}
 
 	public double getAndesiteChance(Mineral mineral) {
@@ -273,11 +273,11 @@ public class Trommel extends Structure {
 				chance = ANDESITE_DIRT_RATE;
 				break;
 		}
-		return this.modifyChance(chance);
+		return this.modifyTransmuterChance(chance);
 	}
 	
 	@Override
-	public double modifyChance(Double chance) {
+	public double modifyTransmuterChance(Double chance) {
 		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble("buff_extraction")
 				+ this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
 		chance += increase;

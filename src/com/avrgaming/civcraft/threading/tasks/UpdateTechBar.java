@@ -83,7 +83,7 @@ public class UpdateTechBar extends CivAsyncTask {
 						sbs.add(sb);				
 					}
 					
-					townhall.addStructureBlock(townhall.getTechBar(i), false);
+					townhall.addConstructBlock(townhall.getTechBar(i), false);
 				}
 			} else {
 				/* Resets the bar after a tech is finished. */
@@ -99,7 +99,7 @@ public class UpdateTechBar extends CivAsyncTask {
 					sb.x = bcoord.getX(); sb.y = bcoord.getY(); sb.z = bcoord.getZ();
 					sb.worldname = bcoord.getWorldname();
 					sbs.add(sb);
-					townhall.addStructureBlock(townhall.getTechBar(i), false);
+					townhall.addConstructBlock(townhall.getTechBar(i), false);
 				}
 			}
 			
@@ -123,7 +123,7 @@ public class UpdateTechBar extends CivAsyncTask {
 				}
 				sbs.add(sb);
 				
-				townhall.addStructureBlock(townhall.getTechnameSign(), false);
+				townhall.addConstructBlock(townhall.getTechnameSign(), false);
 
 			}
 			
@@ -151,7 +151,7 @@ public class UpdateTechBar extends CivAsyncTask {
 				sbs.add(sb);
 
 				
-				townhall.addStructureBlock(townhall.getTechdataSign(), false);
+				townhall.addConstructBlock(townhall.getTechdataSign(), false);
 			}
 			
 		}

@@ -87,7 +87,7 @@ public class TeslaTower extends Structure {
 //	}
 
 	@Override
-	public void onCheck() throws CivException {
+	public void onCheckBlockPAR() throws CivException {
 		try {
 			double build_distanceSqr = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.build_distance");
 			for (Town town : this.getTown().getCiv().getTowns()) {

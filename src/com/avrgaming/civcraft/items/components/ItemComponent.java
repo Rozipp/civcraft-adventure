@@ -36,7 +36,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 
 public abstract class ItemComponent {
 
@@ -78,7 +78,7 @@ public abstract class ItemComponent {
 	public void onDurabilityChange(PlayerItemDamageEvent event) {}
 	public void onDefense(EntityDamageByEntityEvent event, ItemStack stack) {}
 	public void onInteract(PlayerInteractEvent event) {}
-	public int onStructureBlockBreak(BuildableDamageBlock sb, int damage) { return damage; }
+	public int onStructureBlockBreak(ConstructDamageBlock sb, int damage) { return damage; }
 	public void onItemSpawn(ItemSpawnEvent event) {}
 	public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {}
 	public void onPlayerLeashEvent(PlayerLeashEntityEvent event) {}

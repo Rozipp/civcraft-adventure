@@ -134,7 +134,7 @@ public class ConsumeLevelComponent extends Component {
 	}
 	
 	private String getKey() {
-		return getBuildable().getDisplayName()+":"+getBuildable().getId()+":"+"levelcount";
+		return getConstruct().getDisplayName()+":"+getConstruct().getId()+":"+"levelcount";
 	}
 	
 	private String getValue() {
@@ -143,10 +143,10 @@ public class ConsumeLevelComponent extends Component {
 	
 	@Override
 	public void onLoad() {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 		
 		if (entries.size() == 0) {
-			getBuildable().sessionAdd(getKey(), getValue());
+			getConstruct().sessionAdd(getKey(), getValue());
 			return;
 		}
 		
@@ -161,18 +161,18 @@ public class ConsumeLevelComponent extends Component {
 		class AsyncTask implements Runnable {		
 			@Override
 			public void run() {
-				ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getKey());
+				ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 				
 				if (entries.size() == 0) {
-					getBuildable().sessionAdd(getKey(), getValue());
+					getConstruct().sessionAdd(getKey(), getValue());
 					return;
 				}
 				
-				CivGlobal.getSessionDB().update(entries.get(0).request_id, getKey(), getValue());
+				CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), getValue());
 			}
 		}
 				
-		if (getBuildable().getId() != 0) {
+		if (getConstruct().getId() != 0) {
 			TaskMaster.asyncTask(new AsyncTask(), 0);
 		}
 	}
@@ -181,11 +181,11 @@ public class ConsumeLevelComponent extends Component {
 		class AsyncTask implements Runnable {		
 			@Override
 			public void run() {
-				CivGlobal.getSessionDB().delete_all(getKey());
+				CivGlobal.getSessionDatabase().delete_all(getKey());
 			}
 		}
 		
-		if (getBuildable().getId() != 0) {
+		if (getConstruct().getId() != 0) {
 			TaskMaster.asyncTask(new AsyncTask(), 0);
 		}
 	}

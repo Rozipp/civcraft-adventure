@@ -27,7 +27,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.StructureChest;
+import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
@@ -91,7 +91,7 @@ public class Cottage extends Structure {
 		//Check to make sure the granary has not been poisoned!
 		String key = "posiongranary:" + getTown().getName();
 		ArrayList<SessionEntry> entries;
-		entries = CivGlobal.getSessionDB().lookup(key);
+		entries = CivGlobal.getSessionDatabase().lookup(key);
 		int max_poison_ticks = -1;
 		for (SessionEntry entry : entries) {
 			int next = Integer.valueOf(entry.value);
@@ -102,11 +102,11 @@ public class Cottage extends Structure {
 		}
 
 		if (max_poison_ticks > 0) {
-			CivGlobal.getSessionDB().delete_all(key);
+			CivGlobal.getSessionDatabase().delete_all(key);
 			max_poison_ticks--;
 
 			if (max_poison_ticks > 0)
-				CivGlobal.getSessionDB().add(key, "" + max_poison_ticks, this.getTown().getCiv().getId(), this.getTown().getId(), this.getId());
+				CivGlobal.getSessionDatabase().add(key, "" + max_poison_ticks, this.getTown().getCiv().getId(), this.getTown().getId(), this.getId());
 
 			// Add some rotten flesh to the chest lol
 			CivMessage.sendTown(this.getTown(), CivColor.Rose + CivSettings.localize.localizedString("cottage_poisoned"));
@@ -125,11 +125,11 @@ public class Cottage extends Structure {
 
 		for (Structure struct : this.getTown().getStructures()) {
 			if (struct instanceof Granary) {
-				ArrayList<StructureChest> chests = struct.getAllChestsById("1");
+				ArrayList<ConstructChest> chests = struct.getAllChestsById("1");
 
 				// Make sure the chunk is loaded and add it to the inventory.
 				try {
-					for (StructureChest c : chests) {
+					for (ConstructChest c : chests) {
 						task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
 						Inventory tmp;
 						try {
@@ -310,10 +310,10 @@ public class Cottage extends Structure {
 
 	@Override
 	public void delete() throws SQLException {
-		super.delete();
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();
 		}
+		super.delete();
 	}
 
 	public void onDestroy() {

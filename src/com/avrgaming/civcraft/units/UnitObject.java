@@ -79,7 +79,7 @@ public class UnitObject extends SQLObject {
 					+ "`configUnitId` VARCHAR(64) NOT NULL," //
 					+ "`town_id` int(11) DEFAULT '0'," // 
 					+ "`exp` int(11) DEFAULT '0'," //
-					+ "`lastResidentId` int(11) DEFAULT '0'," //
+					+ "`lastResident` VARCHAR(64) DEFAULT NULL," //
 					+ "`ammunitions` mediumtext DEFAULT NULL," //
 					+ "`components` mediumtext DEFAULT NULL," //
 					+ "PRIMARY KEY (`id`))";
@@ -96,7 +96,7 @@ public class UnitObject extends SQLObject {
 		this.townOwner = CivGlobal.getTownFromId(rs.getInt("town_id"));
 		if (this.townOwner == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
-			if (CivGlobal.testFileFlag("cleanupDatabase")) {
+			if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
 				CivLog.info("CLEANING");
 				this.delete();
 			}
@@ -105,7 +105,7 @@ public class UnitObject extends SQLObject {
 			this.townOwner.addUnitToList(this.getId());
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
-		this.lastResident = CivGlobal.getResidentFromId(rs.getInt("lastResidentId"));
+		this.lastResident = CivGlobal.getResident(rs.getString("lastResident"));
 
 		String tempAmmun = rs.getString("ammunitions");
 		if (tempAmmun != null) {
@@ -125,7 +125,7 @@ public class UnitObject extends SQLObject {
 		hashmap.put("configUnitId", this.configUnitId);
 		hashmap.put("town_id", this.townOwner.getId());
 		hashmap.put("exp", this.exp);
-		hashmap.put("lastResidentId", (this.lastResident == null ? 0 : this.lastResident.getId()));
+		hashmap.put("lastResident", (this.lastResident == null ? 0 : this.lastResident.getName()));
 
 		if (!ammunitionSlots.isEmpty()) hashmap.put("ammunitions", ammunitionSlots.toString().replace("{", "").replace("}", "").replace(" ", ""));
 

@@ -34,7 +34,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.StoreMaterial;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -86,8 +86,8 @@ public class Store extends Structure {
 		materials.add(mat);
 	}
 	
-	private StructureSign getSignFromSpecialId(int special_id) {
-		for (StructureSign sign : getSigns()) {
+	private ConstructSign getSignFromSpecialId(int special_id) {
+		for (ConstructSign sign : getSigns()) {
 			int id = Integer.valueOf(sign.getAction());
 			if (id == special_id) {
 				return sign;
@@ -104,7 +104,7 @@ public class Store extends Structure {
 		// iterate through materials, set signs using array...
 		
 		for (StoreMaterial mat : this.materials) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			if (sign == null) {
 				CivLog.error("sign from special id was null, id:"+count);
 				return;
@@ -117,14 +117,14 @@ public class Store extends Structure {
 		
 		// We've finished with all of the materials, update the empty signs to show correct text.
 		for (; count < getSigns().size(); count++) {
-			StructureSign sign = getSignFromSpecialId(count);
+			ConstructSign sign = getSignFromSpecialId(count);
 			sign.setText(CivSettings.localize.localizedString("store_sign_empty"));
 			sign.update();
 		}
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		int special_id = Integer.valueOf(sign.getAction());
 		if (special_id < this.materials.size()) {
 			StoreMaterial mat = this.materials.get(special_id);

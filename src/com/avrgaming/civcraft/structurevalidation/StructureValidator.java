@@ -18,6 +18,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableLayer;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.template.TemplateStream;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -28,6 +29,8 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class StructureValidator implements Runnable {
 
+	public static double validPercentRequirement = 0.8;
+	
 	private static String playerName = null;
 	private static Buildable buildable = null;
 	private static String templateFilepath = null;
@@ -140,9 +143,9 @@ public class StructureValidator implements Runnable {
 					absX = cornerLoc.getX() + sb.x;
 					absZ = cornerLoc.getZ() + sb.z;
 
-					int type = Buildable.getBlockIDFromSnapshotMap(chunks, absX, y, absZ, cornerLoc.getWorldname());
+					int type = BuildableStatic.getBlockIDFromSnapshotMap(chunks, absX, y, absZ, cornerLoc.getWorldname());
 					totalBlocks++;
-					reinforcementValue += Buildable.getReinforcementValue(type);
+					reinforcementValue += BuildableStatic.getReinforcementValue(type);
 				} catch (CivException e) {
 					e.printStackTrace();
 					break;
@@ -156,10 +159,10 @@ public class StructureValidator implements Runnable {
 			}
 
 			if (valid) {
-				if (percentValid < Buildable.getReinforcementRequirementForLevel(checkedLevelCount)) {
+				if (percentValid < getReinforcementRequirementForLevel(checkedLevelCount)) {
 					DecimalFormat df = new DecimalFormat();
 					message = CivSettings.localize.localizedString("var_structureValidator_layerInvalid", y, df.format(percentValid * 100),
-							(reinforcementValue + "/" + totalBlocks), df.format(Buildable.validPercentRequirement * 100));
+							(reinforcementValue + "/" + totalBlocks), df.format(validPercentRequirement * 100));
 					valid = false;
 					continue;
 				}
@@ -204,61 +207,68 @@ public class StructureValidator implements Runnable {
 		validationLock.unlock();
 	}
 
+
+	public static double getReinforcementRequirementForLevel(int level) {
+		if (level > 10) return validPercentRequirement * 0.3;
+		if (level > 40) return validPercentRequirement * 0.1;
+		return validPercentRequirement;
+	}
+	
 	@Override
 	public void run() {
-//		if (!isEnabled()) {
-//			iBuildable.validated = true;
-//			iBuildable.setValid(true);
-//			return;
-//		}
-//
-//		/* Wait for validation lock to open. */
-//		validationLock.lock();
-//
-//		try {
-//			/* Copy over instance variables to static variables. */
-//			playerName = iPlayerName;
-//			if (iBuildable != null) {
-//				if (iBuildable.isIgnoreFloating()) {
-//					iBuildable.validated = true;
-//					iBuildable.setValid(true);
-//					return;
-//				}
-//				buildable = iBuildable;
-//				cornerLoc = this.iBuildable.getCorner();
-//				templateFilepath = this.iBuildable.getTemplateName();
-//			} else {
-//				cornerLoc = this.iCornerLoc;
-//				templateFilepath = this.iTemplateName;
-//			}
-//			callback = this.iCallback;
-//
-//			List<SimpleBlock> bottomLayer;
-//
-//			/* Load the template stream. */
-//			if (tplStream == null) {
-//				tplStream = new TemplateStream(templateFilepath);
-//			} else {
-//				tplStream.setSource(templateFilepath);
-//			}
-//
-//			bottomLayer = tplStream.getBlocksForLayer(0);
-//
-//			/* Launch sync layer load task. */
-//			layerLoadTask.bottomLayer = bottomLayer;
-//			layerLoadTask.notifyTask = this;
-//			TaskMaster.syncTask(layerLoadTask);
-//
-//			/* Wait for sync task to notify us to continue. */
-//			synchronized (this) {
-//				this.wait();
-//			}
-//
-//			this.finishValidate(chunks, bottomLayer);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			cleanup();
-//		}
+		if (!isEnabled()) {
+			iBuildable.validated = true;
+			iBuildable.setValid(true);
+			return;
+		}
+
+		/* Wait for validation lock to open. */
+		validationLock.lock();
+
+		try {
+			/* Copy over instance variables to static variables. */
+			playerName = iPlayerName;
+			if (iBuildable != null) {
+				if (iBuildable.isIgnoreFloating()) {
+					iBuildable.validated = true;
+					iBuildable.setValid(true);
+					return;
+				}
+				buildable = iBuildable;
+				cornerLoc = this.iBuildable.getCorner();
+				templateFilepath = this.iBuildable.getTemplate().getFilepath();
+			} else {
+				cornerLoc = this.iCornerLoc;
+				templateFilepath = this.iTemplateName;
+			}
+			callback = this.iCallback;
+
+			List<SimpleBlock> bottomLayer;
+
+			/* Load the template stream. */
+			if (tplStream == null) {
+				tplStream = new TemplateStream(templateFilepath);
+			} else {
+				tplStream.setSource(templateFilepath);
+			}
+
+			bottomLayer = tplStream.getBlocksForLayer(0);
+
+			/* Launch sync layer load task. */
+			layerLoadTask.bottomLayer = bottomLayer;
+			layerLoadTask.notifyTask = this;
+			TaskMaster.syncTask(layerLoadTask);
+
+			/* Wait for sync task to notify us to continue. */
+			synchronized (this) {
+				this.wait();
+			}
+
+			this.finishValidate(chunks, bottomLayer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			cleanup();
+		}
 	}
 }

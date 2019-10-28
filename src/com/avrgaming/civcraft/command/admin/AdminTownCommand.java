@@ -264,7 +264,7 @@ public class AdminTownCommand extends CommandBase {
 				for (int z = -radius; z < radius; z++) {
 					try {
 						ChunkCoord next = new ChunkCoord(coord.getWorldname(), coord.getX() + x, coord.getZ() + z);
-						TownChunk.townHallClaim(town, next);
+						TownChunk.autoClaim(town, next);
 						count++;
 					} catch (CivException e) {
 						//ignore errors...

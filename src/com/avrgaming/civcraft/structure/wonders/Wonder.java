@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -39,6 +38,7 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -110,21 +110,27 @@ public abstract class Wonder extends Buildable {
 		
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
 		this.setHitpoints(rs.getInt("hitpoints"));
-		this.setTemplateName(rs.getString("template_name"));
+		try {
+			this.setTemplate(Template.getTemplate(rs.getString("template_name")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			this.setTemplate(null);
+		}
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
 		
-		
 		this.getTown().addWonder(this);
-		bindBuildableBlocks();
+		
+		this.startWonderOnLoad();
 		
 		if (this.isComplete() == false) {
 			try {
-				this.resumeBuildFromTemplate();
+				this.startBuildTask();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		this.bindBlocks();
 	}
 
 	@Override
@@ -136,7 +142,7 @@ public abstract class Wonder extends Buildable {
 		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getTemplateName());
+		hashmap.put("template_name", this.getTemplate().getFilepath());
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 	
@@ -216,32 +222,26 @@ public abstract class Wonder extends Buildable {
 	}
 
 	@Override
-	public void build(Player player, Location location, Template tpl) throws Exception {
-        this.autoClaim = true;
+	public void build(Player player) throws Exception {
+		Template tpl = this.getTemplate();
 		// We take the player's current position and make it the 'center' by moving the center location
 		// to the 'corner' of the structure.
 
-		Location cornerLoc = repositionCenter(location, tpl.getDirection(), tpl.size_x, tpl.size_z);
-		this.setCorner(new BlockCoord(cornerLoc));
-		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		Block centerBlock = cornerLoc.getBlock();
-		// Before we place the blocks, give our build function a chance to work on it
-		
-		this.setTotalBlockCount(tpl.size_x*tpl.size_y*tpl.size_z);
+		BlockCoord corner = this.getCorner();
+		this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
 		// Save the template x,y,z for later. This lets us know our own dimensions.
 		// this is saved in the db so it remains valid even if the template changes.
-		this.setTemplateName(tpl.getFilepath());
+		this.setTemplate(tpl);
 		
-		checkBlockPermissionsAndRestrictions(player, centerBlock, tpl.size_x, tpl.size_y, tpl.size_z, cornerLoc);
-		this.runOnBuild(cornerLoc, tpl);
+		checkBlockPermissionsAndRestrictions(player, corner.getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
 
 		// Setup undo information
 		getTown().lastBuildableBuilt = this;
-		tpl.saveUndoTemplate(this.getCorner().toString(), this.getTown().getName(), cornerLoc);
-		tpl.buildScaffolding(cornerLoc);
+		tpl.saveUndoTemplate(corner.toString(), corner);
+		tpl.buildScaffolding(corner);
 		
 		// Player's center was converted to this building's corner, save it as such.
-		this.startBuildTask(tpl, cornerLoc);
+		this.startBuildTask();
 		
 		this.save();
 		CivGlobal.addWonder(this);
@@ -260,11 +260,6 @@ public abstract class Wonder extends Buildable {
 		return "beer";
 	}
 	
-	@Override
-	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
-		return;
-	}
-
 	public void onDestroy() {
 		if (!CivGlobal.isCasualMode()) {
 			//can be overriden in subclasses.
@@ -491,6 +486,22 @@ public abstract class Wonder extends Buildable {
 	@Override
 	public void onUnload() {
 	}
+
+
+	private void startWonderOnLoad() {
+		Wonder wonder = this;
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					wonder.onLoad();
+				} catch (Exception e) {
+					CivLog.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}, 2000);
+	}
 	
 	protected void addBuffToTown(Town town, String id) {
 		try {
@@ -560,5 +571,4 @@ public abstract class Wonder extends Buildable {
         this.getCiv().getTreasury().deposit(total);
         CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen+CivSettings.localize.localizedString("var_neuschwanstein_generatedCoins", "§e" + total + "§a", CivSettings.CURRENCY_NAME, castleCount, "§b" + this.getTown().getName()));
     }
-	
 }

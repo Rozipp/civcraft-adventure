@@ -12,39 +12,28 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 
 public class BuildWithDefaultPersonalTemplate implements GuiAction {
 
 	@Override
 	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player)event.getWhoClicked();
+		Player player = (Player) event.getWhoClicked();
 		Resident resident = CivGlobal.getResident(player);
 		ConfigBuildableInfo info = resident.pendingBuildableInfo;
-		
-		try {
-			String path = TemplateStatic.getTemplateFilePath(info.template_base_name, TemplateStatic.getDirection(player.getLocation()), "structures", "default");
-			Template tpl;
-			try {
-				//tpl.load_template(path);
-				tpl = TemplateStatic.getTemplate(path, player.getLocation());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-			
-			Location centerLoc = Buildable.repositionCenterStatic(player.getLocation(), info, TemplateStatic.getDirection(player.getLocation()), tpl.size_x, tpl.size_z);	
-			//Buildable.validate(player, null, tpl, centerLoc, resident.pendingCallback);
-			TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, resident.pendingCallback), 0);
-			player.closeInventory();
 
-		} catch (CivException e) {
+		try {
+			String path = Template.getTemplateFilePath(info.template_name, Template.getDirection(player.getLocation()), "default");
+			Template tpl = Template.getTemplate(path);
+			Location centerLoc = BuildableStatic.repositionCenterStatic(player.getLocation(), info.templateYShift, tpl);
+			TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, resident.pendingCallback), 0);
+		} catch (CivException | IOException e) {
 			CivMessage.sendError(player, e.getMessage());
-		}		
+		}
+		player.closeInventory();
 	}
 
 }

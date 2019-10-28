@@ -43,7 +43,7 @@ public class NonMemberFeeComponent extends Component {
 	
 	@Override
 	public void onLoad() {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 		
 		if (entries.size() == 0) {
 			buildable.sessionAdd(getKey(), ""+feeRate);
@@ -57,13 +57,13 @@ public class NonMemberFeeComponent extends Component {
 	@Override
 	public void onSave() {
 		
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(getKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 		
 		if (entries.size() == 0) {
 			buildable.sessionAdd(getKey(), ""+feeRate);
 			return;
 		}
-		CivGlobal.getSessionDB().update(entries.get(0).request_id, getKey(), ""+feeRate);		
+		CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), ""+feeRate);		
 	}
 
 

@@ -248,7 +248,7 @@ public class GuiPage {
 		final Inventory inv = Bukkit.getServer().createInventory((InventoryHolder) player, 54,
 				CivSettings.localize.localizedString("resident_perksGuiHeading"));
 		resident.perks.values().stream().forEachOrdered(p -> {
-			if (p.getIdent().startsWith("temp")) {
+			if (p.getConfigId().startsWith("temp")) {
 				ItemStack stack;
 				ItemStack stack2;
 				ItemStack stack3;
@@ -260,7 +260,7 @@ public class GuiPage {
 				stack3 = LoreGuiItem.setActionData(stack2, "perk", p.configPerk.id);
 				inventory.addItem(new ItemStack[]{stack3});
 			} else
-				if (p.getIdent().startsWith("perk")) {
+				if (p.getConfigId().startsWith("perk")) {
 					final Inventory inventory = null;
 					ItemStack stack4;
 					ItemStack stack5;
@@ -290,7 +290,7 @@ public class GuiPage {
 		for (Object obj : resident.perks.values()) {
 			Perk p = (Perk) obj;
 
-			if (p.getIdent().startsWith("temp")) {
+			if (p.getConfigId().startsWith("temp")) {
 				ItemStack stack = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,
 						CivColor.LightBlue + CivSettings.localize.localizedString("resident_perksGuiClickToView"),
 						CivColor.LightBlue + CivSettings.localize.localizedString("resident_perksGuiTheseTemplates"));
@@ -299,7 +299,7 @@ public class GuiPage {
 
 				inv.addItem(stack);
 			} else
-				if (p.getIdent().startsWith("perk")) {
+				if (p.getConfigId().startsWith("perk")) {
 					ItemStack stack = LoreGuiItem.build(p.getDisplayName(), p.configPerk.type_id, p.configPerk.data,
 							CivColor.Gold + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), "Unlimted Uses");
 					stack = LoreGuiItem.setAction(stack, "ActivatePerk");
@@ -325,7 +325,7 @@ public class GuiPage {
 
 		for (Object obj : resident.perks.values()) {
 			Perk p = (Perk) obj;
-			if (p.getIdent().contains("tpl_" + name)) {
+			if (p.getConfigId().contains("tpl_" + name)) {
 				ItemStack stack = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,
 						CivColor.Gold + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), CivColor.LightBlue + "Count: " + p.count);
 				stack = LoreGuiItem.setAction(stack, "ActivatePerk");
@@ -347,7 +347,7 @@ public class GuiPage {
 		}
 		final Inventory inv = Bukkit.getServer().createInventory((InventoryHolder) player, 54,
 				CivSettings.localize.localizedString("resident_perksGui_templatesHeading") + " " + name);
-		resident.perks.values().stream().filter(p -> p.getIdent().contains("tpl_" + name)).map(p -> {
+		resident.perks.values().stream().filter(p -> p.getConfigId().contains("tpl_" + name)).map(p -> {
 			ItemStack stack2 = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,
 					"§6" + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), "§b\u041a\u043e\u043b-\u0432\u043e: " + p.count);
 			ItemStack stack3 = LoreGuiItem.setAction(stack2, "ActivatePerk");

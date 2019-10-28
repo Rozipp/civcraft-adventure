@@ -163,7 +163,7 @@ public class AdminCivCommand extends CommandBase {
 		}
 		// Remove any anarchy timers
 		String key = "changegov_" + civ.getId();
-		CivGlobal.getSessionDB().delete_all(key);
+		CivGlobal.getSessionDatabase().delete_all(key);
 
 		civ.setGovernment(gov.id);
 		CivMessage.global(

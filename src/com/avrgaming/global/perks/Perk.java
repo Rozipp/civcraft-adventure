@@ -8,11 +8,12 @@ import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.global.perks.components.PerkComponent;
 
+
 public class Perk {
 
 	public static HashMap<String, Perk> staticPerks = new HashMap<String, Perk>();
 	
-	private String ident;
+	private String configId;
 	private HashMap<String, PerkComponent> components = new HashMap<String, PerkComponent>();
 	public ConfigPerk configPerk;
 	public int count = 0;
@@ -20,7 +21,7 @@ public class Perk {
 	
 	public Perk(ConfigPerk config) {
 		this.configPerk = config;
-		this.ident = config.id;
+		this.configId = config.id;
 		this.count = 1;
 		buildComponents();
 	}
@@ -28,15 +29,15 @@ public class Perk {
 	public static void init() {
 		for (ConfigPerk configPerk : CivSettings.perks.values()) {
 			Perk p = new Perk(configPerk);
-			staticPerks.put(p.getIdent(), p);
+			staticPerks.put(p.getConfigId(), p);
 		}
 	}
 	
-	public String getIdent() {
-		return ident;
+	public String getConfigId() {
+		return configId;
 	}
-	public void setIdent(String ident) {
-		this.ident = ident;
+	public void setConfigId(String confogId) {
+		this.configId = confogId;
 	}
 	
 	private void buildComponents() {

@@ -14,7 +14,6 @@ import ua.rozipp.sound.SoundManager;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +35,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -44,10 +42,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.command.CommandBase;
-import com.avrgaming.civcraft.command.admin.AdminTownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.event.EventTimer;
@@ -67,15 +63,12 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.siege.Cannon;
 import com.avrgaming.civcraft.structure.ArrowTower;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TownHall;
@@ -83,8 +76,6 @@ import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.tasks.TradeGoodSignCleanupTask;
-import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.template.TemplateStatic;
 import com.avrgaming.civcraft.template.TemplateStream;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.ChunkGenerateTask;
@@ -171,7 +162,7 @@ public class DebugCommand extends CommandBase {
 		cs.add("preview", "show a single block preview at your feet.");
 		cs.add("sql", "Show SQL health info.");
 		cs.add("templatetest", "tests out some new template stream code.");
-		cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
+//		cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
 		cs.add("matmap", "prints the material map.");
 		cs.add("ping", "print something.");
 		cs.add("datebypass", "Bypasses certain date restrictions");
@@ -232,10 +223,10 @@ public class DebugCommand extends CommandBase {
 		Perk p2 = resident.perks.get(configPerk.id);
 		if (p2 != null) {
 			p2.count++;
-			resident.perks.put(p2.getIdent(), p2);
+			resident.perks.put(p2.getConfigId(), p2);
 		} else {
 			Perk p = new Perk(configPerk);
-			resident.perks.put(p.getIdent(), p);
+			resident.perks.put(p.getConfigId(), p);
 			p2 = p;
 		}
 
@@ -277,225 +268,223 @@ public class DebugCommand extends CommandBase {
 			CivLog.info("material id: " + mid + " mat: " + mat);
 		}
 	}
+//
+//	public void buildspawn_cmd() throws CivException {
+//		/* First create a new Civilization and spawn capitol */
+//		String civName = getNamedString(1, "Enter a Civ name/");
+//		String capitolName = getNamedString(2, "Enter a capitol name.");
+//		Resident resident = getResident();
+//
+//		try {
+//			/* Build a spawn civ. */
+//			Civilization spawnCiv = new Civilization(civName, capitolName, "spawn", resident);
+//			spawnCiv.saveNow();
+//
+//			/* Build a spawn capitol */
+//			Town spawnCapitol = new Town(capitolName, resident, spawnCiv);
+//			spawnCapitol.saveNow();
+//
+//			PermissionGroup leaders = new PermissionGroup(spawnCiv, "leaders");
+//			spawnCiv.addGroup(leaders);
+//			leaders.addMember(resident);
+//			spawnCiv.setLeader(resident);
+//			spawnCiv.setLeaderGroup(leaders);
+//			leaders.save();
+//
+//			PermissionGroup advisers = new PermissionGroup(spawnCiv, "advisers");
+//			spawnCiv.addGroup(advisers);
+//			spawnCiv.setAdviserGroup(advisers);
+//			advisers.save();
+//
+//			PermissionGroup mayors = new PermissionGroup(spawnCapitol, "mayors");
+//			spawnCapitol.addGroup(mayors);
+//			spawnCapitol.setMayorGroup(mayors);
+//			mayors.addMember(resident);
+//			mayors.save();
+//
+//			PermissionGroup assistants = new PermissionGroup(spawnCapitol, "assistants");
+//			spawnCapitol.addGroup(assistants);
+//			spawnCapitol.setAssistantGroup(assistants);
+//			assistants.save();
+//
+//			PermissionGroup residents = new PermissionGroup(spawnCapitol, "residents");
+//			spawnCapitol.addGroup(residents);
+//			spawnCapitol.setDefaultGroup(residents);
+//			residents.save();
+//
+//			spawnCiv.addTown(spawnCapitol);
+//			spawnCiv.setCapitolName(spawnCapitol.getName());
+//
+//			spawnCiv.setAdminCiv(true);
+//			spawnCiv.save();
+//			spawnCapitol.save();
+//			resident.save();
+//
+//			CivGlobal.addTown(spawnCapitol);
+//			CivGlobal.addCiv(spawnCiv);
+//
+//			/* Setup leader and adivsers groups. */
+//			try {
+//				spawnCapitol.addResident(resident);
+//			} catch (AlreadyRegisteredException e) {
+//				e.printStackTrace();
+//				return;
+//			}
+//
+//			class BuildSpawnTask implements Runnable {
+//				CommandSender sender;
+//				int start_x;
+//				int start_y;
+//				int start_z;
+//				Town spawnCapitol;
+//
+//				public BuildSpawnTask(CommandSender sender, int x, int y, int z, Town capitol) {
+//					this.sender = sender;
+//					this.start_x = x;
+//					this.start_y = y;
+//					this.start_z = z;
+//					this.spawnCapitol = capitol;
+//				}
+//
+//				@Override
+//				public void run() {
+//					try {
+//
+//						/* Initialize the spawn template */
+//						Template tpl ;
+//						try {
+//							tpl = new Template("templates/spawn.def");
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//							throw new CivException("IO Error.");
+//						}
+//
+//						Player player = (Player) sender;
+//						ConfigBuildableInfo info = new ConfigBuildableInfo();
+//						info.tile_improvement = false;
+//						info.templateYShift = 0;
+//						Location center = BuildableStatic.repositionCenterStatic(player.getLocation(), info, tpl);
+//
+//						CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
+//						for (int y = start_y; y < tpl.size_y; y++) {
+//							for (int x = start_x; x < tpl.size_x; x++) {
+//								for (int z = start_z; z < tpl.size_z; z++) {
+//									BlockCoord next = new BlockCoord(center);
+//									next.setX(next.getX() + x);
+//									next.setY(next.getY() + y);
+//									next.setZ(next.getZ() + z);
+//
+//									SimpleBlock sb = tpl.blocks[x][y][z];
+//
+//									if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
+//										String buildableName = sb.command.replace("/", "");
+//
+//										info = null;
+//										for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
+//											if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
+//												info = buildInfo;
+//												break;
+//											}
+//										}
+//										if (info == null) {
+//											try {
+//												Block block = next.getBlock();
+//												ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+//												continue;
+//											} catch (Exception e) {
+//												e.printStackTrace();
+//												continue;
+//											}
+//										}
+//
+//										CivMessage.send(sender, "Setting up " + buildableName);
+//										int yShift = 0;
+//										String lines[] = sb.getKeyValueString().split(",");
+//										String split[] = lines[0].split(":");
+//										String dir = split[0];
+//										yShift = Integer.valueOf(split[1]);
+//
+//										Location loc = next.getLocation();
+//										loc.setY(loc.getY() + yShift);
+//
+//										Structure struct = Structure.newStructure(loc, info.id, spawnCapitol);
+//										if (struct instanceof Capitol) {
+//											AdminTownCommand.claimradius(spawnCapitol, center, 15);
+//										}
+//										struct.setTemplateFilePath(Template.getTemplateFilePath(info.template_name, dir, null));
+//										struct.bindBuildableBlocks();
+//										struct.setComplete(true);
+//										struct.setHitpoints(info.max_hitpoints);
+//										CivGlobal.addStructure(struct);
+//										spawnCapitol.addStructure(struct);
+//
+//										Template tplStruct;
+//										try {
+//											tplStruct = Template.getTemplate(struct.getTemplateFilePath());
+//											struct.postBuildSyncTask(tplStruct, 10);
+//										} catch (IOException e) {
+//											e.printStackTrace();
+//											throw new CivException("IO Exception.");
+//										}
+//
+//										struct.save();
+//										spawnCapitol.save();
+//
+//									} else
+//										if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
+//											try {
+//												Block block = next.getBlock();
+//												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+//
+//												Sign s = (Sign) block.getState();
+//												for (int j = 0; j < 4; j++) {
+//													s.setLine(j, sb.message[j]);
+//												}
+//
+//												s.update();
+//											} catch (Exception e) {
+//												e.printStackTrace();
+//											}
+//										} else {
+//											try {
+//												Block block = next.getBlock();
+//												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+//											} catch (Exception e) {
+//												e.printStackTrace();
+//											}
+//										}
+//								}
+//							}
+//						}
+//
+//						CivMessage.send(sender, "Finished building.");
+//
+//						spawnCapitol.addAccumulatedCulture(60000000);
+//						spawnCapitol.save();
+//
+//					} catch (CivException e) {
+//						e.printStackTrace();
+//						CivMessage.send(sender, e.getMessage());
+//					}
+//				}
+//			}
+//
+//			TaskMaster.syncTask(new BuildSpawnTask(sender, 0, 0, 0, spawnCapitol));
+//		} catch (InvalidNameException e) {
+//			throw new CivException(e.getMessage());
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			throw new CivException("Internal DB Error.");
+//		}
+//
+//	}
 
-	public void buildspawn_cmd() throws CivException {
-		/* First create a new Civilization and spawn capitol */
-		String civName = getNamedString(1, "Enter a Civ name/");
-		String capitolName = getNamedString(2, "Enter a capitol name.");
-		Resident resident = getResident();
-
-		try {
-			/* Build a spawn civ. */
-			Civilization spawnCiv = new Civilization(civName, capitolName, "spawn", resident);
-			spawnCiv.saveNow();
-
-			/* Build a spawn capitol */
-			Town spawnCapitol = new Town(capitolName, resident, spawnCiv);
-			spawnCapitol.saveNow();
-
-			PermissionGroup leaders = new PermissionGroup(spawnCiv, "leaders");
-			spawnCiv.addGroup(leaders);
-			leaders.addMember(resident);
-			spawnCiv.setLeader(resident);
-			spawnCiv.setLeaderGroup(leaders);
-			leaders.save();
-
-			PermissionGroup advisers = new PermissionGroup(spawnCiv, "advisers");
-			spawnCiv.addGroup(advisers);
-			spawnCiv.setAdviserGroup(advisers);
-			advisers.save();
-
-			PermissionGroup mayors = new PermissionGroup(spawnCapitol, "mayors");
-			spawnCapitol.addGroup(mayors);
-			spawnCapitol.setMayorGroup(mayors);
-			mayors.addMember(resident);
-			mayors.save();
-
-			PermissionGroup assistants = new PermissionGroup(spawnCapitol, "assistants");
-			spawnCapitol.addGroup(assistants);
-			spawnCapitol.setAssistantGroup(assistants);
-			assistants.save();
-
-			PermissionGroup residents = new PermissionGroup(spawnCapitol, "residents");
-			spawnCapitol.addGroup(residents);
-			spawnCapitol.setDefaultGroup(residents);
-			residents.save();
-
-			spawnCiv.addTown(spawnCapitol);
-			spawnCiv.setCapitolName(spawnCapitol.getName());
-
-			spawnCiv.setAdminCiv(true);
-			spawnCiv.save();
-			spawnCapitol.save();
-			resident.save();
-
-			CivGlobal.addTown(spawnCapitol);
-			CivGlobal.addCiv(spawnCiv);
-
-			/* Setup leader and adivsers groups. */
-			try {
-				spawnCapitol.addResident(resident);
-			} catch (AlreadyRegisteredException e) {
-				e.printStackTrace();
-				return;
-			}
-
-			class BuildSpawnTask implements Runnable {
-				CommandSender sender;
-				int start_x;
-				int start_y;
-				int start_z;
-				Town spawnCapitol;
-
-				public BuildSpawnTask(CommandSender sender, int x, int y, int z, Town capitol) {
-					this.sender = sender;
-					this.start_x = x;
-					this.start_y = y;
-					this.start_z = z;
-					this.spawnCapitol = capitol;
-				}
-
-				@Override
-				public void run() {
-					try {
-
-						/* Initialize the spawn template */
-						Template tpl = new Template();
-						try {
-							tpl.load_template("templates/spawn.def");
-						} catch (IOException e) {
-							e.printStackTrace();
-							throw new CivException("IO Error.");
-						}
-
-						Player player = (Player) sender;
-						ConfigBuildableInfo info = new ConfigBuildableInfo();
-						info.tile_improvement = false;
-						info.templateYShift = 0;
-						Location center = Buildable.repositionCenterStatic(player.getLocation(), info, TemplateStatic.getDirection(player.getLocation()),
-								tpl.size_x, tpl.size_z);
-
-						CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
-						for (int y = start_y; y < tpl.size_y; y++) {
-							for (int x = start_x; x < tpl.size_x; x++) {
-								for (int z = start_z; z < tpl.size_z; z++) {
-									BlockCoord next = new BlockCoord(center);
-									next.setX(next.getX() + x);
-									next.setY(next.getY() + y);
-									next.setZ(next.getZ() + z);
-
-									SimpleBlock sb = tpl.blocks[x][y][z];
-
-									if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
-										String buildableName = sb.command.replace("/", "");
-
-										info = null;
-										for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
-											if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
-												info = buildInfo;
-												break;
-											}
-										}
-										if (info == null) {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
-												continue;
-											} catch (Exception e) {
-												e.printStackTrace();
-												continue;
-											}
-										}
-
-										CivMessage.send(sender, "Setting up " + buildableName);
-										int yShift = 0;
-										String lines[] = sb.getKeyValueString().split(",");
-										String split[] = lines[0].split(":");
-										String dir = split[0];
-										yShift = Integer.valueOf(split[1]);
-
-										Location loc = next.getLocation();
-										loc.setY(loc.getY() + yShift);
-
-										Structure struct = Structure.newStructure(loc, info.id, spawnCapitol);
-										if (struct instanceof Capitol) {
-											AdminTownCommand.claimradius(spawnCapitol, center, 15);
-										}
-										struct.setTemplateName("templates/themes/default/structures/" + info.template_base_name + "/" + info.template_base_name
-												+ "_" + dir + ".def");
-										struct.bindBuildableBlocks();
-										struct.setComplete(true);
-										struct.setHitpoints(info.max_hitpoints);
-										CivGlobal.addStructure(struct);
-										spawnCapitol.addStructure(struct);
-
-										Template tplStruct;
-										try {
-											tplStruct = TemplateStatic.getTemplate(struct.getTemplateName(), null);
-											struct.postBuildSyncTask(tplStruct, 10);
-										} catch (IOException e) {
-											e.printStackTrace();
-											throw new CivException("IO Exception.");
-										}
-
-										struct.save();
-										spawnCapitol.save();
-
-									} else
-										if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
-
-												Sign s = (Sign) block.getState();
-												for (int j = 0; j < 4; j++) {
-													s.setLine(j, sb.message[j]);
-												}
-
-												s.update();
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										} else {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-								}
-							}
-						}
-
-						CivMessage.send(sender, "Finished building.");
-
-						spawnCapitol.addAccumulatedCulture(60000000);
-						spawnCapitol.save();
-
-					} catch (CivException e) {
-						e.printStackTrace();
-						CivMessage.send(sender, e.getMessage());
-					}
-				}
-			}
-
-			TaskMaster.syncTask(new BuildSpawnTask(sender, 0, 0, 0, spawnCapitol));
-		} catch (InvalidNameException e) {
-			throw new CivException(e.getMessage());
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException("Internal DB Error.");
-		}
-
-	}
-
-	public static TemplateStream tplStream = null;
 	public void templatetest_cmd() throws CivException {
 		Player player = getPlayer();
 		String filename = getNamedString(1, "Enter a filename");
 		Integer yLayer = getNamedInteger(2);
 
+		TemplateStream tplStream = null;
 		if (tplStream == null) {
 			try {
 				tplStream = new TemplateStream(filename);
@@ -944,7 +933,7 @@ public class DebugCommand extends CommandBase {
 	public void restoresigns_cmd() {
 
 		CivMessage.send(sender, "restoring....");
-		for (StructureSign sign : CivGlobal.getStructureSigns()) {
+		for (ConstructSign sign : CivGlobal.getConstructSigns()) {
 
 			BlockCoord bcoord = sign.getCoord();
 			Block block = bcoord.getBlock();

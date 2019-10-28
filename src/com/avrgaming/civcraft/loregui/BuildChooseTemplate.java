@@ -54,20 +54,20 @@ public class BuildChooseTemplate implements GuiAction {
 		inv.addItem(infoRec);
 		
 		for (Perk perk : perkList) {
-			if (!perk.getIdent().contains("template"))
+			if (!perk.getConfigId().contains("template"))
 			{
 			infoRec = LoreGuiItem.build(perk.getDisplayName(), 
 					perk.configPerk.type_id, 
 					perk.configPerk.data, CivColor.Gold+CivSettings.localize.localizedString("loreGui_template_clickToBuild"),
 					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_providedBy")+" "+CivColor.LightBlue+perk.provider);
 			infoRec = LoreGuiItem.setAction(infoRec, "BuildWithTemplate");
-			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getIdent());
+			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getConfigId());
 			inv.addItem(infoRec);
 			}
 		}
 		
 		for (Perk perk : personalUnboundPerks) {
-			if (!perk.getIdent().contains("template"))
+			if (!perk.getConfigId().contains("template"))
 			{
 			infoRec = LoreGuiItem.build(perk.getDisplayName(), 
 					CivData.BEDROCK, 
@@ -78,7 +78,7 @@ public class BuildChooseTemplate implements GuiAction {
 					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound4"),
 					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound5"));				
 			infoRec = LoreGuiItem.setAction(infoRec, "ActivatePerk");
-			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getIdent());
+			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getConfigId());
 			inv.addItem(infoRec);
 			}
 		}

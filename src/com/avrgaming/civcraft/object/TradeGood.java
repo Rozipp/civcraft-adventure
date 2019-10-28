@@ -25,7 +25,6 @@ import java.util.HashMap;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.BonusGoodie;

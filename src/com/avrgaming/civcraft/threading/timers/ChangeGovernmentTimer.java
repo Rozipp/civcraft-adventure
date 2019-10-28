@@ -38,7 +38,7 @@ public class ChangeGovernmentTimer implements Runnable {
 				String key = "changegov_"+civ.getId();
 				ArrayList<SessionEntry> entries;
 				
-				entries = CivGlobal.getSessionDB().lookup(key);
+				entries = CivGlobal.getSessionDatabase().lookup(key);
 				if (entries == null || entries.size() < 1) {
 					//We are in anarchy but didn't have a sessiondb entry? huh...
 					civ.setGovernment("gov_tribalism");
@@ -49,7 +49,7 @@ public class ChangeGovernmentTimer implements Runnable {
 				SessionEntry se = entries.get(0);
 				// Our Hour
 				int duration = 3600;
-				if (CivGlobal.testFileFlag("debug")) {
+				if (CivGlobal.isHaveTestFlag("debug")) {
 					duration = 1;
 				}
 				
@@ -90,7 +90,7 @@ public class ChangeGovernmentTimer implements Runnable {
 					civ.setGovernment(se.value);
 					CivMessage.global(CivSettings.localize.localizedString("var_gov_emergeFromAnarchy",civ.getName(),CivSettings.governments.get(se.value).displayName));
 					
-					CivGlobal.getSessionDB().delete_all(key);
+					CivGlobal.getSessionDatabase().delete_all(key);
 					civ.save();
 				} 
 			}

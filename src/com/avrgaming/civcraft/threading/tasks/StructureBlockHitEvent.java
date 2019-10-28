@@ -24,7 +24,7 @@ import com.avrgaming.civcraft.loreenhancements.LoreEnhancementPunchout;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
+import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.TownHall;
@@ -36,10 +36,10 @@ public class StructureBlockHitEvent implements Runnable {
 	/* Called when a structure block is hit, this async task quickly determines if the block hit should take damage during war. */
 	String playerName;
 	BlockCoord coord;
-	BuildableDamageBlock dmgBlock;
+	ConstructDamageBlock dmgBlock;
 	World world;
 
-	public StructureBlockHitEvent(String player, BlockCoord coord, BuildableDamageBlock dmgBlock, World world) {
+	public StructureBlockHitEvent(String player, BlockCoord coord, ConstructDamageBlock dmgBlock, World world) {
 		this.playerName = player;
 		this.coord = coord;
 		this.dmgBlock = dmgBlock;

@@ -21,7 +21,7 @@ import com.avrgaming.civcraft.object.Town;
 
 public class ConfigBuildableInfo {
 	public String id = "";
-	public String template_base_name = "";
+	public String template_name = "";
 	public int templateYShift = 0;
 	public String displayName = "";
 	public String replace_structure = "";
@@ -72,7 +72,7 @@ public class ConfigBuildableInfo {
 			ConfigBuildableInfo sinfo = new ConfigBuildableInfo();
 
 			sinfo.id = (String) struct.get("id");
-			sinfo.template_base_name = (String) struct.get("template");
+			sinfo.template_name = (String) struct.get("template");
 			sinfo.templateYShift = ((obj = struct.get("template_y_shift")) == null) ? 0 : (Integer) obj;
 			sinfo.displayName = (String) struct.get("displayName");
 			sinfo.replace_structure = ((obj = struct.get("replace_structure")) == null) ? null : (String) obj;

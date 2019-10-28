@@ -27,10 +27,11 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.template.Template;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
 import lombok.Getter;
@@ -60,7 +61,10 @@ public class Structure extends Buildable {
 	}
 
 	@Override
-	public void onCheck() throws CivException {
+	public void onCheckBlockPAR() throws CivException {
+		/* Override in children */
+	}
+	public void updateSignText() {
 		/* Override in children */
 	}
 
@@ -91,10 +95,6 @@ public class Structure extends Buildable {
 		}
 		struct.loadSettings();
 
-		for (Component comp : struct.attachedComponents) {
-			comp.onSave();
-		}
-
 		return struct;
 	}
 
@@ -122,10 +122,6 @@ public class Structure extends Buildable {
 			struct = new Structure(center, id, town);
 		}
 		struct.loadSettings();
-
-		for (Component comp : struct.attachedComponents) {
-			comp.onLoad();
-		}
 
 		return struct;
 	}
@@ -163,23 +159,30 @@ public class Structure extends Buildable {
 
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
 		this.setHitpoints(rs.getInt("hitpoints"));
-		String s = rs.getString("template_name");
-		if (s == null)
-			this.setTemplateName("");
+		String tFilePath = rs.getString("template_name");
+		if (tFilePath == null)
+			this.setTemplate(null);
 		else
-			this.setTemplateName(s);
+			try {
+				this.setTemplate(Template.getTemplate(tFilePath));
+			} catch (IOException | CivException e1) {
+				e1.printStackTrace();
+				this.setTemplate(null);
+			}
+
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
 		this.getTown().addStructure(this);
-		bindBuildableBlocks();
 
+		this.startStructureOnLoad();
 		if (!this.isComplete()) {
 			try {
-				this.resumeBuildFromTemplate();
+				this.startBuildTask();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		this.bindBlocks();
 	}
 
 	@Override
@@ -191,62 +194,15 @@ public class Structure extends Buildable {
 		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getTemplateName());
+		hashmap.put("template_name", this.getTemplate().getFilepath());
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
 	public void deleteSkipUndo() throws SQLException {
 		super.delete();
-
-		if (this.getTown() != null) {
-			/* Release trade goods if we are a trade outpost. */
-			if (this instanceof TradeOutpost) {
-				//TODO move to trade outpost delete..
-				TradeOutpost outpost = (TradeOutpost) this;
-
-				if (outpost.getGood() != null) {
-					outpost.getGood().setStruct(null);
-					outpost.getGood().setTown(null);
-					outpost.getGood().setCiv(null);
-					outpost.getGood().save();
-				}
-			}
-
-			if (!(this instanceof Wall || this instanceof Road)) {
-				CivLog.debug("Delete with Undo! " + this.getDisplayName());
-				/* Remove StructureSigns */
-				for (StructureSign sign : this.getSigns()) {
-					sign.delete();
-				}
-				try {
-					this.undoFromTemplate();
-				} catch (IOException | CivException e1) {
-					e1.printStackTrace();
-					this.fancyDestroyStructureBlocks();
-				}
-				CivGlobal.removeStructure(this);
-				this.getTown().removeStructure(this);
-				this.unbindStructureBlocks();
-				if (this instanceof Farm) {
-					Farm farm = (Farm) this;
-					farm.removeFarmChunk();
-				}
-			} else {
-				CivLog.debug("Delete skip Undo! " + this.getDisplayName());
-				CivGlobal.removeStructure(this);
-				this.getTown().removeStructure(this);
-				this.unbindStructureBlocks();
-				if (this instanceof Road) {
-					Road road = (Road) this;
-					road.deleteOnDisband();
-				} else
-					if (this instanceof Wall) {
-						Wall wall = (Wall) this;
-						wall.deleteOnDisband();
-					}
-			}
-
-		}
+		CivGlobal.removeStructure(this);
+		this.getTown().removeStructure(this);
+		this.unbindStructureBlocks();
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
@@ -255,19 +211,7 @@ public class Structure extends Buildable {
 		super.delete();
 
 		if (this.getTown() != null) {
-			/* Release trade goods if we are a trade outpost. */
-			if (this instanceof TradeOutpost) {
-				//TODO move to trade outpost delete..
-				TradeOutpost outpost = (TradeOutpost) this;
-
-				if (outpost.getGood() != null) {
-					outpost.getGood().setStruct(null);
-					outpost.getGood().setTown(null);
-					outpost.getGood().setCiv(null);
-					outpost.getGood().save();
-				}
-			}
-
+			/* Remove StructureSigns */
 			try {
 				this.undoFromTemplate();
 			} catch (IOException | CivException e1) {
@@ -279,7 +223,7 @@ public class Structure extends Buildable {
 			this.getTown().removeStructure(this);
 			this.unbindStructureBlocks();
 		}
-
+		this.setEnabled(false);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
@@ -296,42 +240,25 @@ public class Structure extends Buildable {
 		}
 	}
 
-	public void updateSignText() {
-
-	}
-
 	@Override
-	public void build(Player player, Location location, Template tpl) throws Exception {
-		this.onPreBuild(location);
-
-		// We take the player's current position and make it the 'center' by moving the center location
-		// to the 'corner' of the structure.
-		Location cornerLoc = repositionCenter(location, tpl.getDirection(), tpl.size_x, tpl.size_z);
-		this.setCorner(new BlockCoord(cornerLoc));
-		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		this.setTotalBlockCount(tpl.size_x * tpl.size_y * tpl.size_z);
-		// Save the template x,y,z for later. This lets us know our own dimensions.
-		// this is saved in the db so it remains valid even if the template changes.
-		this.setTemplateName(tpl.getFilepath());
-
-		checkBlockPermissionsAndRestrictions(player, this.getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z, location);
+	public void build(Player player) throws Exception {
+		Template tpl = this.getTemplate();
 		// Before we place the blocks, give our build function a chance to work on it
-		this.runOnBuild(cornerLoc, tpl);
+		this.runOnBuild(this.getCorner().getChunkCoord());
 
 		// Setup undo information
 		getTown().lastBuildableBuilt = this;
-		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getTown().getName(), cornerLoc);
-		tpl.buildScaffolding(cornerLoc);
+		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
+		tpl.buildScaffolding(this.getCorner());
 
-		// Player's center was converted to this building's corner, save it as such.
 		CivGlobal.getResident(player).undoPreview();
-		this.startBuildTask(tpl, cornerLoc);
+		this.startBuildTask();
 
 		CivGlobal.addStructure(this);
 		this.getTown().addStructure(this);
 	}
 
-	protected void runOnBuild(Location centerLoc, Template tpl) throws CivException {
+	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
 	}
 
 	@Override
@@ -399,21 +326,17 @@ public class Structure extends Buildable {
 		} catch (CivException | IOException e) {
 			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
 		}
-		bindBuildableBlocks();
+		bindBlocks();
 		save();
 	}
-
 	public void repairStructure() throws CivException {
-		if (this instanceof TownHall) {
-			throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
-		}
+		if (this instanceof TownHall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
 
 		double cost = getRepairCost();
 
-		if (!getTown().getTreasury().hasEnough(cost)) {
+		if (!getTown().getTreasury().hasEnough(cost))
 			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
 					getDisplayName()));
-		}
 
 		repairStructureForFree();
 		getTown().getTreasury().withdraw(cost);
@@ -421,7 +344,6 @@ public class Structure extends Buildable {
 				CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));
 	}
 
-	@Override
 	public void loadSettings() {
 		/* Build and register all of the components. */
 		List<HashMap<String, String>> compInfoList = this.getComponentInfoList();
@@ -442,11 +364,27 @@ public class Structure extends Buildable {
 				}
 			}
 		}
-		super.loadSettings();
+		for (Component comp : this.attachedComponents) {
+			comp.onSave();
+		}
 	}
 
 	@Override
 	public void setTurretLocation(BlockCoord absCoord) {
 	}
 
+	private void startStructureOnLoad() {
+		Structure struct = this;
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					struct.onLoad();
+				} catch (Exception e) {
+					CivLog.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}, 2000);
+	}
 }

@@ -8,6 +8,7 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.questions.TradeRequest;
 import com.avrgaming.civcraft.trade.TradeInventoryListener;
 import com.avrgaming.civcraft.util.CivColor;
@@ -55,7 +56,7 @@ public class TradeCommand extends CommandBase {
 		tradeRequest.resident = resident;
 		tradeRequest.trader = trader;
 		
-		CivGlobal.questionPlayer(traderPlayer, residentPlayer, 
+		Question.questionPlayer(traderPlayer, residentPlayer, 
 				CivSettings.localize.localizedString("cmd_trade_popTheQuestion")+" "+traderPlayer.getName()+"?",
 				TRADE_TIMEOUT, tradeRequest);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_trade_requestSent"));

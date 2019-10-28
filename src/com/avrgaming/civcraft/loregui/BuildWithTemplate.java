@@ -13,62 +13,41 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.global.perks.Perk;
-import com.avrgaming.global.perks.components.CustomPersonalTemplate;
-import com.avrgaming.global.perks.components.CustomTemplate;
+import com.avrgaming.global.perks.components.PerkComponent;
 
 public class BuildWithTemplate implements GuiAction {
 
 	@Override
 	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player)event.getWhoClicked();
+		Player player = (Player) event.getWhoClicked();
 		Resident resident = CivGlobal.getResident(player);
-			
+
 		String perk_id = LoreGuiItem.getActionData(stack, "perk");
-		boolean useDefaultTemplate;
-		if (perk_id == null) {
-			useDefaultTemplate = true;
-		} else {
-			useDefaultTemplate = false;
-		}
-		
+
 		try {
-			Template tpl;
-			if (!useDefaultTemplate) {
+			String filepath = null;
+			if (perk_id != null) {
 				/* Use a template defined by a perk. */
 				Perk perk = Perk.staticPerks.get(perk_id);
-				if (perk != null) {
-	
-					/* get the template name from the perk's CustomTemplate component. */
-					CustomTemplate customTemplate = (CustomTemplate)perk.getComponent("CustomTemplate");
-					if (customTemplate != null) {
-						tpl = customTemplate.getTemplate(player, resident.pendingBuildable);
-					} else {
-						CustomPersonalTemplate customPersonalTemplate =  (CustomPersonalTemplate)perk.getComponent("CustomPersonalTemplate");
-						tpl = customPersonalTemplate.getTemplate(player, resident.pendingBuildable.getInfo());
-					}
-					
-					resident.pendingBuildable.buildPlayerPreview(player, player.getLocation(), tpl);					
-
-				} else {
-					CivLog.error(perk_id+" "+CivSettings.localize.localizedString("loreGui_perkActivationFailed"));
+				if (perk == null) {
+					CivLog.error(perk_id + " " + CivSettings.localize.localizedString("loreGui_perkActivationFailed"));
+					player.closeInventory();
+					return;
 				}
+
+				/* get the template name from the perk's CustomTemplate component. */
+				PerkComponent perkComp = perk.getComponent("CustomTemplate");
+				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable, perkComp.getString("theme"));
+
 			} else {
 				/* Use the default template. */
-				tpl = new Template();
-				try {
-					tpl.initTemplate(player.getLocation(), resident.pendingBuildable);
-				} catch (CivException e) {
-					e.printStackTrace();
-					throw e;
-				} catch (IOException e) {
-					e.printStackTrace();
-					throw e;
-				}
-				
-				resident.pendingBuildable.buildPlayerPreview(player, player.getLocation(), tpl);
+				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable, null);
 			}
+			resident.pendingBuildable.setTemplate(Template.getTemplate(filepath));
+			BuildableStatic.buildPlayerPreview(player, player.getLocation(), resident.pendingBuildable);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		} catch (IOException e) {

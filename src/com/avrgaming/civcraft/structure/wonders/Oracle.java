@@ -16,7 +16,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 
 public class Oracle extends Wonder {
@@ -62,7 +62,7 @@ public class Oracle extends Wonder {
 	
 	@Override
     public void updateSignText() {
-        for (final StructureSign sign : this.getSigns()) {
+        for (final ConstructSign sign : this.getSigns()) {
             final String lowerCase = sign.getAction().toLowerCase();
             switch (lowerCase) {
                 case "0": {
@@ -92,7 +92,7 @@ public class Oracle extends Wonder {
     
     @SuppressWarnings("deprecation")
 	@Override
-    public void processSignAction(final Player player, final StructureSign sign, final PlayerInteractEvent event) {
+    public void processSignAction(final Player player, final ConstructSign sign, final PlayerInteractEvent event) {
         final Resident resident = CivGlobal.getResident(player);
         if (resident == null) {
             return;
