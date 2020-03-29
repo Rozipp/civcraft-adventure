@@ -72,16 +72,16 @@ public class ConfigBuildableInfo {
 			ConfigBuildableInfo sinfo = new ConfigBuildableInfo();
 
 			sinfo.id = (String) struct.get("id");
-			sinfo.template_name = (String) struct.get("template");
+			sinfo.template_name = ((obj = struct.get("template")) == null) ? null : (String) obj;
 			sinfo.templateYShift = ((obj = struct.get("template_y_shift")) == null) ? 0 : (Integer) obj;
 			sinfo.displayName = (String) struct.get("displayName");
 			sinfo.replace_structure = ((obj = struct.get("replace_structure")) == null) ? null : (String) obj;
 			sinfo.require_tech = (String) struct.get("require_tech");
-			sinfo.require_upgrade = (String) struct.get("require_upgrade");
-			sinfo.require_structure = (String) struct.get("require_structure");
+			sinfo.require_upgrade = ((obj = struct.get("require_upgrade")) == null) ? null : (String) obj;
+			sinfo.require_structure = ((obj = struct.get("require_structure")) == null) ? null : (String) obj;
 			sinfo.gui_item_id = ((obj = struct.get("gui_item_id")) == null) ? 0 : (Integer) obj;
 			sinfo.gui_slot = ((obj = struct.get("gui_slot")) == null) ? 0 : (Integer) obj;
-			sinfo.limit = (Integer) struct.get("limit");
+			sinfo.limit = ((obj = struct.get("limit")) == null) ? 1 : (Integer) obj;
 			sinfo.cost = (Double) struct.get("cost");
 			sinfo.upkeep = (Double) struct.get("upkeep");
 			sinfo.hammer_cost = (Double) struct.get("hammer_cost");

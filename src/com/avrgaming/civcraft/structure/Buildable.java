@@ -8,39 +8,23 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
-import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Color;
 import org.bukkit.Effect;
-import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
@@ -48,42 +32,31 @@ import com.avrgaming.civcraft.config.ConfigTownLevel;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.ConstructDamageBlock;
-import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.SQLObject;
-import com.avrgaming.civcraft.object.ConstructChest;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
-import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.template.Template;
-import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
-import com.avrgaming.civcraft.threading.tasks.BuildUndoTask;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
-import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.global.perks.Perk;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.Config;
@@ -97,7 +70,6 @@ public abstract class Buildable extends Construct {
 
 	protected BlockCoord mobSpawnerCoord;
 
-	private Town town;
 	private ConfigBuildableInfo info = new ConfigBuildableInfo(); //Blank buildable info for buildables which do not have configs.
 	public int builtBlockCount = 0;
 	public int savedBlockCount = 0;
@@ -111,18 +83,9 @@ public abstract class Buildable extends Construct {
 	public boolean validated = false;
 	private String invalidReason = "";
 
-	public Civilization getCiv() {
-		if (this.getTown() == null) return null;
-		return this.getTown().getCiv();
-	}
-
 	// ---------------- get ConfigBuildableInfo
 	public String getConfigId() {
 		return info.id;
-	}
-	@Override
-	public String getTemplateBaseName() {
-		return info.template_name;
 	}
 	@Override
 	public String getDisplayName() {
@@ -148,11 +111,9 @@ public abstract class Buildable extends Construct {
 	public int getTemplateYShift() {
 		return info.templateYShift;
 	}
-	@Override
 	public String getRequiredUpgrade() {
 		return info.require_upgrade;
 	}
-	@Override
 	public String getRequiredTechnology() {
 		return info.require_tech;
 	}
@@ -187,10 +148,6 @@ public abstract class Buildable extends Construct {
 	}
 	public boolean isIgnoreFloating() {
 		return info.ignore_floating;
-	}
-	@Override
-	public boolean hasTemplate() {
-		return info.has_template;
 	}
 	public String getReplaceStructure() {
 		return info.replace_structure;
@@ -248,7 +205,7 @@ public abstract class Buildable extends Construct {
 		}
 
 		try {
-			this.setTemplate(Template.getTemplate(Template.getTemplateFilePath(centerLoc, this, null)));
+			this.setTemplate(Template.getTemplate(Template.getTemplateFilePath(centerLoc, this.getInfo(), null)));
 			BuildableStatic.buildPlayerPreview(player, centerLoc, this);
 		} catch (CivException | IOException e) {
 			e.printStackTrace();
@@ -262,7 +219,7 @@ public abstract class Buildable extends Construct {
 		else
 			this.getTown().setCurrentWonderInProgress(this);
 		BuildAsyncTask task = new BuildAsyncTask(this);
-		this.town.build_tasks.add(task);
+		this.getTown().build_tasks.add(task);
 		TaskMaster.asyncTask(task, 1000);
 	}
 	@Override
@@ -270,8 +227,13 @@ public abstract class Buildable extends Construct {
 		return BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl);
 	}
 	@Override
-	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ) throws CivException {
+	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 
+		Block centerBlock = this.getCorner().getBlock();
+		int regionX = this.getTemplate().getSize_x();
+		int regionY = this.getTemplate().getSize_y();
+		int regionZ = this.getTemplate().getSize_z();
+		
 		boolean foundTradeGood = false;
 		TradeOutpost tradeOutpost = null;
 		boolean ignoreBorders = false;
@@ -281,8 +243,8 @@ public abstract class Buildable extends Construct {
 		//Make sure we are building this building inside of culture.
 		if (!this.info.id.equalsIgnoreCase("s_capitol") && !this.info.id.equalsIgnoreCase("s_townhall")) {
 			CultureChunk cc = CivGlobal.getCultureChunk(centerBlock.getLocation());
-			if (cc == null || cc.getTown().getCiv() != this.town.getCiv()) {
-				CivLog.debug("Строим здание " + this.getDisplayName() + " не в пределаз культуры");
+			if (cc == null || cc.getTown().getCiv() != this.getCiv()) {
+				CivLog.debug("Строим здание " + this.getDisplayName() + " не в пределах культуры");
 				throw new CivException(CivSettings.localize.localizedString("buildable_notInCulture"));
 			}
 		} else {
@@ -336,7 +298,7 @@ public abstract class Buildable extends Construct {
 			ConfigTownLevel level = CivSettings.townLevels.get(getTown().getLevel());
 
 			Integer maxTileImprovements = level.tile_improvements;
-			if (town.getBuffManager().hasBuff("buff_mother_tree_tile_improvement_bonus")) {
+			if (getTown().getBuffManager().hasBuff("buff_mother_tree_tile_improvement_bonus")) {
 				maxTileImprovements *= 2;
 			}
 			if (getTown().getTileImprovementCount() >= maxTileImprovements) {
@@ -465,7 +427,7 @@ public abstract class Buildable extends Construct {
 	public int getBuildSpeed() {
 		// buildTime is in hours, we need to return milliseconds.
 		// We should return the number of milliseconds to wait between each block placement.
-		double hoursPerBlock = (this.getHammerCost() / this.town.getHammers().total) / this.totalBlockCount;
+		double hoursPerBlock = (this.getHammerCost() / this.getTown().getHammers().total) / this.totalBlockCount;
 		double millisecondsPerBlock = hoursPerBlock * 60 * 60 * 1000;
 		// Clip millisecondsPerBlock to 500 milliseconds.
 		if (millisecondsPerBlock < 500) millisecondsPerBlock = 500;
@@ -479,7 +441,7 @@ public abstract class Buildable extends Construct {
 		// We do not want the blocks to be placed faster than 500 milliseconds.
 		// So in order to deal with speeds that are faster than that, we will
 		// increase the number of blocks given per tick. 
-		double hoursPerBlock = (this.getHammerCost() / this.town.getHammers().total) / this.totalBlockCount;
+		double hoursPerBlock = (this.getHammerCost() / this.getTown().getHammers().total) / this.totalBlockCount;
 		double millisecondsPerBlock = hoursPerBlock * 60 * 60 * 1000;
 		// Dont let this get lower than 1 just in case to prevent any crazyiness...
 		//if (millisecondsPerBlock < 1)
@@ -497,11 +459,7 @@ public abstract class Buildable extends Construct {
 	public abstract void processUndo() throws CivException;
 	public abstract void updateBuildProgess();
 	public abstract void build(Player player) throws Exception;
-	public abstract String getDynmapDescription();
-	public abstract String getMarkerIconName();
 	public abstract void onComplete();
-	public abstract void onLoad() throws CivException;
-	public abstract void onUnload();
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
 	}
 	public void onTechUpdate() {

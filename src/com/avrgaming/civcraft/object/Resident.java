@@ -100,14 +100,16 @@ public class Resident extends SQLObject {
 	private boolean adminChat = false;
 	private boolean combatInfo = false;
 	private boolean titleAPI = true;
-	/** @deprecated */
+	@Deprecated
 	private boolean preview;
+	@Deprecated
 	private int languageCode = 1033;
-
+	@Deprecated
 	public static HashSet<String> allchatters = new HashSet<String>();
 
-	/* Town or civ to chat in besides your own. */
+	/** Town to chat in besides your own. /ad tc <town> */
 	private Town townChatOverride = null;
+	/** Civ to chat in besides your own. /ad cc <civ> */
 	private Civilization civChatOverride = null;
 	private boolean permOverride = false;
 	private boolean sbperm = false;
@@ -1380,8 +1382,9 @@ public class Resident extends SQLObject {
 		}
 	}
 
+	@Deprecated
 	public void setLanguageCode(int code) {
-		// TO-DO: Need to validate if language code is supported.
+		// TODO: Need to validate if language code is supported.
 		this.languageCode = code;
 	}
 

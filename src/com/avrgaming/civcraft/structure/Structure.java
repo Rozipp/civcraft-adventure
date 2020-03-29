@@ -45,7 +45,7 @@ public class Structure extends Buildable {
 	public static String TABLE_NAME = "STRUCTURES";
 	public Structure(Location center, String id, Town town) throws CivException {
 		this.setInfo(CivSettings.structures.get(id));
-		this.setTown(town);
+		this.setSQLOwner(town);
 		this.setCorner(new BlockCoord(center));
 		this.setHitpoints(getInfo().max_hitpoints);
 
@@ -55,295 +55,57 @@ public class Structure extends Buildable {
 //			throw new CivException(CivSettings.localize.localizedString("structure_alreadyExistsHere"));
 //		}
 	}
-
 	public Structure(ResultSet rs) throws SQLException, CivException {
 		this.load(rs);
 	}
-
-	@Override
-	public void onCheckBlockPAR() throws CivException {
-		/* Override in children */
+	private static Structure newStructure(ResultSet rs, Location center, String id, Town town) throws CivException, SQLException {
+		Structure struct;
+		if (rs != null) id = rs.getString("type_id");
+		String[] splitId = id.split("_");
+		String name = "com.avrgaming.civcraft.structure.";
+		int length = splitId.length;
+		for (int i = 1; i < length; i++) {
+			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
+		}
+		try {
+			Class<?> cls = null;
+			cls = Class.forName(name);
+			Constructor<?> cntr;
+			if (rs == null) {
+				Class<?> partypes[] = {Location.class, String.class, Town.class};
+				cntr = cls.getConstructor(partypes);
+				Object arglist[] = {center, id, town};
+				struct = (Structure) cntr.newInstance(arglist);
+			} else {
+				Class<?> partypes[] = {ResultSet.class};
+				cntr = cls.getConstructor(partypes);
+				Object arglist[] = {rs};
+				struct = (Structure) cntr.newInstance(arglist);
+			}
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			CivLog.error("-----Structure class '" + name + "' creation error-----");
+			e.printStackTrace();
+			// This structure is generic, just create a structure type. 
+			// TODO should ANY structure be generic?
+			if (rs == null)
+				struct = new Structure(center, id, town);
+			else
+				struct = new Structure(rs);
+		}
+		struct.loadSettings();
+		return struct;
 	}
-	public void updateSignText() {
-		/* Override in children */
-	}
-
-	/* Public interfaces to _newStructure. */
 	public static Structure newStructure(ResultSet rs) throws CivException, SQLException {
-		Structure struct;
-		String id = rs.getString("type_id");
-		String[] splitId = id.split("_");
-		String name = "com.avrgaming.civcraft.structure.";
-		int length = splitId.length;
-		for (int i = 1; i < length; i++) {
-			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
-		}
-		try {
-			Class<?> cls = null;
-			cls = Class.forName(name);
-			Class<?> partypes[] = {ResultSet.class};
-			Constructor<?> cntr = cls.getConstructor(partypes);
-			Object arglist[] = {rs};
-			struct = (Structure) cntr.newInstance(arglist);
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			CivLog.error("-----Structure class '" + name + "' creation error-----");
-			e.printStackTrace();
-			// This structure is generic, just create a structure type. 
-			// TODO should ANY structure be generic?
-			struct = new Structure(rs);
-		}
-		struct.loadSettings();
-
-		return struct;
+		return newStructure(rs, null, null, null);
 	}
-
 	public static Structure newStructure(Location center, String id, Town town) throws CivException {
-		Structure struct;
-		String[] splitId = id.split("_");
-		String name = "com.avrgaming.civcraft.structure.";
-		int length = splitId.length;
-		for (int i = 1; i < length; i++) {
-			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
-		}
 		try {
-			Class<?> cls = null;
-			cls = Class.forName(name);
-			Class<?> partypes[] = {Location.class, String.class, Town.class};
-			Constructor<?> cntr = cls.getConstructor(partypes);
-			Object arglist[] = {center, id, town};
-			struct = (Structure) cntr.newInstance(arglist);
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			CivLog.error("-----Structure class '" + name + "' creation error-----");
-			e.printStackTrace();
-			// This structure is generic, just create a structure type. 
-			// TODO should ANY structure be generic?
-			struct = new Structure(center, id, town);
-		}
-		struct.loadSettings();
-
-		return struct;
-	}
-
-	public static void init() throws SQLException {
-		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" // 
-					+ "`id` int(11) unsigned NOT NULL auto_increment," //
-					+ "`type_id` mediumtext NOT NULL," //
-					+ "`town_id` int(11) DEFAULT NULL," //
-					+ "`complete` bool NOT NULL DEFAULT '0'," //
-					+ "`builtBlockCount` int(11) DEFAULT NULL, " //
-					+ "`cornerBlockHash` mediumtext DEFAULT NULL," //
-					+ "`template_name` mediumtext DEFAULT NULL, " //
-					+ "`hitpoints` int(11) DEFAULT '100'," //
-					+ "PRIMARY KEY (`id`)" + ")";
-
-			SQL.makeTable(table_create);
-			CivLog.info("Created " + TABLE_NAME + " table");
-		} else {
-			CivLog.info(TABLE_NAME + " table OK!");
-		}
-	}
-
-	@Override
-	public void load(ResultSet rs) throws CivException, SQLException {
-		this.setId(rs.getInt("id"));
-		this.setInfo(CivSettings.structures.get(rs.getString("type_id")));
-		this.setTown(CivGlobal.getTownFromId(rs.getInt("town_id")));
-
-		if (this.getTown() == null) {
-			this.delete();
-			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
-		}
-
-		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
-		this.setHitpoints(rs.getInt("hitpoints"));
-		String tFilePath = rs.getString("template_name");
-		if (tFilePath == null)
-			this.setTemplate(null);
-		else
-			try {
-				this.setTemplate(Template.getTemplate(tFilePath));
-			} catch (IOException | CivException e1) {
-				e1.printStackTrace();
-				this.setTemplate(null);
-			}
-
-		this.setComplete(rs.getBoolean("complete"));
-		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
-		this.getTown().addStructure(this);
-
-		this.startStructureOnLoad();
-		if (!this.isComplete()) {
-			try {
-				this.startBuildTask();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		this.bindBlocks();
-	}
-
-	@Override
-	public void saveNow() throws SQLException {
-		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		hashmap.put("type_id", this.getConfigId());
-		hashmap.put("town_id", this.getTown().getId());
-		hashmap.put("complete", this.isComplete());
-		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
-		hashmap.put("cornerBlockHash", this.getCorner().toString());
-		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getTemplate().getFilepath());
-		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
-	}
-
-	public void deleteSkipUndo() throws SQLException {
-		super.delete();
-		CivGlobal.removeStructure(this);
-		this.getTown().removeStructure(this);
-		this.unbindStructureBlocks();
-		SQL.deleteNamedObject(this, TABLE_NAME);
-	}
-
-	@Override
-	public void delete() throws SQLException {
-		super.delete();
-
-		if (this.getTown() != null) {
-			/* Remove StructureSigns */
-			try {
-				this.undoFromTemplate();
-			} catch (IOException | CivException e1) {
-				e1.printStackTrace();
-				this.fancyDestroyStructureBlocks();
-			}
-
-			CivGlobal.removeStructure(this);
-			this.getTown().removeStructure(this);
-			this.unbindStructureBlocks();
-		}
-		this.setEnabled(false);
-		SQL.deleteNamedObject(this, TABLE_NAME);
-	}
-
-	@Override
-	public void updateBuildProgess() {
-		if (this.getId() != 0) {
-			HashMap<String, Object> struct_hm = new HashMap<String, Object>();
-			struct_hm.put("id", this.getId());
-			struct_hm.put("type_id", this.getConfigId());
-			struct_hm.put("complete", this.isComplete());
-			struct_hm.put("builtBlockCount", this.savedBlockCount);
-
-			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
-		}
-	}
-
-	@Override
-	public void build(Player player) throws Exception {
-		Template tpl = this.getTemplate();
-		// Before we place the blocks, give our build function a chance to work on it
-		this.runOnBuild(this.getCorner().getChunkCoord());
-
-		// Setup undo information
-		getTown().lastBuildableBuilt = this;
-		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
-		tpl.buildScaffolding(this.getCorner());
-
-		CivGlobal.getResident(player).undoPreview();
-		this.startBuildTask();
-
-		CivGlobal.addStructure(this);
-		this.getTown().addStructure(this);
-	}
-
-	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
-	}
-
-	@Override
-	public String getDynmapDescription() {
-		return null;
-	}
-
-	@Override
-	public String getMarkerIconName() {
-		return "bighouse";
-	}
-
-	@Override
-	public void processUndo() throws CivException {
-		if (isTownHall()) {
-			throw new CivException(CivSettings.localize.localizedString("structure_move_notCaporHall"));
-		}
-		try {
-			delete();
-			getTown().removeStructure(this);
+			return newStructure(null, center, id, town);
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
+			throw new CivException("SQLException");
 		}
-		CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_structure_undo_success", getDisplayName()));
-		double refund = this.getCost();
-		this.getTown().depositDirect(refund);
-		CivMessage.sendTown(getTown(),
-				CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
-		this.unbindStructureBlocks();
 	}
-
-	public double getRepairCost() {
-		return (int) this.getCost() / 2;
-	}
-
-	public void onBonusGoodieUpdate() {
-	}
-
-	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
-	}
-
-	@Override
-	@Deprecated
-	public String getName() {
-		return this.getDisplayName();
-	}
-
-	@Override
-	public void onComplete() {
-	}
-
-	@Override
-	public void onLoad() throws CivException {
-	}
-
-	@Override
-	public void onUnload() {
-	}
-
-	public void repairStructureForFree() throws CivException {
-		setHitpoints(getMaxHitPoints());
-		try {
-			repairFromTemplate();
-		} catch (CivException | IOException e) {
-			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
-		}
-		bindBlocks();
-		save();
-	}
-	public void repairStructure() throws CivException {
-		if (this instanceof TownHall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
-
-		double cost = getRepairCost();
-
-		if (!getTown().getTreasury().hasEnough(cost))
-			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
-					getDisplayName()));
-
-		repairStructureForFree();
-		getTown().getTreasury().withdraw(cost);
-		CivMessage.sendTown(getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));
-	}
-
 	public void loadSettings() {
 		/* Build and register all of the components. */
 		List<HashMap<String, String>> compInfoList = this.getComponentInfoList();
@@ -369,11 +131,48 @@ public class Structure extends Buildable {
 		}
 	}
 
-	@Override
-	public void setTurretLocation(BlockCoord absCoord) {
-	}
+	//--------------------- SQL DataBase
+	public static void init() throws SQLException {
+		if (!SQL.hasTable(TABLE_NAME)) {
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" // 
+					+ "`id` int(11) unsigned NOT NULL auto_increment," //
+					+ "`type_id` mediumtext NOT NULL," //
+					+ "`town_id` int(11) DEFAULT NULL," //
+					+ "`complete` bool NOT NULL DEFAULT '0'," //
+					+ "`builtBlockCount` int(11) DEFAULT NULL, " //
+					+ "`cornerBlockHash` mediumtext DEFAULT NULL," //
+					+ "`template_name` mediumtext DEFAULT NULL, " //
+					+ "`hitpoints` int(11) DEFAULT '100'," //
+					+ "PRIMARY KEY (`id`)" + ")";
 
-	private void startStructureOnLoad() {
+			SQL.makeTable(table_create);
+			CivLog.info("Created " + TABLE_NAME + " table");
+		} else {
+			CivLog.info(TABLE_NAME + " table OK!");
+		}
+	}
+	@Override
+	public void load(ResultSet rs) throws CivException, SQLException {
+		this.setId(rs.getInt("id"));
+		this.setInfo(CivSettings.structures.get(rs.getString("type_id")));
+		this.setSQLOwner(CivGlobal.getTownFromId(rs.getInt("town_id")));
+
+		if (this.getTown() == null) {
+			this.delete();
+			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
+		}
+		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
+		this.setHitpoints(rs.getInt("hitpoints"));
+		String tFilePath = rs.getString("template_name");
+		if (tFilePath == null)
+			this.setTemplate(null);
+		else
+			this.setTemplate(Template.getTemplate(tFilePath));
+
+		this.setComplete(rs.getBoolean("complete"));
+		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
+		this.getTown().addStructure(this);
+
 		Structure struct = this;
 		TaskMaster.syncTask(new Runnable() {
 			@Override
@@ -386,5 +185,176 @@ public class Structure extends Buildable {
 				}
 			}
 		}, 2000);
+		if (!this.isComplete()) {
+			try {
+				this.startBuildTask();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		this.bindBlocks();
 	}
+	@Override
+	public void saveNow() throws SQLException {
+		HashMap<String, Object> hashmap = new HashMap<String, Object>();
+		hashmap.put("type_id", this.getConfigId());
+		hashmap.put("town_id", this.getTown().getId());
+		hashmap.put("complete", this.isComplete());
+		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
+		hashmap.put("cornerBlockHash", this.getCorner().toString());
+		hashmap.put("hitpoints", this.getHitpoints());
+		hashmap.put("template_name", this.getTemplate().getFilepath());
+		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
+	}
+	@Override
+	public void delete() throws SQLException {
+		super.delete();
+
+		if (this.getTown() != null) {
+			try {
+				this.undoFromTemplate();
+			} catch (IOException | CivException e1) {
+				e1.printStackTrace();
+				this.fancyDestroyStructureBlocks();
+			}
+
+			CivGlobal.removeStructure(this);
+			this.getTown().removeStructure(this);
+			this.unbindStructureBlocks();
+		}
+		this.setEnabled(false);
+		SQL.deleteNamedObject(this, TABLE_NAME);
+	}
+	/** @deprecated */
+	public void deleteSkipUndo() throws SQLException {
+		super.delete();
+		CivGlobal.removeStructure(this);
+		this.getTown().removeStructure(this);
+		this.unbindStructureBlocks();
+		this.setEnabled(false);
+		SQL.deleteNamedObject(this, TABLE_NAME);
+	}
+
+	//-------------------build
+	@Override
+	public void updateBuildProgess() {
+		if (this.getId() != 0) {
+			HashMap<String, Object> struct_hm = new HashMap<String, Object>();
+			struct_hm.put("id", this.getId());
+			struct_hm.put("type_id", this.getConfigId());
+			struct_hm.put("complete", this.isComplete());
+			struct_hm.put("builtBlockCount", this.savedBlockCount);
+
+			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
+		}
+	}
+	@Override
+	public void build(Player player) throws Exception {
+		// Before we place the blocks, give our build function a chance to work on it
+		CivLog.debug("build log: structure.build ");
+		this.runOnBuild(this.getCorner().getChunkCoord());
+
+		// Setup undo information
+		getTown().lastBuildableBuilt = this;
+		Template tpl = this.getTemplate();
+		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
+		tpl.buildScaffolding(this.getCorner());
+
+		CivGlobal.getResident(player).undoPreview();
+		this.startBuildTask();
+
+		CivGlobal.addStructure(this);
+		this.getTown().addStructure(this);
+	}
+	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+		/* Override in children */
+	}
+	public void repairStructureForFree() throws CivException {
+		setHitpoints(getMaxHitPoints());
+		try {
+			repairFromTemplate();
+		} catch (CivException | IOException e) {
+			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
+		}
+		bindBlocks();
+		save();
+	}
+	public void repairStructure() throws CivException {
+		if (this instanceof TownHall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
+		double cost = getRepairCost();
+		if (!getTown().getTreasury().hasEnough(cost))
+			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
+					getDisplayName()));
+		repairStructureForFree();
+		getTown().getTreasury().withdraw(cost);
+		CivMessage.sendTown(getTown(),
+				CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));
+	}
+	@Override
+	public void processUndo() throws CivException {
+		if (isTownHall()) {
+			throw new CivException(CivSettings.localize.localizedString("structure_move_notCaporHall"));
+		}
+		try {
+			delete();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
+		}
+		CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_structure_undo_success", getDisplayName()));
+		double refund = this.getCost();
+		this.getTown().depositDirect(refund);
+		CivMessage.sendTown(getTown(),
+				CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
+	}
+
+	// --------------- structure const
+	@Override
+	@Deprecated
+	public String getName() {
+		return this.getDisplayName();
+	}
+	public double getRepairCost() {
+		return (int) this.getCost() / 2;
+	}
+	@Override
+	public String getDynmapDescription() {
+		return null;
+	}
+	@Override
+	public String getMarkerIconName() {
+		return "bighouse";
+	}
+
+	//-------------- Override in children
+	@Override
+	public void onCheckBlockPAR() throws CivException {
+		/* Override in children */
+	}
+	public void updateSignText() {
+		/* Override in children */
+	}
+	public void onBonusGoodieUpdate() {
+		/* Override in children */
+	}
+	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
+		/* Override in children */
+	}
+	@Override
+	public void onComplete() {
+		/* Override in children */
+	}
+	@Override
+	public void onLoad() throws CivException {
+		/* Override in children */
+	}
+	@Override
+	public void onUnload() {
+		/* Override in children */
+	}
+	@Override
+	public void setTurretLocation(BlockCoord absCoord) {
+		/* Override in children */
+	}
+
 }

@@ -48,11 +48,11 @@ public class BuildAsyncTask extends CivAsyncTask {
 	private final int SAVE_INTERVAL = 5 * 1000; /* once every 5 sec. */
 
 	public BuildAsyncTask(Buildable bld) {
+		CivLog.debug("build log: screate BuildAsyncTask after 1000ms");
 		buildable = bld;
 		speed = 500;
 		tpl = buildable.getTemplate();
 		centerBlock = buildable.getCorner();
-		CivLog.debug("centerBlock " + centerBlock);
 		this.blocks_per_tick = buildable.getBlocksPerTick();
 		this.percent_complete = 0;
 		sbs = new LinkedList<SimpleBlock>();
@@ -220,9 +220,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 	}
 
 	public boolean build() {
-
 		boolean skipToNext = false;
-
 		// Apply extra blocks first, then work on this blocks per tick.
 		if (this.extra_blocks > 0) {
 			synchronized (this) {
@@ -236,7 +234,6 @@ public class BuildAsyncTask extends CivAsyncTask {
 			}
 
 		//3D mailman algorithm...	
-
 		int y = (buildable.getBuiltBlockCount() / (tpl.size_x * tpl.size_z)); //bottom to top.
 		//int y = (tpl.size_y - (buildable.builtBlockCount / (tpl.size_x*tpl.size_z))) - 1; //Top to bottom
 		int z = (buildable.getBuiltBlockCount() / tpl.size_x) % tpl.size_z;
@@ -264,10 +261,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 		// of the build task async.
 		synchronized (this.aborted) {
 			if (!this.aborted) {
-				if (!Template.isAttachable(sb.getMaterial())) {
-					sbs.add(sb);
-					
-				}
+				if (!Template.isAttachable(sb.getMaterial())) sbs.add(sb);
 				if (!buildable.isDestroyable() && sb.getType() != CivData.AIR) {
 					if (sb.specialType != Type.COMMAND) {
 						BlockCoord coord = new BlockCoord(sb.worldname, sb.x, sb.y, sb.z);
@@ -279,7 +273,6 @@ public class BuildAsyncTask extends CivAsyncTask {
 				return false;
 			}
 		}
-
 		return skipToNext;
 	}
 
@@ -305,23 +298,20 @@ public class BuildAsyncTask extends CivAsyncTask {
 //		class SyncTask implements Runnable {
 //			@Override
 //			public void run() {
-				//Remove build task from town..
-				buildable.getTown().build_tasks.remove(this);
-				buildable.unbindStructureBlocks();
-
-				//remove wonder from town.
-				synchronized (buildable.getTown()) {
-					//buildable.getTown().wonders.remove(buildable);
-					buildable.getTown().removeWonder(buildable);
-				}
-
-				//Remove the scaffolding..
-				tpl.removeScaffolding(buildable.getCorner().getLocation());
-				try {
-					((Wonder) buildable).delete();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+		//Remove build task from town..
+		buildable.getTown().build_tasks.remove(this);
+		buildable.unbindStructureBlocks();
+		//remove wonder from town.
+		synchronized (buildable.getTown()) {
+			buildable.getTown().removeWonder(buildable);
+		}
+		//Remove the scaffolding..
+		tpl.removeScaffolding(buildable.getCorner().getLocation());
+		try {
+			((Wonder) buildable).delete();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 //			}
 //		}
 //		TaskMaster.syncTask(new SyncTask());
@@ -345,5 +335,4 @@ public class BuildAsyncTask extends CivAsyncTask {
 			aborted = true;
 		}
 	}
-
 }

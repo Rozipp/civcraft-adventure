@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -74,11 +73,10 @@ public class WaterStructure extends Structure {
 	}
 
 	@Override
-	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ)
-			throws CivException {
-		super.checkBlockPermissionsAndRestrictions(player, centerBlock, regionX, regionY, regionZ);
+	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
+		super.checkBlockPermissionsAndRestrictions(player);
 
-		if ((player.getLocation().getBlockY() - WATER_LEVEL) > TOLERANCE) {
+		if (Math.abs(this.getCorner().getY() - WATER_LEVEL) > TOLERANCE) {
 			throw new CivException(CivSettings.localize.localizedString("buildable_Water_notValidWaterSpot"));
 		}
 

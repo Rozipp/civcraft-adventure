@@ -34,8 +34,6 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
@@ -55,9 +53,12 @@ public class Template {
 	public int size_z;
 	private String direction;
 	private String filepath;
-	public int totalBlocks; 
+	public int totalBlocks;
 
-	/* Save the command block locations when we init the template, so we dont have to search for them later. */
+	/*
+	 * Save the command block locations when we init the template, so we dont have
+	 * to search for them later.
+	 */
 	public ArrayList<BlockCoord> commandBlockRelativeLocations = new ArrayList<BlockCoord>();
 	public LinkedList<BlockCoord> doorRelativeLocations = new LinkedList<BlockCoord>();
 	public LinkedList<BlockCoord> attachableLocations = new LinkedList<BlockCoord>();
@@ -92,7 +93,7 @@ public class Template {
 			String location = locTypeSplit[0];
 			String type = locTypeSplit[1];
 
-			//Parse location
+			// Parse location
 			String locationSplit[] = location.split(":");
 			int blockX, blockY, blockZ;
 			blockX = Integer.valueOf(locationSplit[0]);
@@ -105,11 +106,13 @@ public class Template {
 			blockId = Integer.valueOf(typeSplit[0]);
 			blockData = Integer.valueOf(typeSplit[1]);
 
-			if (blockId != 0) this.totalBlocks++;
-			SimpleBlock block = new SimpleBlock(blockId, blockData);
+			if (blockId != 0)
+				this.totalBlocks++;
+			SimpleBlock block = new SimpleBlock("", blockX, blockY, blockZ, blockId, blockData);
 
-			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR || blockId == CivData.BIRCH_DOOR
-					|| blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR || blockId == CivData.DARK_OAK_DOOR) {
+			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR
+					|| blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
+					|| blockId == CivData.DARK_OAK_DOOR) {
 				this.doorRelativeLocations.add(new BlockCoord("", blockX, blockY, blockZ));
 			}
 
@@ -126,11 +129,13 @@ public class Template {
 						// Save any key values we find.
 						if (locTypeSplit.length > 3) {
 							for (int i = 3; i < locTypeSplit.length; i++) {
-								if (locTypeSplit[i] == null || locTypeSplit[i].equals("")) continue;
+								if (locTypeSplit[i] == null || locTypeSplit[i].equals(""))
+									continue;
 
 								String[] keyvalue = locTypeSplit[i].split(":");
 								if (keyvalue.length < 2) {
-									CivLog.warning("Invalid keyvalue:" + locTypeSplit[i] + " in template:" + this.filepath);
+									CivLog.warning(
+											"Invalid keyvalue:" + locTypeSplit[i] + " in template:" + this.filepath);
 									continue;
 								}
 								block.keyvalues.put(keyvalue[0].trim(), keyvalue[1].trim());
@@ -143,18 +148,17 @@ public class Template {
 					} else {
 						block.specialType = SimpleBlock.Type.LITERAL;
 						// Literal sign, copy the sign into the simple block
-						for (int i = 0; i < 4; i++) {
+						for (int i = 0; i < 4; i++)
 							try {
 								block.message[i] = locTypeSplit[i + 2];
 							} catch (ArrayIndexOutOfBoundsException e) {
 								block.message[i] = "";
 							}
-						}
 						this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
 					}
 				}
-			} else
-				if (Template.isAttachable(blockId)) this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
+			} else if (Template.isAttachable(blockId))
+				this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
 			blocks[blockX][blockY][blockZ] = block;
 		}
 
@@ -175,17 +179,25 @@ public class Template {
 						for (int z = 0; z < tpl.size_z; z++) {
 							boolean bb = false;
 							Block b = center.getBlock().getRelative(x, y, z);
-							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(y, 2) == 0) bb = true;
-							if (y == 0 && (Math.floorMod(x + z, 3) == 1)) bb = true;
-							if ((y == tpl.size_y - 1) && (x == 0 || x == tpl.size_x - 1) && Math.floorMod(z, 3) == 0) bb = true;
-							if ((y == tpl.size_y - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(x, 3) == 0) bb = true;
-							if (!bb) continue;
+							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1)
+									&& Math.floorMod(y, 2) == 0)
+								bb = true;
+							if (y == 0 && (Math.floorMod(x + z, 3) == 1))
+								bb = true;
+							if ((y == tpl.size_y - 1) && (x == 0 || x == tpl.size_x - 1) && Math.floorMod(z, 3) == 0)
+								bb = true;
+							if ((y == tpl.size_y - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(x, 3) == 0)
+								bb = true;
+							if (!bb)
+								continue;
 
 							count++;
 							ItemManager.sendBlockChange(player, b.getLocation(), 85, 0);
-							resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
+							resident.previewUndo.put(new BlockCoord(b.getLocation()),
+									new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
 
-							if (count < 1000) continue;
+							if (count < 1000)
+								continue;
 							count = 0;
 							try {
 								Thread.sleep(1000);
@@ -258,21 +270,19 @@ public class Template {
 				try {
 					int count = 0;
 					Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
-					for (int y = 0; y < tpl.size_y; y++) {
+					for (int y = tpl.size_y - 1; y >= 0; y--) {
 						for (int x = 0; x < tpl.size_x; x++) {
 							for (int z = 0; z < tpl.size_z; z++) {
-								// Must set to air in a different loop, since setting to air can break attachables.
+								// Must set to air in a different loop, since setting to air can break
+								// attachables.
 								Block b = corner.getBlock().getRelative(x, y, z);
-								boolean bb = false;
-								if (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) bb = true;
-								if (y == 0) bb = true;
-								if (y == tpl.size_y - 1) bb = true;// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) 
+								boolean isPutBlock = (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
+										|| (y == 0) || (y == tpl.size_y - 1);
+								// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
 
-								SimpleBlock sb;
-								if (bb)
-									sb = new SimpleBlock(CivSettings.scaffoldingType, CivSettings.scaffoldingData);
-								else
-									sb = new SimpleBlock(CivData.AIR, 0);
+								SimpleBlock sb = (isPutBlock)
+										? new SimpleBlock(CivSettings.scaffoldingType, CivSettings.scaffoldingData)
+										: new SimpleBlock(CivData.AIR, 0);
 								sb.worldname = corner.getWorldname();
 								sb.x = b.getX();
 								sb.y = b.getY();
@@ -280,12 +290,12 @@ public class Template {
 								sbs.add(sb);
 								count++;
 
-								if (count < blocksPerTick) continue;
-
-								SyncBuildUpdateTask.queueSimpleBlock(sbs);
-								sbs.clear();
-								count = 0;
-								Thread.sleep(1000);
+								if (count >= blocksPerTick) {
+									SyncBuildUpdateTask.queueSimpleBlock(sbs);
+									sbs.clear();
+									count = 0;
+									Thread.sleep(1000);
+								}
 							}
 						}
 					}
@@ -293,11 +303,12 @@ public class Template {
 						SyncBuildUpdateTask.queueSimpleBlock(sbs);
 						sbs.clear();
 					}
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 
-		TaskMaster.asyncTask(new AsyncTask(), 100);
+		TaskMaster.asyncTask(new AsyncTask(), 10);
 //
 //		for (int y = 0; y < this.size_y; y++) {
 //			Block b = center.getBlock().getRelative(0, y, 0);
@@ -349,19 +360,25 @@ public class Template {
 					for (int y = 0; y < tpl.size_y; y++) {
 						for (int x = 0; x < tpl.size_x; x++) {
 							for (int z = 0; z < tpl.size_z; z++) {
-								// Must set to air in a different loop, since setting to air can break attachables.
+								// Must set to air in a different loop, since setting to air can break
+								// attachables.
 								Block b = center.getBlock().getRelative(x, y, z);
 								boolean bb = false;
-								if (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) bb = true;
-								if (y == 0) bb = true;
-								if (y == tpl.size_y - 1) bb = true;// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) 
-								if (!bb) continue;
+								if (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
+									bb = true;
+								if (y == 0)
+									bb = true;
+								if (y == tpl.size_y - 1)
+									bb = true;// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
+								if (!bb)
+									continue;
 
-								if (ItemManager.getTypeId(b) == CivSettings.scaffoldingType)// 
+								if (ItemManager.getTypeId(b) == CivSettings.scaffoldingType)//
 									ItemManager.setTypeIdAndData(b, CivData.AIR, 0, true);
 								count++;
 
-								if (count < 10000) continue;
+								if (count < 10000)
+									continue;
 
 								SyncBuildUpdateTask.queueSimpleBlock(sbs);
 								sbs.clear();
@@ -374,7 +391,8 @@ public class Template {
 						SyncBuildUpdateTask.queueSimpleBlock(sbs);
 						sbs.clear();
 					}
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {
+				}
 			}
 		}, 0);
 //
@@ -441,7 +459,7 @@ public class Template {
 	public void saveUndoTemplate(String string, BlockCoord corner) throws CivException, IOException {
 		FileWriter writer = new FileWriter(Template.getUndoFilePath(string));
 
-		//TODO Extend this to save paintings?
+		// TODO Extend this to save paintings?
 		writer.write(this.size_x + ";" + this.size_y + ";" + this.size_z + "\n");
 		for (int x = 0; x < this.size_x; x++) {
 			for (int y = 0; y < this.size_y; y++) {
@@ -454,15 +472,47 @@ public class Template {
 							for (String line : sign.getLines()) {
 								signText += line + ",";
 							}
-							writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":" + ItemManager.getData(b) + "," + signText + "\n");
+							writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":"
+									+ ItemManager.getData(b) + "," + signText + "\n");
 						}
 					} else {
-						writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":" + ItemManager.getData(b) + "\n");
+						writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":"
+								+ ItemManager.getData(b) + "\n");
 					}
 				}
 			}
 		}
 		writer.close();
+	}
+
+	public void buildTemplate(BlockCoord corner) {
+		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+		// Not Attachable blocks
+		for (int y = 0; y < this.size_y; ++y) {
+			for (int x = 0; x < this.size_x; ++x) {
+				for (int z = 0; z < this.size_z; ++z) {
+					SimpleBlock sb = this.blocks[x][y][z];
+					if (Template.isAttachable(sb.getMaterial()))
+						continue;
+					sbs.add(new SimpleBlock(corner, sb));
+				}
+			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
+		// Attachable blocks
+//		for (int y = 0; y < this.size_y; ++y) {
+//			for (int x = 0; x < this.size_x; ++x) {
+//				for (int z = 0; z < this.size_z; ++z) {
+//					SimpleBlock sb = this.blocks[x][y][z];
+//					if (!Template.isAttachable(sb.getMaterial())) continue;
+//					sbs.add(new SimpleBlock(corner, sb));
+//				}
+//			}
+//		}
+//		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+//		CivLog.debug("Added " + sbs.size() + "  blocks");
+//		sbs.clear();
 	}
 
 	@Deprecated
@@ -501,7 +551,8 @@ public class Template {
 					}
 
 					SimpleBlock sb = tpl.blocks[x][y][z];
-					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) sb.setType(CivData.AIR);
+					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial()))
+						sb.setType(CivData.AIR);
 					// Convert relative x,y,z to real x,y,z in world.
 					sb.x = x + cornerBlock.getX();
 					sb.y = y + cornerBlock.getY();
@@ -516,10 +567,14 @@ public class Template {
 		sbs.clear();
 	}
 
-	/* Handles the processing of CivTemplates which store cubiods of blocks for later use. */
+	/*
+	 * Handles the processing of CivTemplates which store cubiods of blocks for
+	 * later use.
+	 */
 	public static HashMap<String, Template> templateCache = new HashMap<String, Template>();
-//-------------- Attachable Types
+	// -------------- Attachable Types
 	public static HashSet<Material> attachableTypes = new HashSet<Material>();
+
 	@SuppressWarnings("deprecation")
 	public static void initAttachableTypes() {
 		attachableTypes.add(Material.SAPLING);
@@ -546,8 +601,8 @@ public class Template {
 		attachableTypes.add(Material.STONE_BUTTON);
 		attachableTypes.add(Material.CACTUS);
 		attachableTypes.add(Material.SUGAR_CANE);
-		attachableTypes.add(Material.getMaterial(93)); //redstone repeater off
-		attachableTypes.add(Material.getMaterial(94)); //redstone repeater on
+		attachableTypes.add(Material.getMaterial(93)); // redstone repeater off
+		attachableTypes.add(Material.getMaterial(94)); // redstone repeater on
 		attachableTypes.add(Material.TRAP_DOOR);
 		attachableTypes.add(Material.PUMPKIN_STEM);
 		attachableTypes.add(Material.MELON_STEM);
@@ -578,49 +633,56 @@ public class Template {
 		attachableTypes.add(Material.SIGN);
 		attachableTypes.add(Material.WALL_SIGN);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static boolean isAttachable(int blockID) {
 		return isAttachable(Material.getMaterial(blockID));
 	}
+
 	public static boolean isAttachable(Material mat) {
 		return attachableTypes.contains(mat);
 	}
 
-	//-------------- get filePath
-	public static String getTemplateFilePath(Location loc, Buildable buildable, String theme) {
-		if (!buildable.hasTemplate()) {
-			/* Certain structures are built procedurally such as walls and roads. They do not have a direction and do not have a template. */
-			return null;
-		}
-		if (buildable instanceof Wonder) theme = "wonders";
-		return Template.getTemplateFilePath(buildable.getTemplateBaseName(), Template.getDirection(loc), theme);
-	}
+	// -------------- get filePath
 	public static String getTemplateFilePath(Location loc, ConfigBuildableInfo info, String theme) {
-		if (info.isWonder) theme = "wonders";
+		if (info.isWonder)
+			theme = "wonders";
 		return Template.getTemplateFilePath(info.template_name, Template.getDirection(loc), theme);
 	}
+
 	public static String getTemplateFilePath(String template_name, String direction, String theme) {
-		if (theme == null) theme = "default";
+		if (template_name == null)
+			return null;
+		if (theme == null)
+			theme = "default";
 		template_name = template_name.replaceAll(" ", "_");
 		String ss = "templates/themes/" + theme + "/" + template_name + "/" + template_name;
-		if (!direction.equals("")) ss = ss + "_" + direction;
+		if (!direction.equals(""))
+			ss = ss + "_" + direction;
 		return (ss + ".def").toLowerCase();
 	}
+
 	public static String getUndoFilePath(String string) {
 		return "templates/undo/" + string;
 	}
+
 	public static String getInprogressFilePath(String string) {
 		return "templates/inprogress/" + string;
 	}
 
-	//------------ file process
+	// ------------ file process
 	public static void deleteFilePath(String filepath) {
 		File templateFile = new File(filepath);
 		templateFile.delete();
 	}
-	/* This function will save a copy of the template currently building into the town's temp directory. It does this so that we: 1) Dont have to remember the
-	 * template's direction when we resume 2) Can change the master template without messing up any builds in progress 3) So we can pick a random template and
-	 * "resume" the correct one. (e.g. cottages) */
+
+	/*
+	 * This function will save a copy of the template currently building into the
+	 * town's temp directory. It does this so that we: 1) Dont have to remember the
+	 * template's direction when we resume 2) Can change the master template without
+	 * messing up any builds in progress 3) So we can pick a random template and
+	 * "resume" the correct one. (e.g. cottages)
+	 */
 	public static void copyFilePath(String masterTemplatePath, String copyTemplatePath) {
 		// Copy File...
 		File master_tpl_file = new File(masterTemplatePath);
@@ -638,63 +700,72 @@ public class Template {
 	public static String getDirection(Location loc) {
 		return invertDirection(parseDirection(loc));
 	}
+
 	public static String parseDirection(Location loc) {
 		double rotation = (loc.getYaw() - 90) % 360;
 		if (rotation < 0) {
 			rotation += 360.0;
 		}
 		if (0 <= rotation && rotation < 22.5) {
-			return "east"; //S > E
-		} else
-			if (22.5 <= rotation && rotation < 67.5) {
-				return "east"; //SW > SE
-			} else
-				if (67.5 <= rotation && rotation < 112.5) {
-					return "south"; //W > E
-				} else
-					if (112.5 <= rotation && rotation < 157.5) {
-						return "west"; //NW > SW
-					} else
-						if (157.5 <= rotation && rotation < 202.5) {
-							return "west"; //N > W
-						} else
-							if (202.5 <= rotation && rotation < 247.5) {
-								return "west"; //NE > NW
-							} else
-								if (247.5 <= rotation && rotation < 292.5) {
-									return "north"; //E > N
-								} else
-									if (292.5 <= rotation && rotation < 337.5) {
-										return "east"; //SE > NE
-									} else
-										if (337.5 <= rotation && rotation < 360.0) {
-											return "east"; //S > E
-										} else {
-											return "east";
-										}
+			return "east"; // S > E
+		} else if (22.5 <= rotation && rotation < 67.5) {
+			return "east"; // SW > SE
+		} else if (67.5 <= rotation && rotation < 112.5) {
+			return "south"; // W > E
+		} else if (112.5 <= rotation && rotation < 157.5) {
+			return "west"; // NW > SW
+		} else if (157.5 <= rotation && rotation < 202.5) {
+			return "west"; // N > W
+		} else if (202.5 <= rotation && rotation < 247.5) {
+			return "west"; // NE > NW
+		} else if (247.5 <= rotation && rotation < 292.5) {
+			return "north"; // E > N
+		} else if (292.5 <= rotation && rotation < 337.5) {
+			return "east"; // SE > NE
+		} else if (337.5 <= rotation && rotation < 360.0) {
+			return "east"; // S > E
+		} else {
+			return "east";
+		}
 	}
+
 	public static String invertDirection(String dir) {
-		if (dir.equalsIgnoreCase("east")) return "west";
-		if (dir.equalsIgnoreCase("west")) return "east";
-		if (dir.equalsIgnoreCase("north")) return "south";
-		if (dir.equalsIgnoreCase("south")) return "north";
+		if (dir.equalsIgnoreCase("east"))
+			return "west";
+		if (dir.equalsIgnoreCase("west"))
+			return "east";
+		if (dir.equalsIgnoreCase("north"))
+			return "south";
+		if (dir.equalsIgnoreCase("south"))
+			return "north";
 		return null;
 	}
+
 	public static String getDirection(String filepath) {
-		if (filepath.contains("_east")) return "east";
-		if (filepath.contains("_south")) return "south";
-		if (filepath.contains("_west")) return "west";
-		if (filepath.contains("_north")) return "north";
+		if (filepath.contains("_east"))
+			return "east";
+		if (filepath.contains("_south"))
+			return "south";
+		if (filepath.contains("_west"))
+			return "west";
+		if (filepath.contains("_north"))
+			return "north";
 		return "";
 	}
 
-	public static Template getTemplate(String filepath) throws IOException, CivException {
+	public static Template getTemplate(String filepath) {
 		/* Attempt to get template statically. */
-		if (filepath == null) throw new CivException("This has not template");
+		if (filepath == null)
+			return null;
 		Template tpl = templateCache.get(filepath);
 		if (tpl == null) {
 			/* No template found in cache. Load it. */
-			tpl = new Template(filepath);
+			try {
+				tpl = new Template(filepath);
+			} catch (IOException | CivException e) {
+				CivLog.error("Can not load template " + filepath);
+				return null;
+			}
 			templateCache.put(filepath, tpl);
 		}
 		return tpl;

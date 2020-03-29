@@ -1,7 +1,5 @@
 package com.avrgaming.civcraft.loregui;
 
-import java.io.IOException;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -26,11 +24,11 @@ public class BuildWithDefaultPersonalTemplate implements GuiAction {
 		ConfigBuildableInfo info = resident.pendingBuildableInfo;
 
 		try {
-			String path = Template.getTemplateFilePath(info.template_name, Template.getDirection(player.getLocation()), "default");
+			String path = Template.getTemplateFilePath(info.template_name, Template.getDirection(player.getLocation()), null);
 			Template tpl = Template.getTemplate(path);
 			Location centerLoc = BuildableStatic.repositionCenterStatic(player.getLocation(), info.templateYShift, tpl);
 			TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, resident.pendingCallback), 0);
-		} catch (CivException | IOException e) {
+		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}
 		player.closeInventory();

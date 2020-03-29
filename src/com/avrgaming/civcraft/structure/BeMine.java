@@ -22,23 +22,5 @@ extends Structure {
     public String getMarkerIconName() {
         return "offlineuser";
     }
-
-    @Override
-    public void loadSettings() {
-        super.loadSettings();
-    }
-
-    @Override
-    public void onLoad() {
-    }
-
-    @Override
-    public void onComplete() {
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
 }
 

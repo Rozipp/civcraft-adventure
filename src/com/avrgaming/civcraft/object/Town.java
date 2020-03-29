@@ -998,12 +998,8 @@ public class Town extends SQLObject {
 				Buildable buildable = new Structure(centerLoc, buildableInfo.id, newTown);
 				Template tpl = resident.desiredTemplate;
 				if (tpl == null) {
-					String filePath = Template.getTemplateFilePath(centerLoc, buildable, null);
-					try {
-						tpl = Template.getTemplate(filePath);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					String filePath = Template.getTemplateFilePath(centerLoc, buildableInfo, null);
+					tpl = Template.getTemplate(filePath);
 				}
 				buildable.setTemplate(tpl);
 				Location cornerLoc = buildable.repositionCenter(centerLoc, tpl);
@@ -1842,6 +1838,7 @@ public class Town extends SQLObject {
 	}
 
 	public void buildStructure(Player player, Buildable buildable) throws CivException {
+		
 		checkIsTownCanBuildStructure(buildable);
 //		if (buildable.getReplaceStructure() != null) {
 //			try {
@@ -1851,9 +1848,7 @@ public class Town extends SQLObject {
 //				e1.printStackTrace();
 //			}
 //		}
-		Template tpl = buildable.getTemplate();
-		buildable.checkBlockPermissionsAndRestrictions(player, buildable.getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
-
+		buildable.checkBlockPermissionsAndRestrictions(player);
 		for (ChunkCoord cc : BuildableStatic.getChunkCoords(buildable)) {
 			TownChunk tc = CivGlobal.getTownChunk(cc);
 			if (tc == null) {
@@ -1861,33 +1856,38 @@ public class Town extends SQLObject {
 				TownChunk.autoClaim(this, cc).save();
 			}
 		}
-
+		
 		try {
 			Town town = this;
+			CivLog.debug("build log: run  syncTask buildable.build");
+			CivLog.debug("build log: syncTask buildable.build runed after 300ms");
+			try {
+				buildable.build(player);
+			} catch (Exception e) {
+				e.printStackTrace();
+				CivMessage.sendError(player, e.getMessage());
+			}
+			CivLog.debug("build log: save begin");
+			buildable.save();
+			
+			// Go through and add any town chunks that were claimed to this list
+			// of saved objects.
+			if (town.getExtraHammers() > 0) town.giveExtraHammers(town.getExtraHammers());
+
+			town.getTreasury().withdraw(buildable.getCost());
+			CivMessage.sendTown(town,
+					CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", buildable.getDisplayName()));
+
+			if (buildable instanceof TradeOutpost) {
+				TradeOutpost outpost = (TradeOutpost) buildable;
+				if (outpost.getGood() != null) outpost.getGood().save();
+			}
+			town.save();
+			CivLog.debug("build log: town save begin");
 			TaskMaster.syncTask(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						buildable.build(player);
-					} catch (Exception e) {
-						e.printStackTrace();
-						CivMessage.sendError(player, e.getMessage());
-					}
-					buildable.save();
-
-					// Go through and add any town chunks that were claimed to this list
-					// of saved objects.
-					if (town.getExtraHammers() > 0) town.giveExtraHammers(town.getExtraHammers());
-
-					town.getTreasury().withdraw(buildable.getCost());
-					CivMessage.sendTown(town,
-							CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", buildable.getDisplayName()));
-
-					if (buildable instanceof TradeOutpost) {
-						TradeOutpost outpost = (TradeOutpost) buildable;
-						if (outpost.getGood() != null) outpost.getGood().save();
-					}
-					town.save();
+					
 				}
 			}, 300);
 
@@ -1966,21 +1966,19 @@ public class Town extends SQLObject {
 		return this.structures.values();
 	}
 
-	public void processUndo() throws CivException {
+	public void processUndoConstruct() throws CivException {
 		if (this.lastBuildableBuilt == null) {
 			throw new CivException(CivSettings.localize.localizedString("town_undo_cannotFind"));
 		}
 
-		if (!(this.lastBuildableBuilt instanceof Wall) && !(this.lastBuildableBuilt instanceof Road)) {
-			throw new CivException(CivSettings.localize.localizedString("town_undo_notRoadOrWall"));
+		if ((this.lastBuildableBuilt instanceof Wall) || (this.lastBuildableBuilt instanceof Road)) {
+			this.lastBuildableBuilt.processUndo();
+			this.structures.remove(this.lastBuildableBuilt.getCorner());
+			this.removeBuildTask(lastBuildableBuilt);
+			this.lastBuildableBuilt = null;
 		}
-
-		this.lastBuildableBuilt.processUndo();
-		this.structures.remove(this.lastBuildableBuilt.getCorner());
-		removeBuildTask(lastBuildableBuilt);
-		this.lastBuildableBuilt = null;
+		throw new CivException(CivSettings.localize.localizedString("town_undo_notRoadOrWall"));
 	}
-
 	private void removeBuildTask(Buildable lastBuildableBuilt) {
 		for (BuildAsyncTask task : this.build_tasks) {
 			if (task.buildable == lastBuildableBuilt) {
@@ -3259,7 +3257,7 @@ public class Town extends SQLObject {
 	}
 
 	public ArrayList<Perk> getTemplatePerks(Buildable buildable, Resident resident, ConfigBuildableInfo info) {
-		ArrayList<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, buildable.getTemplateBaseName());
+		ArrayList<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, info.template_name);
 
 		for (Perk perk : resident.getPersonalTemplatePerks(info)) {
 			perks.add(perk);
@@ -3424,7 +3422,7 @@ public class Town extends SQLObject {
 			/* There is a structure at this location that doesnt belong to us! Grab it! */
 			struct.getTown().removeStructure(struct);
 			this.addStructure(struct);
-			struct.setTown(this);
+			struct.setSQLOwner(this);
 			struct.save();
 		}
 	}

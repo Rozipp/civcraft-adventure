@@ -194,7 +194,7 @@ public class BuildCommand extends CommandBase {
 
 	public void undo_cmd() throws CivException {
 		Town town = getSelectedTown();
-		town.processUndo();
+		town.processUndoConstruct();
 	}
 
 	public void progress_cmd() throws CivException {

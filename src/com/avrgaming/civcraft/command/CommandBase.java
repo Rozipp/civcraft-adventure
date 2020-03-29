@@ -607,7 +607,7 @@ public abstract class CommandBase implements CommandExecutor {
 			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotInvillage"));
 		}
 		
-		if (resident.getVillage().getOwner() != resident) {
+		if (resident.getVillage().getSQLOwner() != resident) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotOwner")+" ("+resident.getVillage().getOwnerName()+")");
 		}
 	}

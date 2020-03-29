@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -31,6 +32,8 @@ public class InteractiveBuildCommand implements InteractiveResponse {
 
 	@Override
 	public void respond(String message, Resident resident) {
+		CivLog.debug("build log: send yes");
+		
 		Town town = buildable.getTown();
 		Player player;
 		try {
@@ -55,7 +58,7 @@ public class InteractiveBuildCommand implements InteractiveResponse {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalidNotOP"));
 			return;
 		}
-
+		
 		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {

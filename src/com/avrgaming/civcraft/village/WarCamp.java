@@ -1,6 +1,5 @@
 package com.avrgaming.civcraft.village;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.structure.RespawnLocationHolder;
@@ -187,16 +185,8 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 		/* Load in the template. */
 		Template tpl;
-		try {
-			String templatePath = Template.getTemplateFilePath(templateFile, Template.getDirection(center), null);
-			tpl = Template.getTemplate(templatePath);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new CivException("Internal Error.");
-		} catch (CivException e) {
-			e.printStackTrace();
-			throw new CivException("Internal Error.");
-		}
+		String templatePath = Template.getTemplateFilePath(templateFile, Template.getDirection(center), null);
+		tpl = Template.getTemplate(templatePath);
 
 		getCorner().setFromLocation(repositionCenter(center, tpl));
 		checkBlockPermissionsAndRestrictions(player, getCorner().getBlock(), tpl.size_x, tpl.size_y, tpl.size_z);
@@ -358,11 +348,6 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 	@Override
 	public void processUndo() throws CivException {
-	}
-
-	@Override
-	public void updateBuildProgess() {
-
 	}
 
 	@Override

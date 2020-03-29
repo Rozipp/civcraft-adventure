@@ -12,10 +12,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -23,8 +23,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class SyncBuildUpdateTask implements Runnable {
 
-	public static int UPDATE_LIMIT = Integer.MAX_VALUE;
-//	public static final int QUEUE_SIZE = 4096;
+	public static int UPDATE_LIMIT = CivSettings.civConfig.getInt("sync_build_update_task");
 
 	private static Queue<SimpleBlock> updateBlocks = new LinkedList<SimpleBlock>();
 
@@ -42,44 +41,47 @@ public class SyncBuildUpdateTask implements Runnable {
 	public SyncBuildUpdateTask() {
 	}
 
-	/* Runs once, per tick and changes the blocks represented by SimpleBlock up to UPDATE_LIMIT times. */
+	/*
+	 * Runs once, per tick and changes the blocks represented by SimpleBlock up to
+	 * UPDATE_LIMIT times.
+	 */
 	@Override
 	public void run() {
+		if (updateBlocks.isEmpty())
+			return;
 		if (buildBlockLock.tryLock()) {
 			try {
+				CivLog.debug("Update block " + updateBlocks.size());
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
-					SimpleBlock next = updateBlocks.poll();
-					if (next == null) break;
+					SimpleBlock sb = updateBlocks.poll();
+					if (sb == null)
+						break;
 
-					Block block = Bukkit.getWorld(next.worldname).getBlockAt(next.x, next.y, next.z);
-					ItemManager.setTypeId(block, next.getType());
-					ItemManager.setData(block, next.getData());
+					Block block = sb.getBlock();
 
 					/* Handle Special Blocks */
-					Sign s;
-					switch (next.specialType) {
-						case COMMAND :
-							ItemManager.setTypeId(block, CivData.AIR);
-							ItemManager.setData(block, 0);
-							break;
-						case LITERAL :
-							if (block.getState() instanceof Sign) {
-
-								s = (Sign) block.getState();
-								for (int j = 0; j < 4; j++) {
-									s.setLine(j, next.message[j]);
-								}
-
-								s.update();
-							} else {
-								ItemManager.setTypeId(block, CivData.AIR);
-								ItemManager.setData(block, 0);
+					switch (sb.specialType) {
+					case COMMAND:
+						ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+						break;
+					case LITERAL:
+						ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+						if (block.getState() instanceof Sign) {
+							Sign s = (Sign) block.getState();
+							for (int j = 0; j < 4; j++) {
+								s.setLine(j, sb.message[j]);
 							}
-							break;
-						case NORMAL :
-							break;
+							s.update();
+						} else {
+							ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+						}
+						break;
+					case NORMAL:
+						ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+						break;
 					}
-					if (next.buildable != null) next.buildable.savedBlockCount++;
+					if (sb.buildable != null)
+						sb.buildable.savedBlockCount++;
 				}
 			} finally {
 				buildBlockLock.unlock();

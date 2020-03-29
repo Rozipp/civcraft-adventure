@@ -42,10 +42,10 @@ public class UnitObject extends SQLObject {
 	private HashMap<String, Integer> ammunitionSlots = new HashMap<>();
 	private ComponentsManager compManager = new ComponentsManager();
 
-	public UnitObject(String configUnitId, int town_id) {
+	public UnitObject(String configUnitId, Town town) {
 		this.configUnitId = configUnitId;
 		this.configUnit = UnitStatic.configUnits.get(this.configUnitId);
-		this.townOwner = CivGlobal.getTownFromId(town_id);
+		this.townOwner = town;
 		this.level = 0;
 		this.exp = 0;
 		this.lastResident = null;

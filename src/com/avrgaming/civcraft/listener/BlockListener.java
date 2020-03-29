@@ -639,9 +639,7 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		if (resident.isSBPermOverride()) {
-			return;
-		}
+		if (resident.isSBPermOverride()) return;
 
 		bcoord.setFromLocation(event.getBlockAgainst().getLocation());
 		ConstructSign sign = CivGlobal.getConstructSign(bcoord);
@@ -655,9 +653,8 @@ public class BlockListener implements Listener {
 		if (bb != null) {
 			event.setCancelled(true);
 			if (bb.getOwner() instanceof Village)
-				CivMessage.sendError(event.getPlayer(),
-						CivSettings.localize.localizedString("blockBreak_errorVillage1") + " " + ((Village) bb.getOwner()).getName() + " "
-								+ CivSettings.localize.localizedString("blockBreak_errorOwnedBy") + " " + ((Village) bb.getOwner()).getOwner().getName());
+				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorVillage1") + " " + bb.getOwner().getDisplayName() + " "
+						+ CivSettings.localize.localizedString("blockBreak_errorOwnedBy") + " " + bb.getOwner().getTown().getName());
 			else
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorStructure") + " " + bb.getOwner().getDisplayName()
 						+ " " + CivSettings.localize.localizedString("blockBreak_errorOwnedBy") + " " + bb.getTown().getName());
@@ -701,7 +698,7 @@ public class BlockListener implements Listener {
 		HashSet<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
-				if (!(construct instanceof Buildable)) continue; 
+				if (!(construct instanceof Buildable)) continue;
 				Buildable buildable = (Buildable) construct;
 				if (!buildable.validated) {
 					try {
@@ -793,7 +790,7 @@ public class BlockListener implements Listener {
 			} else {
 				event.setCancelled(true);
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorvillage1") + " " + village.getName() + " "
-						+ CivSettings.localize.localizedString("blockBreak_errorOwnedBy") + " " + village.getOwner().getName());
+						+ CivSettings.localize.localizedString("blockBreak_errorOwnedBy") + " " + village.getOwnerResident().getName());
 				return;
 			}
 		}
@@ -856,7 +853,7 @@ public class BlockListener implements Listener {
 			for (Construct construct : constructs) {
 				if (!(construct instanceof Buildable)) continue;
 				Buildable buildable = (Buildable) construct;
-				
+
 				if (!buildable.validated) {
 					try {
 						buildable.validateAsyncTask(event.getPlayer());

@@ -44,6 +44,12 @@ simple_date_format: "dd/MM/yyyy HH:mm:ss z"
 
 clears_table_data: false
 
+# ============================== Debug information =========================================
+
+sync_build_update_task: 10000
+max_blocks_per_tick_build_template: 5000
+
+
 # MySQL database to store game data in across reloads. 
 mysql:
     useSSL: 'false'

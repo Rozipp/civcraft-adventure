@@ -83,11 +83,6 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public boolean hasTemplate() {
-		return false;
-	}
-
-	@Override
 	public boolean isCanRestoreFromTemplate() {
 		return false;
 	}
@@ -183,8 +178,7 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void checkBlockPermissionsAndRestrictions(Player player, Block centerBlock, int regionX, int regionY, int regionZ)
-			throws CivException {
+	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 	}
 
 	@Override

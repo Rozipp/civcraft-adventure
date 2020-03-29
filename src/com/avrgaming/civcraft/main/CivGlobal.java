@@ -126,7 +126,6 @@ public class CivGlobal {
 	private static Map<BlockCoord, RoadBlock> roadBlocks = new ConcurrentHashMap<BlockCoord, RoadBlock>();
 	private static Map<BlockCoord, CustomMapMarker> customMapMarkers = new ConcurrentHashMap<BlockCoord, CustomMapMarker>();
 	private static Map<String, Village> villages = new ConcurrentHashMap<String, Village>();
-	private static Map<ChunkCoord, Village> villageChunks = new ConcurrentHashMap<ChunkCoord, Village>();
 	public static HashSet<BlockCoord> vanillaGrowthLocations = new HashSet<BlockCoord>();
 	private static Map<BlockCoord, Market> markets = new ConcurrentHashMap<BlockCoord, Market>();
 	public static HashSet<String> researchedTechs = new HashSet<String>();
@@ -509,6 +508,9 @@ public class CivGlobal {
 		} finally {
 			SQL.close(rs, ps, context);
 		}
+		for (Village vill : CivGlobal.getVillages()) {
+			vill.setSQLOwner(CivGlobal.getResident(vill.getOwnerName()));
+		}
 	}
 	public static void loadTowns() throws SQLException {
 		Connection context = null;
@@ -537,6 +539,8 @@ public class CivGlobal {
 		}
 	}
 	public static void loadVillages() throws SQLException {
+		Village.loadStaticSettings();
+		
 		Connection context = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
@@ -843,9 +847,7 @@ public class CivGlobal {
 	public static Collection<Town> getTowns() {
 		return towns.values();
 	}
-	/** make lookup via ID faster(use hashtable)
-	 * 
-	 * @deprecated */
+	/** Use only load. Make lookup via ID faster(use hashtable) */
 	public static Town getTownFromId(int id) {
 		for (Town t : towns.values()) {
 			if (t.getId() == id) return t;

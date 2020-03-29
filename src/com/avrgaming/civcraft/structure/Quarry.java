@@ -30,11 +30,11 @@ public class Quarry extends Structure {
 	public Quarry(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		setLevel(town.saved_quarry_level);
-		this.rebiuldTransmuterRecipe();
 	}
 
 	public Quarry(ResultSet rs) throws SQLException, CivException {
 		super(rs);
+		this.rebiuldTransmuterRecipe();
 	}
 
 	@Override

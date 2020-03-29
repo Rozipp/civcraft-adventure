@@ -79,12 +79,8 @@ public class BuildableStatic {
 		String path = Template.getTemplateFilePath(info.template_name, Template.getDirection(player.getLocation()), null);
 
 		Template tpl;
-		try {
-			tpl = Template.getTemplate(path);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+		tpl = Template.getTemplate(path);
+		if (tpl == null) return;
 
 		centerLoc = repositionCenterStatic(centerLoc, info.templateYShift, tpl);
 		//validate(player, null, tpl, centerLoc, callback);

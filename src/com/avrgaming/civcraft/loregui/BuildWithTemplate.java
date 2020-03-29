@@ -40,11 +40,11 @@ public class BuildWithTemplate implements GuiAction {
 
 				/* get the template name from the perk's CustomTemplate component. */
 				PerkComponent perkComp = perk.getComponent("CustomTemplate");
-				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable, perkComp.getString("theme"));
+				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable.getInfo(), perkComp.getString("theme"));
 
 			} else {
 				/* Use the default template. */
-				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable, null);
+				filepath = Template.getTemplateFilePath(player.getLocation(), resident.pendingBuildable.getInfo(), null);
 			}
 			resident.pendingBuildable.setTemplate(Template.getTemplate(filepath));
 			BuildableStatic.buildPlayerPreview(player, player.getLocation(), resident.pendingBuildable);

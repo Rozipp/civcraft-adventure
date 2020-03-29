@@ -1,21 +1,11 @@
-/*************************************************************************
+/************************************************************************* AVRGAMING LLC __________________
  * 
- * AVRGAMING LLC
- * __________________
+ * [2013] AVRGAMING LLC All Rights Reserved.
  * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.util;
 
 import java.util.HashMap;
@@ -29,134 +19,133 @@ import org.bukkit.block.Block;
 import com.avrgaming.civcraft.structure.Buildable;
 
 public class SimpleBlock {
-	
+
 	//public static final int SIGN = 1;
 	//public static final int CHEST = 2;
 	//public static final int SIGN_LITERAL = 3;
-	
+
 	public enum Type {
-		NORMAL,
-		COMMAND,
-		LITERAL,
+		NORMAL, COMMAND, LITERAL,
 	}
-	
+
 	private int type = 0;
 	private byte data = 0;
 	public int x;
 	public int y;
 	public int z;
-	
+
 	public Type specialType;
-	public String command; 
+	public String command;
 	public String message[] = new String[4];
 	public String worldname;
 	public Buildable buildable;
 	public Map<String, String> keyvalues = new HashMap<String, String>();
-	
-	/**
-	 * Construct the block with its type.
-	 *
-	 * @param block
-	 */
-	    public SimpleBlock(Block block) {
-	        this.x = block.getX();
-	        this.y = block.getY();
-	        this.z = block.getZ();
-	        this.worldname = block.getWorld().getName();
-	        this.type = ItemManager.getTypeId(block);
-	        this.data = ItemManager.getData(block);
-	        this.specialType = Type.NORMAL;
-	    }
-	    
-	    public SimpleBlock(String hash, int type, byte data) {
-		    String[] split = hash.split(",");
-			this.worldname = split[0];
-			this.x = Integer.valueOf(split[1]);
-			this.y = Integer.valueOf(split[2]);
-			this.z = Integer.valueOf(split[3]);
-			this.type = type;
-			this.data = data;
-	        this.specialType = Type.NORMAL;
-	    }
-	
-	public String getKey() {
-		return this.worldname+","+this.x+","+this.y+","+this.z;
-	}
-	
-	public static String getKeyFromBlockCoord(BlockCoord coord) {
-		return coord.getWorldname()+","+coord.getX()+","+coord.getY()+","+coord.getZ();
-	}
-	    
-	/**
-	 * Construct the block with its type and data.
-	 *
-	 * @param type
-	 * @param data
-	 */
-	public SimpleBlock(int type, int data) {
-	    this.type = (short) type;
-	    this.data = (byte) data;
-        this.specialType = Type.NORMAL;
 
+	/** Construct the block with its type.
+	 *
+	 * @param block */
+	public SimpleBlock(Block block) {
+		this.x = block.getX();
+		this.y = block.getY();
+		this.z = block.getZ();
+		this.worldname = block.getWorld().getName();
+		this.type = ItemManager.getTypeId(block);
+		this.data = ItemManager.getData(block);
+		this.specialType = Type.NORMAL;
 	}
-	
-	/**
-	 * @return the type
-	 */
+	public SimpleBlock(BlockCoord bc, SimpleBlock sb) {
+		this.x = bc.getX() + sb.x;
+		this.y = bc.getY() + sb.y;
+		this.z = bc.getZ() + sb.z;
+		this.worldname = bc.getWorldname();
+		this.type = sb.type;
+		this.data = sb.data;
+		this.specialType = sb.specialType;
+	}
+	public SimpleBlock(String hash, int type, byte data) {
+		String[] split = hash.split(",");
+		this.worldname = split[0];
+		this.x = Integer.valueOf(split[1]);
+		this.y = Integer.valueOf(split[2]);
+		this.z = Integer.valueOf(split[3]);
+		this.type = type;
+		this.data = data;
+		this.specialType = Type.NORMAL;
+	}
+	public SimpleBlock(int type, int data) {
+		this.type = (short) type;
+		this.data = (byte) data;
+		this.specialType = Type.NORMAL;
+	}
+	public SimpleBlock(String world, int x, int y, int z, int type, int data) {
+		this.worldname = world;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.type = type;
+		this.data = (byte) data;
+		this.specialType = Type.NORMAL;
+	}
+
+	public String getKey() {
+		return this.worldname + "," + this.x + "," + this.y + "," + this.z;
+	}
+
+	public static String getKeyFromBlockCoord(BlockCoord coord) {
+		return coord.getWorldname() + "," + coord.getX() + "," + coord.getY() + "," + coord.getZ();
+	}
+
+	/** @return the type */
 	public int getType() {
-	    return (int) type;
+		return (int) type;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public Material getMaterial() {
 		return Material.getMaterial(type);
 	}
-	
-	/**
-	 * @param type the type to set
-	 */
+
+	/** @param type the type to set */
 	public void setType(int type) {
-	    this.type = (short) type;
+		this.type = (short) type;
 	}
-	
+
 	public void setTypeAndData(int type, int data) {
 		this.type = (short) type;
 		this.data = (byte) data;
 	}
-	/**
-	 * @return the data
-	 */
+	/** @return the data */
 	public int getData() {
-	    return (int) data;
+		return (int) data;
 	}
-	
-	/**
-	 * @param data the data to set
-	 */
+
+	/** @param data the data to set */
 	public void setData(int data) {
-	    this.data = (byte) data;
+		this.data = (byte) data;
 	}
-	
-	/**
-	 * Returns true if it's air.
+
+	/** Returns true if it's air.
 	 *
-	 * @return if air
-	 */
+	 * @return if air */
 	public boolean isAir() {
-	    return type == (byte)0x0;
+		return type == (byte) 0x0;
 	}
 
 	public String getKeyValueString() {
 		String out = "";
-		
+
 		for (String key : keyvalues.keySet()) {
 			String value = keyvalues.get(key);
-			out += key+":"+value+",";
+			out += key + ":" + value + ",";
 		}
-		
+
 		return out;
 	}
 
+	public Block getBlock() {
+		return Bukkit.getWorld(this.worldname).getBlockAt(this.x, this.y, this.z);
+	}
+	
 	public Location getLocation() {
 		return new Location(Bukkit.getWorld(this.worldname), this.x, this.y, this.z);
 	}

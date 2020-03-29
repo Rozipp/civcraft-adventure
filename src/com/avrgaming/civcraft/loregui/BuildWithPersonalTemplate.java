@@ -1,7 +1,5 @@
 package com.avrgaming.civcraft.loregui;
 
-import java.io.IOException;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -37,7 +35,7 @@ public class BuildWithPersonalTemplate implements GuiAction {
 			TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, resident.pendingCallback), 0);
 			resident.desiredTemplate = tpl;
 			player.closeInventory();
-		} catch (CivException | IOException e) {
+		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}
 	}

@@ -109,7 +109,7 @@ public class VillageCommand extends CommandBase {
 		}
 
 		Village village = resident.getVillage();
-		if (village.getOwner() != resident) {
+		if (village.getSQLOwner() != resident) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_village_refreshNotOwner"));
 		}
 
@@ -169,7 +169,7 @@ public class VillageCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_village_removeNotInvillage", resident.getName()));
 		}
 
-		if (resident.getVillage().getOwner() == resident) {
+		if (resident.getVillage().getSQLOwner() == resident) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_village_removeErrorOwner"));
 		}
 
@@ -211,7 +211,7 @@ public class VillageCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_village_removeNotInvillage", newLeader.getName()));
 		}
 
-		village.setOwner(newLeader);
+		village.setSQLOwner(newLeader);
 		village.save();
 
 		Player player = CivGlobal.getPlayer(newLeader);
@@ -228,7 +228,7 @@ public class VillageCommand extends CommandBase {
 		}
 
 		Village village = resident.getVillage();
-		if (village.getOwner() == resident) {
+		if (village.getSQLOwner() == resident) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_village_leaveOwner"));
 		}
 
@@ -262,7 +262,7 @@ public class VillageCommand extends CommandBase {
 		}
 
 		Village village = resident.getVillage();
-		if (village.getOwner() != resident) {
+		if (village.getSQLOwner() != resident) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_village_undoNotOwner"));
 		}
 
