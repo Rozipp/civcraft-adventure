@@ -25,7 +25,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -33,10 +33,10 @@ public class PlayerReviveTask implements Runnable {
 
 	String playerName;
 	int timeout;
-	TownHall townhall;
+	Townhall townhall;
 	Location alternativeLocation;
 	
-	public PlayerReviveTask(Player player, int timeout, TownHall townhall, Location alt) {
+	public PlayerReviveTask(Player player, int timeout, Townhall townhall, Location alt) {
 		this.playerName = player.getName();
 		this.timeout = timeout;
 		this.townhall = townhall;

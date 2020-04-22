@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -40,6 +41,7 @@ import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import com.google.common.collect.Sets;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -55,13 +57,11 @@ public class Template {
 	private String filepath;
 	public int totalBlocks;
 
-	/*
-	 * Save the command block locations when we init the template, so we dont have
-	 * to search for them later.
-	 */
-	public ArrayList<BlockCoord> commandBlockRelativeLocations = new ArrayList<BlockCoord>();
-	public LinkedList<BlockCoord> doorRelativeLocations = new LinkedList<BlockCoord>();
-	public LinkedList<BlockCoord> attachableLocations = new LinkedList<BlockCoord>();
+	/* Save the command block locations when we init the template, so we dont have
+	 * to search for them later. */
+	public ArrayList<SimpleBlock> commandBlockRelativeLocations = new ArrayList<SimpleBlock>();
+	public LinkedList<SimpleBlock> doorRelativeLocations = new LinkedList<SimpleBlock>();
+	public LinkedList<SimpleBlock> attachableLocations = new LinkedList<SimpleBlock>();
 
 	public Template(String filepath) throws IOException, CivException {
 		this.filepath = filepath;
@@ -108,12 +108,11 @@ public class Template {
 
 			if (blockId != 0)
 				this.totalBlocks++;
-			SimpleBlock block = new SimpleBlock("", blockX, blockY, blockZ, blockId, blockData);
+			SimpleBlock sblock = new SimpleBlock("", blockX, blockY, blockZ, blockId, blockData);
 
-			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR
-					|| blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
+			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR || blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
 					|| blockId == CivData.DARK_OAK_DOOR) {
-				this.doorRelativeLocations.add(new BlockCoord("", blockX, blockY, blockZ));
+				this.doorRelativeLocations.add(sblock);
 			}
 
 			// look for signs.
@@ -121,10 +120,10 @@ public class Template {
 				if (locTypeSplit.length > 2) {
 					// The first character on special signs needs to be a /.
 					if (locTypeSplit[2] != null && !locTypeSplit[2].equals("") && locTypeSplit[2].charAt(0) == '/') {
-						block.specialType = SimpleBlock.Type.COMMAND;
+						sblock.specialType = SimpleBlock.Type.COMMAND;
 
 						// Got a command, save it.
-						block.command = locTypeSplit[2];
+						sblock.command = locTypeSplit[2];
 
 						// Save any key values we find.
 						if (locTypeSplit.length > 3) {
@@ -134,36 +133,45 @@ public class Template {
 
 								String[] keyvalue = locTypeSplit[i].split(":");
 								if (keyvalue.length < 2) {
-									CivLog.warning(
-											"Invalid keyvalue:" + locTypeSplit[i] + " in template:" + this.filepath);
+									CivLog.warning("Invalid keyvalue:" + locTypeSplit[i] + " in template:" + this.filepath);
 									continue;
 								}
-								block.keyvalues.put(keyvalue[0].trim(), keyvalue[1].trim());
+								sblock.keyvalues.put(keyvalue[0].trim(), keyvalue[1].trim());
 							}
 						}
 
 						/* This block coord does not point to a location in a world, just a template. */
-						this.commandBlockRelativeLocations.add(new BlockCoord("", blockX, blockY, blockZ));
+						this.commandBlockRelativeLocations.add(sblock);
 
 					} else {
-						block.specialType = SimpleBlock.Type.LITERAL;
+						sblock.specialType = SimpleBlock.Type.LITERAL;
 						// Literal sign, copy the sign into the simple block
 						for (int i = 0; i < 4; i++)
 							try {
-								block.message[i] = locTypeSplit[i + 2];
+								sblock.message[i] = locTypeSplit[i + 2];
 							} catch (ArrayIndexOutOfBoundsException e) {
-								block.message[i] = "";
+								sblock.message[i] = "";
 							}
-						this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
+						this.attachableLocations.add(sblock);
 					}
 				}
 			} else if (Template.isAttachable(blockId))
-				this.attachableLocations.add(new BlockCoord("", blockX, blockY, blockZ));
-			blocks[blockX][blockY][blockZ] = block;
+				this.attachableLocations.add(sblock);
+			blocks[blockX][blockY][blockZ] = sblock;
 		}
 
 		this.blocks = blocks;
 		reader.close();
+	}
+
+	public List<SimpleBlock> getBlocksForLayer(int y) {
+		List<SimpleBlock> ret = new ArrayList<SimpleBlock>();
+		for (int x = 0; x < size_x; x++) {
+			for (int z = 0; z < size_z; z++) {
+				ret.add(blocks[x][y][z]);
+			}
+		}
+		return ret;
 	}
 
 	public void buildPreviewScaffolding(Location center, Player player) {
@@ -179,8 +187,7 @@ public class Template {
 						for (int z = 0; z < tpl.size_z; z++) {
 							boolean bb = false;
 							Block b = center.getBlock().getRelative(x, y, z);
-							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1)
-									&& Math.floorMod(y, 2) == 0)
+							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(y, 2) == 0)
 								bb = true;
 							if (y == 0 && (Math.floorMod(x + z, 3) == 1))
 								bb = true;
@@ -193,8 +200,7 @@ public class Template {
 
 							count++;
 							ItemManager.sendBlockChange(player, b.getLocation(), 85, 0);
-							resident.previewUndo.put(new BlockCoord(b.getLocation()),
-									new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
+							resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
 
 							if (count < 1000)
 								continue;
@@ -209,61 +215,11 @@ public class Template {
 				}
 			}
 		}, 10);
-
-//		for (int y = 0; y < this.size_y; y++) {
-//			Block b = center.getBlock().getRelative(0, y, 0);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//		}
-//
-//		for (int x = 0; x < this.size_x; x++) {
-//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//		}
-//
-//		for (int z = 0; z < this.size_z; z++) {
-//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
-//			ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//			resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//		}
-//
-//		for (int z = 0; z < this.size_z; z++) {
-//			for (int x = 0; x < this.size_x; x++) {
-//				Block b = center.getBlock().getRelative(x, 0, z);
-//				ItemManager.sendBlockChange(player, b.getLocation(), CivData.BEDROCK, 0);
-//				resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
-//			}
-//		}
-
 	}
 
 	public void buildScaffolding(BlockCoord corner) {
 		Template tpl = this;
-		CivLog.debug("buildScaffolding " + corner);
-		class AsyncTask extends CivAsyncTask {
+		TaskMaster.asyncTask(new Runnable() {
 			@Override
 			public void run() {
 				int blocksPerTick = 100000;
@@ -276,13 +232,10 @@ public class Template {
 								// Must set to air in a different loop, since setting to air can break
 								// attachables.
 								Block b = corner.getBlock().getRelative(x, y, z);
-								boolean isPutBlock = (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
-										|| (y == 0) || (y == tpl.size_y - 1);
+								boolean isPutBlock = (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) || (y == 0) || (y == tpl.size_y - 1);
 								// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
 
-								SimpleBlock sb = (isPutBlock)
-										? new SimpleBlock(CivSettings.scaffoldingType, CivSettings.scaffoldingData)
-										: new SimpleBlock(CivData.AIR, 0);
+								SimpleBlock sb = (isPutBlock) ? new SimpleBlock(CivSettings.scaffoldingType, CivSettings.scaffoldingData) : new SimpleBlock(CivData.AIR, 0);
 								sb.worldname = corner.getWorldname();
 								sb.x = b.getX();
 								sb.y = b.getY();
@@ -306,47 +259,7 @@ public class Template {
 				} catch (InterruptedException e) {
 				}
 			}
-		}
-
-		TaskMaster.asyncTask(new AsyncTask(), 10);
-//
-//		for (int y = 0; y < this.size_y; y++) {
-//			Block b = center.getBlock().getRelative(0, y, 0);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//
-//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//		}
-//
-//		for (int x = 0; x < this.size_x; x++) {
-//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//
-//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//		}
-//
-//		for (int z = 0; z < this.size_z; z++) {
-//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
-//			ItemManager.setTypeId(b, CivData.BEDROCK);
-//		}
-//
-//		for (int z = 0; z < this.size_z; z++) {
-//			for (int x = 0; x < this.size_x; x++) {
-//				Block b = center.getBlock().getRelative(x, 0, z);
-//				ItemManager.setTypeId(b, CivData.BEDROCK);
-//			}
-//		}
-
+		}, 10);
 	}
 
 	public void removeScaffolding(Location center) {
@@ -395,64 +308,64 @@ public class Template {
 				}
 			}
 		}, 0);
-//
-//		for (int y = 0; y < this.size_y; y++) {
-//			Block b = center.getBlock().getRelative(0, y, 0);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//
-//			}
-//
-//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//
-//			}
-//		}
-//
-//		for (int x = 0; x < this.size_x; x++) {
-//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//		}
-//
-//		for (int z = 0; z < this.size_z; z++) {
-//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
-//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-//				ItemManager.setTypeId(b, CivData.AIR);
-//				ItemManager.setData(b, 0, true);
-//			}
-//
-//		}
+		//
+		//		for (int y = 0; y < this.size_y; y++) {
+		//			Block b = center.getBlock().getRelative(0, y, 0);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//
+		//			}
+		//
+		//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//
+		//			}
+		//		}
+		//
+		//		for (int x = 0; x < this.size_x; x++) {
+		//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//		}
+		//
+		//		for (int z = 0; z < this.size_z; z++) {
+		//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
+		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		//				ItemManager.setTypeId(b, CivData.AIR);
+		//				ItemManager.setData(b, 0, true);
+		//			}
+		//
+		//		}
 
 	}
 
@@ -472,12 +385,10 @@ public class Template {
 							for (String line : sign.getLines()) {
 								signText += line + ",";
 							}
-							writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":"
-									+ ItemManager.getData(b) + "," + signText + "\n");
+							writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":" + ItemManager.getData(b) + "," + signText + "\n");
 						}
 					} else {
-						writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":"
-								+ ItemManager.getData(b) + "\n");
+						writer.write(x + ":" + y + ":" + z + "," + ItemManager.getTypeId(b) + ":" + ItemManager.getData(b) + "\n");
 					}
 				}
 			}
@@ -501,18 +412,45 @@ public class Template {
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
 		// Attachable blocks
-//		for (int y = 0; y < this.size_y; ++y) {
-//			for (int x = 0; x < this.size_x; ++x) {
-//				for (int z = 0; z < this.size_z; ++z) {
-//					SimpleBlock sb = this.blocks[x][y][z];
-//					if (!Template.isAttachable(sb.getMaterial())) continue;
-//					sbs.add(new SimpleBlock(corner, sb));
-//				}
-//			}
-//		}
-//		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-//		CivLog.debug("Added " + sbs.size() + "  blocks");
-//		sbs.clear();
+		for (int y = 0; y < this.size_y; ++y) {
+			for (int x = 0; x < this.size_x; ++x) {
+				for (int z = 0; z < this.size_z; ++z) {
+					SimpleBlock sb = this.blocks[x][y][z];
+					if (!Template.isAttachable(sb.getMaterial()))
+						continue;
+					sbs.add(new SimpleBlock(corner, sb));
+				}
+			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
+	}
+
+	public void debugBuildTemplateLayer(BlockCoord corner, int y, boolean attachable) {
+		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+		for (int x = 0; x < this.size_x; ++x) {
+			for (int z = 0; z < this.size_z; ++z) {
+				SimpleBlock sb = blocks[x][y][z];
+				if (Template.isAttachable(sb.getMaterial()))
+					continue;
+				sbs.add(new SimpleBlock(corner, sb));
+			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
+		// Attachable blocks
+		if (!attachable)
+			return;
+		for (int x = 0; x < this.size_x; ++x) {
+			for (int z = 0; z < this.size_z; ++z) {
+				SimpleBlock sb = blocks[x][y][z];
+				if (!Template.isAttachable(sb.getMaterial()))
+					continue;
+				sbs.add(new SimpleBlock(corner, sb));
+			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
 	}
 
 	@Deprecated
@@ -558,7 +496,7 @@ public class Template {
 					sb.y = y + cornerBlock.getY();
 					sb.z = z + cornerBlock.getZ();
 					sb.worldname = cornerBlock.getWorld().getName();
-//					sb.buildable = buildable;
+					//					sb.buildable = buildable;
 					sbs.add(sb);
 				}
 			}
@@ -567,72 +505,16 @@ public class Template {
 		sbs.clear();
 	}
 
-	/*
-	 * Handles the processing of CivTemplates which store cubiods of blocks for
-	 * later use.
-	 */
+	/* Handles the processing of CivTemplates which store cubiods of blocks for
+	 * later use. */
 	public static HashMap<String, Template> templateCache = new HashMap<String, Template>();
 	// -------------- Attachable Types
-	public static HashSet<Material> attachableTypes = new HashSet<Material>();
-
-	@SuppressWarnings("deprecation")
-	public static void initAttachableTypes() {
-		attachableTypes.add(Material.SAPLING);
-		attachableTypes.add(Material.BED);
-		attachableTypes.add(Material.BED_BLOCK);
-		attachableTypes.add(Material.POWERED_RAIL);
-		attachableTypes.add(Material.DETECTOR_RAIL);
-		attachableTypes.add(Material.LONG_GRASS);
-		attachableTypes.add(Material.DEAD_BUSH);
-		attachableTypes.add(Material.YELLOW_FLOWER);
-		attachableTypes.add(Material.RED_ROSE);
-		attachableTypes.add(Material.BROWN_MUSHROOM);
-		attachableTypes.add(Material.RED_MUSHROOM);
-		attachableTypes.add(Material.TORCH);
-		attachableTypes.add(Material.REDSTONE_WIRE);
-		attachableTypes.add(Material.WHEAT);
-		attachableTypes.add(Material.LADDER);
-		attachableTypes.add(Material.RAILS);
-		attachableTypes.add(Material.LEVER);
-		attachableTypes.add(Material.STONE_PLATE);
-		attachableTypes.add(Material.WOOD_PLATE);
-		attachableTypes.add(Material.REDSTONE_TORCH_ON);
-		attachableTypes.add(Material.REDSTONE_TORCH_OFF);
-		attachableTypes.add(Material.STONE_BUTTON);
-		attachableTypes.add(Material.CACTUS);
-		attachableTypes.add(Material.SUGAR_CANE);
-		attachableTypes.add(Material.getMaterial(93)); // redstone repeater off
-		attachableTypes.add(Material.getMaterial(94)); // redstone repeater on
-		attachableTypes.add(Material.TRAP_DOOR);
-		attachableTypes.add(Material.PUMPKIN_STEM);
-		attachableTypes.add(Material.MELON_STEM);
-		attachableTypes.add(Material.VINE);
-		attachableTypes.add(Material.WATER_LILY);
-		attachableTypes.add(Material.BREWING_STAND);
-		attachableTypes.add(Material.COCOA);
-		attachableTypes.add(Material.TRIPWIRE);
-		attachableTypes.add(Material.TRIPWIRE_HOOK);
-		attachableTypes.add(Material.FLOWER_POT);
-		attachableTypes.add(Material.CARROT);
-		attachableTypes.add(Material.POTATO);
-		attachableTypes.add(Material.WOOD_BUTTON);
-		attachableTypes.add(Material.ANVIL);
-		attachableTypes.add(Material.GOLD_PLATE);
-		attachableTypes.add(Material.IRON_PLATE);
-		attachableTypes.add(Material.REDSTONE_COMPARATOR_ON);
-		attachableTypes.add(Material.REDSTONE_COMPARATOR_OFF);
-		attachableTypes.add(Material.DAYLIGHT_DETECTOR);
-		attachableTypes.add(Material.ACTIVATOR_RAIL);
-		attachableTypes.add(Material.WOOD_DOOR);
-		attachableTypes.add(Material.IRON_DOOR);
-		attachableTypes.add(Material.SPRUCE_DOOR);
-		attachableTypes.add(Material.BIRCH_DOOR);
-		attachableTypes.add(Material.JUNGLE_DOOR);
-		attachableTypes.add(Material.ACACIA_DOOR);
-		attachableTypes.add(Material.DARK_OAK_DOOR);
-		attachableTypes.add(Material.SIGN);
-		attachableTypes.add(Material.WALL_SIGN);
-	}
+	public static HashSet<Material> attachableTypes = Sets.newHashSet(Material.SAPLING, Material.BED, Material.BED_BLOCK, Material.POWERED_RAIL, Material.DETECTOR_RAIL, Material.LONG_GRASS, Material.DEAD_BUSH, Material.YELLOW_FLOWER,
+			Material.RED_ROSE, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.TORCH, Material.REDSTONE_WIRE, Material.WHEAT, Material.LADDER, Material.RAILS, Material.LEVER, Material.STONE_PLATE, Material.WOOD_PLATE,
+			Material.REDSTONE_TORCH_ON, Material.REDSTONE_TORCH_OFF, Material.STONE_BUTTON, Material.CACTUS, Material.SUGAR_CANE, Material.COMMAND_REPEATING, Material.TRAP_DOOR, Material.PUMPKIN_STEM, Material.MELON_STEM, Material.VINE,
+			Material.WATER_LILY, Material.BREWING_STAND, Material.COCOA, Material.TRIPWIRE, Material.TRIPWIRE_HOOK, Material.FLOWER_POT, Material.CARROT, Material.POTATO, Material.WOOD_BUTTON, Material.ANVIL, Material.GOLD_PLATE,
+			Material.IRON_PLATE, Material.REDSTONE_COMPARATOR_ON, Material.REDSTONE_COMPARATOR_OFF, Material.DAYLIGHT_DETECTOR, Material.ACTIVATOR_RAIL, Material.WOOD_DOOR, Material.IRON_DOOR, Material.SPRUCE_DOOR, Material.BIRCH_DOOR,
+			Material.JUNGLE_DOOR, Material.ACACIA_DOOR, Material.DARK_OAK_DOOR, Material.SIGN, Material.WALL_SIGN);
 
 	@SuppressWarnings("deprecation")
 	public static boolean isAttachable(int blockID) {
@@ -662,6 +544,10 @@ public class Template {
 		return (ss + ".def").toLowerCase();
 	}
 
+	public static String getCaveFilePath(String string) {
+		return "templates/themes/caves/" + string + ".def";
+	}
+
 	public static String getUndoFilePath(String string) {
 		return "templates/undo/" + string;
 	}
@@ -676,13 +562,11 @@ public class Template {
 		templateFile.delete();
 	}
 
-	/*
-	 * This function will save a copy of the template currently building into the
+	/* This function will save a copy of the template currently building into the
 	 * town's temp directory. It does this so that we: 1) Dont have to remember the
 	 * template's direction when we resume 2) Can change the master template without
 	 * messing up any builds in progress 3) So we can pick a random template and
-	 * "resume" the correct one. (e.g. cottages)
-	 */
+	 * "resume" the correct one. (e.g. cottages) */
 	public static void copyFilePath(String masterTemplatePath, String copyTemplatePath) {
 		// Copy File...
 		File master_tpl_file = new File(masterTemplatePath);
@@ -769,6 +653,14 @@ public class Template {
 			templateCache.put(filepath, tpl);
 		}
 		return tpl;
+	}
+
+	public static boolean checkFile(String filepath) {
+		File templateFile = new File(filepath);
+		if (templateFile.exists())
+			return true;
+		else
+			return false;
 	}
 
 }

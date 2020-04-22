@@ -43,7 +43,7 @@ import com.avrgaming.civcraft.questions.ChangeTownRequest;
 import com.avrgaming.civcraft.questions.JoinTownResponse;
 import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask2;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.units.Settler;
@@ -176,7 +176,7 @@ public class TownCommand extends CommandBase {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
 		if (resident.getTown() == town) {
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			if (townhall == null) {
 				CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
 				CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
@@ -774,7 +774,7 @@ public class TownCommand extends CommandBase {
 					+ CivSettings.localize.localizedString("cmd_civ_dip_declareTooCloseToWar4"));
 		}
 
-		if (newResident.hasVillage()) {
+		if (newResident.hasCamp()) {
 			try {
 				Player resPlayer = CivGlobal.getPlayer(newResident);
 				CivMessage.send(resPlayer,

@@ -22,6 +22,7 @@ public class AdminUnitCommand extends CommandBase {
 		cs.add("setComponent", "[Equipments] [value] изменить уровень амуниции");
 		cs.add("getComponents", "показать все компоненты которые есть у юнита");
 		cs.add("spawn", "[unitId] создать нового юнита");
+		cs.add("respawn", "[Plaeyr] Дать игроку последнего его юнита.");
 		cs.add("addUnitComponent", "Добавить книгу улучшения");
 	}
 	
@@ -38,8 +39,15 @@ public class AdminUnitCommand extends CommandBase {
 		Player player = getPlayer();
 		Town town = CivGlobal.getResident(player).getTown();
 		if (town == null) throw new CivException("У вас нет города");
-		String unitId = this.getNamedString(1, "ВВедите айди юнита");
-		UnitStatic.spawn(player.getInventory(), town, unitId);
+		String configUnitId = this.getNamedString(1, "Введите configUnitId юнита");
+		UnitStatic.spawn(player.getInventory(), town, configUnitId);
+	}
+	
+	public void respawn_cmd() throws CivException {
+		String name = this.getNamedString(1, "Введите имя игрока");
+		Player player = CivGlobal.getPlayer(name);
+		if (player == null) throw new CivException("Ирок не найден");
+		UnitStatic.respawn(player);
 	}
 
 	public void getComponents_cmd() throws CivException {

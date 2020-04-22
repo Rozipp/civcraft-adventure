@@ -27,17 +27,20 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.SimpleBlock;
 
-public abstract class Wonder extends Buildable {
+public class Wonder extends Structure {
 
 	public static String TABLE_NAME = "WONDERS";
 	private ConfigWonderBuff wonderBuffs = null;
 
 	public Wonder(ResultSet rs) throws SQLException, CivException {
+		super(rs);
 		this.load(rs);
 
 		if (this.getHitpoints() == 0) {
@@ -46,7 +49,7 @@ public abstract class Wonder extends Buildable {
 	}
 
 	public Wonder(Location center, String id, Town town) throws CivException {
-
+		super(center, id, town);
 		this.setInfo(CivSettings.wonders.get(id));
 		this.setSQLOwner(town);
 		this.setCorner(new BlockCoord(center));
@@ -69,10 +72,9 @@ public abstract class Wonder extends Buildable {
 
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
-					+ "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL," + "`complete` bool NOT NULL DEFAULT '0',"
-					+ "`builtBlockCount` int(11) DEFAULT NULL, " + "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, "
-					+ "`hitpoints` int(11) DEFAULT '100'," + "PRIMARY KEY (`id`)" + ")";
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment," + "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL,"
+					+ "`complete` bool NOT NULL DEFAULT '0'," + "`builtBlockCount` int(11) DEFAULT NULL, " + "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, " + "`hitpoints` int(11) DEFAULT '100',"
+					+ "PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
 			CivLog.info("Created " + TABLE_NAME + " table");
@@ -87,7 +89,8 @@ public abstract class Wonder extends Buildable {
 		this.setInfo(CivSettings.wonders.get(rs.getString("type_id")));
 		this.setSQLOwner(CivGlobal.getTownFromId(rs.getInt("town_id")));
 		if (this.getTown() == null) {
-			//CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder "+this.getDisplayName()+" ID:"+this.getId());
+			// CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder
+			// "+this.getDisplayName()+" ID:"+this.getId());
 			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for wonder " + this.getDisplayName() + " ID:" + this.getId());
 		}
 
@@ -95,7 +98,7 @@ public abstract class Wonder extends Buildable {
 		this.setHitpoints(rs.getInt("hitpoints"));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 		this.setComplete(rs.getBoolean("complete"));
-		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
+		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
 
 		this.getTown().addWonder(this);
 
@@ -117,7 +120,7 @@ public abstract class Wonder extends Buildable {
 		hashmap.put("type_id", this.getConfigId());
 		hashmap.put("town_id", this.getTown().getId());
 		hashmap.put("complete", this.isComplete());
-		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
+		hashmap.put("builtBlockCount", this.getBlocksCompleted());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
 		hashmap.put("template_name", this.getTemplate().getFilepath());
@@ -176,18 +179,16 @@ public abstract class Wonder extends Buildable {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("wonder_undo_error"));
-			this.fancyDestroyStructureBlocks();
+			this.fancyDestroyConstructBlocks();
 		}
 
-		CivMessage.global(CivSettings.localize.localizedString("var_wonder_undo_broadcast", (CivColor.LightGreen + this.getDisplayName() + CivColor.White),
-				this.getTown().getName(), this.getTown().getCiv().getName()));
+		CivMessage.global(CivSettings.localize.localizedString("var_wonder_undo_broadcast", (CivColor.LightGreen + this.getDisplayName() + CivColor.White), this.getTown().getName(), this.getTown().getCiv().getName()));
 
 		double refund = this.getCost();
 		this.getTown().depositDirect(refund);
-		CivMessage.sendTown(getTown(),
-				CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
+		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
 
-		this.unbindStructureBlocks();
+		this.unbindConstructBlocks();
 
 		try {
 			delete();
@@ -199,31 +200,36 @@ public abstract class Wonder extends Buildable {
 	}
 
 	@Override
-	public void build(Player player) throws Exception {
-		Template tpl = this.getTemplate();
-		// We take the player's current position and make it the 'center' by moving the center location
-		// to the 'corner' of the structure.
+	public void build(Player player) {
+		try {
+			Template tpl = this.getTemplate();
+			// We take the player's current position and make it the 'center' by moving the
+			// center location
+			// to the 'corner' of the structure.
 
-		BlockCoord corner = this.getCorner();
-		this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		// Save the template x,y,z for later. This lets us know our own dimensions.
-		// this is saved in the db so it remains valid even if the template changes.
-		this.setTemplate(tpl);
+			BlockCoord corner = this.getCorner();
+			this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
+			// Save the template x,y,z for later. This lets us know our own dimensions.
+			// this is saved in the db so it remains valid even if the template changes.
+			this.setTemplate(tpl);
 
-		checkBlockPermissionsAndRestrictions(player);
+			checkBlockPermissionsAndRestrictions(player);
 
-		// Setup undo information
-		getTown().lastBuildableBuilt = this;
-		tpl.saveUndoTemplate(corner.toString(), corner);
-		tpl.buildScaffolding(corner);
+			// Setup undo information
+			getTown().lastBuildableBuilt = this;
+			tpl.saveUndoTemplate(corner.toString(), corner);
+			tpl.buildScaffolding(corner);
 
-		// Player's center was converted to this building's corner, save it as such.
-		this.startBuildTask();
+			// Player's center was converted to this building's corner, save it as such.
+			this.startBuildTask();
 
-		this.save();
-		CivGlobal.addWonder(this);
-		CivMessage.global(
-				CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName()));
+			this.save();
+			CivGlobal.addWonder(this);
+			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName()));
+		} catch (CivException | IOException e) {
+			// TODO Автоматически созданный блок catch
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -238,12 +244,12 @@ public abstract class Wonder extends Buildable {
 
 	public void onDestroy() {
 		if (!CivGlobal.isCasualMode()) {
-			//can be overriden in subclasses.
+			// can be overriden in subclasses.
 			CivMessage.global(CivSettings.localize.localizedString("var_wonder_destroyed", this.getDisplayName(), this.getTown().getName()));
 			try {
 				this.getTown().removeWonder(this);
-				this.fancyDestroyStructureBlocks();
-				this.unbindStructureBlocks();
+				this.fancyDestroyConstructBlocks();
+				this.unbindConstructBlocks();
 				this.delete();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -264,156 +270,156 @@ public abstract class Wonder extends Buildable {
 	public static Wonder _newWonder(Location center, String id, Town town, ResultSet rs) throws CivException, SQLException {
 		Wonder wonder;
 		switch (id) {
-			case "w_pyramid" :
-				if (rs == null) {
-					wonder = new TheGreatPyramid(center, id, town);
-				} else {
-					wonder = new TheGreatPyramid(rs);
-				}
+		case "w_pyramid":
+			if (rs == null) {
+				wonder = new TheGreatPyramid(center, id, town);
+			} else {
+				wonder = new TheGreatPyramid(rs);
+			}
+			break;
+		case "w_greatlibrary":
+			if (rs == null) {
+				wonder = new GreatLibrary(center, id, town);
+			} else {
+				wonder = new GreatLibrary(rs);
+			}
+			break;
+		case "w_oracle":
+			if (rs == null) {
+				wonder = new Oracle(center, id, town);
+			} else {
+				wonder = new Oracle(rs);
+			}
+			break;
+		case "w_hanginggardens":
+			if (rs == null) {
+				wonder = new TheHangingGardens(center, id, town);
+			} else {
+				wonder = new TheHangingGardens(rs);
+			}
+			break;
+		case "w_colossus":
+			if (rs == null) {
+				wonder = new TheColossus(center, id, town);
+			} else {
+				wonder = new TheColossus(rs);
+			}
+			break;
+		case "w_notre_dame":
+			if (rs == null) {
+				wonder = new NotreDame(center, id, town);
+			} else {
+				wonder = new NotreDame(rs);
+			}
+			break;
+		case "w_chichen_itza":
+			if (rs == null) {
+				wonder = new ChichenItza(center, id, town);
+			} else {
+				wonder = new ChichenItza(rs);
+			}
+			break;
+		case "w_council_of_eight":
+			if (rs == null) {
+				wonder = new CouncilOfEight(center, id, town);
+			} else {
+				wonder = new CouncilOfEight(rs);
+			}
+			break;
+		case "w_colosseum":
+			if (rs == null) {
+				wonder = new Colosseum(center, id, town);
+			} else {
+				wonder = new Colosseum(rs);
+			}
+			break;
+		case "w_globe_theatre":
+			if (rs == null) {
+				wonder = new GlobeTheatre(center, id, town);
+			} else {
+				wonder = new GlobeTheatre(rs);
+			}
+			break;
+		case "w_great_lighthouse":
+			if (rs == null) {
+				wonder = new GreatLighthouse(center, id, town);
+			} else {
+				wonder = new GreatLighthouse(rs);
+			}
+			break;
+		case "w_mother_tree":
+			if (rs == null) {
+				wonder = new MotherTree(center, id, town);
+			} else {
+				wonder = new MotherTree(rs);
+			}
+			break;
+		case "w_grand_ship_ingermanland":
+			if (rs == null) {
+				wonder = new GrandShipIngermanland(center, id, town);
+			} else {
+				wonder = new GrandShipIngermanland(rs);
+			}
+			break;
+		case "w_battledome":
+			if (rs == null) {
+				wonder = new Battledome(center, id, town);
+			} else {
+				wonder = new Battledome(rs);
+			}
+			break;
+		case "w_stock_exchange":
+			if (rs == null) {
+				wonder = new StockExchange(center, id, town);
 				break;
-			case "w_greatlibrary" :
-				if (rs == null) {
-					wonder = new GreatLibrary(center, id, town);
-				} else {
-					wonder = new GreatLibrary(rs);
-				}
+			}
+			wonder = new StockExchange(rs);
+			break;
+		case "w_burj":
+			if (rs == null) {
+				wonder = new Burj(center, id, town);
 				break;
-			case "w_oracle" :
-				if (rs == null) {
-					wonder = new Oracle(center, id, town);
-				} else {
-					wonder = new Oracle(rs);
-				}
+			}
+			wonder = new Burj(rs);
+			break;
+		case "w_grandcanyon":
+			if (rs == null) {
+				wonder = new GrandCanyon(center, id, town);
 				break;
-			case "w_hanginggardens" :
-				if (rs == null) {
-					wonder = new TheHangingGardens(center, id, town);
-				} else {
-					wonder = new TheHangingGardens(rs);
-				}
+			}
+			wonder = new GrandCanyon(rs);
+			break;
+		case "w_statue_of_zeus":
+			if (rs == null) {
+				wonder = new StatueOfZeus(center, id, town);
 				break;
-			case "w_colossus" :
-				if (rs == null) {
-					wonder = new TheColossus(center, id, town);
-				} else {
-					wonder = new TheColossus(rs);
-				}
+			}
+			wonder = new StatueOfZeus(rs);
+			break;
+		case "w_space_shuttle":
+			if (rs == null) {
+				wonder = new SpaceShuttle(center, id, town);
 				break;
-			case "w_notre_dame" :
-				if (rs == null) {
-					wonder = new NotreDame(center, id, town);
-				} else {
-					wonder = new NotreDame(rs);
-				}
+			}
+			wonder = new SpaceShuttle(rs);
+			break;
+		case "w_moscow_state_uni":
+			if (rs == null) {
+				wonder = new MoscowStateUni(center, id, town);
 				break;
-			case "w_chichen_itza" :
-				if (rs == null) {
-					wonder = new ChichenItza(center, id, town);
-				} else {
-					wonder = new ChichenItza(rs);
-				}
+			}
+			wonder = new MoscowStateUni(rs);
+			break;
+		case "w_neuschwanstein":
+			if (rs == null) {
+				wonder = new Neuschwanstein(center, id, town);
 				break;
-			case "w_council_of_eight" :
-				if (rs == null) {
-					wonder = new CouncilOfEight(center, id, town);
-				} else {
-					wonder = new CouncilOfEight(rs);
-				}
-				break;
-			case "w_colosseum" :
-				if (rs == null) {
-					wonder = new Colosseum(center, id, town);
-				} else {
-					wonder = new Colosseum(rs);
-				}
-				break;
-			case "w_globe_theatre" :
-				if (rs == null) {
-					wonder = new GlobeTheatre(center, id, town);
-				} else {
-					wonder = new GlobeTheatre(rs);
-				}
-				break;
-			case "w_great_lighthouse" :
-				if (rs == null) {
-					wonder = new GreatLighthouse(center, id, town);
-				} else {
-					wonder = new GreatLighthouse(rs);
-				}
-				break;
-			case "w_mother_tree" :
-				if (rs == null) {
-					wonder = new MotherTree(center, id, town);
-				} else {
-					wonder = new MotherTree(rs);
-				}
-				break;
-			case "w_grand_ship_ingermanland" :
-				if (rs == null) {
-					wonder = new GrandShipIngermanland(center, id, town);
-				} else {
-					wonder = new GrandShipIngermanland(rs);
-				}
-				break;
-			case "w_battledome" :
-				if (rs == null) {
-					wonder = new Battledome(center, id, town);
-				} else {
-					wonder = new Battledome(rs);
-				}
-				break;
-			case "w_stock_exchange" :
-				if (rs == null) {
-					wonder = new StockExchange(center, id, town);
-					break;
-				}
-				wonder = new StockExchange(rs);
-				break;
-			case "w_burj" :
-				if (rs == null) {
-					wonder = new Burj(center, id, town);
-					break;
-				}
-				wonder = new Burj(rs);
-				break;
-			case "w_grandcanyon" :
-				if (rs == null) {
-					wonder = new GrandCanyon(center, id, town);
-					break;
-				}
-				wonder = new GrandCanyon(rs);
-				break;
-			case "w_statue_of_zeus" :
-				if (rs == null) {
-					wonder = new StatueOfZeus(center, id, town);
-					break;
-				}
-				wonder = new StatueOfZeus(rs);
-				break;
-			case "w_space_shuttle" :
-				if (rs == null) {
-					wonder = new SpaceShuttle(center, id, town);
-					break;
-				}
-				wonder = new SpaceShuttle(rs);
-				break;
-			case "w_moscow_state_uni" :
-				if (rs == null) {
-					wonder = new MoscowStateUni(center, id, town);
-					break;
-				}
-				wonder = new MoscowStateUni(rs);
-				break;
-			case "w_neuschwanstein" :
-				if (rs == null) {
-					wonder = new Neuschwanstein(center, id, town);
-					break;
-				}
-				wonder = new Neuschwanstein(rs);
-				break;
+			}
+			wonder = new Neuschwanstein(rs);
+			break;
 
-			default :
-				throw new CivException(CivSettings.localize.localizedString("wonder_unknwon_type") + " " + id);
+		default:
+			throw new CivException(CivSettings.localize.localizedString("wonder_unknwon_type") + " " + id);
 		}
 
 		wonder.loadSettings();
@@ -428,8 +434,7 @@ public abstract class Wonder extends Buildable {
 
 		for (ConfigBuff buff : this.wonderBuffs.buffs) {
 			try {
-				this.getTown().getBuffManager().addBuff("wonder:" + this.getDisplayName() + ":" + this.getCorner() + ":" + buff.id, buff.id,
-						this.getDisplayName());
+				this.getTown().getBuffManager().addBuff("wonder:" + this.getDisplayName() + ":" + this.getCorner() + ":" + buff.id, buff.id, this.getDisplayName());
 			} catch (CivException e) {
 				e.printStackTrace();
 			}
@@ -500,8 +505,11 @@ public abstract class Wonder extends Buildable {
 		}
 	}
 
-	protected abstract void removeBuffs();
-	protected abstract void addBuffs();
+	protected void removeBuffs() {
+	}
+
+	protected void addBuffs() {
+	}
 
 	public void processCoinsFromCulture() {
 		int cultureCount = 0;
@@ -514,8 +522,7 @@ public abstract class Wonder extends Buildable {
 		double total = coinsPerCulture * cultureCount;
 		this.getCiv().getTreasury().deposit(total);
 
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colossus_generatedCoins",
-				(CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, cultureCount));
+		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colossus_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, cultureCount));
 	}
 
 	public void processCoinsFromColosseum() {
@@ -528,9 +535,9 @@ public abstract class Wonder extends Buildable {
 		double total = coinsPerTown * townCount;
 		this.getCiv().getTreasury().deposit(total);
 
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colosseum_generatedCoins",
-				(CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, townCount));
+		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colosseum_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, townCount));
 	}
+
 	public void processCoinsFromNeuschwanstein() {
 		int castleCount = 0;
 		for (Civilization civ : CivGlobal.getCivs()) {
@@ -543,7 +550,12 @@ public abstract class Wonder extends Buildable {
 		double coinsPerTown = 2000.0;
 		double total = coinsPerTown * castleCount;
 		this.getCiv().getTreasury().deposit(total);
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_neuschwanstein_generatedCoins", "§e" + total + "§a",
-				CivSettings.CURRENCY_NAME, castleCount, "§b" + this.getTown().getName()));
+		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_neuschwanstein_generatedCoins", "§e" + total + "§a", CivSettings.CURRENCY_NAME, castleCount, "§b" + this.getTown().getName()));
+	}
+
+	@Override
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		// TODO Автоматически созданная заглушка метода
+
 	}
 }

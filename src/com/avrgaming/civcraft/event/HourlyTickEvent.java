@@ -21,9 +21,8 @@ package com.avrgaming.civcraft.event;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
-import com.avrgaming.civcraft.village.VillageHourlyTick;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.CampHourlyTick;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -43,7 +42,7 @@ public class HourlyTickEvent implements EventInterface {
 		TaskMaster.asyncTask("cultureProcess", new CultureProcessAsyncTask(), 0);
 		TaskMaster.asyncTask("EffectEventTimer", new EffectEventTimer(), 0);
 		TaskMaster.syncTask(new SyncTradeTimer(), 0);
-		TaskMaster.syncTask(new VillageHourlyTick(), 0);
+		TaskMaster.syncTask(new CampHourlyTick(), 0);
 		
         for (Civilization civ : CivGlobal.getCivs()) {
             if (!civ.getMissionActive()) continue;

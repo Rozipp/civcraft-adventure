@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.Color;
 import org.bukkit.Effect;
@@ -23,17 +24,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Construct;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.Construct;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -404,7 +405,7 @@ public class Cannon extends Construct {
 					if (tpl.blocks[x][y][z].specialType == Type.LITERAL) {
 						// Adding a command block for literal sign placement
 						tpl.blocks[x][y][z].command = "/literal";
-						tpl.commandBlockRelativeLocations.add(new BlockCoord(cornerBlock.getWorld().getName(), x, y, z));
+						tpl.commandBlockRelativeLocations.add(tpl.blocks[x][y][z]);
 						continue;
 					}
 
@@ -756,5 +757,10 @@ public class Cannon extends Construct {
 
 		CivMessage.sendTown(hit.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildable_underAttackAlert",
 				hit.getOwner().getDisplayName(), hit.getOwner().getCorner(), hit.getOwner().getDamagePercentage()));
+	}
+
+	@Override
+	protected List<HashMap<String, String>> getComponentInfoList() {
+		return null;
 	}
 }

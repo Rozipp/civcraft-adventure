@@ -51,7 +51,7 @@ import com.avrgaming.civcraft.structure.Cottage;
 import com.avrgaming.civcraft.structure.Mine;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Temple;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.TradeShip;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.CivColor;
@@ -703,7 +703,7 @@ public class TownInfoCommand extends CommandBase {
 		}
 		
 		if (isAdmin) {
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			if (townhall == null) {
 				CivMessage.send(sender, CivColor.LightPurple+CivSettings.localize.localizedString("cmd_town_info_showNoTownHall"));
 			} else {

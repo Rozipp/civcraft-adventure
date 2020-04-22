@@ -35,8 +35,8 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 
 public abstract class ItemComponent {
 

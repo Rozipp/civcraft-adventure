@@ -24,9 +24,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -43,7 +43,7 @@ public class AdminResCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("adcmd_res_Name");
 		
 		cs.add("settown", CivSettings.localize.localizedString("adcmd_res_setTownDesc"));
-		cs.add("setvillage", CivSettings.localize.localizedString("adcmd_res_setvillageDesc"));
+		cs.add("setcamp", CivSettings.localize.localizedString("adcmd_res_setcampDesc"));
 		cs.add("cleartown", CivSettings.localize.localizedString("adcmd_res_clearTownDesc"));
 		cs.add("enchant", CivSettings.localize.localizedString("adcmd_res_enchantDesc"));
 		cs.add("rename", CivSettings.localize.localizedString("adcmd_res_renameDesc"));
@@ -129,19 +129,19 @@ public class AdminResCommand extends CommandBase {
 
 	}
 	
-	public void setvillage_cmd() throws CivException {		
+	public void setcamp_cmd() throws CivException {		
 		Resident resident = getNamedResident(1);
-		Village village = getNamedVillage(2);
+		Camp camp = getNamedCamp(2);
 
-		if (resident.hasVillage()) {
-			resident.getVillage().removeMember(resident);
+		if (resident.hasCamp()) {
+			resident.getCamp().removeMember(resident);
 		}		
 		
-		village.addMember(resident);
+		camp.addMember(resident);
 		
-		village.save();
+		camp.save();
 		resident.save();
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setvillageSuccess",resident.getName(),village.getName()));
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setcampSuccess",resident.getName(),camp.getName()));
 	}
 	
 	

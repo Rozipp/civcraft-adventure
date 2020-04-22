@@ -23,6 +23,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructBlock;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -31,8 +33,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructBlock;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -40,7 +40,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
 
-public class Capitol extends TownHall {
+public class Capitol extends Townhall {
 
 	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
 	private ConstructSign respawnSign;
@@ -176,7 +176,7 @@ public class Capitol extends TownHall {
 				structSign.setDirection(commandBlock.getData());
 				structSign.setAction("next");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 			} else
@@ -188,7 +188,7 @@ public class Capitol extends TownHall {
 					structSign.setDirection(commandBlock.getData());
 					structSign.setAction("prev");
 					structSign.update();
-					this.addBuildableSign(structSign);
+					this.addConstructSign(structSign);
 					CivGlobal.addConstructSign(structSign);
 
 				} else
@@ -200,7 +200,7 @@ public class Capitol extends TownHall {
 						structSign.setDirection(commandBlock.getData());
 						structSign.setAction("respawn");
 						structSign.update();
-						this.addBuildableSign(structSign);
+						this.addConstructSign(structSign);
 						CivGlobal.addConstructSign(structSign);
 
 						this.respawnSign = structSign;
@@ -267,7 +267,7 @@ public class Capitol extends TownHall {
 
 		/* Validate that all of the towns in our civ have town halls. If not, then we need to punish by increasing respawn times. */
 		for (Town town : this.getCiv().getTowns()) {
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			if (townhall == null) return false;
 		}
 

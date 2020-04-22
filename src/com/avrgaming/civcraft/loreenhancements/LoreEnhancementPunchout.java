@@ -7,7 +7,7 @@ import java.util.Random;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class LoreEnhancementPunchout extends LoreEnhancement {

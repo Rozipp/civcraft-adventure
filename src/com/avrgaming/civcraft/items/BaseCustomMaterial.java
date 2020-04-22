@@ -31,10 +31,10 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterial;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 
 import gpl.AttributeUtil;
 
@@ -127,15 +127,15 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onItemDrop(PlayerDropItemEvent event) {
+	public void onDropItem(PlayerDropItemEvent event) {
 	}
 
 	@Override
-	public void onItemCraft(CraftItemEvent event) {
+	public void onCraftItem(CraftItemEvent event) {
 	}
 
 	@Override
-	public void onItemPickup(EntityPickupItemEvent event) {
+	public void onPickupItem(EntityPickupItemEvent event) {
 	}
 
 	@Override

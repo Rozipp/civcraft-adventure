@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
@@ -43,11 +44,13 @@ public class BuildableStatic {
 
 	public static final double DEFAULT_HAMMERRATE = 1.0;
 
-	/* This function is called before we build structures that do not have a town yet. This includes Capitols, Camps, and Town Halls. */
+	/* This function is called before we build structures that do not have a town
+	 * yet. This includes Capitols, Camps, and Town Halls. */
 	public static void buildVerifyStatic(Player player, ConfigBuildableInfo info, Location centerLoc, CallbackInterface callback) throws CivException {
 
 		Resident resident = CivGlobal.getResident(player);
-		/* Look for any custom template perks and ask the player if they want to use them. */
+		/* Look for any custom template perks and ask the player if they want to use
+		 * them. */
 		LinkedList<Perk> perkList = resident.getPersonalTemplatePerks(info);
 		if (perkList.size() != 0) {
 
@@ -57,22 +60,20 @@ public class BuildableStatic {
 
 			/* Build an inventory full of templates to select. */
 			Inventory inv = Bukkit.getServer().createInventory(player, Book.MAX_CHEST_SIZE * 9);
-			ItemStack infoRec = LoreGuiItem.build("Default " + info.displayName, ItemManager.getMaterialId(Material.WRITTEN_BOOK), 0,
-					CivColor.Gold + CivSettings.localize.localizedString("loreGui_template_clickToBuild"));
+			ItemStack infoRec = LoreGuiItem.build("Default " + info.displayName, ItemManager.getMaterialId(Material.WRITTEN_BOOK), 0, CivColor.Gold + CivSettings.localize.localizedString("loreGui_template_clickToBuild"));
 			infoRec = LoreGuiItem.setAction(infoRec, "BuildWithDefaultPersonalTemplate");
 			inv.addItem(infoRec);
 
 			for (Perk perk : perkList) {
-				infoRec = LoreGuiItem.build(perk.getDisplayName(), perk.configPerk.type_id, perk.configPerk.data,
-						CivColor.Gold + CivSettings.localize.localizedString("loreGui_template_clickToBuild"),
-						CivColor.Gray + CivSettings.localize.localizedString("loreGui_template_providedBy") + " " + CivColor.LightBlue
-								+ CivSettings.localize.localizedString("loreGui_template_Yourself"));
+				infoRec = LoreGuiItem.build(perk.getDisplayName(), perk.configPerk.type_id, perk.configPerk.data, CivColor.Gold + CivSettings.localize.localizedString("loreGui_template_clickToBuild"), CivColor.Gray + CivSettings.localize
+						.localizedString("loreGui_template_providedBy") + " " + CivColor.LightBlue + CivSettings.localize.localizedString("loreGui_template_Yourself"));
 				infoRec = LoreGuiItem.setAction(infoRec, "BuildWithPersonalTemplate");
 				infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getConfigId());
 				inv.addItem(infoRec);
 				player.openInventory(inv);
 			}
-			/* We will resume by calling buildPlayerPreview with the template when a gui item is clicked. */
+			/* We will resume by calling buildPlayerPreview with the template when a gui
+			 * item is clicked. */
 			return;
 		}
 
@@ -80,14 +81,16 @@ public class BuildableStatic {
 
 		Template tpl;
 		tpl = Template.getTemplate(path);
-		if (tpl == null) return;
+		if (tpl == null)
+			return;
 
 		centerLoc = repositionCenterStatic(centerLoc, info.templateYShift, tpl);
-		//validate(player, null, tpl, centerLoc, callback);
+		//		validate(player, null, tpl, centerLoc, callback);
 		TaskMaster.asyncTask(new StructureValidator(player, tpl.getFilepath(), centerLoc, callback), 0);
 	}
 
-	/* XXX this is called only on structures which do not have towns yet. For Example Capitols, Camps and Town Halls. */
+	/* XXX this is called only on structures which do not have towns yet. For
+	 * Example Capitols, Camps and Town Halls. */
 	public static Location repositionCenterStatic(Location center, int templateYShift, Template tpl) throws CivException {
 		Location loc = center.clone();
 
@@ -100,30 +103,31 @@ public class BuildableStatic {
 			int xc = (int) (x_size - 1) / 16;
 			int zc = (int) (z_size - 1) / 16;
 			switch (dir.toLowerCase()) {
-				case "west" :
-					loc.setX(loc.getX() - xc * 16);
-					loc.setZ(loc.getZ() - (zc + 1) / 2 * 16);
-					break;
-				case "north" :
-					loc.setX(loc.getX() - xc / 2 * 16);
-					loc.setZ(loc.getZ() - zc * 16);
-					break;
-				case "east" :
-					loc.setX(loc.getX());
-					loc.setZ(loc.getZ() - zc / 2 * 16);
-					break;
-				case "south" :
-					loc.setX(loc.getX() - (xc + 1) / 2 * 16);
-					loc.setZ(loc.getZ());
-					break;
-				default :
-					break;
+			case "west":
+				loc.setX(loc.getX() - xc * 16);
+				loc.setZ(loc.getZ() - (zc + 1) / 2 * 16);
+				break;
+			case "north":
+				loc.setX(loc.getX() - xc / 2 * 16);
+				loc.setZ(loc.getZ() - zc * 16);
+				break;
+			case "east":
+				loc.setX(loc.getX());
+				loc.setZ(loc.getZ() - zc / 2 * 16);
+				break;
+			case "south":
+				loc.setX(loc.getX() - (xc + 1) / 2 * 16);
+				loc.setZ(loc.getZ());
+				break;
+			default:
+				break;
 			}
 		}
 		if (templateYShift != 0) {
 			// Y-Shift based on the config, this allows templates to be built underground.
 			loc.setY(loc.getY() + templateYShift);
-			if (loc.getY() < 1) throw new CivException(CivSettings.localize.localizedString("buildable_TooCloseToBedrock"));
+			if (loc.getY() < 1)
+				throw new CivException(CivSettings.localize.localizedString("buildable_TooCloseToBedrock"));
 		}
 
 		return loc;
@@ -141,7 +145,8 @@ public class BuildableStatic {
 
 		for (Civilization civ : CivGlobal.getAdminCivs()) {
 			Location townHallLoc = civ.getCapitolTownHallLocation();
-			if (townHallLoc == null) continue;
+			if (townHallLoc == null)
+				continue;
 			double distance = townHallLoc.distance(loc);
 			if (distance < requiredDistance) {
 				throw new CivException(CivSettings.localize.localizedString("var_buildable_toocloseToSpawn1", requiredDistance));
@@ -149,8 +154,7 @@ public class BuildableStatic {
 		}
 	}
 
-	public static int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, String worldName)
-			throws CivException {
+	public static int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, String worldName) throws CivException {
 
 		int chunkX = ChunkCoord.castToChunk(absX);
 		int chunkZ = ChunkCoord.castToChunk(absZ);
@@ -158,8 +162,10 @@ public class BuildableStatic {
 		int blockChunkX = absX % 16;
 		int blockChunkZ = absZ % 16;
 
-		if (blockChunkX < 0) blockChunkX += 16;
-		if (blockChunkZ < 0) blockChunkZ += 16;
+		if (blockChunkX < 0)
+			blockChunkX += 16;
+		if (blockChunkZ < 0)
+			blockChunkZ += 16;
 
 		ChunkCoord coord = new ChunkCoord(worldName, chunkX, chunkZ);
 
@@ -172,36 +178,37 @@ public class BuildableStatic {
 
 	public static int getReinforcementValue(int typeId) {
 		switch (typeId) {
-			case CivData.WATER :
-			case CivData.WATER_RUNNING :
-			case CivData.LAVA :
-			case CivData.LAVA_RUNNING :
-			case CivData.AIR :
-			case CivData.COBWEB :
-				return 0;
-			case CivData.IRON_BLOCK :
-				return 4;
-			case CivData.STONE_BRICK :
-				return 3;
-			case CivData.STONE :
-				return 2;
-			default :
-				return 1;
+		case CivData.WATER:
+		case CivData.WATER_RUNNING:
+		case CivData.LAVA:
+		case CivData.LAVA_RUNNING:
+		case CivData.AIR:
+		case CivData.COBWEB:
+			return 0;
+		case CivData.IRON_BLOCK:
+			return 4;
+		case CivData.STONE_BRICK:
+			return 3;
+		case CivData.STONE:
+			return 2;
+		default:
+			return 1;
 		}
 	}
 
 	public static void buildPlayerPreview(Player player, Location playerLoc, Buildable buildable) throws CivException, IOException {
 		Template tpl = buildable.getTemplate();
 		Location cornerLoc = buildable.repositionCenter(playerLoc, tpl);
-//		if (buildable.getReplaceStructure() != null) {
-//			Vector dir = cornerLoc.getDirection();
-//			Structure replaceStructure = buildable.getTown().getStructureByType(buildable.getReplaceStructure());
-//			if (replaceStructure == null) throw new CivException("не найдено здание " + buildable.getReplaceStructure() + " для замены");
-//
-//			BlockCoord bc = replaceStructure.getCorner();
-//			cornerLoc = new Location(cornerLoc.getWorld(), bc.getX(), bc.getY() + replaceStructure.getTemplateYShift(), bc.getZ());
-//			cornerLoc.setDirection(dir);
-//		}
+		if (buildable.getReplaceStructure() != null) {
+			Vector dir = cornerLoc.getDirection();
+			Structure replaceStructure = buildable.getTown().getStructureByType(buildable.getReplaceStructure());
+			if (replaceStructure == null)
+				throw new CivException("не найдено здание " + buildable.getReplaceStructure() + " для замены");
+
+			BlockCoord bc = replaceStructure.getCorner();
+			cornerLoc = new Location(cornerLoc.getWorld(), bc.getX(), bc.getY() - replaceStructure.getTemplateYShift() + buildable.getTemplateYShift(), bc.getZ());
+			cornerLoc.setDirection(dir);
+		}
 		buildable.setCorner(new BlockCoord(cornerLoc));
 		buildable.setCenterLocation(buildable.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
 		buildable.getTown().checkIsTownCanBuildStructure(buildable);
@@ -212,9 +219,12 @@ public class BuildableStatic {
 		CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("buildable_preview_prompt2"));
 
 		/* Run validation on position. */
-//		TaskMaster.asyncTask(new StructureValidator(player, buildable), 0);
-		buildable.validated = true;
-		buildable.setValid(true);
+		if (buildable.getReplaceStructure() == null) {
+			TaskMaster.asyncTask(new StructureValidator(player, buildable), 0);
+		} else {
+			buildable.validated = true;
+			buildable.setValid(true);
+		}
 		CivGlobal.getResident(player).setInteractiveMode(new InteractiveBuildCommand(buildable));
 	}
 

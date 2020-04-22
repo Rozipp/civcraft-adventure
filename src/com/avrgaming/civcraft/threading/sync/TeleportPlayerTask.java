@@ -9,30 +9,30 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.village.Village;
 
 public class TeleportPlayerTask extends BukkitRunnable
 {
 	public Resident resident;
     public Player player;
     public Location location;
-    public Village village;
+    public Camp camp;
     
-	public TeleportPlayerTask(final Resident resident, final Player player, final Location location, final Village village) {
+	public TeleportPlayerTask(final Resident resident, final Player player, final Location location, final Camp camp) {
         this.resident = resident;
         this.player = player;
         this.location = location;
-        this.village = village;
+        this.camp = camp;
     }
 
 	public void run() {
         this.resident.isTeleporting = true;
-        CivLog.info("Телепортирование игрока " + this.resident.getName() + " в лагерь " + this.village.getName());
+        CivLog.info("Телепортирование игрока " + this.resident.getName() + " в лагерь " + this.camp.getName());
         try {
             int i = 10;
             while (i >= 0) {
@@ -41,7 +41,7 @@ public class TeleportPlayerTask extends BukkitRunnable
                     CivMessage.sendError(this.resident, CivSettings.localize.localizedString("cmd_camp_teleport_aborted"));
                     return;
                 }
-                if (this.resident.getVillage() == null) {
+                if (this.resident.getCamp() == null) {
                     CivMessage.sendError(this.resident, CivSettings.localize.localizedString("cmd_camp_teleport_aborted4"));
                     return;
                 }

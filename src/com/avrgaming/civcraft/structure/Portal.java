@@ -9,10 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -82,7 +82,7 @@ extends Structure {
             structSign.setDirection(commandBlock.getData());
             structSign.setAction("teleport");
             structSign.update();
-            this.addBuildableSign(structSign);
+            this.addConstructSign(structSign);
             CivGlobal.addConstructSign(structSign);
             if (this.spawnLocation == null) {
                 this.spawnLocation = structSign.getCoord().getLocation();

@@ -83,7 +83,7 @@ public class AdminCommand extends CommandBase {
 		cs.add("town", CivSettings.localize.localizedString("adcmd_townDesc"));
 		cs.add("war", CivSettings.localize.localizedString("adcmd_warDesc"));
 		cs.add("lag", CivSettings.localize.localizedString("adcmd_lagdesc"));
-		cs.add("village", CivSettings.localize.localizedString("adcmd_villageDesc"));
+		cs.add("camp", CivSettings.localize.localizedString("adcmd_campDesc"));
 		cs.add("chat", CivSettings.localize.localizedString("adcmd_chatDesc"));
 		cs.add("res", CivSettings.localize.localizedString("adcmd_resDesc"));
 		cs.add("build", CivSettings.localize.localizedString("adcmd_buildDesc"));
@@ -139,7 +139,7 @@ public class AdminCommand extends CommandBase {
 
 	public void count_cmd() {
 		CivMessage.send(this.sender, CivColor.RoseBold + "Total Residents: " + CivGlobal.getResidents().size());
-		CivMessage.send(this.sender, CivColor.RoseBold + "Total Camps: " + CivGlobal.getVillages().size());
+		CivMessage.send(this.sender, CivColor.RoseBold + "Total Camps: " + CivGlobal.getCamps().size());
 		CivMessage.send(this.sender, CivColor.RoseBold + "Total Towns: " + CivGlobal.getTowns().size());
 		CivMessage.send(this.sender, CivColor.RoseBold + "Total Civs: " + CivGlobal.getCivs().size());
 	}
@@ -337,22 +337,22 @@ public class AdminCommand extends CommandBase {
 
 	public void road_cmd() {
 		AdminRoadCommand cmd = new AdminRoadCommand();
-		cmd.onCommand(sender, null, "village", this.stripArgs(args, 1));
+		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 
 	public void item_cmd() {
 		AdminItemCommand cmd = new AdminItemCommand();
-		cmd.onCommand(sender, null, "village", this.stripArgs(args, 1));
+		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 
 	public void timer_cmd() {
 		AdminTimerCommand cmd = new AdminTimerCommand();
-		cmd.onCommand(sender, null, "village", this.stripArgs(args, 1));
+		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 
-	public void village_cmd() {
-		AdminVillageCommand cmd = new AdminVillageCommand();
-		cmd.onCommand(sender, null, "village", this.stripArgs(args, 1));
+	public void camp_cmd() {
+		AdminCampCommand cmd = new AdminCampCommand();
+		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 
 	public void playerreport_cmd() {

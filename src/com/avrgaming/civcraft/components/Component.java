@@ -13,8 +13,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Construct;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,37 +26,33 @@ public class Component {
 
 	public static ReentrantLock componentsLock = new ReentrantLock();
 
-	// Allow components to be specified in YAMLs. To do this each component must be given a name and some attributes. 
+	// Allow components to be specified in YAMLs. To do this each component must be given a name and some attributes.
 	// Examples:
-	// components: 
-	// 		- name: 'AttributeStatic'
-	// 		  type: 'direct' 
-	// 		  attribute: 'beakers' 
-	// 		  value: '50.0'
-	// 
-	// We use the power of YAML to find the key-values other than name and populate them here. 
+	// components:
+	// - name: 'AttributeStatic'
+	// type: 'direct'
+	// attribute: 'beakers'
+	// value: '50.0'
+	//
+	// We use the power of YAML to find the key-values other than name and populate them here.
 	// We then register that component to the structure automatically on construction.
 	private String name;
 	private Construct construct;
 	private HashMap<String, String> attributes = new HashMap<String, String>();
 	protected String typeName = null;
 
-	public void createComponent(Buildable buildable) {
-		this.createComponent(buildable, false);
+	public void createComponent(Construct constr) {
+		this.createComponent(constr, false);
 	}
 
-	public void createComponent(Buildable buildable, boolean async) {
+	public void createComponent(Construct constr, boolean async) {
 		String typeName = this.typeName == null ? this.getClass().getName() : this.typeName;
-		if (async) {
-			TaskMaster.asyncTask(new RegisterComponentAsync(buildable, this, typeName, true), 0);
-		} else {
-			new RegisterComponentAsync(buildable, this, typeName, true).run();
-		}
-		this.construct = buildable;
+		startRegisterComponentTask(constr, typeName, true, async);
+		this.construct = constr;
 	}
 
 	public void destroyComponent() {
-		TaskMaster.asyncTask(new RegisterComponentAsync(null, this, this.getClass().getName(), false), 0);
+		startRegisterComponentTask(null, this.getClass().getName(), false, true);
 	}
 
 	public void onLoad() {
@@ -84,6 +79,34 @@ public class Component {
 		} else {
 			return false;
 		}
+	}
+
+	public void startRegisterComponentTask(Construct constr, String name, boolean register, boolean async) {
+		Component component = this;
+		class RegisterComponentAsync implements Runnable {
+			@Override
+			public void run() {
+				Component.componentsLock.lock();
+				try {
+					ArrayList<Component> components = Component.componentsByType.get(name);
+					if (register) {
+						if (components == null) components = new ArrayList<Component>();
+						components.add(component);
+						if (constr != null) { constr.attachedComponents.add(component); }
+					} else {
+						if (components == null) return;
+						components.remove(component);
+						if (constr != null) { constr.attachedComponents.remove(component); }
+					}
+					Component.componentsByType.put(name, components);
+				} finally {
+					Component.componentsLock.unlock();
+				}
+			}
+		}
+
+		if (async) TaskMaster.asyncTask(new RegisterComponentAsync(), 0);
+		else TaskMaster.syncTask(new RegisterComponentAsync());
 	}
 
 }

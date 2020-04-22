@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
 
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -44,7 +45,6 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.village.Village;
 
 public abstract class CommandBase implements CommandExecutor {
 	
@@ -600,42 +600,42 @@ public abstract class CommandBase implements CommandExecutor {
 		return grp;
 	}
 	
-	protected void validVillageOwner() throws CivException {
+	protected void validCampOwner() throws CivException {
 		Resident resident = getResident();
 		
-		if (!resident.hasVillage()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotInvillage"));
+		if (!resident.hasCamp()) {
+			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotIncamp"));
 		}
 		
-		if (resident.getVillage().getSQLOwner() != resident) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotOwner")+" ("+resident.getVillage().getOwnerName()+")");
+		if (resident.getCamp().getSQLOwner() != resident) {
+			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotOwner")+" ("+resident.getCamp().getOwnerName()+")");
 		}
 	}
 	
-	protected Village getCurrentVillage() throws CivException {
+	protected Camp getCurrentCamp() throws CivException {
 		Resident resident = getResident();
 		
-		if (!resident.hasVillage()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_villageBase_NotInvillage"));
+		if (!resident.hasCamp()) {
+			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotIncamp"));
 		}
 		
-		return resident.getVillage();
+		return resident.getCamp();
 	}
 	
-	protected Village getNamedVillage(int index) throws CivException {
+	protected Camp getNamedCamp(int index) throws CivException {
 		if (args.length < (index+1)) {
-			throw new CivException(CivSettings.localize.localizedString("EntervillageName"));
+			throw new CivException(CivSettings.localize.localizedString("EntercampName"));
 		}
 		
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
 		
-		ArrayList<Village> potentialMatches = new ArrayList<Village>();
-		for (Village village : CivGlobal.getVillages()) {
-			String str = village.getName().toLowerCase();
+		ArrayList<Camp> potentialMatches = new ArrayList<Camp>();
+		for (Camp camp : CivGlobal.getCamps()) {
+			String str = camp.getName().toLowerCase();
 			try {
 				if (str.matches(name)) {
-					potentialMatches.add(village);
+					potentialMatches.add(camp);
 				}
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
@@ -655,8 +655,8 @@ public abstract class CommandBase implements CommandExecutor {
 			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
-			for (Village village : potentialMatches) {
-				out += village.getName()+", ";
+			for (Camp camp : potentialMatches) {
+				out += camp.getName()+", ";
 			}
 		
 			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);

@@ -36,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.loregui.book.BookResidentGui;
 import com.avrgaming.civcraft.object.Civilization;
@@ -43,7 +44,6 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.Reflection;
-import com.avrgaming.civcraft.village.Village;
 
 public class CivMessage {
 
@@ -57,7 +57,7 @@ public class CivMessage {
 	private static Map<String, ArrayList<String>> extraCivChatListeners = new ConcurrentHashMap<String, ArrayList<String>>();
 
 
-    private static Map<String, ArrayList<String>> extraVillageChatListeners;
+    private static Map<String, ArrayList<String>> extraCampChatListeners;
 	
 	public static void sendErrorNoRepeat(Object sender, String line) {
 		if (sender instanceof Player) {
@@ -524,12 +524,12 @@ public class CivMessage {
 		}
 	}
 
-	public static void sendVillage(Village village, String message) {
-		for (Resident resident : village.getMembers()) {
+	public static void sendCamp(Camp camp, String message) {
+		for (Resident resident : camp.getMembers()) {
 			try {
 				Player player = CivGlobal.getPlayer(resident);
-				player.sendMessage(CivColor.Yellow+"[Village] "+CivColor.Yellow+message);		
-				CivLog.info("[Village:"+village.getName()+"] "+message);
+				player.sendMessage(CivColor.Yellow+"[Camp] "+CivColor.Yellow+message);		
+				CivLog.info("[Camp:"+camp.getName()+"] "+message);
 
 			} catch (CivException e) {
 				//player not online.
@@ -583,35 +583,35 @@ public class CivMessage {
         }
     }
 
-	public static void sendVillageChat(final Village village, final Resident resident, final String format, final String message) {
-        if (village == null) {
+	public static void sendCampChat(final Camp camp, final Resident resident, final String format, final String message) {
+        if (camp == null) {
             try {
                 final Player player = CivGlobal.getPlayer(resident);
-                player.sendMessage("§c" + CivSettings.localize.localizedString("villageMsg_ccNotInvillage"));
+                player.sendMessage("§c" + CivSettings.localize.localizedString("campMsg_ccNotIncamp"));
             }
             catch (CivException ex) {}
             return;
         }
-        for (final Resident resident2 : village.getMembers()) {
+        for (final Resident resident2 : camp.getMembers()) {
             try {
                 final Player player2 = CivGlobal.getPlayer(resident2);
-                final String msg = "§6" + CivSettings.localize.localizedString("villageMsg_ccPrefix1") + " " + resident.getVillage().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
+                final String msg = "§6" + CivSettings.localize.localizedString("campMsg_ccPrefix1") + " " + resident.getCamp().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
                 player2.sendMessage(msg);
             }
             catch (CivException ex2) {}
         }
-        for (final String name : getExtraVillageChatListeners(village)) {
+        for (final String name : getExtraCampChatListeners(camp)) {
             try {
                 final Player player2 = CivGlobal.getPlayer(name);
-                final String msg = "§6" + CivSettings.localize.localizedString("camMsg_ccPrefix2") + village.getName() + " " + resident.getVillage().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
+                final String msg = "§6" + CivSettings.localize.localizedString("camMsg_ccPrefix2") + camp.getName() + " " + resident.getCamp().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
                 player2.sendMessage(msg);
             }
             catch (CivException ex3) {}
         }
     }
 
-	public static ArrayList<String> getExtraVillageChatListeners(final Village village) {
-        final ArrayList<String> names = CivMessage.extraVillageChatListeners.get(village.getName().toLowerCase());
+	public static ArrayList<String> getExtraCampChatListeners(final Camp camp) {
+        final ArrayList<String> names = CivMessage.extraCampChatListeners.get(camp.getName().toLowerCase());
         if (names == null) {
             return new ArrayList<String>();
         }
@@ -628,7 +628,7 @@ public class CivMessage {
 	         permissions.append(permission.getPermission()).append("\n");
 	      }
 
-	      String contents = "Игрок: " + cause.getName() + "\nВремя: " + CivGlobal.dateFormat.format(new Date()) + "\nСервер: " + Bukkit.getServerName() + "\nКарта: " + CivGlobal.getDynmapLink(Bukkit.getServerName()) + "\nЦивилизация: " + BookResidentGui.Civilization(CivGlobal.getResident(cause)) + "\nГород: " + BookResidentGui.Town(CivGlobal.getResident(cause)) + "\nДеревня: " + BookResidentGui.Village(CivGlobal.getResident(cause)) + "\n" + permissions + "================================= Страктрейс ===================================\n\n" + ExceptionUtils.getStackTrace(e) + "\n=====================================================================\nПричина: " + ExceptionUtils.getRootCauseMessage(e.getCause()) + "\n================================= Полный страктрейс причины ===================================\n\n" + ExceptionUtils.getFullStackTrace(e.getCause()) + "\n";
+	      String contents = "Игрок: " + cause.getName() + "\nВремя: " + CivGlobal.dateFormat.format(new Date()) + "\nСервер: " + Bukkit.getServerName() + "\nКарта: " + CivGlobal.getDynmapLink(Bukkit.getServerName()) + "\nЦивилизация: " + BookResidentGui.Civilization(CivGlobal.getResident(cause)) + "\nГород: " + BookResidentGui.Town(CivGlobal.getResident(cause)) + "\nДеревня: " + BookResidentGui.Camp(CivGlobal.getResident(cause)) + "\n" + permissions + "================================= Страктрейс ===================================\n\n" + ExceptionUtils.getStackTrace(e) + "\n=====================================================================\nПричина: " + ExceptionUtils.getRootCauseMessage(e.getCause()) + "\n================================= Полный страктрейс причины ===================================\n\n" + ExceptionUtils.getFullStackTrace(e.getCause()) + "\n";
 	      String url = CivLog.paste(contents, "exc", "", "exc");
 	      Iterator<? extends Player> var5 = Bukkit.getOnlinePlayers().iterator();
 

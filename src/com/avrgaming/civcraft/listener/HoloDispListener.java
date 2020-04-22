@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -20,7 +21,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.structure.Bank;
@@ -104,7 +104,7 @@ public class HoloDispListener {
 	   }
 
    public static void clearHolos() {
-       CivLog.info(CivGlobal.getTradeGoods().size() + CivGlobal.getTotalVillages() + CivGlobal.getTownHalls() + CivGlobal.getTotalBanks() + " \u0413\u043e\u043b\u043e\u0433\u0440\u0430\u043c\u043c \u0441 CivCraft'\u043e\u043c \u0431\u044b\u043b\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043e.");
+       CivLog.info(CivGlobal.getTradeGoods().size() + CivGlobal.getTotalCamps() + CivGlobal.getTownHalls() + CivGlobal.getTotalBanks() + " \u0413\u043e\u043b\u043e\u0433\u0440\u0430\u043c\u043c \u0441 CivCraft'\u043e\u043c \u0431\u044b\u043b\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043e.");
        for (final Hologram hologram : HologramsAPI.getHolograms((Plugin)CivCraft.getPlugin())) {
            hologram.delete();
        }

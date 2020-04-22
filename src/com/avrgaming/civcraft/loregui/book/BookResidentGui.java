@@ -39,8 +39,8 @@ implements GuiAction {
         return resident.getTown().getName();
     }
 
-    public static String Village(Resident resident) {
-	      return resident.getVillage() == null ? "" : resident.getVillage().getName();
+    public static String Camp(Resident resident) {
+	      return resident.getCamp() == null ? "" : resident.getCamp().getName();
 	   }
 
     @Override
@@ -49,7 +49,7 @@ implements GuiAction {
         Player player = (Player)event.getWhoClicked();
         Resident resident = CivGlobal.getResident(player);
         Inventory guiInventory = Bukkit.getServer().createInventory((InventoryHolder)player, 9, CivSettings.localize.localizedString("bookReborn_resInfoHeading"));
-        ItemStack playerInfo = LoreGuiItem.build(CivSettings.localize.localizedString("bookReborn_infoMenu_name"), ItemManager.getMaterialId(Material.SKULL_ITEM), 3, CivColor.LightGray + "Player: " + resident.getName(), "§6" + CivSettings.CURRENCY_NAME + ": " + "§a" + resident.getTreasury().getBalance(), "§2" + CivSettings.localize.localizedString("cmd_res_showRegistrationDate", new StringBuilder().append("§a").append(sdf.format(resident.getRegistered())).toString()), "§b" + CivSettings.localize.localizedString("Civilization") + " " + BookResidentGui.Civilization(resident), "§d" + CivSettings.localize.localizedString("Town") + " " + BookResidentGui.Town(resident), CivColor.Red + CivSettings.localize.localizedString("Camp") + BookResidentGui.Village(resident));
+        ItemStack playerInfo = LoreGuiItem.build(CivSettings.localize.localizedString("bookReborn_infoMenu_name"), ItemManager.getMaterialId(Material.SKULL_ITEM), 3, CivColor.LightGray + "Player: " + resident.getName(), "§6" + CivSettings.CURRENCY_NAME + ": " + "§a" + resident.getTreasury().getBalance(), "§2" + CivSettings.localize.localizedString("cmd_res_showRegistrationDate", new StringBuilder().append("§a").append(sdf.format(resident.getRegistered())).toString()), "§b" + CivSettings.localize.localizedString("Civilization") + " " + BookResidentGui.Civilization(resident), "§d" + CivSettings.localize.localizedString("Town") + " " + BookResidentGui.Town(resident), CivColor.Red + CivSettings.localize.localizedString("Camp") + BookResidentGui.Camp(resident));
         guiInventory.setItem(0, playerInfo);
         ItemStack backButton = LoreGuiItem.build(CivSettings.localize.localizedString("loreGui_recipes_back"), ItemManager.getMaterialId(Material.MAP), 0, CivSettings.localize.localizedString("bookReborn_backToDashBoard"));
         backButton = LoreGuiItem.setAction(backButton, "OpenInventory");

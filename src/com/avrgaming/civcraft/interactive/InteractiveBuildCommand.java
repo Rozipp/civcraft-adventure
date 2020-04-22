@@ -33,7 +33,7 @@ public class InteractiveBuildCommand implements InteractiveResponse {
 	@Override
 	public void respond(String message, Resident resident) {
 		CivLog.debug("build log: send yes");
-		
+
 		Town town = buildable.getTown();
 		Player player;
 		try {
@@ -58,7 +58,7 @@ public class InteractiveBuildCommand implements InteractiveResponse {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalidNotOP"));
 			return;
 		}
-		
+
 		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
@@ -72,11 +72,11 @@ public class InteractiveBuildCommand implements InteractiveResponse {
 				try {
 					if (buildable instanceof Structure) {
 						resident.clearInteractiveMode();
-						town.buildStructure(player, buildable);
+						town.buildStructure(player, (Structure) buildable);
 					}
 					if (buildable instanceof Wonder) {
 						resident.clearInteractiveMode();
-						town.buildWonder(player, buildable);
+						town.buildWonder(player, (Wonder) buildable);
 					}
 				} catch (CivException e) {
 					CivMessage.sendError(player, e.getMessage());

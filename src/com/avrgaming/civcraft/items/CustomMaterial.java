@@ -37,8 +37,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -317,11 +317,11 @@ public abstract class CustomMaterial {
 	public abstract void onBlockDamage(BlockDamageEvent event);
 	public abstract void onBlockInteract(PlayerInteractEvent event);
 	public abstract void onHold(PlayerItemHeldEvent event);
-	public abstract void onItemDrop(PlayerDropItemEvent event);
-	public abstract void onItemCraft(CraftItemEvent event);
-	public abstract void onItemPickup(EntityPickupItemEvent event);
-	public abstract void onItemSpawn(ItemSpawnEvent event);
 	public abstract boolean onAttack(EntityDamageByEntityEvent event, ItemStack stack); /* Called when this item is in inventory. */
+	public abstract void onItemSpawn(ItemSpawnEvent event);
+	public abstract void onDropItem(PlayerDropItemEvent event);
+	public abstract void onCraftItem(CraftItemEvent event);
+	public abstract void onPickupItem(EntityPickupItemEvent event);
 	/** Предмет брошен в инвентарь */
 	public abstract void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack);
 	/** Предмет поднять из инвентаря */

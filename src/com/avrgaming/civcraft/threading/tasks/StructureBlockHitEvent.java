@@ -17,6 +17,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
@@ -24,10 +25,9 @@ import com.avrgaming.civcraft.loreenhancements.LoreEnhancementPunchout;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Capitol;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -77,13 +77,13 @@ public class StructureBlockHitEvent implements Runnable {
 			int addinationalDamage = 0;
 			if (resident.getCiv() != null && resident.getCiv().getCapitol() != null) {
 				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraCPdmgTown")
-						&& (CivGlobal.getNearestBuildable(player.getLocation()) instanceof Capitol
-								|| CivGlobal.getNearestBuildable(player.getLocation()) instanceof TownHall)) {
+						&& (CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol
+								|| CivGlobal.getNearestStructure(player.getLocation()) instanceof Townhall)) {
 					addinationalDamage += this.getAddinationalBreak();
 				}
 				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraStrucutreDmgTown")
-						&& !(CivGlobal.getNearestBuildable(player.getLocation()) instanceof Capitol)
-						&& !(CivGlobal.getNearestBuildable(player.getLocation()) instanceof TownHall)) {
+						&& !(CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol)
+						&& !(CivGlobal.getNearestStructure(player.getLocation()) instanceof Townhall)) {
 					addinationalDamage += this.getAddinationalBreak();
 				}
 			}

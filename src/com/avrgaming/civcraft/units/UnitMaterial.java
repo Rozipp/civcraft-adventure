@@ -9,6 +9,7 @@
 package com.avrgaming.civcraft.units;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
@@ -35,10 +36,8 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.DelayMoveInventoryItem;
 import com.avrgaming.civcraft.util.CivColor;
-
 import gpl.AttributeUtil;
 
 /** Клас предметов которые выступают в качестве юнитов */
@@ -48,28 +47,34 @@ public abstract class UnitMaterial extends CustomMaterial {
 	public static final int LAST_SLOT = 8;
 	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
 
-	//=============== EquipmentElemen
+	// =============== EquipmentElemen
 	public HashMap<String, EquipmentElement> equipmentElemens = new HashMap<>();
+
 	public abstract void initAmmunitions();
+
 	public String getAmuntMatTir(String eq, Integer tir) {
 		EquipmentElement e = equipmentElemens.get(eq);
-		if (e == null) return "";
+		if (e == null)
+			return "";
 		return e.getMatTir(tir);
 	}
+
 	public Integer getSlot(String eq) {
 		EquipmentElement e = equipmentElemens.get(eq);
-		if (e == null) return 0;
+		if (e == null)
+			return 0;
 		return e.getSlot();
 	}
 
-	//=============== init Unit
+	// =============== init Unit
 	public abstract void initLore(AttributeUtil attrs, UnitObject uo);
+
 	public abstract void initUnitObject(UnitObject uo);
 
 	public UnitMaterial(String id, ConfigUnit configUnit) {
 		super(id, configUnit.item_id, (short) configUnit.item_data);
 		this.configUnit = configUnit;
-		//TODO initLore
+		// TODO initLore
 		this.setName(configUnit.name);
 		this.initAmmunitions();
 	}
@@ -115,7 +120,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onItemCraft(CraftItemEvent event) {
+	public void onCraftItem(CraftItemEvent event) {
 		CivMessage.sendError(event.getWhoClicked(), CivSettings.localize.localizedString("unitItem_cannotCraft"));
 		event.setCancelled(true);
 	}
@@ -127,13 +132,13 @@ public abstract class UnitMaterial extends CustomMaterial {
 		Resident resident = CivGlobal.getResident(player);
 
 		if (resident.isUnitActive()) {
-			//Деактивация юнита
+			// Деактивация юнита
 			resident.setUnitObjectId(0);
 			UnitStatic.removeChildrenItems(player);
 
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
 		} else {
-			//Активация юнита
+			// Активация юнита
 			ItemStack unitItemStack = event.getItem();
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(unitItemStack));
 			if (uo == null) {
@@ -153,7 +158,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onItemDrop(PlayerDropItemEvent event) {
+	public void onDropItem(PlayerDropItemEvent event) {
 		Player player = (Player) event.getPlayer();
 		if (CivGlobal.getResident(player).isUnitActive()) {
 			CivMessage.sendError(player, "сперва нужно отключить юнита");
@@ -165,18 +170,18 @@ public abstract class UnitMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onItemPickup(EntityPickupItemEvent event) {
+	public void onPickupItem(EntityPickupItemEvent event) {
 		// поднятие с земли предмета
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			Resident res = CivGlobal.getResident(player);
 			if (res.isUnitActive()) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", this.getConfigUnit().name));
+				CivMessage.sendError(player,
+						CivSettings.localize.localizedString("var_unitMaterial_errorHave", this.getConfigUnit().name));
 				event.setCancelled(true);
 				player.updateInventory();
 				return;
 			}
-
 			ItemStack stack = event.getItem().getItemStack();
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
 			if (uo == null) {
@@ -186,44 +191,37 @@ public abstract class UnitMaterial extends CustomMaterial {
 				return;
 			}
 			if (!uo.validateUnitUse(player, stack)) {
-				CivMessage.sendErrorNoRepeat(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
+				CivMessage.sendErrorNoRepeat(player,
+						CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);
 				player.updateInventory();
 				return;
 			}
-
-			//Prevent dropping in two unit materials.
-			//Если у игрока уже есть юнит в инвентаре, то нового не ложим
-			ItemStack unit = UnitStatic.findUnit(player);
-			if (unit != null) {
-				if (!unit.equals(stack))
-					CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", unit.getItemMeta().getDisplayName()));
+			// Prevent dropping in two unit materials.
+			// Если у игрока уже есть юнит в инвентаре, то нового не ложим
+			List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
+			if (slots.size() != 1) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
 				event.setCancelled(true);
+				player.getInventory().remove(stack);
+				player.getWorld().dropItem(player.getLocation().add(player.getLocation().getDirection().multiply(2)),
+						stack);
 				player.updateInventory();
 				return;
+			} else {
+				Integer unitSlot = slots.get(0);
+				if (unitSlot != LAST_SLOT)
+					DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
+				return;
 			}
-			// Reposition item to the last quickbar slot
-
-			// Check that the inventory is not full, clear out the
-			// the required slot, and then re-add what was in there.
-			Inventory inv = player.getInventory();
-			ItemStack lastSlot = inv.getItem(LAST_SLOT);
-			if (lastSlot != null) {
-				inv.setItem(LAST_SLOT, stack);
-				inv.addItem(lastSlot);
-			} else
-				inv.setItem(LAST_SLOT, stack);
-			this.onItemToPlayer(player, stack);
-			event.getItem().remove();
+		} else {
 			event.setCancelled(true);
-			return;
 		}
 	}
 
 	@Override
 	public void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack) {
-		//Ложим предмет в инвентарь
-		if (event.isCancelled()) return;
+		// Ложим предмет в инвентарь
 		if (event.getWhoClicked() instanceof Player) {
 			Player player = (Player) event.getWhoClicked();
 			if (!this.isCanUseInventoryTypes(toInv)) {
@@ -235,40 +233,45 @@ public abstract class UnitMaterial extends CustomMaterial {
 			}
 		}
 		if (toInv.getHolder() instanceof Player) {
-			//A hack to make sure we are always moving the item to the player's inv.
-			//A player inv is always on the bottom, toInv could be the 'crafting' inv 
-			//Меня этот хак удивил, но проверять его целесообразность не буду
+			// A hack to make sure we are always moving the item to the player's inv.
+			// A player inv is always on the bottom, toInv could be the 'crafting' inv
+			// Меня этот хак удивил, но проверять его целесообразность не буду
 			toInv = event.getView().getBottomInventory();
 			Player player = (Player) toInv.getHolder();
 
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-			if (uo == null) CivLog.error("Не найден UnitObject");
-			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок этого юнита 
+			if (uo == null)
+				CivLog.error("Не найден UnitObject");
+			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок
+														// этого юнита
 				CivMessage.sendError(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				player.updateInventory();
 				return;
 			}
-			//Prevent dropping in two unit materials.
-			//Если у игрока уже есть юнит в инвентаре, то нового не ложим
+			// Prevent dropping in two unit materials.
+			// Если у игрока уже есть юнит в инвентаре, то нового не ложим
 			ItemStack unit = UnitStatic.findUnit(player);
 			if (unit != null) {
 				if (!unit.equals(stack))
-					CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", unit.getItemMeta().getDisplayName()));
+					CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave",
+							unit.getItemMeta().getDisplayName()));
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				player.updateInventory();
 				return;
 			}
-			if (event.getSlot() != LAST_SLOT) TaskMaster.syncTask(new DelayMoveInventoryItem(player, LAST_SLOT, stack));
+			if (event.getSlot() != LAST_SLOT)
+				DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
 			onItemToPlayer(player, stack);
 		}
 	}
 
 	public void onInvDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
-		//Ложим предмет в инвентарь
-		if (event.isCancelled()) return;
+		// Ложим предмет в инвентарь
+		if (event.isCancelled())
+			return;
 		if (event.getWhoClicked() instanceof Player) {
 			Player player = (Player) event.getWhoClicked();
 			if (!this.isCanUseInventoryTypes(toInv)) {
@@ -280,44 +283,51 @@ public abstract class UnitMaterial extends CustomMaterial {
 			}
 		}
 		if (toInv.getHolder() instanceof Player) {
-			//A hack to make sure we are always moving the item to the player's inv.
-			//A player inv is always on the bottom, toInv could be the 'crafting' inv 
-			//Меня этот хак удивил, но проверять его целесообразность не буду
+			// A hack to make sure we are always moving the item to the player's inv.
+			// A player inv is always on the bottom, toInv could be the 'crafting' inv
+			// Меня этот хак удивил, но проверять его целесообразность не буду
 			toInv = event.getView().getBottomInventory();
 			Player player = (Player) toInv.getHolder();
 
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
 			if (uo == null) {
 				CivLog.error("Не найден UnitObject");
+				event.setCancelled(true);
+				event.setResult(Result.DENY);
+				player.updateInventory();
+				return;
 			}
-			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок этого юнита 
+			// если ложим игроку то проверяем, может ли носить этот игрок этого юнита
+			if (!uo.validateUnitUse(player, stack)) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				player.updateInventory();
 				return;
 			}
-			//Prevent dropping in two unit materials.
-			//Если у игрока уже есть юнит в инвентаре, то нового не ложим
-			ItemStack unit = UnitStatic.findUnit(player);
-			if (unit != null) {
-				if (!unit.equals(stack))
-					CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", unit.getItemMeta().getDisplayName()));
+			// Prevent dropping in two unit materials.
+			// Если у игрока уже есть юнит в инвентаре, то нового не ложим
+			List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
+			if (slots.size() > 0) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				player.updateInventory();
 				return;
+			} else {
+				int ff = (int) event.getInventorySlots().toArray()[0];
+				if (event.getView().convertSlot(ff) != LAST_SLOT)
+					DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
+				onItemToPlayer(player, stack);
 			}
-			int ff = (int) event.getInventorySlots().toArray()[0];
-			if (event.getView().convertSlot(ff) != LAST_SLOT) TaskMaster.syncTask(new DelayMoveInventoryItem(player, LAST_SLOT, stack));
-			onItemToPlayer(player, stack);
 		}
 	}
 
 	@Override
 	public void onInvItemPickup(InventoryClickEvent event, Inventory fromInv, ItemStack stack) {
-		//Забераем предмет из инвентаря
-		if (event.isCancelled()) return;
+		// Забераем предмет из инвентаря
+		if (event.isCancelled())
+			return;
 
 		if (fromInv.getHolder() instanceof Player) {
 			Player player = (Player) fromInv.getHolder();
@@ -348,15 +358,15 @@ public abstract class UnitMaterial extends CustomMaterial {
 	@Override
 	public boolean isCanUseInventoryTypes(Inventory inv) {
 		switch (inv.getType()) {
-			case CHEST :
-			case DROPPER :
-			case ENDER_CHEST :
-			case HOPPER :
-			case PLAYER :
-			case SHULKER_BOX :
-				return true;
-			default :
-				return false;
+		case CHEST:
+		case DROPPER:
+		case ENDER_CHEST:
+		case HOPPER:
+		case PLAYER:
+		case SHULKER_BOX:
+			return true;
+		default:
+			return false;
 		}
 	}
 
@@ -364,7 +374,8 @@ public abstract class UnitMaterial extends CustomMaterial {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		ItemStack firstFoundStack = null;
 		for (ItemStack stack : event.getPlayer().getInventory().getContents()) {
-			if (stack == null) continue;
+			if (stack == null)
+				continue;
 
 			if (CustomMaterial.getCustomMaterial(stack) instanceof UnitMaterial) {
 				if (firstFoundStack == null) {

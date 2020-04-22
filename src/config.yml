@@ -46,7 +46,7 @@ clears_table_data: false
 
 # ============================== Debug information =========================================
 
-sync_build_update_task: 10000
+update_limit_for_sync_build_task: 10000
 max_blocks_per_tick_build_template: 5000
 
 

@@ -18,7 +18,8 @@ import org.bukkit.inventory.Inventory;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigCottageLevel;
+import com.avrgaming.civcraft.config.ConfigConsumeLevel;
+import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -27,7 +28,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
@@ -204,7 +204,7 @@ public class Cottage extends Structure {
 
 		/* Calculate how much money we made. */
 		/* XXX leveling down doesnt generate coins, so we don't have to check it here. */
-		ConfigCottageLevel lvl = null;
+		ConfigConsumeLevel lvl = null;
 		if (result == Result.LEVELUP) {
 			lvl = CivSettings.cottageLevels.get(getConsumeComponent().getLevel() - 1);
 		} else {
@@ -284,14 +284,14 @@ public class Cottage extends Structure {
 	public int getMaxCount() {
 		int level = getLevel();
 
-		ConfigCottageLevel lvl = CivSettings.cottageLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.cottageLevels.get(level);
 		return lvl.count;
 	}
 
 	public double getCoinsGenerated() {
 		int level = getLevel();
 
-		ConfigCottageLevel lvl = CivSettings.cottageLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.cottageLevels.get(level);
 		if (lvl == null) {
 			return 0;
 		}

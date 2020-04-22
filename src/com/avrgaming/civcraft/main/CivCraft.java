@@ -24,6 +24,8 @@ import pvptimer.PvPTimer;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMarketItem;
+import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.endgame.EndConditionNotificationTask;
@@ -69,15 +71,12 @@ import com.avrgaming.civcraft.util.BiomeCache;
 import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.TimeTools;
-import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.civcraft.war.WarListener;
 import com.avrgaming.global.scores.CalculateScoreTimer;
 import com.avrgaming.global.scores.GlobalTickEvent;
 import com.avrgaming.sls.SLSManager;
 
 import com.avrgaming.civcraft.command.town.*;
-import com.avrgaming.civcraft.command.village.VillageCommand;
-
 import com.avrgaming.civcraft.command.resident.*;
 import com.avrgaming.civcraft.command.plot.*;
 import com.avrgaming.civcraft.command.civ.*;
@@ -85,6 +84,7 @@ import com.avrgaming.civcraft.command.market.*;
 import com.avrgaming.civcraft.command.*;
 import com.avrgaming.civcraft.command.debug.*;
 import com.avrgaming.civcraft.command.admin.*;
+import com.avrgaming.civcraft.command.camp.CampCommand;
 import com.avrgaming.civcraft.listener.*;
 import com.avrgaming.civcraft.listener.armor.ArmorListener;
 import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
@@ -139,7 +139,7 @@ public final class CivCraft extends JavaPlugin {
 				SQL.deleteTable(Wonder.TABLE_NAME);
 				SQL.deleteTable(Structure.TABLE_NAME);
 				SQL.deleteTable(BiomeCache.TABLE_NAME);
-				SQL.deleteTable(Village.TABLE_NAME);
+				SQL.deleteTable(Camp.TABLE_NAME);
 				SQL.deleteTable(UnitObject.TABLE_NAME);
 			}
 			SQL.initCivObjectTables();
@@ -180,14 +180,14 @@ public final class CivCraft extends JavaPlugin {
 		getCommand("market").setExecutor(new MarketCommand());
 		getCommand("select").setExecutor(new SelectCommand());
 		getCommand("here").setExecutor(new HereCommand());
-		getCommand("village").setExecutor(new VillageCommand());
+		getCommand("camp").setExecutor(new CampCommand());
 		getCommand("report").setExecutor(new ReportCommand());
 		getCommand("trade").setExecutor(new TradeCommand());
 		getCommand("kill").setExecutor(new KillCommand());
 		getCommand("enderchest").setExecutor(new EnderChestCommand());
 		getCommand("map").setExecutor(new MapCommand());
 		getCommand("wiki").setExecutor(new WikiCommand());
-		getCommand("vcc").setExecutor(new VillageChatCommand());
+		getCommand("vcc").setExecutor(new CampChatCommand());
 		getCommand("donate").setExecutor(new Donate());
 		//TODO from furnex CivGlobal.dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
 
@@ -267,7 +267,7 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("pvptimer", new PvPTimer(), TimeTools.toTicks(30));
 
 		TaskMaster.syncTimer("MobAsynckSpawner", new MobAsynckSpawnTimer(), TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
-		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), 500);
+		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), TimeTools.toTicks(1));
 		//TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		TaskMaster.syncTimer("ValidateAll", new ValidateAll(), TimeTools.toTicks(10800L));

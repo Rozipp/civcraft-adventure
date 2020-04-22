@@ -43,7 +43,7 @@ import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -343,7 +343,7 @@ public class AdminTownCommand extends CommandBase {
 	public void tp_cmd() throws CivException {
 		Town town = getNamedTown(1);
 		
-		TownHall townhall = town.getTownHall();
+		Townhall townhall = town.getTownHall();
 	
 		if (sender instanceof Player) {
 			if (townhall != null && townhall.isComplete()) {

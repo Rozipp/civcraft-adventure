@@ -2,7 +2,7 @@ package com.avrgaming.civcraft.components;
 
 import java.util.HashSet;
 
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.construct.Construct;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,8 +21,8 @@ public class ActivateOnBiome extends Component {
 	private EffectType effectType; 
 	
 	@Override
-	public void createComponent(Buildable buildable, boolean async) {
-		super.createComponent(buildable, async);
+	public void createComponent(Construct constr, boolean async) {
+		super.createComponent(constr, async);
 		
 		String[] biomes = this.getString("biomes").split(",");
 		for (String biome : biomes) {

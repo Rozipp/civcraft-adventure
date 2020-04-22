@@ -52,15 +52,15 @@ elements:
         delay: 0.0
         pitch: 1.3
         
-  - key: 'villageCreation'
-    radius: 6
+  - key: 'campCreation'
+    radius: 12
     voice:
       - type: 'ENTITY_ENDERDRAGON_FLAP'
         delay: 0.0
         pitch: 0.5
         
-  - key: 'villageDestruction'
-    radius: 6
+  - key: 'campDestruction'
+    radius: 12
     voice:
       - type: 'ENTITY_ENDERDRAGON_AMBIENT'
         delay: 0.0

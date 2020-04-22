@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import org.bukkit.event.player.PlayerInteractEvent;
-import com.avrgaming.civcraft.object.ConstructSign;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Inventory;
 import java.util.Collection;
@@ -23,12 +22,13 @@ import com.avrgaming.civcraft.object.Resident;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.util.MultiInventory;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigSpaceMissions;
 import com.avrgaming.civcraft.config.ConfigSpaceRocket;
+import com.avrgaming.civcraft.construct.ConstructChest;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -219,7 +219,7 @@ public class SpaceShuttle extends Wonder {
 			structSign.setDirection(commandBlock.getData());
 			structSign.setAction("runMission");
 			structSign.update();
-			this.addBuildableSign(structSign);
+			this.addConstructSign(structSign);
 			CivGlobal.addConstructSign(structSign);
 		} else
 			if (commandBlock.command.equals("/missionProgress")) {
@@ -230,7 +230,7 @@ public class SpaceShuttle extends Wonder {
 				structSign.setDirection(commandBlock.getData());
 				structSign.setAction("missionProgress");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 			}
 	}

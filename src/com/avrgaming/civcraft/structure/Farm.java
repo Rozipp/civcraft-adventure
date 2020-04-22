@@ -61,12 +61,12 @@ public class Farm extends Structure {
 			this.undoFromTemplate();
 		} catch (IOException | CivException e1) {
 			e1.printStackTrace();
-			this.fancyDestroyStructureBlocks();
+			this.fancyDestroyConstructBlocks();
 		}
 
 		CivGlobal.removeStructure(this);
 		this.getTown().removeStructure(this);
-		this.unbindStructureBlocks();
+		this.unbindConstructBlocks();
 
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}

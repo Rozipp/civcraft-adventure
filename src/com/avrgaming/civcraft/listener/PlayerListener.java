@@ -53,6 +53,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTechPotion;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -64,7 +65,7 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Capitol;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.PlayerChunkNotifyAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.PlayerLoginAsyncTask;
@@ -77,13 +78,13 @@ import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.TagManager;
-import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarStats;
 
 public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerPickup(EntityPickupItemEvent event) {
+		if (event.isCancelled()) return;
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			String name;
@@ -129,7 +130,7 @@ public class PlayerListener implements Listener {
 	public void OnPlayerJoinEvent(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Resident resident = CivGlobal.getResident(player);
-		resident.setUnitObjectId(0);
+		if (resident != null) resident.setUnitObjectId(0);
 		UnitStatic.removeChildrenItems(player);
 		UnitStatic.updateUnitForPlaeyr(player);
 		UnitStatic.setModifiedMovementSpeed(player);
@@ -166,15 +167,15 @@ public class PlayerListener implements Listener {
 					}
 				}
 				
-				Village tovillage = (Village) CivGlobal.getConstructAt(new ChunkCoord(event.getTo()));
-				if (tovillage != null && tovillage != resident.getVillage() && !player.hasPermission(CivSettings.TPVILLAGE)) {
+				Camp tocamp = (Camp) CivGlobal.getConstructAt(new ChunkCoord(event.getTo()));
+				if (tocamp != null && tocamp != resident.getCamp() && !player.hasPermission(CivSettings.TPCAMP)) {
 					/* Deny telportation into Civ if not allied. */
 					event.setTo(event.getFrom());
 					if (!event.isCancelled()) {
 						CivLog.debug("Cancelled Event " + event.getEventName() + " with cause: " + event.getCause());
 						event.setCancelled(true);
 						CivMessage.send(resident, CivColor.Red + CivSettings.localize.localizedString("teleportDeniedPrefix") + " " + CivColor.White
-								+ CivSettings.localize.localizedString("var_teleportDeniedCamp", CivColor.Green + tovillage.getName() + CivColor.White));
+								+ CivSettings.localize.localizedString("var_teleportDeniedCamp", CivColor.Green + tocamp.getName() + CivColor.White));
 						return;
 					}
 
@@ -259,18 +260,18 @@ public class PlayerListener implements Listener {
 				}
 			}
 		} else {
-			if (resident.hasVillage()) {
-				Village village = resident.getVillage();
-				BlockCoord respawn = village.getCorner();
+			if (resident.hasCamp()) {
+				Camp camp = resident.getCamp();
+				BlockCoord respawn = camp.getCorner();
 				if (respawn != null) {
 					event.setRespawnLocation(respawn.getCenteredLocation());
-					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnAtName", village.getName()));
+					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnAtName", camp.getName()));
 				}
 				return;
 
 			}
 			if (resident.hasTown()) {
-				TownHall townhall = resident.getTown().getTownHall();
+				Townhall townhall = resident.getTown().getTownHall();
 				if (townhall != null) {
 					BlockCoord respawn = townhall.getRandomRevivePoint();
 					if (respawn != null) {
@@ -662,7 +663,7 @@ public class PlayerListener implements Listener {
 				return;
 			}
 			if (resident.isTeleporting) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("cmd_village_teleport_teleportingErr"));
+				CivMessage.sendError(player, CivSettings.localize.localizedString("cmd_camp_teleport_teleportingErr"));
 				event.setCancelled(true);
 			}
 		}

@@ -18,12 +18,12 @@ import org.bukkit.inventory.Inventory;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigTempleLevel;
+import com.avrgaming.civcraft.config.ConfigConsumeLevel;
+import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
@@ -143,7 +143,7 @@ public class Temple extends Structure {
 					break;
 			}
 
-			ConfigTempleLevel lvl = null;
+			ConfigConsumeLevel lvl = null;
 			if (result == Result.LEVELUP) {
 				lvl = CivSettings.templeLevels.get(getConsumeComponent().getLevel() - 1);
 			} else {
@@ -175,7 +175,7 @@ public class Temple extends Structure {
 	public int getMaxCount() {
 		int level = getLevel();
 
-		ConfigTempleLevel lvl = CivSettings.templeLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.templeLevels.get(level);
 		return lvl.count;
 	}
 
@@ -186,7 +186,7 @@ public class Temple extends Structure {
 	public double getCultureGenerated() {
 		int level = getLevel();
 
-		ConfigTempleLevel lvl = CivSettings.templeLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.templeLevels.get(level);
 		if (lvl == null) {
 			return 0;
 		}

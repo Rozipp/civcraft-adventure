@@ -28,8 +28,8 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.village.WarCamp;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.WarCamp;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.DisableTeleportEvent;
 import com.avrgaming.civcraft.event.EventTimer;

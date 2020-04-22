@@ -96,7 +96,7 @@ extends EndGameCondition {
             for (Wonder wonder : town.getWonders()) {
                 if (!wonder.getConfigId().equals("w_council_of_eight")) continue;
                 if (!wonder.isActive()) continue block2;
-                wonder.fancyDestroyStructureBlocks();
+                wonder.fancyDestroyConstructBlocks();
                 wonder.getTown().removeWonder(wonder);
                 try {
                     wonder.delete();

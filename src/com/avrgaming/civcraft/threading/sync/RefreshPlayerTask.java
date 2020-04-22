@@ -2,12 +2,13 @@ package com.avrgaming.civcraft.threading.sync;
 
 import org.bukkit.scheduler.*;
 import com.avrgaming.civcraft.object.*;
-import com.avrgaming.civcraft.village.*;
 
 import org.bukkit.entity.*;
 import org.bukkit.plugin.*;
 import java.util.*;
 import com.avrgaming.civcraft.config.*;
+import com.avrgaming.civcraft.construct.Camp;
+
 import org.bukkit.*;
 import com.avrgaming.civcraft.main.*;
 
@@ -15,12 +16,12 @@ public class RefreshPlayerTask extends BukkitRunnable
 {
     public Resident resident;
     public Player player;
-    public Village village;
+    public Camp camp;
     
-    public RefreshPlayerTask(final Resident resident, final Player player, final Village village) {
+    public RefreshPlayerTask(final Resident resident, final Player player, final Camp camp) {
         this.resident = resident;
         this.player = player;
-        this.village = village;
+        this.camp = camp;
     }
     
     public void run(final boolean async) {
@@ -34,7 +35,7 @@ public class RefreshPlayerTask extends BukkitRunnable
     
     public void run() {
         this.resident.isRefresh = true;
-        CivLog.info("\u0422\u0435\u043b\u0435\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438\u0433\u0440\u043e\u043a\u0430 " + this.resident.getName() + " \u0432 \u043b\u0430\u0433\u0435\u0440\u044c " + this.village.getName());
+        CivLog.info("\u0422\u0435\u043b\u0435\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0438\u0433\u0440\u043e\u043a\u0430 " + this.resident.getName() + " \u0432 \u043b\u0430\u0433\u0435\u0440\u044c " + this.camp.getName());
         try {
             int i = 10;
             while (i >= 0) {
@@ -43,7 +44,7 @@ public class RefreshPlayerTask extends BukkitRunnable
                     CivMessage.sendError(this.resident, CivSettings.localize.localizedString("cmd_camp_refresh_aborted"));
                     return;
                 }
-                if (this.resident.getVillage() == null) {
+                if (this.resident.getCamp() == null) {
                     CivMessage.sendError(this.resident, CivSettings.localize.localizedString("cmd_camp_refresh_aborted4"));
                     return;
                 }

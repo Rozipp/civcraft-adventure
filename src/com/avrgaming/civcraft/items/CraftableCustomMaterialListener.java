@@ -96,7 +96,7 @@ public class CraftableCustomMaterialListener implements Listener {
 //			}
 			
 			Resident resident = CivGlobal.getResident(player);
-			if (craftMat.getId().equals("mat_found_village")) {
+			if (craftMat.getId().equals("mat_found_camp")) {
 //				PlatinumManager.givePlatinumOnce(resident, 
 //						CivSettings.platinumRewards.get("buildCamp").name,
 //						CivSettings.platinumRewards.get("buildCamp").amount, 

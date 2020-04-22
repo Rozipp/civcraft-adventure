@@ -382,7 +382,7 @@ public class ResidentCommand extends CommandBase {
 		CivMessage.send(sender,
 				CivColor.Green + CivSettings.localize.localizedString("cmd_res_showLastOnline") + " " + CivColor.LightGreen + sdf.format(lastOnline));
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + resident.getTownString());
-		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Village") + " " + CivColor.LightGreen + resident.getVillageString());
+		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Camp") + " " + CivColor.LightGreen + resident.getCampString());
 
 		if (sender.getName().equalsIgnoreCase(resident.getName()) || sender.isOp()) {
 			CivMessage.send(sender,

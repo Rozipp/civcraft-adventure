@@ -20,7 +20,7 @@ import com.avrgaming.civcraft.object.AttrSource;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -38,7 +38,7 @@ public class EffectEventTimer extends CivAsyncTask {
 
 				// Loop through each structure, if it has an update function call it in another async process
 				for (Structure struct : CivGlobal.getStructures()) {
-					TownHall townhall = struct.getTown().getTownHall();
+					Townhall townhall = struct.getTown().getTownHall();
 
 					if (townhall == null) continue;
 					if (!struct.isActive()) continue;
@@ -50,7 +50,7 @@ public class EffectEventTimer extends CivAsyncTask {
 					double cultureGenerated;
 
 					// highjack this loop to display town hall warning.
-					TownHall townhall = town.getTownHall();
+					Townhall townhall = town.getTownHall();
 					if (townhall == null) {
 						CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("effectEvent_noTownHall"));
 						continue;

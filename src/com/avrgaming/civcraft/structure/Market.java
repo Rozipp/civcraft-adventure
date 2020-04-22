@@ -33,12 +33,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMarketItem;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -212,7 +212,7 @@ public class Market extends Structure {
 		structSign.setAction(action);
 
 		structSign.setOwner(this);
-		this.addBuildableSign(structSign);
+		this.addConstructSign(structSign);
 		CivGlobal.addConstructSign(structSign);
 		
 		LinkedList<ConstructSign> signs = this.signIndex.get(id);

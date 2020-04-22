@@ -26,7 +26,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.EquipmentElement.Equipments;
 //import com.avrgaming.civcraft.units.EquipmentElement.Equipments;
@@ -144,7 +144,7 @@ public class Settler extends UnitMaterial implements CallbackInterface {
 		}
 
 		for (Town town : CivGlobal.getTowns()) {
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			if (townhall == null) continue;
 
 			double distSqr = townhall.getCenterLocation().distanceSquared(player.getLocation());

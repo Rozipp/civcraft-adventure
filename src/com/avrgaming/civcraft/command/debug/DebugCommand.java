@@ -11,7 +11,6 @@ package com.avrgaming.civcraft.command.debug;
 import gpl.AttributeUtil;
 import ua.rozipp.sound.SoundManager;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
@@ -29,7 +28,6 @@ import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -45,9 +43,8 @@ import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigPerk;
-import com.avrgaming.civcraft.config.ConfigTradeGood;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.event.EventTimer;
-import com.avrgaming.civcraft.event.GoodieRepoEvent;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -63,23 +60,17 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.populators.TradeGoodPopulator;
 import com.avrgaming.civcraft.siege.Cannon;
 import com.avrgaming.civcraft.structure.ArrowTower;
 import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.tasks.TradeGoodSignCleanupTask;
-import com.avrgaming.civcraft.template.TemplateStream;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.ChunkGenerateTask;
-import com.avrgaming.civcraft.threading.tasks.TradeGoodPostGenTask;
+import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.AsciiMap;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -100,16 +91,17 @@ public class DebugCommand extends CommandBase {
 
 		this.cs.add("show", "Show data base info.");
 		this.cs.add("reloadconf", "перезагрузка настроек из файла");
+		this.cs.add("tradegood", "Дебаг торговых ресурсов");
+		this.cs.add("cave", "Дебаг пещер");
+		
 		cs.add("map", "shows a town chunk map of the current area.");
-		cs.add("repo", "repos all goods back to outpost.");
 
 		cs.add("moveframes", "[x] [y] [z] moves item frames in this chunk to x,y,z");
 		cs.add("frame", "gets player's town and shows the goodie frames in this town.");
 		cs.add("makeframe", "[loc] [direction]");
 		cs.add("dupe", "duplicates the item in your hand.");
 		cs.add("test", "Run test suite commands.");
-		cs.add("printgoodie", "[id] - prints the goodie in memory with this id.");
-		cs.add("repogoodie", "[id] - repos the goodie with id.");
+		
 		cs.add("firework", "fires off a firework here.");
 		cs.add("sound", "[name] [pitch]");
 		cs.add("arrow", "[power] change arrow's power.");
@@ -118,14 +110,9 @@ public class DebugCommand extends CommandBase {
 		cs.add("givebuff", "[id] gives this id buff to a town.");
 		cs.add("unloadchunk", "[x] [z] - unloads this chunk.");
 		cs.add("setspeed", "[speed] - set your speed to this");
-		cs.add("tradegenerate", "generates trade goods at picked locations");
-		cs.add("mobspawnergenerate", "generates mob spawners at picked locations");
-		cs.add("createtradegood", "[good_id] - creates a trade goodie here.");
-		cs.add("createmobspawner", "[spawner_id] - creates a mob spawner here.");
-		cs.add("cleartradesigns", "clears extra trade signs above trade outpots");
+		
 		cs.add("restoresigns", "restores all structure signs");
-		cs.add("regentradegoodchunk", "regens every chunk that has a trade good in it");
-		cs.add("regenmobspawnerchunk", "regens every chunk that has a Mob Spawner in it");
+		
 		cs.add("quickcodereload", "Reloads the quick code plugin");
 		cs.add("loadbans", "Loads bans from ban list into global table");
 		cs.add("setallculture", "[amount] - sets all towns culture in the world to this amount.");
@@ -139,7 +126,7 @@ public class DebugCommand extends CommandBase {
 		cs.add("refreshchunk", "refreshes the chunk you're standing in.. for science.");
 		cs.add("touches", "[town] - prints a list of friendly touches for this town's culture.");
 		cs.add("listconquered", "shows a list of conquered civilizations.");
-		cs.add("village", "Debugs villages.");
+		cs.add("camp", "Debugs camps.");
 		cs.add("blockinfo", "[x] [y] [z] shows block info for this block.");
 		cs.add("fakeresidents", "[town] [count] - Adds this many fake residents to a town.");
 		cs.add("clearresidents", "[town] - clears this town of it's random residents.");
@@ -268,9 +255,9 @@ public class DebugCommand extends CommandBase {
 			CivLog.info("material id: " + mid + " mat: " + mat);
 		}
 	}
-//
-//	public void buildspawn_cmd() throws CivException {
-//		/* First create a new Civilization and spawn capitol */
+
+	public void buildspawn_cmd() throws CivException {
+		/* First create a new Civilization and spawn capitol */
 //		String civName = getNamedString(1, "Enter a Civ name/");
 //		String capitolName = getNamedString(2, "Enter a capitol name.");
 //		Resident resident = getResident();
@@ -476,31 +463,30 @@ public class DebugCommand extends CommandBase {
 //			e.printStackTrace();
 //			throw new CivException("Internal DB Error.");
 //		}
-//
-//	}
+
+	}
 
 	public void templatetest_cmd() throws CivException {
 		Player player = getPlayer();
 		String filename = getNamedString(1, "Enter a filename");
-		Integer yLayer = getNamedInteger(2);
 
-		TemplateStream tplStream = null;
-		if (tplStream == null) {
-			try {
-				tplStream = new TemplateStream(filename);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
+		String filePatch = null;
+
+		if (Template.checkFile(filename))
+			filePatch = filename;
+		if (Template.checkFile(filename + ".def"))
+			filePatch = filename + ".def";
+		if (Template.checkFile("templates/" + filename))
+			filePatch = "templates/" + filename;
+		if (Template.checkFile("templates/" + filename + ".def"))
+			filePatch = "templates/" + filename + ".def";
+
+		Template tpl = Template.getTemplate(filePatch);
+		if (tpl == null) {
+			throw new CivException(CivSettings.localize.localizedString("template_invalidFile") + " " + filename);
 		}
 
-		try {
-			tplStream.getBlocksForLayer(yLayer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		tplStream.debugBuildBlocksHere(player.getLocation());
-
+		tpl.buildTemplate(new BlockCoord(player.getLocation()));
 	}
 
 	public void sql_cmd() {
@@ -570,8 +556,8 @@ public class DebugCommand extends CommandBase {
 		int radius = getNamedInteger(1);
 
 		HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
-		Road.getCircle(player.getLocation().getBlockX(), player.getLocation().getBlockY() - 1, player.getLocation().getBlockZ(),
-				player.getLocation().getWorld().getName(), radius, simpleBlocks);
+		Road.getCircle(player.getLocation().getBlockX(), player.getLocation().getBlockY() - 1,
+				player.getLocation().getBlockZ(), player.getLocation().getWorld().getName(), radius, simpleBlocks);
 
 		for (SimpleBlock sb : simpleBlocks.values()) {
 			Block block = player.getWorld().getBlockAt(sb.x, sb.y, sb.z);
@@ -617,6 +603,7 @@ public class DebugCommand extends CommandBase {
 		CivMessage.sendSuccess(player, "got property:" + value);
 
 	}
+
 	public void getdura_cmd() throws CivException {
 		Player player = getPlayer();
 		ItemStack inHand = player.getInventory().getItemInMainHand();
@@ -654,8 +641,8 @@ public class DebugCommand extends CommandBase {
 			throw new CivException("You need an item in your hand.");
 		}
 
-		//	AttributeUtil attrs = new AttributeUtil(inHand);
-		//	attrs.setCivCraftProperty("customId", "testMyCustomId");
+		// AttributeUtil attrs = new AttributeUtil(inHand);
+		// attrs.setCivCraftProperty("customId", "testMyCustomId");
 		ItemStack stack = CustomMaterial.addEnhancement(inHand, new LoreEnhancementSoulBound());
 		player.getInventory().setItemInMainHand(stack);
 		CivMessage.send(player, "Set it.");
@@ -732,9 +719,9 @@ public class DebugCommand extends CommandBase {
 				town.addResident(fake);
 				town.addFakeResident(fake);
 			} catch (AlreadyRegisteredException e) {
-				//ignore
+				// ignore
 			} catch (InvalidNameException e) {
-				//ignore
+				// ignore
 			}
 		}
 		CivMessage.sendSuccess(sender, "Added " + count + " residents.");
@@ -747,12 +734,13 @@ public class DebugCommand extends CommandBase {
 
 		Block b = Bukkit.getWorld("world").getBlockAt(x, y, z);
 
-		CivMessage.send(sender, "type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
+		CivMessage.send(sender,
+				"type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
 
 	}
 
-	public void village_cmd() {
-		DebugVillageCommand cmd = new DebugVillageCommand();
+	public void camp_cmd() {
+		DebugCampCommand cmd = new DebugCampCommand();
 		cmd.onCommand(sender, null, "farm", this.stripArgs(args, 1));
 	}
 
@@ -831,16 +819,6 @@ public class DebugCommand extends CommandBase {
 			meta.setLore(lore);
 
 			inHand.setItemMeta(meta);
-
-//			HashMap<String, String> loremap = new HashMap<String, String>();
-//			
-//			loremap.put("outpost", "world,-513,65,2444");
-//			loremap.put("town", "Arendal");
-//			loremap.put("expires", "6/14/2013 2:00PM PDT");
-//		
-//			LoreStoreage.saveLoreMap("Trade Goodie", loremap, inHand);
-//			LoreStoreage.setItemName("Pelts", inHand);
-			//	LoreStoreage.setMatID(1337, inHand);
 		}
 	}
 
@@ -864,14 +842,6 @@ public class DebugCommand extends CommandBase {
 
 		org.bukkit.inventory.ItemStack inHand = player.getInventory().getItemInMainHand();
 		if (inHand != null) {
-//			HashMap<String, String> loremap = new HashMap<String, String>();
-//			
-//			loremap.put("outpost", "world,-513,65,2444");
-//			loremap.put("town", "Arendal");
-//			loremap.put("expires", "6/14/2013 2:00PM PDT");
-//		
-//			LoreStoreage.saveLoreMap("Trade Goodie", loremap, inHand);
-//			LoreStoreage.setItemName("Pelts", inHand);
 			LoreStoreage.setMatID(1337, inHand);
 		}
 	}
@@ -919,16 +889,7 @@ public class DebugCommand extends CommandBase {
 
 	}
 
-	public void regentradegoodchunk_cmd() {
-
-		World world = Bukkit.getWorld("world");
-
-		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
-
-			world.regenerateChunk(coord.getX(), coord.getZ());
-			CivMessage.send(sender, "Regened:" + coord);
-		}
-	}
+	
 
 	public void restoresigns_cmd() {
 
@@ -959,71 +920,6 @@ public class DebugCommand extends CommandBase {
 			}
 			s.update();
 
-		}
-
-	}
-
-	public void cleartradesigns_cmd() throws CivException {
-		CivMessage.send(sender, "Starting task");
-
-		if (args.length < 3) {
-			throw new CivException("bad arg count");
-		}
-
-		try {
-			Integer xoff = Integer.valueOf(args[1]);
-			Integer zoff = Integer.valueOf(args[2]);
-			TaskMaster.syncTask(new TradeGoodSignCleanupTask(getPlayer().getName(), xoff, zoff));
-
-		} catch (NumberFormatException e) {
-			throw new CivException("Bad number format");
-		}
-
-	}
-
-	public void tradegenerate_cmd() throws CivException {
-		String playerName;
-
-		if (sender instanceof Player) {
-			playerName = sender.getName();
-		} else {
-			playerName = null;
-		}
-
-		CivMessage.send(sender, "Starting Trade Generation task...");
-		TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
-	}
-
-	public void createtradegood_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException("Enter trade goodie id");
-		}
-
-		ConfigTradeGood good = CivSettings.goods.get(args[1]);
-		if (good == null) {
-			throw new CivException("Unknown trade good id:" + args[1]);
-		}
-
-		BlockCoord coord = new BlockCoord(getPlayer().getLocation());
-		TradeGoodPopulator.buildTradeGoodie(good, coord, getPlayer().getLocation().getWorld(), false);
-		CivMessage.sendSuccess(sender, "Created a " + good.name + " here.");
-	}
-
-	public void generate_cmd() throws CivException {
-		if (args.length < 5) {
-			throw new CivException("Enter chunk coords to generate.");
-		}
-
-		try {
-			int startX = Integer.valueOf(args[1]);
-			int startZ = Integer.valueOf(args[2]);
-			int stopX = Integer.valueOf(args[3]);
-			int stopZ = Integer.valueOf(args[4]);
-
-			TaskMaster.syncTask(new ChunkGenerateTask(startX, startZ, stopX, stopZ));
-
-		} catch (NumberFormatException e) {
-			throw new CivException(e.getMessage());
 		}
 
 	}
@@ -1076,7 +972,8 @@ public class DebugCommand extends CommandBase {
 			return;
 		}
 		for (Wall wall : walls) {
-			CivMessage.send(player, "Wall:" + wall.getId() + " town:" + wall.getTown() + " chunk:" + new ChunkCoord(player.getLocation()));
+			CivMessage.send(player, "Wall:" + wall.getId() + " town:" + wall.getTown() + " chunk:"
+					+ new ChunkCoord(player.getLocation()));
 		}
 	}
 
@@ -1103,74 +1000,22 @@ public class DebugCommand extends CommandBase {
 		if (this.args.length < 2) {
 			throw new CivException("Enter sound key from suond.yml");
 		}
-		//player.getWorld().playSound(player.getLocation(), Sound.valueOf(this.args[1].toUpperCase()), 1.0f, (float)Float.valueOf(this.args[2]));
-		SoundManager.playSound(this.args[1], player.getLocation());//   "ambient.cave"
+		// player.getWorld().playSound(player.getLocation(),
+		// Sound.valueOf(this.args[1].toUpperCase()), 1.0f,
+		// (float)Float.valueOf(this.args[2]));
+		SoundManager.playSound(this.args[1], player.getLocation());// "ambient.cave"
 	}
 
 	public void firework_cmd() throws CivException {
 		Player player = getPlayer();
 		FireworkEffectPlayer fw = new FireworkEffectPlayer();
 		try {
-			fw.playFirework(player.getWorld(), player.getLocation(), FireworkEffect.builder().withColor(Color.RED).flicker(true).with(Type.BURST).build());
+			fw.playFirework(player.getWorld(), player.getLocation(),
+					FireworkEffect.builder().withColor(Color.RED).flicker(true).with(Type.BURST).build());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-	}
-
-	public void repogoodie_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException("Enter the id of the goodie you want to repo.");
-		}
-
-		for (BonusGoodie goodie : CivGlobal.getBonusGoodies()) {
-			if (goodie.getId() == Integer.valueOf(args[1])) {
-				CivMessage.send(sender, "Repo'd Goodie " + goodie.getId() + " (" + goodie.getDisplayName() + ")");
-				goodie.replenish();
-				return;
-			}
-		}
-
-	}
-
-	public void printgoodie_cmd() throws CivException {
-
-		if (args.length < 2) {
-			throw new CivException("Enter the id of the goodie you want to inspect.");
-		}
-
-		for (BonusGoodie goodie : CivGlobal.getBonusGoodies()) {
-			if (goodie.getId() == Integer.valueOf(args[1])) {
-				CivMessage.sendHeading(sender, "Goodie " + goodie.getId() + " (" + goodie.getDisplayName() + ")");
-
-				if (goodie.getItem() != null) {
-					CivMessage.send(sender, "Item: " + goodie.getItem().getUniqueId() + " loc:" + goodie.getItem().getLocation());
-				} else {
-					CivMessage.send(sender, "Item: null");
-				}
-
-				if (goodie.getFrame() != null) {
-					CivMessage.send(sender, "Frame: " + goodie.getFrame().getUUID() + " loc:" + goodie.getFrame().getLocation());
-				} else {
-					CivMessage.send(sender, "Frame: null");
-				}
-
-				if (goodie.getHolder() != null) {
-					CivMessage.send(sender, "Holder: " + goodie.getHolder().toString());
-				} else {
-					CivMessage.send(sender, "holder: null");
-				}
-
-				org.bukkit.inventory.ItemStack stack = goodie.getStack();
-				if (stack != null) {
-					CivMessage.send(sender, "Stack: " + stack.toString());
-				} else {
-					CivMessage.send(sender, "Stack: null");
-				}
-				return;
-			}
-		}
-		CivMessage.send(sender, "No goodie found.");
 	}
 
 	public void test_cmd() throws CivException {
@@ -1180,7 +1025,8 @@ public class DebugCommand extends CommandBase {
 
 	public void dupe_cmd() throws CivException {
 		Player player = getPlayer();
-		if (player.getInventory().getItemInMainHand() == null || ItemManager.getTypeId(player.getInventory().getItemInMainHand()) == 0) {
+		if (player.getInventory().getItemInMainHand() == null
+				|| ItemManager.getTypeId(player.getInventory().getItemInMainHand()) == 0) {
 			throw new CivException("No item in hand.");
 		}
 		player.getInventory().addItem(player.getInventory().getItemInMainHand());
@@ -1196,53 +1042,33 @@ public class DebugCommand extends CommandBase {
 		BlockFace face;
 
 		switch (args[2]) {
-			case "n" :
-				face = BlockFace.NORTH;
-				break;
+		case "n":
+			face = BlockFace.NORTH;
+			break;
 
-			case "s" :
-				face = BlockFace.SOUTH;
-				break;
+		case "s":
+			face = BlockFace.SOUTH;
+			break;
 
-			case "e" :
-				face = BlockFace.EAST;
-				break;
+		case "e":
+			face = BlockFace.EAST;
+			break;
 
-			case "w" :
-				face = BlockFace.WEST;
-				break;
-			default :
-				throw new CivException("Invalid direction, use n,s,e,w");
+		case "w":
+			face = BlockFace.WEST;
+			break;
+		default:
+			throw new CivException("Invalid direction, use n,s,e,w");
 		}
 
 		Location loc = CivGlobal.getLocationFromHash(locationString);
 		new ItemFrameStorage(loc, face);
 		CivMessage.send(sender, "Created frame.");
 	}
-
-	public void moveframes_cmd() throws CivException {
-		Player player = getPlayer();
-		Chunk chunk = player.getLocation().getChunk();
-
-		//	int x = this.getNamedInteger(1);
-		//	int y = this.getNamedInteger(2);
-		//	int z = this.getNamedInteger(3);
-
-		//	Location loc = new Location(player.getWorld(), x, y, z);
-
-		for (Entity entity : chunk.getEntities()) {
-			if (entity instanceof ItemFrame) {
-				CivMessage.send(sender, "Teleported...");
-				entity.teleport(entity.getLocation());
-			}
-		}
-
-	}
-
 	public void frame_cmd() throws CivException {
 		Town town = getSelectedTown();
 
-		TownHall townhall = town.getTownHall();
+		Townhall townhall = town.getTownHall();
 		if (townhall == null) {
 			throw new CivException("No town hall?");
 		}
@@ -1258,9 +1084,23 @@ public class DebugCommand extends CommandBase {
 		}
 
 	}
+	public void moveframes_cmd() throws CivException {
+		Player player = getPlayer();
+		Chunk chunk = player.getLocation().getChunk();
 
-	public void repo_cmd() {
-		GoodieRepoEvent.repoProcess();
+		// int x = this.getNamedInteger(1);
+		// int y = this.getNamedInteger(2);
+		// int z = this.getNamedInteger(3);
+
+		// Location loc = new Location(player.getWorld(), x, y, z);
+
+		for (Entity entity : chunk.getEntities()) {
+			if (entity instanceof ItemFrame) {
+				CivMessage.send(sender, "Teleported...");
+				entity.teleport(entity.getLocation());
+			}
+		}
+
 	}
 
 	public void culturechunk_cmd() {
@@ -1274,8 +1114,9 @@ public class DebugCommand extends CommandBase {
 				return;
 			}
 
-			CivMessage.send(sender, "loc:" + cc.getChunkCoord() + " town:" + cc.getTown().getName() + " civ:" + cc.getCiv().getName() + " distanceToNearest:"
-					+ cc.getDistanceToNearestEdge(cc.getTown().savedEdgeBlocks));
+			CivMessage.send(sender,
+					"loc:" + cc.getChunkCoord() + " town:" + cc.getTown().getName() + " civ:" + cc.getCiv().getName()
+							+ " distanceToNearest:" + cc.getDistanceToNearestEdge(cc.getTown().savedEdgeBlocks));
 		}
 	}
 
@@ -1301,7 +1142,14 @@ public class DebugCommand extends CommandBase {
 		Player player = getPlayer();
 		CivMessage.send(player, AsciiMap.getMapAsString(player.getLocation()));
 	}
-
+	public void cave_cmd() {
+		final DebugCaveCommand cmd = new DebugCaveCommand();
+		cmd.onCommand(this.sender, null, "cave", this.stripArgs(this.args, 1));
+	}
+	public void tradegood_cmd() {
+		final DebugTradeGoodCommand cmd = new DebugTradeGoodCommand();
+		cmd.onCommand(this.sender, null, "tradegood", this.stripArgs(this.args, 1));
+	}
 	public void reloadconf_cmd() {
 		final DebugReloadConfCommand cmd = new DebugReloadConfCommand();
 		cmd.onCommand(this.sender, null, "reloadconf", this.stripArgs(this.args, 1));

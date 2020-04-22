@@ -14,16 +14,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Construct;
+import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructBlock;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Construct;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -95,16 +95,16 @@ public class CannonProjectile {
 
 						if (!sb.isDamageable()) continue;
 
-						if (sb.getOwner() instanceof TownHall) {
-							TownHall th = (TownHall) sb.getOwner();
+						if (sb.getOwner() instanceof Townhall) {
+							Townhall th = (Townhall) sb.getOwner();
 							if (th.getControlPoints().containsKey(bcoord)) continue;
 						}
 
 						if (!sb.getOwner().isDestroyed()) {
 							if (!structuresHit.contains(sb.getOwner())) {
 								structuresHit.add(sb.getOwner());
-								if (sb.getOwner() instanceof TownHall) {
-									TownHall th = (TownHall) sb.getOwner();
+								if (sb.getOwner() instanceof Townhall) {
+									Townhall th = (Townhall) sb.getOwner();
 									if (th.getHitpoints() == 0) {
 										explodeBlock(b);
 									} else {

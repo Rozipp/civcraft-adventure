@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTownLevel;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -32,7 +33,6 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.village.Village;
 
 @Getter
 @Setter
@@ -285,11 +285,11 @@ public class TownChunk extends SQLObject {
 			}
 		}
 
-		Village village = (Village) CivGlobal.getConstructAt(coord);
-		if (village != null) {
-			CivMessage.sendVillage(village,
-					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));
-			village.disband();
+		Camp camp = (Camp) CivGlobal.getConstructAt(coord);
+		if (camp != null) {
+			CivMessage.sendCamp(camp,
+					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandcamp", town.getName()));
+			camp.disband();
 		}
 
 		tc.setOutpost(outpost);
@@ -374,11 +374,11 @@ public class TownChunk extends SQLObject {
 			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
 		}
 
-		Village village = (Village) CivGlobal.getConstructAt(coord);
-		if (village != null) {
-			CivMessage.sendVillage(village,
-					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandvillage", town.getName()));
-			village.disband();
+		Camp camp = (Camp) CivGlobal.getConstructAt(coord);
+		if (camp != null) {
+			CivMessage.sendCamp(camp,
+					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_town_chunk_dibandcamp", town.getName()));
+			camp.disband();
 		}
 
 		CivGlobal.addTownChunk(tc);

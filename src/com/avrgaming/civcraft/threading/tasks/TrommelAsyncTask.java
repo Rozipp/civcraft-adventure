@@ -26,11 +26,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Trommel;
 import com.avrgaming.civcraft.structure.Trommel.Mineral;

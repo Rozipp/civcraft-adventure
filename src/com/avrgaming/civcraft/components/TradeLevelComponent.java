@@ -8,13 +8,13 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTradeShipLevel;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.TradeShip;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -70,13 +70,13 @@ public class TradeLevelComponent extends Component {
 	// consumeComp.createComponent(this);
 
 	@Override
-	public void createComponent(Buildable buildable, boolean async) {
-		super.createComponent(buildable, async);
+	public void createComponent(Construct constr, boolean async) {
+		super.createComponent(constr, async);
 
 		// XXX make both mine/cottage/longhouse levels similar in the yml so
 		// they can be loaded
 		// without this check.
-		if (buildable instanceof TradeShip) {
+		if (constr instanceof TradeShip) {
 			for (ConfigTradeShipLevel lvl : CivSettings.tradeShipLevels
 					.values()) {
 				this.addCulture(lvl.level, lvl.culture);

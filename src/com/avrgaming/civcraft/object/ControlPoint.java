@@ -8,7 +8,7 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.object;
 
-import com.avrgaming.civcraft.structure.Construct;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.util.BlockCoord;
 import lombok.Getter;
 import lombok.Setter;

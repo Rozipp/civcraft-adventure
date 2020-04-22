@@ -31,7 +31,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CivResearchCommand extends CommandBase {
@@ -56,7 +56,7 @@ public class CivResearchCommand extends CommandBase {
 	public void queueadd_cmd() throws CivException {
         Civilization civ = this.getSenderCiv();
         Town capitol = CivGlobal.getTown(civ.getCapitolName());
-        TownHall townhall = capitol.getTownHall();
+        Townhall townhall = capitol.getTownHall();
         if (this.args.length < 2) {
             throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueEnterName"));
         }
@@ -188,7 +188,7 @@ public class CivResearchCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_missingCapitol",civ.getCapitolName())+" "+CivSettings.localize.localizedString("internalCommandException"));
 		}
 	
-		TownHall townhall = capitol.getTownHall();
+		Townhall townhall = capitol.getTownHall();
 		if (townhall == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_missingTownHall"));
 		}

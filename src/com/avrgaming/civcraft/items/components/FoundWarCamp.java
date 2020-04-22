@@ -8,6 +8,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.WarCamp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveWarCampFound;
@@ -18,7 +19,6 @@ import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.village.WarCamp;
 import com.avrgaming.civcraft.war.War;
 
 public class FoundWarCamp extends ItemComponent implements CallbackInterface {

@@ -18,6 +18,11 @@ import org.bukkit.block.Block;
 
 import com.avrgaming.civcraft.structure.Buildable;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class SimpleBlock {
 
 	//public static final int SIGN = 1;

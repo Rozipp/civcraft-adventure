@@ -16,7 +16,6 @@ import com.avrgaming.civcraft.components.TradeLevelComponent;
 import com.avrgaming.civcraft.components.TradeLevelComponent.Result;
 import com.avrgaming.civcraft.components.TradeShipResults;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigMineLevel;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -76,7 +75,7 @@ public class TradeShip extends WaterStructure {
 		return "anchor";
 	}
 
-	public TradeLevelComponent getConsumeComponent() {
+	public TradeLevelComponent getTradeLevelComponent() {
 		if (consumeComp == null) {
 			consumeComp = (TradeLevelComponent) this.getComponent(TradeLevelComponent.class.getSimpleName());
 		}
@@ -104,9 +103,8 @@ public class TradeShip extends WaterStructure {
 	}
 
 	private void processCommandSigns(Template tpl, BlockCoord corner) {
-		for (BlockCoord relativeCoord : tpl.commandBlockRelativeLocations) {
-			SimpleBlock sb = tpl.blocks[relativeCoord.getX()][relativeCoord.getY()][relativeCoord.getZ()];
-			BlockCoord absCoord = new BlockCoord(corner.getBlock().getRelative(relativeCoord.getX(), relativeCoord.getY(), relativeCoord.getZ()));
+		for (SimpleBlock sb : tpl.commandBlockRelativeLocations) {
+			BlockCoord absCoord = new BlockCoord(corner.getBlock().getRelative(sb.getX(), sb.getY(), sb.getZ()));
 
 			switch (sb.command) {
 				case "/incoming" : {
@@ -267,7 +265,7 @@ public class TradeShip extends WaterStructure {
 		getConsumeComponent().setConsumeRate(1.0);
 
 		try {
-			tradeResult = getConsumeComponent().processConsumption(this.getUpgradeLvl() - 1);
+			tradeResult = getTradeLevelComponent().processConsumption(this.getUpgradeLvl() - 1);
 			getConsumeComponent().onSave();
 		} catch (IllegalStateException e) {
 			tradeResult = new TradeShipResults();
@@ -405,19 +403,8 @@ public class TradeShip extends WaterStructure {
 		return (rate * base);
 	}
 
-	public int getCount() {
-		return this.getConsumeComponent().getCount();
-	}
-
-	public int getMaxCount() {
-		int level = getLevel();
-
-		ConfigMineLevel lvl = CivSettings.mineLevels.get(level);
-		return lvl.count;
-	}
-
 	public Result getLastResult() {
-		return this.getConsumeComponent().getLastResult();
+		return this.getTradeLevelComponent().getLastResult();
 	}
 
 	@Override

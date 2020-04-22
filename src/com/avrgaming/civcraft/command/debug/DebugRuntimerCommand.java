@@ -1,6 +1,7 @@
 package com.avrgaming.civcraft.command.debug;
 
 import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.construct.CampHourlyTick;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -8,7 +9,6 @@ import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
 import com.avrgaming.civcraft.threading.timers.DailyTimer;
 import com.avrgaming.civcraft.threading.timers.EffectEventTimer;
 import com.avrgaming.civcraft.threading.timers.SyncTradeTimer;
-import com.avrgaming.civcraft.village.VillageHourlyTick;
 
 public class DebugRuntimerCommand extends CommandBase{
 
@@ -20,7 +20,7 @@ public class DebugRuntimerCommand extends CommandBase{
 		cs.add("newday", "DailyTimer");
 		cs.add("effect", "EffectEventTimer");
 		cs.add("synctrade", "SyncTradeTimer");
-		cs.add("village", "VillageHourlyTick");
+		cs.add("camp", "CampHourlyTick");
 		cs.add("culture", "CultureProcessAsyncTask");
 	}
 
@@ -29,9 +29,9 @@ public class DebugRuntimerCommand extends CommandBase{
 		TaskMaster.asyncTask("cultureProcess", new CultureProcessAsyncTask(), 0);
 	}
 	
-	public void village_cmd() {
-		CivMessage.send(sender, "Starting a VillageHourlyTick");
-		TaskMaster.syncTask(new VillageHourlyTick(), 0);
+	public void camp_cmd() {
+		CivMessage.send(sender, "Starting a CampHourlyTick");
+		TaskMaster.syncTask(new CampHourlyTick(), 0);
 	}
 	
 	public void synctrade_cmd() {

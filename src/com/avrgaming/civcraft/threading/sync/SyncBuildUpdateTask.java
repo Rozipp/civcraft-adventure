@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class SyncBuildUpdateTask implements Runnable {
 
-	public static int UPDATE_LIMIT = CivSettings.civConfig.getInt("sync_build_update_task");
+	public static int UPDATE_LIMIT = CivSettings.getIntBase("update_limit_for_sync_build_task");
 
 	private static Queue<SimpleBlock> updateBlocks = new LinkedList<SimpleBlock>();
 
@@ -51,7 +51,6 @@ public class SyncBuildUpdateTask implements Runnable {
 			return;
 		if (buildBlockLock.tryLock()) {
 			try {
-				CivLog.debug("Update block " + updateBlocks.size());
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					SimpleBlock sb = updateBlocks.poll();
 					if (sb == null)
@@ -77,6 +76,7 @@ public class SyncBuildUpdateTask implements Runnable {
 						}
 						break;
 					case NORMAL:
+//	if (ItemManager.getTypeId(block) != sb.getType() && sb.getType() != CivData.AIR) // Не уберает рамку
 						ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
 						break;
 					}

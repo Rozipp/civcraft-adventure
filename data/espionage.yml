@@ -150,3 +150,17 @@ missions:
     #   intel: 0
     #   length: 300
     #   slot: 2
+
+    - id: 'spy_investigate_talents'
+      name: 'Investigate Talents'
+      description:
+          - 'Provides a record of the talents of civilization.'
+          - 'Must be within the enemy Capitol.'
+      cost: 40000.0
+      range: 0.0
+      cooldown: 2.0
+      fail_chance: 0.1
+      compromise_chance: 0.05
+      intel: 0
+      length: 60
+      slot: 6

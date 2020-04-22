@@ -25,6 +25,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructChest;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveRepairItem;
@@ -36,12 +38,9 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.ConstructChest;
-import com.avrgaming.civcraft.object.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.UnitSaveAsyncTask;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -296,7 +295,7 @@ public class Barracks extends Structure {
 				structSign.setDirection(sb.getData());
 				structSign.setAction("prev");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				break;
@@ -312,7 +311,7 @@ public class Barracks extends Structure {
 
 				this.unitNameSign = structSign;
 
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				break;
@@ -325,7 +324,7 @@ public class Barracks extends Structure {
 				structSign.setDirection(sb.getData());
 				structSign.setAction("next");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				break;
@@ -338,7 +337,7 @@ public class Barracks extends Structure {
 				structSign.setDirection(sb.getData());
 				structSign.setAction("train");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				break;
@@ -351,7 +350,7 @@ public class Barracks extends Structure {
 				structSign.setDirection(sb.getData());
 				structSign.setAction("");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
@@ -366,7 +365,7 @@ public class Barracks extends Structure {
 				structSign.setDirection(sb.getData());
 				structSign.setAction("repair_item");
 				structSign.update();
-				this.addBuildableSign(structSign);
+				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 				break;
@@ -502,26 +501,32 @@ public class Barracks extends Structure {
 	}
 
 	public void saveProgress() {
-		if (this.getTrainingUnit() != null) {
-			String key = getSessionKey();
-			String value = this.getTrainingUnit().id + ":" + this.currentHammers;
-			ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
+		Barracks barracks = this;
+		TaskMaster.asyncTask(new Runnable() {
+			@Override
+			public void run() {
+				if (barracks.getTrainingUnit() != null) {
+					String key = getSessionKey();
+					String value = barracks.getTrainingUnit().id + ":" + barracks.currentHammers;
+					ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 
-			if (entries.size() > 0) {
-				SessionEntry entry = entries.get(0);
-				CivGlobal.getSessionDatabase().update(entry.request_id, key, value);
+					if (entries.size() > 0) {
+						SessionEntry entry = entries.get(0);
+						CivGlobal.getSessionDatabase().update(entry.request_id, key, value);
 
-				/* delete any bad extra entries. */
-				for (int i = 1; i < entries.size(); i++) {
-					SessionEntry bad_entry = entries.get(i);
-					CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
+						/* delete any bad extra entries. */
+						for (int i = 1; i < entries.size(); i++) {
+							SessionEntry bad_entry = entries.get(i);
+							CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
+						}
+					} else {
+						barracks.sessionAdd(key, value);
+					}
+					lastSave = new Date();
 				}
-			} else {
-				this.sessionAdd(key, value);
 			}
-
-			lastSave = new Date();
-		}
+		},0);
+		
 	}
 
 	@Override
@@ -565,7 +570,7 @@ public class Barracks extends Structure {
 			Date now = new Date();
 
 			if (lastSave == null || ((lastSave.getTime() + SAVE_INTERVAL) < now.getTime())) {
-				TaskMaster.asyncTask(new UnitSaveAsyncTask(this), 0);
+				this.saveProgress();
 			}
 
 			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
@@ -582,7 +587,7 @@ public class Barracks extends Structure {
 			this.updateProgressBar();
 			Date now = new Date();
 			if (this.lastSave == null || this.lastSave.getTime() + 60000L < now.getTime()) {
-				TaskMaster.asyncTask(new UnitSaveAsyncTask(this), 0L);
+				this.saveProgress();
 			}
 			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
 				this.currentHammers = this.trainingUnit.hammer_cost;

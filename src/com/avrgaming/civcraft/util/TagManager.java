@@ -2,13 +2,13 @@ package com.avrgaming.civcraft.util;
 
 import org.bukkit.entity.Player;
 
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 //import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.permission.PermissionGroup;
-import com.avrgaming.civcraft.village.Village;
 
 import org.apache.commons.lang.*;
 import java.util.regex.*;
@@ -68,8 +68,8 @@ public class TagManager {
 	            if (resident.getCiv() != null) {
 	                suffix = CivGlobal.getNameTagColor(resident.getCiv()) + " [" + resident.getCiv().getTag() + "]";
 	            }
-	            else if (resident.getCiv() == null && resident.getVillage() != null) {
-	                suffix = "§7 [" + StringUtils.left(resident.getVillage().getName(), 5) + "]";
+	            else if (resident.getCiv() == null && resident.getCamp() != null) {
+	                suffix = "§7 [" + StringUtils.left(resident.getCamp().getName(), 5) + "]";
 	            }
 	        }
 	        String fullCustom = prefix;
@@ -110,7 +110,7 @@ public class TagManager {
         }
     }
 	
-	public static void editNameTag(final Village var1) {
+	public static void editNameTag(final Camp var1) {
         for (final Resident resident : var1.getMembers()) {
             try {
                 final Player player = CivGlobal.getPlayer(resident);

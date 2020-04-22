@@ -19,7 +19,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableLayer;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.template.TemplateStream;
+import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -30,7 +30,7 @@ import com.avrgaming.civcraft.util.SimpleBlock;
 public class StructureValidator implements Runnable {
 
 	public static double validPercentRequirement = 0.8;
-	
+
 	private static String playerName = null;
 	private static Buildable buildable = null;
 	private static String templateFilepath = null;
@@ -39,7 +39,7 @@ public class StructureValidator implements Runnable {
 
 	/* Only validate a single structure at a time. */
 	private static ReentrantLock validationLock = new ReentrantLock();
-	private static TemplateStream tplStream = null;
+	private static Template tpl = null;
 
 	/* Private tasks we'll reuse. */
 	private static SyncLoadSnapshotsFromLayer layerLoadTask = new SyncLoadSnapshotsFromLayer();
@@ -104,7 +104,8 @@ public class StructureValidator implements Runnable {
 			for (SimpleBlock sb : bottomLayer) {
 				Block next = corner.getBlock().getRelative(sb.x, corner.getY(), sb.z);
 				ChunkCoord coord = new ChunkCoord(next.getLocation());
-				if (chunks.containsKey(coord)) continue;
+				if (chunks.containsKey(coord))
+					continue;
 				chunks.put(coord, next.getChunk().getChunkSnapshot());
 			}
 
@@ -120,7 +121,8 @@ public class StructureValidator implements Runnable {
 			if (playerName != null) {
 				player = CivGlobal.getPlayer(playerName);
 			}
-		} catch (CivException e) {}
+		} catch (CivException e) {
+		}
 
 		int checkedLevelCount = 0;
 		boolean valid = true;
@@ -143,7 +145,8 @@ public class StructureValidator implements Runnable {
 					absX = cornerLoc.getX() + sb.x;
 					absZ = cornerLoc.getZ() + sb.z;
 
-					int type = BuildableStatic.getBlockIDFromSnapshotMap(chunks, absX, y, absZ, cornerLoc.getWorldname());
+					int type = BuildableStatic.getBlockIDFromSnapshotMap(chunks, absX, y, absZ,
+							cornerLoc.getWorldname());
 					totalBlocks++;
 					reinforcementValue += BuildableStatic.getReinforcementValue(type);
 				} catch (CivException e) {
@@ -161,8 +164,9 @@ public class StructureValidator implements Runnable {
 			if (valid) {
 				if (percentValid < getReinforcementRequirementForLevel(checkedLevelCount)) {
 					DecimalFormat df = new DecimalFormat();
-					message = CivSettings.localize.localizedString("var_structureValidator_layerInvalid", y, df.format(percentValid * 100),
-							(reinforcementValue + "/" + totalBlocks), df.format(validPercentRequirement * 100));
+					message = CivSettings.localize.localizedString("var_structureValidator_layerInvalid", y,
+							df.format(percentValid * 100), (reinforcementValue + "/" + totalBlocks),
+							df.format(validPercentRequirement * 100));
 					valid = false;
 					continue;
 				}
@@ -178,12 +182,14 @@ public class StructureValidator implements Runnable {
 		if (player != null) {
 			CivMessage.sendError(player, message);
 			if (player.isOp()) {
-				CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("structureValidator_isOP"));
+				CivMessage.send(player,
+						CivColor.LightGray + CivSettings.localize.localizedString("structureValidator_isOP"));
 				valid = true;
 			}
 
 			if (valid) {
-				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("structureValidator_isValid"));
+				CivMessage.send(player,
+						CivColor.LightGreen + CivSettings.localize.localizedString("structureValidator_isValid"));
 				if (buildable != null) {
 					buildable.setValid(true);
 					buildable.invalidLayerMessage = "";
@@ -207,13 +213,14 @@ public class StructureValidator implements Runnable {
 		validationLock.unlock();
 	}
 
-
 	public static double getReinforcementRequirementForLevel(int level) {
-		if (level > 10) return validPercentRequirement * 0.3;
-		if (level > 40) return validPercentRequirement * 0.1;
+		if (level > 10)
+			return validPercentRequirement * 0.3;
+		if (level > 40)
+			return validPercentRequirement * 0.1;
 		return validPercentRequirement;
 	}
-	
+
 	@Override
 	public void run() {
 		if (!isEnabled()) {
@@ -246,13 +253,9 @@ public class StructureValidator implements Runnable {
 			List<SimpleBlock> bottomLayer;
 
 			/* Load the template stream. */
-			if (tplStream == null) {
-				tplStream = new TemplateStream(templateFilepath);
-			} else {
-				tplStream.setSource(templateFilepath);
-			}
+			tpl = Template.getTemplate(templateFilepath);
 
-			bottomLayer = tplStream.getBlocksForLayer(0);
+			bottomLayer = tpl.getBlocksForLayer(0);
 
 			/* Launch sync layer load task. */
 			layerLoadTask.bottomLayer = bottomLayer;

@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.components.PlayerProximityComponent;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -48,9 +49,9 @@ public class CannonExplosionProjectile {
 	Buildable buildable;
 	PlayerProximityComponent proximityComponent;
 	
-	public CannonExplosionProjectile(Buildable buildable, Location target) {
+	public CannonExplosionProjectile(Construct constr, Location target) {
 		proximityComponent = new PlayerProximityComponent();
-		proximityComponent.createComponent(buildable);
+		proximityComponent.createComponent(constr);
 		proximityComponent.setCenter(new BlockCoord(target));
 	}
 	

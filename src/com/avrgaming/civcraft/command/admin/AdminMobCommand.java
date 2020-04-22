@@ -5,7 +5,9 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.mythicmob.MobStatic;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
 
@@ -19,7 +21,8 @@ public class AdminMobCommand extends CommandBase {
         cs.add("count", "Shows mob totals globally");
         cs.add("disable", "[name] Disables this mob from spawning");
         cs.add("enable", "[name] Enables this mob to spawn.");
-        cs.add("killall", "[name] Removes all of these mobs from the game instantly.");
+        cs.add("showdisables", "Show disableCustomMobs.");
+        cs.add("killall", "Removes all of these mobs from the game instantly.");
     }
     
     public void killall_cmd() throws CivException {
@@ -62,50 +65,28 @@ public class AdminMobCommand extends CommandBase {
     public void disable_cmd() throws CivException {
         Player player = getPlayer();
         String name = getNamedString(1, "Enter a mob name");
-//        TODo
-//        switch (name.toLowerCase()) {
-//            case "behemoth":
-//                CommonCustomMob.disabledMobs.add(MobType.BEHEMOTH.toString());
-//                break;
-//            case "ruffian":
-//                CommonCustomMob.disabledMobs.add(MobType.RUFFIAN.toString());
-//                break;
-//            case "yobo":
-//                CommonCustomMob.disabledMobs.add(MobType.YOBO.toString());
-//                break;
-//            case "savagae":
-//                CommonCustomMob.disabledMobs.add(MobType.SAVAGE.toString());
-//                break;
-//            default:
-//                CivMessage.send(player, CivColor.Red + CivSettings.localize.localizedString("error_mobname"));
-//        }
+        MobStatic.disableCustomMobs.add(name);
         
-        CivMessage.sendSuccess(player, "Disabled " + name);
+        CivMessage.sendSuccess(player, "Add " + name + " to DisabledCustomMobs");
     }
     
     public void enable_cmd() throws CivException {
         Player player = getPlayer();
         String name = getNamedString(1, "Enter a mob name");
-//        TODO
-//        switch (name.toLowerCase()) {
-//            case "behemoth":
-//                CommonCustomMob.disabledMobs.add(MobType.BEHEMOTH.toString());
-//                break;
-//            case "ruffian":
-//                CommonCustomMob.disabledMobs.add(MobType.RUFFIAN.toString());
-//                break;
-//            case "yobo":
-//                CommonCustomMob.disabledMobs.add(MobType.YOBO.toString());
-//                break;
-//            case "savagae":
-//                CommonCustomMob.disabledMobs.add(MobType.SAVAGE.toString());
-//                break;
-//           
-//            default:
-//                CivMessage.send(player, CivColor.Red + CivSettings.localize.localizedString("error_mobname"));
-//        }
         
-        CivMessage.sendSuccess(player, "Enabled " + name);
+        if (MobStatic.disableCustomMobs.contains(name)) MobStatic.disableCustomMobs.remove(name);
+        
+        CivMessage.sendSuccess(player, "Remove" + name + " to DisabledCustomMobs");
+    }
+    public void showdisables_cmd() throws CivException {
+        Player player = getPlayer();
+        String res = "";
+        
+        for (String s : MobStatic.disableCustomMobs) {
+        	res = res + s + ", ";
+        }
+        
+        CivMessage.sendSuccess(player, res);
     }
     
     @Override

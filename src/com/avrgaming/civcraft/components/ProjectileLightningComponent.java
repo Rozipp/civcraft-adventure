@@ -85,10 +85,10 @@ extends ProjectileComponent {
         try {
             this.setDamage(CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.damage"));
             this.range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.range");
-            if (this.getBuildable() instanceof StatueOfZeus) {
+            if (this.getConstruct() instanceof StatueOfZeus) {
                 this.range += 100.0;
             }
-            if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_tower_range") && this.getBuildable().getConfigId().equals("s_teslatower")) {
+            if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_tower_range") && ((Buildable) this.getConstruct()).getConfigId().equals("s_teslatower")) {
                 this.range *= this.getTown().getBuffManager().getEffectiveDouble("buff_great_lighthouse_tower_range");
             }
             if (this.getTown().getBuffManager().hasBuff("buff_statue_of_zeus_tower_range")) {
@@ -99,7 +99,7 @@ extends ProjectileComponent {
             }
             this.min_range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.min_range");
             this.fireRate = CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.fire_rate");
-            this.proximityComponent.setBuildable(this.buildable);
+            this.proximityComponent.setConstruct(this.construct);
             this.proximityComponent.setCenter(new BlockCoord(this.getTurretCenter()));
             this.proximityComponent.setRadius(this.range);
         }
@@ -109,7 +109,7 @@ extends ProjectileComponent {
     }
 
     public Town getTown() {
-        return this.buildable.getTown();
+        return this.construct.getTown();
     }
 }
 

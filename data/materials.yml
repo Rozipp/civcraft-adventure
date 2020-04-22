@@ -7,7 +7,7 @@
 # Secondary Materials
 # Weapons
 # Armors
-# Special (villages, civs, etc)
+# Special (camps, civs, etc)
 #
 # We will be able to attach components to these items which
 # will passed in-game events such as onItemPickup() and onItemUse()
@@ -844,13 +844,13 @@ materials:
               - "www"
               - "fff"
   
-          # XXX mat ID hard coded for village refund. with /village undo 
-        - id: 'mat_found_village'
+          # XXX mat ID hard coded for camp refund. with /camp undo 
+        - id: 'mat_found_camp'
           item_id: '324:0'
-          name: 'Village'
+          name: 'Camp'
           category: 'Special'
           components:
-              - name: 'FoundVillage'
+              - name: 'FoundCamp'
           ingredients:
               - ingred_id: 'mat_milled_lumber'
                 letter: 'l'
@@ -886,7 +886,8 @@ materials:
           name: 'War Cannon'
           category: 'Special'
           components:
-              - name: 'BuildCannon'
+              - name: 'Build'
+                building: Cannon
               - name: 'NoRightClick'
           ingredients:
               - ingred_id: 'mat_cannon_barrel_part'
@@ -1878,6 +1879,25 @@ materials:
               - "pcp"
               - "lpl"
 # Tools =============================================================
+        # - id: 'mat_vanilla_wod_pickaxe'
+          # item_id: '274:0'
+          # name: 'Stone Pickaxe'
+          # category: '<blue>Tools'
+          # components:
+              # - name: 'Attack'
+                # value: '0.5'
+              # - name: 'RepairCost'
+                # value: '100.0'
+          # ingredients:
+              # - ingred_id: '280:0'
+                # letter: 's'
+              # - ingred_id: '4:0'
+                # letter: 'm' 
+          # shape:
+              # - "mmm"
+              # - " s "
+              # - " s "
+              
         - id: 'mat_vanilla_stone_pickaxe'
           item_id: '274:0'
           name: 'Stone Pickaxe'

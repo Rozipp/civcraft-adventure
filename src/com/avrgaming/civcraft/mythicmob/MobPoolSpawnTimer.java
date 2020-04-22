@@ -5,20 +5,35 @@ import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+
 import com.avrgaming.civcraft.main.CivLog;
 
 public class MobPoolSpawnTimer implements Runnable {
 
-	private static Queue<Location> updateLonations = new LinkedList<Location>();
+	public static class SpawnMobTask {
+		Location loc;
+		String mobId;
+		MobSpawner mspawner;
+
+		public SpawnMobTask(Location loc, String mobId, MobSpawner mspawner) {
+			this.loc = loc;
+			this.mobId = mobId;
+			this.mspawner = mspawner;
+		}
+	}
+
+	private static Queue<SpawnMobTask> updateLocations = new LinkedList<SpawnMobTask>();
 	public static ReentrantLock spawnLock = new ReentrantLock();
-	
+
 	// Запускаеться раз в пол секунды
 	public static int UPDATE_LIMIT = 100;
 
-	public static void addLocation(Location loc) {
+	public static void addSpawnMobTask(String mobId, Location loc, MobSpawner mspawner) {
 		spawnLock.lock();
+		SpawnMobTask smt = new SpawnMobTask(loc, mobId, mspawner);
 		try {
-			updateLonations.add(loc);
+			updateLocations.add(smt);
 		} finally {
 			spawnLock.unlock();
 		}
@@ -32,12 +47,16 @@ public class MobPoolSpawnTimer implements Runnable {
 		if (spawnLock.tryLock()) {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
-					Location loc = updateLonations.poll();
-					if (loc == null) break;
-
-					if (!loc.getChunk().isLoaded()) continue;
-
-					MobStatic.spawnValidCustomMob(loc);
+					SpawnMobTask smt = updateLocations.poll();
+					if (smt == null)
+						break;
+					if (smt.loc == null)
+						continue;
+					if (!smt.loc.getChunk().isLoaded())
+						continue;
+					Entity en = MobStatic.spawnCustomMob(smt.mobId, smt.loc);
+					if (smt.mspawner != null)
+						smt.mspawner.mobs.add(en);
 				}
 			} finally {
 				spawnLock.unlock();

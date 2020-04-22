@@ -9,51 +9,75 @@
 package com.avrgaming.civcraft.threading.tasks;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.threading.TaskMaster;
 
-/** Ищет инвентаре предмет того же типа что stack и меняет его в инвентаре игрока player с предметом из слота toSlot */
+/**
+ * Ищет инвентаре предмет того же типа что stack и меняет его в инвентаре игрока
+ * player с предметом из слота toSlot
+ */
 public class DelayMoveInventoryItem implements Runnable {
 
-	/* Sometimes we want to preform an action on an inventory after a very short delay. For example, if we want to lock an item to a slot, we cannot cancel the
-	 * move event since that results in the item being 'dropped' on the ground. Instead we have to let the move event complete, and then issue another action to
-	 * move the item back. */
+	/*
+	 * Sometimes we want to preform an action on an inventory after a very short
+	 * delay. For example, if we want to lock an item to a slot, we cannot cancel
+	 * the move event since that results in the item being 'dropped' on the ground.
+	 * Instead we have to let the move event complete, and then issue another action
+	 * to move the item back.
+	 */
 
 	public int toSlot;
 	public Player player;
-	public CustomMaterial loreMat;
+	public ItemStack stack;
 
 	public DelayMoveInventoryItem(Player player, int toSlot, ItemStack stack) {
 		this.toSlot = toSlot;
 		this.player = player;
-		this.loreMat = CustomMaterial.getCustomMaterial(stack);
+		this.stack = stack;
+	}
+
+	public static void beginTask(Player player, ItemStack is, int slot) {
+		TaskMaster.syncTask(new DelayMoveInventoryItem(player, slot, is), 1);
 	}
 
 	@Override
 	public void run() {
-
 		int fromSlot = -1;
-		for (int i = 0; i <= 40; i++) {
-			ItemStack is = player.getInventory().getItem(i);
-			if (is == null) continue;
-			CustomMaterial lm = CustomMaterial.getCustomMaterial(is);
-			if (lm == null) continue;
-			if (lm.getId() == loreMat.getId()) {
-				fromSlot = i;
-				break;
+		CustomMaterial loreMat = CustomMaterial.getCustomMaterial(stack);
+		if (loreMat == null) {
+			for (ItemStack is : player.getInventory()) {
+				if (is == null)
+					continue;
+				if (is.equals(stack)) {
+					fromSlot = player.getInventory().first(is);
+					break;
+				}
+			}
+		} else {
+			for (ItemStack is : player.getInventory()) {
+				if (is == null)
+					continue;
+				CustomMaterial lm = CustomMaterial.getCustomMaterial(is);
+				if (lm == null)
+					continue;
+				if (lm.getId() == loreMat.getId()) {
+					fromSlot = player.getInventory().first(is);
+					break;
+				}
 			}
 		}
-		if (fromSlot == -1) return;
-		Inventory inv = player.getInventory();
+		if (fromSlot == -1)
+			return;
 
-		ItemStack fromStack = inv.getItem(fromSlot);
-		ItemStack toStack = inv.getItem(toSlot);
+		ItemStack fromStack = player.getInventory().getItem(fromSlot);
+		ItemStack toStack = player.getInventory().getItem(toSlot);
 
 		if (fromStack != null) {
-			inv.setItem(toSlot, fromStack);
-			inv.setItem(fromSlot, toStack);
+			player.getInventory().setItem(toSlot, fromStack);
+			player.getInventory().setItem(fromSlot, toStack);
 		}
+		player.updateInventory();
 	}
 }

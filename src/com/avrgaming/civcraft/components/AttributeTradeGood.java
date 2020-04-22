@@ -2,9 +2,9 @@ package com.avrgaming.civcraft.components;
 
 import java.util.HashSet;
 
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
 
 public class AttributeTradeGood extends AttributeBase {
 
@@ -13,8 +13,8 @@ public class AttributeTradeGood extends AttributeBase {
 	String attribute;
 
 	@Override
-	public void createComponent(Buildable buildable, boolean async) {
-		super.createComponent(buildable, async);
+	public void createComponent(Construct costr, boolean async) {
+		super.createComponent(costr, async);
 
 		String[] good_ids = this.getString("goods").split(",");
 		for (String id : good_ids) {
@@ -31,7 +31,7 @@ public class AttributeTradeGood extends AttributeBase {
 			return 0.0;
 		}
 
-		Town town = ((Buildable) this.getConstruct()).getTown();
+		Town town = this.getConstruct().getTown();
 		double generated = 0.0;
 
 		for (BonusGoodie goodie : town.getBonusGoodies()) {

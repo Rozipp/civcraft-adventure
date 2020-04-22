@@ -30,12 +30,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.cache.PlayerLocationCache;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 import net.minecraft.server.v1_12_R1.Vec3D;
@@ -46,21 +46,21 @@ public abstract class ProjectileComponent extends Component {
 
 	protected int damage;
 	protected double range;
-	protected double min_range;	
-	protected Buildable buildable;
+	protected double min_range;
+	protected Construct construct;
 	protected PlayerProximityComponent proximityComponent;
 	private Location turretCenter;
-	
+
 	private HashSet<BlockCoord> turrets = new HashSet<BlockCoord>();
 
-	public ProjectileComponent(Buildable buildable, Location turretCenter) {
-		this.buildable = buildable;
+	public ProjectileComponent(Construct constr, Location turretCenter) {
+		this.construct = constr;
 		proximityComponent = new PlayerProximityComponent();
-		proximityComponent.createComponent(buildable);
+		proximityComponent.createComponent(constr);
 		this.turretCenter = turretCenter;
 		loadSettings();
 	}
-		
+
 	@Override
 	public void onLoad() {
 	}
@@ -68,53 +68,47 @@ public abstract class ProjectileComponent extends Component {
 	@Override
 	public void onSave() {
 	}
-	
-	/*
-	 * We're overriding the create component class here so that all child-classes
-	 * will register with this method rather than the default. This is done so that the key
-	 * used in components by type will get all instances of this base class rather than having
-	 * to search for the children in the componentByType list.
-	 */
+
+	/* We're overriding the create component class here so that all child-classes
+	 * will register with this method rather than the default. This is done so that
+	 * the key used in components by type will get all instances of this base class
+	 * rather than having to search for the children in the componentByType list. */
 	@Override
-	public void createComponent(Buildable buildable, boolean async) {
-		if (async) {
-			TaskMaster.asyncTask(new RegisterComponentAsync(buildable, this, ProjectileComponent.class.getName(), true), 0);
-		} else {
-			new RegisterComponentAsync(buildable, this, ProjectileComponent.class.getName(), true).run();
-		}
+	public void createComponent(Construct constr, boolean async) {
+		startRegisterComponentTask(constr, ProjectileComponent.class.getName(), true, async);
 	}
-	
+
 	@Override
 	public void destroyComponent() {
-		TaskMaster.asyncTask(new RegisterComponentAsync(null, this, ProjectileComponent.class.getName(), false), 0);
-	}	
-	
-	public void setTurretLocation(BlockCoord absCoord) {	
+		startRegisterComponentTask(null, ProjectileComponent.class.getName(), true, true);
+	}
+
+	public void setTurretLocation(BlockCoord absCoord) {
 		turrets.add(absCoord);
 	}
 
 	public Vector getVectorBetween(Location to, Location from) {
 		Vector dir = new Vector();
-		
+
 		dir.setX(to.getX() - from.getX());
 		dir.setY(to.getY() - from.getY());
 		dir.setZ(to.getZ() - from.getZ());
-	
+
 		return dir;
 	}
-	
+
 	public int getDamage() {
 		double rate = 1;
-		rate += this.getBuildable().getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
-		return (int)(this.damage*rate);
+		rate += this.getConstruct().getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
+		return (int) (this.damage * rate);
 	}
-	
+
 	public void setDamage(int damage) {
 		this.damage = damage;
 	}
-	
+
 	private Location getNearestTurret(Location playerLoc) {
-		
+
 		double distance = Double.MAX_VALUE;
 		BlockCoord nearest = null;
 		for (BlockCoord turretCoord : turrets) {
@@ -122,93 +116,92 @@ public abstract class ProjectileComponent extends Component {
 			if (playerLoc.getWorld() != turretLoc.getWorld()) {
 				return null;
 			}
-			
+
 			double tmp = turretLoc.distance(playerLoc);
 			if (tmp < distance) {
 				distance = tmp;
 				nearest = turretCoord;
 			}
-			
+
 		}
 		if (nearest == null) {
 			return null;
 		}
 		return nearest.getLocation();
 	}
-	
-	private  boolean isWithinRange(Location residentLocation, double range) {
-		
+
+	private boolean isWithinRange(Location residentLocation, double range) {
+
 		if (residentLocation.getWorld() != turretCenter.getWorld()) {
 			return false;
 		}
-		
-		if (residentLocation.distance(turretCenter) <= range ) {
+
+		if (residentLocation.distance(turretCenter) <= range) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean isLit(Player player) {
 		Location loc1 = player.getLocation();
 		return ((loc1.getWorld()).getBlockAt(loc1).getLightFromSky() >= 15);
 
 	}
-	
+
 	private boolean canSee(Player player, Location loc2) {
 		Location loc1 = player.getLocation();
 		Vec3D vec1 = new Vec3D(loc1.getX(), loc1.getY() + player.getEyeHeight(), loc1.getZ());
 		Vec3D vec2 = new Vec3D(loc2.getX(), loc2.getY(), loc2.getZ());
-		return ((CraftWorld)loc1.getWorld()).getHandle().rayTrace(vec1, vec2) == null;
+		return ((CraftWorld) loc1.getWorld()).getHandle().rayTrace(vec1, vec2) == null;
 	}
-	
+
 	protected Location adjustTurretLocation(Location turretLoc, Location playerLoc) {
 		// Keep the y position the same, but advance 1 block in the direction of the player..?
 		int diff = 2;
-		
+
 		int xdiff = 0;
 		int zdiff = 0;
 		if (playerLoc.getBlockX() > turretLoc.getBlockX()) {
 			xdiff = diff;
-		} else if (playerLoc.getBlockX() < turretLoc.getBlockX()){
+		} else if (playerLoc.getBlockX() < turretLoc.getBlockX()) {
 			xdiff = -diff;
-		}  
-		
+		}
+
 		if (playerLoc.getBlockZ() > turretLoc.getBlockZ()) {
 			zdiff = diff;
-		} else if (playerLoc.getBlockZ() < turretLoc.getBlockZ()){
+		} else if (playerLoc.getBlockZ() < turretLoc.getBlockZ()) {
 			zdiff = -diff;
-		} 
-				
+		}
+
 		return turretLoc.getBlock().getRelative(xdiff, 0, zdiff).getLocation();
 	}
-	
 
 	public void process() {
-		if (!buildable.isActive()) {
+		if (!construct.isActive()) {
 			return;
 		}
-		
+
 		Player nearestPlayer = null;
 		double nearestDistance = Double.MAX_VALUE;
-		
+
 		Location turretLoc = null;
 		for (PlayerLocationCache pc : proximityComponent.tryGetNearbyPlayers(false)) {
 			if (pc == null || pc.isDead()) {
 				continue;
 			}
-		
-			if (!buildable.getTown().isOutlaw(pc.getName())) {
+
+			if (!construct.getTown().isOutlaw(pc.getName())) {
 				Resident resident = pc.getResident();
 				// Try to exit early by making sure this resident is at war.
 				if (resident == null || (!resident.hasTown())) {
 					continue;
 				}
-				
-				if (!buildable.getCiv().getDiplomacyManager().isHostileWith(resident)) {
+
+				if (!construct.getCiv().getDiplomacyManager().isHostileWith(resident)) {
 					continue;
 				}
 			}
-			
+
 			Location playerLoc = pc.getCoord().getLocation();
 			turretLoc = getNearestTurret(playerLoc);
 			if (turretLoc == null) {
@@ -222,12 +215,12 @@ public abstract class ProjectileComponent extends Component {
 			} catch (CivException e) {
 				return;
 			}
-			
+
 			if (player.getGameMode() != GameMode.SURVIVAL) {
 				return;
 			}
-			
-			if (!this.getBuildable().getConfigId().equals("s_teslatower")) {
+
+			if (!((Buildable) this.getConstruct()).getConfigId().equals("s_teslatower")) {
 				// XXX todo convert this to not use a player so we can async...
 				if (!this.canSee(player, turretLoc)) {
 					continue;
@@ -237,12 +230,12 @@ public abstract class ProjectileComponent extends Component {
 					continue;
 				}
 			}
-		
+
 			if (isWithinRange(player.getLocation(), range)) {
 				if (isWithinRange(player.getLocation(), min_range)) {
 					continue;
 				}
-				
+
 				double distance = player.getLocation().distance(this.turretCenter);
 				if (distance < nearestDistance) {
 					nearestPlayer = player;
@@ -250,15 +243,16 @@ public abstract class ProjectileComponent extends Component {
 				}
 			}
 		}
-		
+
 		if (nearestPlayer == null || turretLoc == null) {
 			return;
 		}
-		
-		fire(turretLoc, nearestPlayer);	
+
+		fire(turretLoc, nearestPlayer);
 	}
-	
+
 	public abstract void fire(Location turretLoc, Entity targetEntity);
+
 	public abstract void loadSettings();
-	
+
 }

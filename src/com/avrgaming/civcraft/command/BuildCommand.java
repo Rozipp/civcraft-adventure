@@ -64,7 +64,7 @@ public class BuildCommand extends CommandBase {
 			town.build_tasks.stream().map((task) -> {
 				return task.buildable;
 			}).forEachOrdered((b) -> {
-				double mins = (b.getHammerCost() - b.getBuiltHammers()) / 2.0D / town.getHammers().total * 60.0D;
+				double mins = (b.getHammerCost() - b.getHammersCompleted()) / 2.0D / town.getHammers().total * 60.0D;
 				long timeNow = Calendar.getInstance().getTimeInMillis();
 				double seconds = mins * 60.0D;
 				long end = (long) ((double) timeNow + 1000.0D * seconds);
@@ -83,7 +83,7 @@ public class BuildCommand extends CommandBase {
 	public void validatenearest_cmd() throws CivException {
 		Player player = getPlayer();
 		Resident resident = getResident();
-		Buildable buildable = CivGlobal.getNearestBuildable(player.getLocation());
+		Buildable buildable = CivGlobal.getNearestStructure(player.getLocation());
 
 		if (buildable.getTown() != resident.getTown()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
@@ -157,7 +157,7 @@ public class BuildCommand extends CommandBase {
 					CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen, CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_demolishNearestConfirmPrompt2"));
 
-			nearest.flashStructureBlocks();
+			nearest.flashConstructBlocks();
 			return;
 		}
 
@@ -204,12 +204,12 @@ public class BuildCommand extends CommandBase {
 			Buildable b = task.buildable;
 			DecimalFormat df = new DecimalFormat();
 			double total = b.getHammerCost();
-			double current = b.getBuiltHammers();
+			double current = b.getHammersCompleted();
 			double builtPercentage = current / total;
 			builtPercentage = Math.round(builtPercentage * 100);
 
 			CivMessage.send(sender, CivColor.LightPurple + b.getDisplayName() + ": " + CivColor.Yellow + builtPercentage + "% (" + df.format(current) + "/"
-					+ total + ")" + CivColor.LightPurple + " Blocks " + CivColor.Yellow + "(" + b.builtBlockCount + "/" + b.getTotalBlockCount() + ")");
+					+ total + ")" + CivColor.LightPurple + " Blocks " + CivColor.Yellow + "(" + b.blocksCompleted + "/" + b.getTotalBlock() + ")");
 
 			//CivMessage.send(sender, CivColor.LightPurple+b.getDisplayName()+" "+CivColor.Yellow+"("+
 			//	b.builtBlockCount+" / "+b.getTotalBlockCount()+")");
@@ -304,7 +304,7 @@ public class BuildCommand extends CommandBase {
 			buildable = Structure.newStructure(getPlayer().getLocation(), sinfo.id, town);
 
 		try {
-			buildable.afterBuildCommand(getPlayer(), getPlayer().getLocation());
+			buildable.newBiuldSetTemplate(getPlayer(), getPlayer().getLocation());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
@@ -330,7 +330,7 @@ public class BuildCommand extends CommandBase {
 			buildable = Structure.newStructure(getPlayer().getLocation(), sinfo.id, town);
 
 		try {
-			buildable.afterBuildCommand(getPlayer(), getPlayer().getLocation());
+			buildable.newBiuldSetTemplate(getPlayer(), getPlayer().getLocation());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalIOException"));

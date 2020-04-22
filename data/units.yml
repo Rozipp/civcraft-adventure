@@ -39,6 +39,7 @@ unit_info:
 #
 
 unit_components:
+#------------------------------ базовые -------------------
   - id: 'maxheal'
     name: 'Бонусное серце'
     ammunition: chestplate
@@ -90,9 +91,9 @@ unit_components:
     gui_slot: 8
     gui_lore:
         - 'Увеличивает атаку в дальнем бою'
-  - id: 'criticalchance'
+  - id: 'critical'
     name: 'Шанс критического удара'
-    ammunition: two
+    ammunition: sword
     require_level: 0
     require_level_upgrade: 5
     max_upgrade: 30
@@ -101,6 +102,8 @@ unit_components:
     gui_lore:
         - 'Увеличивает шанс критического удара'
         - 'в ближнем бою'
+        
+ # ---------------------------------другие------------------
   - id: 'oxygen'
     name: 'Подводное дыхание'
     ammunition: helmet
@@ -140,8 +143,8 @@ unit_components:
     name: 'Прыжок'
     ammunition: leggings
     require_component:
-        - speed 8
-        - againstfall 1
+       - speed 8
+       - againstfall 1
     require_level: 0
     max_upgrade: 3
     gui_item_id: 300
@@ -198,6 +201,7 @@ unit_components:
     gui_slot: 49
     gui_lore:
         - 'Накладает на ботинки заклининие Ледоход'
+# --------------------------- меч ------------------------------
   - id: 'swordknockback'
     name: 'Отталкивание на меч'
     ammunition: sword
@@ -224,13 +228,14 @@ unit_components:
     name: 'Удача на мечь'
     ammunition: sword
     require_component:
-        - swordattack 5
-    require_level: 25
+        - swordattack 1
+    require_level: 1
     max_upgrade: 3
     gui_item_id: 283
     gui_slot: 9
     gui_lore:
         - 'Накладает на мечь заклининие Добыча'
+# ------------------------------- лук -----------------------
   - id: 'bowknockback'
     name: 'Отбрасывание на лук'
     ammunition: two
@@ -261,15 +266,65 @@ unit_components:
     gui_slot: 17
     gui_lore:
         - 'Накладает на лук заклининие Безконечность'          
-      
+# ----------- поселенец ----------------------------
   - id: 'u_foundtown'
     name: 'Основать новый город'
+    ammunition: item
     require_level: 0
-    gui_item_id: 261
+    gui_item_id: 340
     gui_slot: 17
     gui_lore:
         - 'Добавляет книги с помощью которой'
-        - 'можно создать новый город'       
+        - 'можно создать новый город' 
+#--------------- шпион   ---------------------------     
+  - id: 'u_investigate_town'
+    name: 'Иследовать город'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 2
+    gui_lore:
+        - 'Добавляет шпионскую миссию Иследовать город'
+  - id: 'u_steal_treasury'
+    name: 'Украсть казну'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 3
+    gui_lore:
+        - 'Добавляет шпионскую миссию Украсть казну'   
+  - id: 'u_subvert_government'
+    name: 'Подорвать правительство'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 4
+    gui_lore:
+        - 'Добавляет шпионскую миссию Подорвать правительство'
+  - id: 'u_poison_granary'
+    name: 'Отравить амбары'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 5
+    gui_lore:
+        - 'Добавляет шпионскую миссию Отравить амбары'
+  - id: 'u_pirate'
+    name: 'Украсть торговый ресурс'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 6
+    gui_lore:
+        - 'Добавляет шпионскую миссию Украсть торговый ресурс'
+  - id: 'u_sabotage'
+    name: 'Саботаж'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 11
+    gui_lore:
+        - 'Добавляет шпионскую миссию Саботаж'
       
 ############################# Experience ##############
 
@@ -332,21 +387,7 @@ units:
         - 'коварные миссии на територии вражеских цивилизаций'
         - 'Опыт получает за успешное выполнение миссий'
         - 'С повышение уровня открываються новые миссии.'
-    enable_components: 'maxheal,speed,protection'
-        # - id: 'spy_investigate_town'
-          # slot: 8
-        # - id: 'spy_steal_treasury'
-          # slot: 7
-      #  - id: 'spy_incite_riots'
-      #    slot: 6
-      #  - id: 'spy_subvert_government'
-      #    slot: 5
-      #  - id: 'spy_poison_granary'
-      #    slot: 4
-      #  - id: 'spy_pirate'
-      #    slot: 3
-      #  - id: 'spy_sabotage'
-      #    slot: 2
+    enable_components: 'maxheal,speed,protection,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
     
   - id: 'u_settler'
     name: "Поселенцы"
@@ -356,15 +397,15 @@ units:
     require_upgrade:
     cost: 25000.0
     hammer_cost: 1000.0
-    limit: 0
-    item_id: 330
+    limit: 1
+    item_id: 381
     item_data: 0
     lore:
         - 'Отряд строителей. Отличаються большой скоростью'
         - 'передвижения. От его уровня ничего не зависит.'
         - 'Имеет способность основать новый город, которая'
         - 'во время войны устанавливает военный лагерь'
-    enable_components: 'maxheal,speed,protection,u_foundtown'
+    enable_components: 'maxheal,speed,protection,jumping,u_foundtown'
            
   - id: 'u_archer'
     name: "Archer"
@@ -374,7 +415,7 @@ units:
     require_upgrade:
     cost: 2.0
     hammer_cost: 5.0
-    limit: 0
+    limit: 3
     item_id: 2256
     item_data: 0
     lore:
@@ -382,7 +423,7 @@ units:
         - 'владеет луком, может носить только кожанную броню.'
         - 'При увеличения уровня, лучник кроме особенных стрел'
         - 'может получить особенные пасивные способности'
-    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
     
   - id: 'u_warrior'
     name: "Воин"
@@ -392,7 +433,7 @@ units:
     require_upgrade:
     cost: 2.0
     hammer_cost: 5.0
-    limit: 0
+    limit: 3
     item_id: 2256
     item_data: 0
     lore:
@@ -400,5 +441,5 @@ units:
         - 'меча может носить только тяжелую броню и щиты.'
         - 'При увеличения уровня, увеличивает оборонительные'
         - 'способности и атаку'
-    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+    enable_components: 'maxheal,speed,protection,swordattack,critical,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,swordknockback,fireaspect,looting'
    

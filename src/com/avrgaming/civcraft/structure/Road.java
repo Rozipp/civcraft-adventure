@@ -21,6 +21,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructBlock;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -28,9 +31,7 @@ import com.avrgaming.civcraft.listener.MarkerPlacementManager;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.ConstructDamageBlock;
 import com.avrgaming.civcraft.object.CultureChunk;
-import com.avrgaming.civcraft.object.ConstructBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
@@ -40,7 +41,6 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.village.Village;
 import com.avrgaming.civcraft.war.War;
 
 public class Road extends Structure {
@@ -172,7 +172,7 @@ public class Road extends Structure {
 
 		CivGlobal.removeStructure(this);
 		this.getTown().removeStructure(this);
-		this.unbindStructureBlocks();
+		this.unbindConstructBlocks();
 
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
@@ -187,7 +187,7 @@ public class Road extends Structure {
 	}
 
 	@Override
-	public void afterBuildCommand(Player player, Location centerLoc) throws CivException, IOException {
+	public void newBiuldSetTemplate(Player player, Location centerLoc) throws CivException, IOException {
 		if (!this.getTown().hasTechnology(this.getRequiredTechnology())) {
 			throw new CivException(CivSettings.localize.localizedString("road_missingTech"));
 		}
@@ -200,14 +200,14 @@ public class Road extends Structure {
 		MarkerPlacementManager.addToPlacementMode(player, this, CivSettings.localize.localizedString("road_startPlacement"));
 	}
 
-	@Override
-	public void build(Player player) throws Exception {
-//		/* 
-//		 * Put the player into a "place mode" which allows them to place down
-//		 * markers
-//		 */
-//		MarkerPlacementManager.addToPlacementMode(player, this, "Road Marker");
-	}
+//	@Override
+//	public void build(Player player) throws Exception {
+////		/* 
+////		 * Put the player into a "place mode" which allows them to place down
+////		 * markers
+////		 */
+////		MarkerPlacementManager.addToPlacementMode(player, this, "Road Marker");
+//	}
 
 	@Override
 	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
@@ -340,8 +340,8 @@ public class Road extends Structure {
 				throw new CivException(CivSettings.localize.localizedString("var_road_validate_protectedBlock", bcoord.toString()));
 			}
 
-			if ((Village) CivGlobal.getConstructAt(coord) != null) {
-				throw new CivException(CivSettings.localize.localizedString("road_validate_village"));
+			if ((Camp) CivGlobal.getConstructAt(coord) != null) {
+				throw new CivException(CivSettings.localize.localizedString("road_validate_camp"));
 			}
 
 			ConstructBlock structBlock = CivGlobal.getConstructBlock(bcoord);
@@ -624,7 +624,7 @@ public class Road extends Structure {
 		//can be overriden in subclasses.
 		CivMessage.global(CivSettings.localize.localizedString("var_road_destroySuccess", this.getDisplayName(), this.getTown().getName()));
 		this.setHitpoints(0);
-		this.fancyDestroyStructureBlocks();
+		this.fancyDestroyConstructBlocks();
 		try {
 			this.delete();
 		} catch (SQLException e) {
@@ -632,7 +632,7 @@ public class Road extends Structure {
 		}
 	}
 
-	public void fancyDestroyStructureBlocks() {
+	public void fancyDestroyConstructBlocks() {
 		for (BlockCoord coord : this.roadBlocks.keySet()) {
 
 			if (CivGlobal.getConstructChest(coord) != null) {

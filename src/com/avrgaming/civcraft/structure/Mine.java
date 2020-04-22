@@ -19,13 +19,13 @@ import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigMineLevel;
+import com.avrgaming.civcraft.config.ConfigConsumeLevel;
+import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.ConstructChest;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
@@ -144,7 +144,7 @@ public class Mine extends Structure {
 		}
 		int level = getLevel();
 
-		ConfigMineLevel lvl = CivSettings.mineLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.mineLevels.get(level);
 		return lvl.hammers;
 	}
 
@@ -175,7 +175,7 @@ public class Mine extends Structure {
 	public int getMaxCount() {
 		int level = getLevel();
 
-		ConfigMineLevel lvl = CivSettings.mineLevels.get(level);
+		ConfigConsumeLevel lvl = CivSettings.mineLevels.get(level);
 		return lvl.count;
 	}
 

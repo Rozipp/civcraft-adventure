@@ -25,7 +25,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -47,7 +47,7 @@ public class UpdateTechBar extends CivAsyncTask {
 				
 		for (Town town : civ.getTowns()) {
 			double percentageDone = 0.0;
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			
 			if (townhall == null) {
 				return;

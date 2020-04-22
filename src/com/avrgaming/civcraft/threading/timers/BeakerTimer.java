@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.TownHall;
+import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class BeakerTimer extends CivAsyncTask {
@@ -53,7 +53,7 @@ public class BeakerTimer extends CivAsyncTask {
 				continue;
 			}
 			
-			TownHall townhall = town.getTownHall();
+			Townhall townhall = town.getTownHall();
 			if (townhall == null) {
 				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("beaker_noCapitolHall"));
 			}

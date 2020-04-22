@@ -27,10 +27,12 @@ public class MobStatic {
 
 	public static HashMap<String, LinkedList<ConfigMobs>> biomes = new HashMap<>();
 	public static HashSet<EntityType> disableMobs = new HashSet<>();
+	public static HashSet<String> disableCustomMobs = new HashSet<>();
 
 	static class MobDrop {
 		String uid;
 		double chance;
+
 		public MobDrop(String uid, double chance) {
 			this.uid = uid;
 			this.chance = chance;
@@ -40,10 +42,11 @@ public class MobStatic {
 	public static BukkitAPIHelper API() {
 		return MythicMobs.inst().getAPIHelper();
 	}
-	
+
 	public static boolean isMithicMobEntity(LivingEntity e) {
 		return API().isMythicMob(e);
 	}
+
 	public static boolean isMithicMobEntity(Entity e) {
 		if (e instanceof LivingEntity)
 			return isMithicMobEntity((LivingEntity) e);
@@ -57,7 +60,8 @@ public class MobStatic {
 
 	public static LinkedList<ConfigMobs> getValidMobsForBiome(Biome biome) {
 		LinkedList<ConfigMobs> mobs = biomes.get(biome.name());
-		if (mobs == null) mobs = new LinkedList<ConfigMobs>();
+		if (mobs == null)
+			mobs = new LinkedList<ConfigMobs>();
 		return mobs;
 	}
 
@@ -65,15 +69,22 @@ public class MobStatic {
 //		MythicMobs.inst().getMobManager().despawnAllMobs();
 	}
 
-	public static void spawnValidCustomMob(Location location) {
-		LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
-		if (validMobs.isEmpty()) return;
-
-		String mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
+	public static Entity spawnCustomMob(String mobId, Location location) {
+		String mmid;
+		if (mobId == null) {
+			LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
+			if (validMobs.isEmpty())
+				return null;
+			mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
+		} else
+			mmid = mobId;
+		if (disableCustomMobs.contains(mmid))
+			return null;
 		try {
-			API().spawnMythicMob(mmid, location);
+			return API().spawnMythicMob(mmid, location);
 		} catch (InvalidMobTypeException e) {
 			CivLog.error("MythicMobs can not spawn mobType " + mmid);
+			return null;
 		}
 	}
 
@@ -93,7 +104,8 @@ public class MobStatic {
 				for (Object obj : ms) {
 					if (obj instanceof String) {
 						ConfigMobs cm = globalMobs.get((String) obj);
-						if (cm != null) mobs.add(cm);
+						if (cm != null)
+							mobs.add(cm);
 					}
 				}
 			}
@@ -135,8 +147,10 @@ public class MobStatic {
 			for (Object obj : disable) {
 				String type = ((String) obj).toUpperCase();
 				EntityType et = EntityType.valueOf(type);
-				if (et != null) disableMobs.add(et);
+				if (et != null)
+					disableMobs.add(et);
 			}
 		}
 	}
+
 }

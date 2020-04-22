@@ -23,12 +23,12 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.object.ConstructBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -273,7 +273,7 @@ public class TradeOutpost extends Structure {
 				return;
 			}
 
-			TownHall townhall = this.goodie.getFrame().getTown().getTownHall();
+			Townhall townhall = this.goodie.getFrame().getTown().getTownHall();
 			if (townhall != null) {
 				for (ItemFrameStorage ifs : townhall.getGoodieFrames()) {
 					if (ifs.getFrameID() == this.goodie.getFrame().getFrameID()) {
@@ -295,7 +295,7 @@ public class TradeOutpost extends Structure {
 		createTradeGood();
 	}
 
-	public void fancyDestroyStructureBlocks() {
+	public void fancyDestroyConstructBlocks() {
 		for (BlockCoord coord : this.getConstructBlocks().keySet()) {
 
 			if (CivGlobal.getConstructChest(coord) != null) {

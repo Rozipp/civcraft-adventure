@@ -44,7 +44,7 @@ public class Donate implements CommandExecutor, Listener {
         itemsCost.put(1, 50);
         inventory.setItem(1, generateCivItem("mat_found_warcamp", 1, itemsCost.get(1)));
         itemsCost.put(2, 30);
-        inventory.setItem(2, generateCivItem("mat_found_village", 1, itemsCost.get(2)));
+        inventory.setItem(2, generateCivItem("mat_found_camp", 1, itemsCost.get(2)));
         itemsCost.put(3, 20);
         inventory.setItem(3, generateCivItem("mat_build_cannon", 1, itemsCost.get(3)));
 

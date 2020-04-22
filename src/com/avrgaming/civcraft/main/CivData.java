@@ -30,6 +30,9 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class CivData {
 	//TODO make this an enum
+	
+	public static final int BARRIER = 166;
+	
 	public static final int WALL_SIGN = 68;
 	public static final int SIGN = 63;
 	public static final int CHEST = 54;

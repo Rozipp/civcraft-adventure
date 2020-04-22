@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
@@ -30,10 +29,11 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-
+import com.avrgaming.civcraft.util.SimpleBlock;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,6 +43,7 @@ public class Structure extends Buildable {
 	private int level = 1;
 
 	public static String TABLE_NAME = "STRUCTURES";
+
 	public Structure(Location center, String id, Town town) throws CivException {
 		this.setInfo(CivSettings.structures.get(id));
 		this.setSQLOwner(town);
@@ -50,17 +51,20 @@ public class Structure extends Buildable {
 		this.setHitpoints(getInfo().max_hitpoints);
 
 		// Disallow duplicate structures with the same hash.
-//		Structure struct = CivGlobal.getStructure(this.getCorner());
-//		if (struct != null) {
-//			throw new CivException(CivSettings.localize.localizedString("structure_alreadyExistsHere"));
-//		}
+		//		Structure struct = CivGlobal.getStructure(this.getCorner());
+		//		if (struct != null) {
+		//			throw new CivException(CivSettings.localize.localizedString("structure_alreadyExistsHere"));
+		//		}
 	}
+
 	public Structure(ResultSet rs) throws SQLException, CivException {
 		this.load(rs);
 	}
+
 	private static Structure newStructure(ResultSet rs, Location center, String id, Town town) throws CivException, SQLException {
 		Structure struct;
-		if (rs != null) id = rs.getString("type_id");
+		if (rs != null)
+			id = rs.getString("type_id");
 		String[] splitId = id.split("_");
 		String name = "com.avrgaming.civcraft.structure.";
 		int length = splitId.length;
@@ -72,18 +76,17 @@ public class Structure extends Buildable {
 			cls = Class.forName(name);
 			Constructor<?> cntr;
 			if (rs == null) {
-				Class<?> partypes[] = {Location.class, String.class, Town.class};
+				Class<?> partypes[] = { Location.class, String.class, Town.class };
 				cntr = cls.getConstructor(partypes);
-				Object arglist[] = {center, id, town};
+				Object arglist[] = { center, id, town };
 				struct = (Structure) cntr.newInstance(arglist);
 			} else {
-				Class<?> partypes[] = {ResultSet.class};
+				Class<?> partypes[] = { ResultSet.class };
 				cntr = cls.getConstructor(partypes);
-				Object arglist[] = {rs};
+				Object arglist[] = { rs };
 				struct = (Structure) cntr.newInstance(arglist);
 			}
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			CivLog.error("-----Structure class '" + name + "' creation error-----");
 			e.printStackTrace();
 			// This structure is generic, just create a structure type. 
@@ -96,9 +99,11 @@ public class Structure extends Buildable {
 		struct.loadSettings();
 		return struct;
 	}
+
 	public static Structure newStructure(ResultSet rs) throws CivException, SQLException {
 		return newStructure(rs, null, null, null);
 	}
+
 	public static Structure newStructure(Location center, String id, Town town) throws CivException {
 		try {
 			return newStructure(null, center, id, town);
@@ -106,6 +111,7 @@ public class Structure extends Buildable {
 			throw new CivException("SQLException");
 		}
 	}
+
 	public void loadSettings() {
 		/* Build and register all of the components. */
 		List<HashMap<String, String>> compInfoList = this.getComponentInfoList();
@@ -151,6 +157,7 @@ public class Structure extends Buildable {
 			CivLog.info(TABLE_NAME + " table OK!");
 		}
 	}
+
 	@Override
 	public void load(ResultSet rs) throws CivException, SQLException {
 		this.setId(rs.getInt("id"));
@@ -163,14 +170,11 @@ public class Structure extends Buildable {
 		}
 		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
 		this.setHitpoints(rs.getInt("hitpoints"));
-		String tFilePath = rs.getString("template_name");
-		if (tFilePath == null)
-			this.setTemplate(null);
-		else
-			this.setTemplate(Template.getTemplate(tFilePath));
+
+		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 
 		this.setComplete(rs.getBoolean("complete"));
-		this.setBuiltBlockCount(rs.getInt("builtBlockCount"));
+		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
 		this.getTown().addStructure(this);
 
 		Structure struct = this;
@@ -194,18 +198,21 @@ public class Structure extends Buildable {
 		}
 		this.bindBlocks();
 	}
+
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("type_id", this.getConfigId());
 		hashmap.put("town_id", this.getTown().getId());
 		hashmap.put("complete", this.isComplete());
-		hashmap.put("builtBlockCount", this.getBuiltBlockCount());
+		hashmap.put("builtBlockCount", this.getBlocksCompleted());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
 		hashmap.put("template_name", this.getTemplate().getFilepath());
+
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
+
 	@Override
 	public void delete() throws SQLException {
 		super.delete();
@@ -215,22 +222,23 @@ public class Structure extends Buildable {
 				this.undoFromTemplate();
 			} catch (IOException | CivException e1) {
 				e1.printStackTrace();
-				this.fancyDestroyStructureBlocks();
+				this.fancyDestroyConstructBlocks();
 			}
 
 			CivGlobal.removeStructure(this);
 			this.getTown().removeStructure(this);
-			this.unbindStructureBlocks();
+			this.unbindConstructBlocks();
 		}
 		this.setEnabled(false);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
+
 	/** @deprecated */
 	public void deleteSkipUndo() throws SQLException {
 		super.delete();
 		CivGlobal.removeStructure(this);
 		this.getTown().removeStructure(this);
-		this.unbindStructureBlocks();
+		this.unbindConstructBlocks();
 		this.setEnabled(false);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
@@ -248,16 +256,24 @@ public class Structure extends Buildable {
 			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
 		}
 	}
-	@Override
-	public void build(Player player) throws Exception {
+
+	public void build(Player player) {
 		// Before we place the blocks, give our build function a chance to work on it
 		CivLog.debug("build log: structure.build ");
-		this.runOnBuild(this.getCorner().getChunkCoord());
+		try {
+			this.runOnBuild(this.getCorner().getChunkCoord());
+		} catch (CivException e1) {
+			e1.printStackTrace();
+		}
 
 		// Setup undo information
 		getTown().lastBuildableBuilt = this;
 		Template tpl = this.getTemplate();
-		if (getReplaceStructure() == null) tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
+		try {
+			tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
+		} catch (CivException | IOException e) {
+			e.printStackTrace();
+		}
 		tpl.buildScaffolding(this.getCorner());
 
 		CivGlobal.getResident(player).undoPreview();
@@ -266,9 +282,11 @@ public class Structure extends Buildable {
 		CivGlobal.addStructure(this);
 		this.getTown().addStructure(this);
 	}
+
 	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
 		/* Override in children */
 	}
+
 	public void repairStructureForFree() throws CivException {
 		setHitpoints(getMaxHitPoints());
 		try {
@@ -279,17 +297,18 @@ public class Structure extends Buildable {
 		bindBlocks();
 		save();
 	}
+
 	public void repairStructure() throws CivException {
-		if (this instanceof TownHall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
+		if (this instanceof Townhall)
+			throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
 		double cost = getRepairCost();
 		if (!getTown().getTreasury().hasEnough(cost))
-			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME,
-					getDisplayName()));
+			throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME, getDisplayName()));
 		repairStructureForFree();
 		getTown().getTreasury().withdraw(cost);
-		CivMessage.sendTown(getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));
+		CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_structure_repair_success", getTown().getName(), getDisplayName(), getCorner()));
 	}
+
 	@Override
 	public void processUndo() throws CivException {
 		if (isTownHall()) {
@@ -304,8 +323,7 @@ public class Structure extends Buildable {
 		CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_structure_undo_success", getDisplayName()));
 		double refund = this.getCost();
 		this.getTown().depositDirect(refund);
-		CivMessage.sendTown(getTown(),
-				CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
+		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
 	}
 
 	// --------------- structure const
@@ -314,13 +332,16 @@ public class Structure extends Buildable {
 	public String getName() {
 		return this.getDisplayName();
 	}
+
 	public double getRepairCost() {
 		return (int) this.getCost() / 2;
 	}
+
 	@Override
 	public String getDynmapDescription() {
 		return null;
 	}
+
 	@Override
 	public String getMarkerIconName() {
 		return "bighouse";
@@ -331,30 +352,45 @@ public class Structure extends Buildable {
 	public void onCheckBlockPAR() throws CivException {
 		/* Override in children */
 	}
+
 	public void updateSignText() {
 		/* Override in children */
 	}
+
 	public void onBonusGoodieUpdate() {
 		/* Override in children */
 	}
+
 	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
 		/* Override in children */
 	}
+
 	@Override
 	public void onComplete() {
 		/* Override in children */
 	}
+
 	@Override
 	public void onLoad() throws CivException {
 		/* Override in children */
 	}
+
 	@Override
 	public void onUnload() {
 		/* Override in children */
 	}
+
 	@Override
 	public void setTurretLocation(BlockCoord absCoord) {
 		/* Override in children */
 	}
 
+	@Override
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		/* Override in children */
+	}
+
+	
+
+	
 }
