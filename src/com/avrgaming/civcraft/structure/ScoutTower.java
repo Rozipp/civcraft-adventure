@@ -25,7 +25,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class ScoutTower extends Structure {
@@ -59,8 +58,7 @@ public class ScoutTower extends Structure {
 			proximityComponent = new PlayerProximityComponent();
 			proximityComponent.createComponent(this);
 
-			proximityComponent.setBuildable(this);
-			proximityComponent.setCenter(new BlockCoord(this.getCenterLocation()));
+			proximityComponent.setConstruct(this);
 			int reportrate = (int) CivSettings.getDouble(CivSettings.warConfig, "scout_tower.update");
 			if (this.getTown().getBuffManager().hasBuff("buff_colossus_coins_from_culture")
 					&& this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_tower_range")) {

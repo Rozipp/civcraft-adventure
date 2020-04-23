@@ -33,7 +33,6 @@ import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Cottage;
 import com.avrgaming.civcraft.structure.Mine;
@@ -164,12 +163,10 @@ public class ConsumeLevelComponent extends Component {
 	}
 
 	public void addLevel(int level, int count) {
-		CivLog.debug("AddLevel " + level + ":" + count);
 		levelCounts.put(level, count);
 	}
 
 	public void setConsumes(int level, Map<Integer, Integer> consumes) {
-		CivLog.debug("addComponent" + level);
 		this.consumptions.put(level, consumes);
 	}
 
@@ -336,7 +333,6 @@ public class ConsumeLevelComponent extends Component {
 	}
 
 	public Result processConsumption(Boolean sync) {
-		CivLog.debug("levelCounts " + levelCounts.toString());
 		Integer currentCountMax = levelCounts.get(this.level);
 		if (currentCountMax == null) {
 			lastResult = Result.UNKNOWN;

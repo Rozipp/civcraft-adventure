@@ -13,8 +13,6 @@ import com.avrgaming.civcraft.config.ConfigSpaceRocket;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.loregui.GuiAction;
 import com.avrgaming.civcraft.loregui.OpenInventoryTask;
-import com.avrgaming.civcraft.loregui.book.BookCivSpaceEnded;
-import com.avrgaming.civcraft.loregui.book.BookCivSpaceFuture;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 

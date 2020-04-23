@@ -29,13 +29,12 @@ import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
-import gpl.FancyMessage;
 
 public class BuildCommand extends CommandBase {
-	public FancyMessage buildMessage;
 
 	@Override
 	public void init() {
+		
 		command = "/build";
 		displayName = CivSettings.localize.localizedString("cmd_build_Desc");
 		cs.sendUnknownToDefault = true;
@@ -55,7 +54,6 @@ public class BuildCommand extends CommandBase {
 		info = info.replace("(", "§2(");
 		info = info.replace(")", ")§f");
 		CivMessage.send((Object) this.sender, (String) ("§e" + this.command + "§f" + ": " + info));
-		this.buildMessage = (new FancyMessage("§e" + this.command)).suggest(this.command).tooltip(info).then("§f: " + info);
 	}
 	public void calc_cmd() throws CivException {
 		Town town = this.getSelectedTown();

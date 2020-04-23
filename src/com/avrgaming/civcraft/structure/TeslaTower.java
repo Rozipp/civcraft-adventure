@@ -41,7 +41,7 @@ public class TeslaTower extends Structure {
 	@Override
 	public void loadSettings() {
 		super.loadSettings();
-		teslaComponent = new ProjectileLightningComponent(this, this.getCenterLocation());
+		teslaComponent = new ProjectileLightningComponent(this);
 		teslaComponent.createComponent(this);
 	}
 

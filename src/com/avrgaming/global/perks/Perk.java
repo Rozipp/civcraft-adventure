@@ -40,6 +40,7 @@ public class Perk {
 		this.configId = confogId;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void buildComponents() {
 		List<HashMap<String, String>> compInfoList = this.configPerk.components;
 		if (compInfoList != null) {

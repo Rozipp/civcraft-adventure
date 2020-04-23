@@ -892,7 +892,6 @@ public class CivGlobal {
 	/**
 	 * make lookup via ID faster(use hashtable)
 	 * 
-	 * @deprecated
 	 */
 	public static Resident getResidentFromId(int id) {
 		for (Resident resident : residents.values()) {

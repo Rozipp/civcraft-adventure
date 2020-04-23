@@ -49,15 +49,13 @@ public abstract class ProjectileComponent extends Component {
 	protected double min_range;
 	protected Construct construct;
 	protected PlayerProximityComponent proximityComponent;
-	private Location turretCenter;
 
 	private HashSet<BlockCoord> turrets = new HashSet<BlockCoord>();
 
-	public ProjectileComponent(Construct constr, Location turretCenter) {
+	public ProjectileComponent(Construct constr) {
 		this.construct = constr;
 		proximityComponent = new PlayerProximityComponent();
 		proximityComponent.createComponent(constr);
-		this.turretCenter = turretCenter;
 		loadSettings();
 	}
 
@@ -85,6 +83,10 @@ public abstract class ProjectileComponent extends Component {
 
 	public void setTurretLocation(BlockCoord absCoord) {
 		turrets.add(absCoord);
+	}
+	
+	public Location getTurretCenter() {
+		return construct.getCenterLocation();
 	}
 
 	public Vector getVectorBetween(Location to, Location from) {
@@ -132,11 +134,11 @@ public abstract class ProjectileComponent extends Component {
 
 	private boolean isWithinRange(Location residentLocation, double range) {
 
-		if (residentLocation.getWorld() != turretCenter.getWorld()) {
+		if (residentLocation.getWorld() != getTurretCenter().getWorld()) {
 			return false;
 		}
 
-		if (residentLocation.distance(turretCenter) <= range) {
+		if (residentLocation.distance(getTurretCenter()) <= range) {
 			return true;
 		}
 		return false;
@@ -236,7 +238,7 @@ public abstract class ProjectileComponent extends Component {
 					continue;
 				}
 
-				double distance = player.getLocation().distance(this.turretCenter);
+				double distance = player.getLocation().distance(this.getTurretCenter());
 				if (distance < nearestDistance) {
 					nearestPlayer = player;
 					nearestDistance = distance;

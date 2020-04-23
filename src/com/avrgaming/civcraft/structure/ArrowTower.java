@@ -34,8 +34,7 @@ public class ArrowTower extends Structure {
 
 	ProjectileArrowComponent arrowComponent;
 
-	public ArrowTower(Location center, String id, Town town)
-			throws CivException {
+	public ArrowTower(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 		this.setHitpoints(this.getMaxHitPoints());
 	}
@@ -43,16 +42,16 @@ public class ArrowTower extends Structure {
 	public ArrowTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
-	
+
 	@Override
 	public double getRepairCost() {
 		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
 	}
-	
+
 	@Override
 	public void loadSettings() {
 		super.loadSettings();
-		arrowComponent = new ProjectileArrowComponent(this, this.getCenterLocation());
+		arrowComponent = new ProjectileArrowComponent(this);
 		arrowComponent.createComponent(this);
 	}
 
@@ -62,22 +61,16 @@ public class ArrowTower extends Structure {
 	public int getDamage() {
 		double rate = 1;
 		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
-		return (int)(arrowComponent.getDamage()*rate);
+		return (int) (arrowComponent.getDamage() * rate);
 	}
 
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
-		}
-		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
-		}
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
-			rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
-		}
-		return (int)((double)this.getInfo().max_hitpoints * rate);
+		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) { rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp"); }
+		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) { rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade"); }
+		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) { rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown"); }
+		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
 	/**
@@ -86,10 +79,10 @@ public class ArrowTower extends Structure {
 	public void setPower(double power) {
 		arrowComponent.setPower(power);
 	}
-	
+
 	@Override
 	public void setTurretLocation(BlockCoord absCoord) {
 		arrowComponent.setTurretLocation(absCoord);
-	}	
+	}
 
 }

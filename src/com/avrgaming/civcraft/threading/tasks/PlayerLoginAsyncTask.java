@@ -27,7 +27,6 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.endgame.EndConditionDiplomacy;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -136,12 +135,6 @@ public class PlayerLoginAsyncTask implements Runnable {
 				} else {// Allowed to connect since player is OP or mini admin.
 				}
 
-			}
-
-			/* turn on allchat by default for admins and moderators. */
-			if (getPlayer().hasPermission(CivSettings.MODERATOR) || getPlayer().hasPermission(CivSettings.MINI_ADMIN)) {
-				resident.allchat = true;
-				Resident.allchatters.add(resident.getName());
 			}
 
 			if (resident.getTreasury().inDebt()) {

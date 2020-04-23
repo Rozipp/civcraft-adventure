@@ -13,7 +13,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.loregui.GuiAction;
 import com.avrgaming.civcraft.loregui.OpenInventoryTask;
-import com.avrgaming.civcraft.loregui.book.BookGoodsGui;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;

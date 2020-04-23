@@ -61,10 +61,10 @@ public class GrandShipIngermanland extends Wonder {
 	@Override
 	public void loadSettings() {
 		super.loadSettings();
-		arrowComponent = new ProjectileArrowComponent(this, this.getCenterLocation());
+		arrowComponent = new ProjectileArrowComponent(this);
 		arrowComponent.createComponent(this);
 
-		cannonComponent = new ProjectileCannonComponent(this, this.getCenterLocation()); 
+		cannonComponent = new ProjectileCannonComponent(this); 
 		cannonComponent.createComponent(this);
 	}
 	

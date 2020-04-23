@@ -190,7 +190,12 @@ public abstract class Construct extends SQLObject {
 		}
 		this.template = tpl;
 	}
-
+	
+	public Location getCenterLocation() {
+		if (this.centerLocation != null) return this.centerLocation;
+		else return this.getCorner().getLocation();
+	}
+	
 	// ------------- Build ----------------------
 	public Location repositionCenter(Location center, Template tpl) throws CivException {
 		return BuildableStatic.repositionCenterStatic(center, 0, tpl);

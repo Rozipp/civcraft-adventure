@@ -29,7 +29,7 @@ extends Wonder {
     @Override
     public void loadSettings() {
         super.loadSettings();
-        this.teslaComponent = new ProjectileLightningComponent(this, this.getCenterLocation());
+        this.teslaComponent = new ProjectileLightningComponent(this);
         this.teslaComponent.createComponent(this);
         this.teslaComponent.setDamage(this.getDamage());
     }

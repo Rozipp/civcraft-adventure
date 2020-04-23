@@ -34,7 +34,7 @@ public class PlayerQuestionTask extends QuestionBaseTask implements Runnable {
 	QuestionResponseInterface finishedFunction;
 	
 	protected String response = new String(); /* Response to the question. */
-	protected Boolean responded = new Boolean(false); /*Question was answered. */
+	protected Boolean responded = false; /*Question was answered. */
 	
 	public PlayerQuestionTask() {
 	}

@@ -12,23 +12,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-// import org.bukkit.block.BlockFace;
-// import org.bukkit.block.Sign;
-// import org.bukkit.entity.Entity;
-// import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
-// import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-// import com.avrgaming.civcraft.object.StructureBlock;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TradeGood;
-// import com.avrgaming.civcraft.util.BlockCoord;
-// import com.avrgaming.civcraft.util.ItemFrameStorage;
-// import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.ChunkCoord;
 

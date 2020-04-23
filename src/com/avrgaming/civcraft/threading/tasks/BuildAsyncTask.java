@@ -73,7 +73,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 	private boolean start() {
 		lastSave = new Date();
 		int count = 0;
-		for (; buildable.getBlocksCompleted() < (tpl.size_x * tpl.size_y * tpl.size_z); buildable.blocksCompleted++) {
+		for (; buildable.getBlocksCompleted() < buildable.getTotalBlock(); buildable.blocksCompleted++) {
 			period = buildable.getTimeLag();
 			blocks_per_tick = buildable.getBlocksPerTick();
 
@@ -103,41 +103,46 @@ public class BuildAsyncTask extends CivAsyncTask {
 				}
 			}
 
-			SimpleBlock sb;
-			if (tpl.size_x > 512 || tpl.size_z > 512) sb = getSBlockOrig(buildable.getBlocksCompleted());
-			else sb = getSBlockRandom(buildable.getBlocksCompleted());
-
 			boolean skipToNext = false;
+			// Apply extra blocks first, then work on this blocks per tick.
+			if (this.extra_blocks > 0) {
+				synchronized (this) {
+					extra_blocks--;
+					skipToNext = true;
+				}
+			} else if (count < this.blocks_per_tick) {
+				count++;
+				skipToNext = true;
+			}
+
+			SimpleBlock sb = getSBlockRandom(buildable.getBlocksCompleted());
+
 			// Add this SimpleBlock to the update queue and *assume* that all of the synchronous stuff is now going to be handled later. Perform the
 			// reset of the build task async.
-
+			if (!Template.isAttachable(sb.getMaterial())) sbs.add(sb);
 			if (!buildable.isDestroyable() && sb.getType() != CivData.AIR) {
 				if (sb.specialType != Type.COMMAND) {
 					BlockCoord coord = new BlockCoord(sb.worldname, sb.x, sb.y, sb.z);
 					buildable.addConstructBlock(coord, sb.y != 0);
-					if (!Template.isAttachable(sb.getMaterial())) {
-						sbs.add(sb);
-						// Apply extra blocks first, then work on this blocks per tick.
-						if (this.extra_blocks > 0) synchronized (this) {
-							extra_blocks--;
-							skipToNext = true;
-						}
-						else count++;
-					}
 				}
 			}
-			if (skipToNext || count < this.blocks_per_tick) continue;
-			count = 0; // reset count, this tick is over.
 			
+			if (skipToNext) continue;
+
 			Date now = new Date();
 			if (now.getTime() > lastSave.getTime() + SAVE_INTERVAL) {
 				buildable.updateBuildProgess();
 				lastSave = now;
 			}
 
+			count = 0; // reset count, this tick is over.
 			// Add all of the blocks from this tick to the sync task.
-			SyncBuildUpdateTask.queueSimpleBlock(sbs);
-			sbs.clear();
+			synchronized (this.aborted) {
+				if (!this.aborted) {
+					SyncBuildUpdateTask.queueSimpleBlock(sbs);
+					sbs.clear();
+				} else return aborted;
+			}
 
 			try {
 				int nextPercentComplete = (int) (((double) buildable.getBlocksCompleted() / (double) buildable.getTotalBlock()) * 100);
@@ -222,27 +227,27 @@ public class BuildAsyncTask extends CivAsyncTask {
 	}
 
 	// -------------- getSimpleBlock__()------------
-	private SimpleBlock getSBlockSpiral(int blockCount) {
-		// посрока по спирали. на неквадратные постройки не работает
-		int n = buildable.blocksCompleted % (tpl.size_x * tpl.size_z);
-		int p = (int) Math.floor(Math.sqrt(n));
-		int q = n - p * p;
-		int k = (p % 2) * 2 - 1; // p парне, то -1, непарне, то 1
-		int x = Math.floorDiv(p + 1, 2) * k;
-		int z = -Math.floorDiv(p + 1, 2) * k + (p % 2);
-		int y = (buildable.blocksCompleted / (tpl.size_x * tpl.size_z)); // bottom to top.
-		if (q < p) {
-			z = z + k * q;
-		} else {
-			x = x - k * (q - p);
-			z = z + k * p;
-		} // перенос координат из центра на угол
-		x = x + (tpl.size_x + 1) / 2 - 1;
-		z = z + (tpl.size_z + 1) / 2 - 1;
-		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
-		sb.buildable = buildable;
-		return sb;
-	}
+//	private SimpleBlock getSBlockSpiral(int blockCount) {
+//		// посрока по спирали. на неквадратные постройки не работает
+//		int n = buildable.blocksCompleted % (tpl.size_x * tpl.size_z);
+//		int p = (int) Math.floor(Math.sqrt(n));
+//		int q = n - p * p;
+//		int k = (p % 2) * 2 - 1; // p парне, то -1, непарне, то 1
+//		int x = Math.floorDiv(p + 1, 2) * k;
+//		int z = -Math.floorDiv(p + 1, 2) * k + (p % 2);
+//		int y = (buildable.blocksCompleted / (tpl.size_x * tpl.size_z)); // bottom to top.
+//		if (q < p) {
+//			z = z + k * q;
+//		} else {
+//			x = x - k * (q - p);
+//			z = z + k * p;
+//		} // перенос координат из центра на угол
+//		x = x + (tpl.size_x + 1) / 2 - 1;
+//		z = z + (tpl.size_z + 1) / 2 - 1;
+//		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
+//		sb.buildable = buildable;
+//		return sb;
+//	}
 
 	/**
 	 * Возвращает ii-тое псевдо случайное число при максимальном max
@@ -285,18 +290,18 @@ public class BuildAsyncTask extends CivAsyncTask {
 		return sb;
 	}
 
-	private SimpleBlock getSBlockOrig(int blockCount) {
-		// 3D mailman algorithm...
-		int y = (blockCount / (tpl.size_x * tpl.size_z)); // bottom to top.
-		// int y = (tpl.size_y - (blockCount / (tpl.size_x*tpl.size_z))) - 1; //Top to
-		// bottom
-		int z = (blockCount / tpl.size_x) % tpl.size_z;
-		int x = blockCount % tpl.size_x;
-
-		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
-		sb.buildable = buildable;
-		return sb;
-	}
+//	private SimpleBlock getSBlockOrig(int blockCount) {
+//		// 3D mailman algorithm...
+//		int y = (blockCount / (tpl.size_x * tpl.size_z)); // bottom to top.
+//		// int y = (tpl.size_y - (blockCount / (tpl.size_x*tpl.size_z))) - 1; //Top to
+//		// bottom
+//		int z = (blockCount / tpl.size_x) % tpl.size_z;
+//		int x = blockCount % tpl.size_x;
+//
+//		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
+//		sb.buildable = buildable;
+//		return sb;
+//	}
 
 	private boolean checkOtherWonderAlreadyBuilt() {
 		if (buildable.isComplete()) return false; // We are completed, other wonders are not already built.

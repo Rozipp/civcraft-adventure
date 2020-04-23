@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.avrgaming.civcraft.cache.PlayerLocationCache;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,108 +31,88 @@ import lombok.Setter;
 @Setter
 public class PlayerProximityComponent extends Component {
 
-	/*
-	 * This component maintains a list of nearby players using the player location 
-	 * cache. It is populated asynchronously so that it can be accessed in as little
-	 * time as possible from a synchronous thread.
-	 */
-	
+	/* This component maintains a list of nearby players using the player location cache. It is populated asynchronously so that it can be
+	 * accessed in as little time as possible from a synchronous thread. */
+
 	private HashSet<PlayerLocationCache> nearbyPlayers;
-	
+
 	public ReentrantLock lock;
-	
+
 	/* Center location from which we check */
 	private BlockCoord center;
-	
+
 	/* Max distance from which we check. */
 	private double radiusSquared;
-	
-	/* Buildable that this component is attached to. */
-	private Buildable buildable;
 
 	public PlayerProximityComponent() {
 		lock = new ReentrantLock();
 	}
-	
+
 	@Override
 	public void onLoad() {
-		
 	}
 
 	@Override
 	public void onSave() {
-		
-	}	
-	
+	}
+
 	public void setNearbyPlayers(HashSet<PlayerLocationCache> newSet) {
 		/* Proxy component should already be locked. no need to relock. */
 		this.nearbyPlayers = newSet;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public HashSet<PlayerLocationCache> tryGetNearbyPlayers(boolean retry) {	
-		/* 
-		 * Tries to grab a list of nearby players. 
-		 * Sends back nothing if the lock is currently in use.
-		 */
+	public HashSet<PlayerLocationCache> tryGetNearbyPlayers(boolean retry) {
+		/* Tries to grab a list of nearby players. Sends back nothing if the lock is currently in use. */
 		if (retry) {
 			this.lock.lock();
 		} else {
-			if (!this.lock.tryLock()) {
-				return new HashSet<PlayerLocationCache>();
-			}
+			if (!this.lock.tryLock()) { return new HashSet<PlayerLocationCache>(); }
 		}
-	
-		try {	
-			if (nearbyPlayers == null) {
-				return new HashSet<PlayerLocationCache>();
-			}	
+
+		try {
+			if (nearbyPlayers == null) { return new HashSet<PlayerLocationCache>(); }
 			return (HashSet<PlayerLocationCache>) this.nearbyPlayers.clone();
-				
+
 		} finally {
 			this.lock.unlock();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public HashSet<PlayerLocationCache> waitGetNearbyPlayers() {	
-		/* 
-		 * Tries to grab a list of nearby players. 
-		 * Sends back nothing if the lock is currently in use.
-		 */
+	public HashSet<PlayerLocationCache> waitGetNearbyPlayers() {
+		/* Tries to grab a list of nearby players. Sends back nothing if the lock is currently in use. */
 		this.lock.lock();
 		try {
-			if (nearbyPlayers == null) {
-				return new HashSet<PlayerLocationCache>();
-			}
-			
+			if (nearbyPlayers == null) { return new HashSet<PlayerLocationCache>(); }
+
 			return (HashSet<PlayerLocationCache>) this.nearbyPlayers.clone();
-			
+
 		} finally {
 			this.lock.unlock();
 		}
 	}
-
 
 	public void setRadius(double radius) {
 		this.radiusSquared = Math.pow(radius, 2);
 	}
-	
+
+	public BlockCoord getCenter() {
+		if (this.center == null) this.center = new BlockCoord(getConstruct().getCenterLocation());
+		return center;
+	}
+
 	public void buildNearbyPlayers(Collection<PlayerLocationCache> collection) {
 		HashSet<PlayerLocationCache> newSet = new HashSet<PlayerLocationCache>();
-		
+
 		for (PlayerLocationCache pc : collection) {
-			if (pc.isVanished()) {
-				continue;
-			}
-			
-			if (pc.getCoord().distanceSquared(this.center) < radiusSquared) {
-				newSet.add(pc);
-			}
+			if (pc.isVanished()) { continue; }
+
+			if (pc.getCoord().distanceSquared(this.getCenter()) < radiusSquared) { newSet.add(pc); }
 		}
-	
+
 		this.setNearbyPlayers(newSet);
-		
+
 		return;
 	}
 }

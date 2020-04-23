@@ -29,10 +29,6 @@ import com.avrgaming.civcraft.object.Town;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.milkbowl.vault.chat.Chat;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 @Getter
 @Setter

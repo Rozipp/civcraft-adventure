@@ -203,6 +203,7 @@ public class RandomEvent extends SQLObject {
 		buildComponents("com.avrgaming.civcraft.randomevents.components.", configRandomEvent.failure, failure);		
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void buildComponents(String classPath, List<HashMap<String,String>> compInfoList, HashMap<String, RandomEventComponent> components) {	
 		if (compInfoList != null) {
 			for (HashMap<String, String> compInfo : compInfoList) {

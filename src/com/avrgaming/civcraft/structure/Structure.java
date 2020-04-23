@@ -29,7 +29,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -121,6 +120,7 @@ public class Structure extends Buildable {
 				Class<?> someClass;
 				try {
 					someClass = Class.forName(className);
+					@SuppressWarnings("deprecation")
 					Component compClass = (Component) someClass.newInstance();
 					compClass.setName(compInfo.get("name"));
 					for (String key : compInfo.keySet()) {
@@ -233,7 +233,6 @@ public class Structure extends Buildable {
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
-	/** @deprecated */
 	public void deleteSkipUndo() throws SQLException {
 		super.delete();
 		CivGlobal.removeStructure(this);

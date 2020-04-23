@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.main.CivLog;
 import lombok.Getter;
 import lombok.Setter;

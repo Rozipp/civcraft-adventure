@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.object.Resident;
 
 public class PlayerKickBan implements Runnable {
 
@@ -49,9 +48,6 @@ public class PlayerKickBan implements Runnable {
 		
 		if (ban) {
 			player.kickPlayer(reason);
-//			Resident resident = CivGlobal.getResident(player);
-//			resident.setBanned(true);
-//			resident.save();
 		}
 		
 		if (kick) {

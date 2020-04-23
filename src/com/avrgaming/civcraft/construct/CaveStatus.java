@@ -41,7 +41,7 @@ public class CaveStatus {
 		if (civ == null)
 			return;
 
-		if (civ.getCaveStatuses().get(cave) != null) {
+		if (civ.getCaveStatus(cave) != null) {
 			return;
 		}
 
@@ -54,7 +54,7 @@ public class CaveStatus {
 	public void editCaveStatusCaptured(Civilization civ) {
 		if (civ == null)
 			return;
-		CaveStatus cStatus = civ.getCaveStatuses().get(getCave());
+		CaveStatus cStatus = civ.getCaveStatus(getCave());
 		if (cStatus == null)
 			return;
 
@@ -82,7 +82,7 @@ public class CaveStatus {
 		Civilization civ = this.getCave().getCiv();
 		if (civ == null)
 			return;
-		CaveStatus cStatus = civ.getCaveStatuses().get(getCave());
+		CaveStatus cStatus = civ.getCaveStatus(getCave());
 		if (cStatus == null)
 			return;
 

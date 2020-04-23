@@ -313,8 +313,6 @@ public final class CivCraft extends JavaPlugin {
 			CivLog.warning("TagAPI not found, not registering TagAPI hooks. This is fine if you're not using TagAPI.");
 		}
 
-		if (hasPlugin("HeroChat")) pluginManager.registerEvents(new HeroChatListener(), this);
-
 		pluginManager.registerEvents(new ArmorListener(getConfig().getStringList("blocked")), this);
 	}
 

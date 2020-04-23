@@ -23,6 +23,7 @@ public abstract class EndGameCondition {
 	public EndGameCondition() {
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void init() {
 		for (ConfigEndCondition configEnd : CivSettings.endConditions.values()) {
 			String className = "com.avrgaming.civcraft.endgame."+configEnd.className;

@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigTownLevel;
@@ -432,7 +431,8 @@ public abstract class Buildable extends Construct {
 	}
 
 	public int getTotalBlock() {
-		return this.getTemplate().getTotalBlocks();// tpl.size_x * tpl.size_y * tpl.size_z);
+//		return this.getTemplate().getTotalBlocks();
+		return this.getTemplate().size_x * this.getTemplate().size_y * this.getTemplate().size_z;
 	};
 
 	public double getBlocksPerHammer() {

@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.loregui.GuiAction;
 import com.avrgaming.civcraft.loregui.OpenInventoryTask;
-import com.avrgaming.civcraft.loregui.book.BookRelationsGui;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;

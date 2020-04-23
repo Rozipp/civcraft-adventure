@@ -279,6 +279,7 @@ public abstract class CustomMaterial {
 		return outEncoded;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static ItemStack deserializeEnhancements(ItemStack stack, String serial) {
 		String in = StringUtils.toAsciiString(Base64Coder.decode(serial));
 		String[] enhancementsStrs = in.split(",");

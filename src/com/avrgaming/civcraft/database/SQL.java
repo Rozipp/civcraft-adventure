@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.config.ConfigMarketItem;
 import com.avrgaming.civcraft.construct.Cave;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.construct.Camp;
-import com.avrgaming.civcraft.database.ConnectionPool;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.BonusGoodie;

@@ -38,10 +38,8 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.listener.WorldListener;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -57,7 +55,6 @@ import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.Schematic;
 import com.avrgaming.sls.SLSManager;
 
 public class AdminCommand extends CommandBase {
@@ -104,19 +101,12 @@ public class AdminCommand extends CommandBase {
 		cs.add("count", CivSettings.localize.localizedString("adcmd_count"));
 		cs.add("globalwar", CivSettings.localize.localizedString("adcmd_globalWar"));
 		cs.add("gc", CivSettings.localize.localizedString("cmd_gc"));
-		cs.add("pasteruin", CivSettings.localize.localizedString("cmd_pasteruin"));
 		cs.add("report", CivSettings.localize.localizedString("adcmd_report"));
 	}
 
 	public void report_cmd() {
 		final AdminReportCommand cmd = new AdminReportCommand();
 		cmd.onCommand(this.sender, null, "report", this.stripArgs(this.args, 1));
-	}
-
-	public void pasteruin_cmd() throws CivException {
-		final Schematic schem = WorldListener.schematics.get(CivCraft.civRandom.nextInt(WorldListener.schematics.size() - 1));
-		schem.paste(((Player) this.sender).getLocation());
-		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_pasteruin_success"));
 	}
 
 	public void gc_cmd() {

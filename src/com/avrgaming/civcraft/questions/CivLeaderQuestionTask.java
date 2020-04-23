@@ -18,7 +18,7 @@ public class CivLeaderQuestionTask extends QuestionBaseTask implements Runnable 
 	Resident responder;
 	
 	protected String response = new String(); /* Response to the question. */
-	protected Boolean responded = new Boolean(false); /*Question was answered. */
+	protected Boolean responded = false; /*Question was answered. */
 	
 	
 	public CivLeaderQuestionTask(Civilization askedplayer, Player questionplayer, String question, long timeout, 
@@ -29,7 +29,6 @@ public class CivLeaderQuestionTask extends QuestionBaseTask implements Runnable 
 		this.question = question;
 		this.timeout = timeout;
 		this.finishedFunction = finishedFunction;
-		
 	}
 	
 	@Override

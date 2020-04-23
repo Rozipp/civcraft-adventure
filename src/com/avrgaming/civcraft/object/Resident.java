@@ -22,7 +22,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -105,8 +104,6 @@ public class Resident extends SQLObject {
 	private boolean preview;
 	@Deprecated
 	private int languageCode = 1033;
-	@Deprecated
-	public static HashSet<String> allchatters = new HashSet<String>();
 
 	/** Town to chat in besides your own. /ad tc <town> */
 	private Town townChatOverride = null;
@@ -154,8 +151,6 @@ public class Resident extends SQLObject {
 	 * последнего нажатия
 	 */
 	public ConstructSign constructSignConfirm = null;
-
-	public boolean allchat = false;
 
 	/*
 	 * XXX This buildable is used as place to store which buildable we're working on

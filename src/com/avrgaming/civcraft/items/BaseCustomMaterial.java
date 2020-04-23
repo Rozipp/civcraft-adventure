@@ -54,6 +54,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 		return;
 	}
 
+	@SuppressWarnings("deprecation")
 	public void buildComponents() {
 		List<HashMap<String, String>> compInfoList = this.configMaterial.components;
 		if (compInfoList != null) {

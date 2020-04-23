@@ -30,12 +30,11 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.util.BlockCoord;
 
 public class ProjectileArrowComponent extends ProjectileComponent {
 
-	public ProjectileArrowComponent(Buildable buildable, Location turretCenter) {
-		super(buildable, turretCenter);
+	public ProjectileArrowComponent(Buildable buildable) {
+		super(buildable);
 	}
 
 	private double power;
@@ -59,7 +58,6 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 			min_range = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.min_range");
 
 			this.proximityComponent.setConstruct(construct);
-			this.proximityComponent.setCenter(new BlockCoord(getTurretCenter()));
 			this.proximityComponent.setRadius(range);
 
 		} catch (InvalidConfiguration e) {

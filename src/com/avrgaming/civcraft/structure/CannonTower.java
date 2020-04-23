@@ -53,7 +53,7 @@ public class CannonTower extends Structure {
 	@Override
 	public void loadSettings() {
 		super.loadSettings();
-		cannonComponent = new ProjectileCannonComponent(this, this.getCenterLocation()); 
+		cannonComponent = new ProjectileCannonComponent(this); 
 		cannonComponent.createComponent(this);
 	}
 	

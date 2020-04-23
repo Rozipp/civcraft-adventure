@@ -151,53 +151,54 @@ public class Capitol extends Townhall {
 	}
 
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+	public void onPostBuild(BlockCoord absCoord, SimpleBlock sb) {
 		ConstructSign structSign;
 
-		if (commandBlock.command.equals("/towerfire")) {
-			String id = commandBlock.keyvalues.get("id");
+		if (sb.command.equals("/towerfire")) {
+			this.setTurretLocation(absCoord);
+			String id = sb.keyvalues.get("id");
 			Integer towerID = Integer.valueOf(id);
 
 			if (!arrowTowers.containsKey(towerID)) {
 
-				ProjectileArrowComponent arrowTower = new ProjectileArrowComponent(this, absCoord.getLocation());
+				ProjectileArrowComponent arrowTower = new ProjectileArrowComponent(this);
 				arrowTower.createComponent(this);
 				arrowTower.setTurretLocation(absCoord);
 
 				arrowTowers.put(towerID, arrowTower);
 			}
 		} else
-			if (commandBlock.command.equals("/next")) {
-				ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
-				ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
+			if (sb.command.equals("/next")) {
+				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+				ItemManager.setData(absCoord.getBlock(), sb.getData());
 
 				structSign = new ConstructSign(absCoord, this);
 				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("capitol_sign_nextLocation"));
-				structSign.setDirection(commandBlock.getData());
+				structSign.setDirection(sb.getData());
 				structSign.setAction("next");
 				structSign.update();
 				this.addConstructSign(structSign);
 				CivGlobal.addConstructSign(structSign);
 
 			} else
-				if (commandBlock.command.equals("/prev")) {
-					ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
-					ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
+				if (sb.command.equals("/prev")) {
+					ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
 					structSign = new ConstructSign(absCoord, this);
 					structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("capitol_sign_previousLocation"));
-					structSign.setDirection(commandBlock.getData());
+					structSign.setDirection(sb.getData());
 					structSign.setAction("prev");
 					structSign.update();
 					this.addConstructSign(structSign);
 					CivGlobal.addConstructSign(structSign);
 
 				} else
-					if (commandBlock.command.equals("/respawndata")) {
-						ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
-						ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
+					if (sb.command.equals("/respawndata")) {
+						ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+						ItemManager.setData(absCoord.getBlock(), sb.getData());
 						structSign = new ConstructSign(absCoord, this);
 						structSign.setText(CivSettings.localize.localizedString("capitol_sign_Capitol"));
-						structSign.setDirection(commandBlock.getData());
+						structSign.setDirection(sb.getData());
 						structSign.setAction("respawn");
 						structSign.update();
 						this.addConstructSign(structSign);

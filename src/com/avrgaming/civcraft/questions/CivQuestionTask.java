@@ -37,7 +37,7 @@ public class CivQuestionTask implements Runnable {
 	QuestionResponseInterface finishedFunction;
 	
 	private String response = new String(); /* Response to the question. */
-	private Boolean responded = new Boolean(false); /*Question was answered. */
+	private Boolean responded = false; /*Question was answered. */
 	
 	public CivQuestionTask(Civilization askedciv, Civilization questionciv, String question, long timeout, 
 			QuestionResponseInterface finishedFunction) {
@@ -47,7 +47,6 @@ public class CivQuestionTask implements Runnable {
 		this.question = question;
 		this.timeout = timeout;
 		this.finishedFunction = finishedFunction;
-		
 	}
 	
 	public void askPlayer(Player player) {

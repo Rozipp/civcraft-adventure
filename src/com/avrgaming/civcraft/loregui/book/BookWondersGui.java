@@ -14,7 +14,6 @@ import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.config.ConfigTownUpgrade;
 import com.avrgaming.civcraft.loregui.GuiAction;
 import com.avrgaming.civcraft.loregui.OpenInventoryTask;
-import com.avrgaming.civcraft.loregui.book.BookStructuresGui;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
