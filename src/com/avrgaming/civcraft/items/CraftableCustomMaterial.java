@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
@@ -15,6 +16,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigIngredient;
 import com.avrgaming.civcraft.config.ConfigMaterial;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -26,29 +28,31 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 	private boolean craftable;
 	private boolean shaped;
 
-	/* We will allow duplicate recipes with MC/materials by checking this map based on the results. The key is the material's ID as a string, so we can are only
-	 * checking for custom items. The Itemstack array is the matrix for the recipe where the first 3 items represent the top row, and the last 3 represent the
-	 * bottom row. */
+	/* We will allow duplicate recipes with MC/materials by checking this map based on the results. The key is the material's ID as a string, so
+	 * we can are only checking for custom items. The Itemstack array is the matrix for the recipe where the first 3 items represent the top
+	 * row, and the last 3 represent the bottom row. */
 	public static HashMap<CraftableCustomMaterial, ItemStack[]> shapedRecipes = new HashMap<CraftableCustomMaterial, ItemStack[]>();
 	public static HashMap<String, CraftableCustomMaterial> shapedKeys = new HashMap<String, CraftableCustomMaterial>();
 
-	/* We will allow duplicate shaped recipes by checking this map based on the results. In order for the recipe to be valid it must contain all of the item
-	 * stacks and the respective amounts. */
+	/* We will allow duplicate shaped recipes by checking this map based on the results. In order for the recipe to be valid it must contain all
+	 * of the item stacks and the respective amounts. */
 	public static HashMap<CraftableCustomMaterial, LinkedList<ItemStack>> shapelessRecipes = new HashMap<CraftableCustomMaterial, LinkedList<ItemStack>>();
 	public static HashMap<String, CraftableCustomMaterial> shapelessKeys = new HashMap<String, CraftableCustomMaterial>();
 
 	public CraftableCustomMaterial(String id, int typeID, short damage) {
 		super(id, typeID, damage);
 	}
+
 	@Override
 	public void addMaterial() {
 		CustomMaterial.craftableMaterials.put(this.getId(), this);
 	}
+
 	@Override
 	public ConfigCraftableMaterial getConfigMaterial() {
 		return (ConfigCraftableMaterial) this.configMaterial;
 	}
-	
+
 	public static void buildStaticMaterials() {
 		/* Loads in materials from configuration file. */
 		for (ConfigCraftableMaterial cfgMat : CivSettings.craftableMaterials.values()) {
@@ -59,7 +63,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 			loreMat.setShaped(cfgMat.shaped);
 			loreMat.configMaterial = cfgMat;
 			loreMat.buildComponents();
-//			materials.put(cfgMat.id, loreMat);
+			// materials.put(cfgMat.id, loreMat);
 		}
 	}
 
@@ -77,7 +81,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 			if (!gMID.isEmpty()) {
 				key += gMID + ",";
 			} else {
-				//key += "mc_"+stack.getTypeId()+"_"+stack.getDurability()+",";
+				// key += "mc_"+stack.getTypeId()+"_"+stack.getDurability()+",";
 				key += "mc_" + ItemManager.getTypeId(stack) + ",";
 
 			}
@@ -98,15 +102,14 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 			String item = CustomMaterial.getMID(stack);
 			if (item.isEmpty()) {
-				//	item = "mc_"+stack.getTypeId()+"_"+stack.getDurability();
+				// item = "mc_"+stack.getTypeId()+"_"+stack.getDurability();
 				item = "mc_" + ItemManager.getTypeId(stack) + ",";
 			}
 
 			Integer count = counts.get(item);
 			if (count == null)
 				count = 1;
-			else
-				count++;
+			else count++;
 			counts.put(item, count);
 		}
 
@@ -127,7 +130,6 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 		return fullString;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void buildRecipes() {
 		/* Loads in materials from configuration file. */
 		for (BaseCustomMaterial bmat : getAllCraftableCustomMaterial()) {
@@ -139,7 +141,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 			if (mat.isShaped()) {
 				ItemStack[] matrix = new ItemStack[9];
-				ShapedRecipe recipe = new ShapedRecipe(stack);
+				ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(CivCraft.getPlugin(), "civ_" + mat.getConfigId()), stack);
 				recipe.shape(configMaterial.shape[0], configMaterial.shape[1], configMaterial.shape[2]);
 
 				/* Setup the ingredients. */
@@ -171,11 +173,10 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 						for (int c = 0; c < row.length(); c++) {
 							if (row.charAt(c) == ingred.letter.charAt(0)) {
 								matrix[i] = ingredStack;
-							} else
-								if (row.charAt(c) == ' ') {
-//								TODO	matrix[i] = new ItemStack(Material.AIR, 0, (short) -1);
-									matrix[i] = null;
-								}
+							} else if (row.charAt(c) == ' ') {
+								// TODO matrix[i] = new ItemStack(Material.AIR, 0, (short) -1);
+								matrix[i] = null;
+							}
 							i++;
 						}
 					}
@@ -190,7 +191,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 				Bukkit.getServer().addRecipe(recipe);
 			} else {
 				/* Shapeless Recipe */
-				ShapelessRecipe recipe = new ShapelessRecipe(stack);
+				ShapelessRecipe recipe = new ShapelessRecipe(new NamespacedKey(CivCraft.getPlugin(), "civ_" + mat.getConfigId()), stack);
 				LinkedList<ItemStack> items = new LinkedList<ItemStack>();
 				ItemStack[] matrix = new ItemStack[9];
 				int matrixIndex = 0;
@@ -222,7 +223,7 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 					}
 
 					if (ingredStack != null) {
-						//	loreMat.shaplessIngredientList.add(ingredStack);
+						// loreMat.shaplessIngredientList.add(ingredStack);
 						for (int i = 0; i < ingred.count; i++) {
 							if (matrixIndex > 9) {
 								break;
