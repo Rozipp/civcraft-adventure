@@ -1,16 +1,24 @@
 package com.avrgaming.civcraft.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.ItemManager;
 
 public class ConfigCraftableMaterial extends ConfigMaterial {
 
@@ -39,7 +47,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 		}
 		CivLog.info("Loaded " + materials.size() + " Materials.");
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static ConfigCraftableMaterial loadOneCraftableConfig(Map<?, ?> b) {
 		ConfigCraftableMaterial mat = new ConfigCraftableMaterial();
@@ -59,18 +67,15 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 
 			if (mat.category.toLowerCase().contains("tier 1")) {
 				mat.tier = 1;
-			} else
-				if (mat.category.toLowerCase().contains("tier 2")) {
-					mat.tier = 2;
-				} else
-					if (mat.category.toLowerCase().contains("tier 3")) {
-						mat.tier = 3;
-					} else
-						if (mat.category.toLowerCase().contains("tier 4")) {
-							mat.tier = 4;
-						} else {
-							mat.tier = 0;
-						}
+			} else if (mat.category.toLowerCase().contains("tier 2")) {
+				mat.tier = 2;
+			} else if (mat.category.toLowerCase().contains("tier 3")) {
+				mat.tier = 3;
+			} else if (mat.category.toLowerCase().contains("tier 4")) {
+				mat.tier = 4;
+			} else {
+				mat.tier = 0;
+			}
 		}
 
 		List<?> configLore = (List<?>) b.get("lore");
@@ -92,8 +97,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 		if (tValue != null) {
 			mat.tradeable = true;
 			mat.tradeValue = tValue;
-		} else
-			mat.tradeable = false;
+		} else mat.tradeable = false;
 
 		Boolean vanilla = (Boolean) b.get("vanilla");
 		if (vanilla != null) mat.vanilla = vanilla;
@@ -144,8 +148,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 				mat.ingredients.put(key, ingredient);
 				//ConfigIngredient.ingredientMap.put(ingredient.custom_id, ingredient);
 			}
-		} else
-			mat.craftable = false;
+		} else mat.craftable = false;
 
 		/* Optional shape argument. */
 		List<?> configShape = (List<?>) b.get("shape");
@@ -159,50 +162,62 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 					i++;
 				}
 			mat.shape = shape;
-		} else
-			mat.shaped = false;
+		} else mat.shaped = false;
 		return mat;
 	}
-	
+
 	public boolean playerHasTechnology(Player player) {
-		if (this.required_tech == null) {
-			return true;
-		}
-
+		if (this.required_tech == null) return true;
 		Resident resident = CivGlobal.getResident(player);
-		if (resident == null || !resident.hasTown()) {
-			return false;
-		}
-
+		if (resident == null || !resident.hasTown()) return false;
 		/* Parse technoloies */
 		String[] split = this.required_tech.split(",");
 		for (String tech : split) {
 			tech = tech.replace(" ", "");
-			if (!resident.getCiv().hasTechnology(tech)) {
-				return false;
-			}
+			if (!resident.getCiv().hasTechnology(tech)) return false;
 		}
-
 		return true;
 	}
 
 	public String getRequireString() {
 		String out = "";
-		if (this.required_tech == null) {
-			return out;
-		}
-
+		if (this.required_tech == null) return out;
 		/* Parse technoloies */
 		String[] split = this.required_tech.split(",");
 		for (String tech : split) {
 			tech = tech.replace(" ", "");
 			ConfigTech technology = CivSettings.techs.get(tech);
-			if (technology != null) {
-				out += technology.name + ", ";
+			if (technology != null) out += technology.name + ", ";
+		}
+		return out;
+	}
+
+	public static void removeRecipes(FileConfiguration cfg, HashSet<Material> removedRecipies) {
+
+		List<Map<?, ?>> configMaterials = cfg.getMapList("removed_recipes");
+		for (Map<?, ?> b : configMaterials) {
+			int type_id = (Integer) b.get("type_id");
+			int data = (Integer) b.get("data");
+			ItemStack is = new ItemStack(ItemManager.getMaterial(type_id), 1, (short) data);
+			removedRecipies.add(is.getType());
+		}
+
+		// Idk why you change scope, but why not
+		List<Recipe> backup = new ArrayList<Recipe>();
+		Iterator<Recipe> a = Bukkit.getServer().recipeIterator();
+		while (a.hasNext()) {
+			Recipe recipe = a.next();
+			ItemStack result = recipe.getResult();
+			Material mat = result.getType();
+			if (!removedRecipies.contains(mat)) {
+				backup.add(recipe);
 			}
 		}
 
-		return out;
+		Bukkit.getServer().clearRecipes();
+		for (Recipe r : backup) {
+			Bukkit.getServer().addRecipe(r);
+		}
 	}
 
 }

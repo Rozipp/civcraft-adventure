@@ -76,11 +76,6 @@ materials:
               - ingred_id: '334:0'
                 count: 9
                 
-        - id: 'mat_wood_resin'
-          item_id: '351:1'
-          name: 'T1 Wood Resin'
-          category: '<lightgreen>Tier 1 Materials'
-
         - id: 'mat_refined_stone'
           item_id: '1:0'
           name: 'T1 Refined Stone'
@@ -265,6 +260,7 @@ materials:
           ingredients:
               - ingred_id: '57:0'
                 count: 3
+                
         - id: 'mat_milled_lumber'
           item_id: '53:0'
           name: 'T2 Milled Lumber'
@@ -272,24 +268,6 @@ materials:
           category: '<lightblue>Tier 2 Materials'
           ingredients:
               - ingred_id: 'mat_refined_wood'
-                count: 9
-                
-        - id: 'mat_drying_oil'
-          item_id: '433:0'
-          name: 'T2 Drying Oil'
-          tradeValue: 10.0
-          category: '<lightblue>Tier 2 Materials'
-          ingredients:
-              - ingred_id: 'mat_wood_resin'
-                count: 5
-        
-        - id: 'mat_concentrated_dye'
-          item_id: '390:0'
-          name: 'T2 Concentrated Dye'
-          tradeValue: 10.0
-          category: '<lightblue>Tier 2 Materials'
-          ingredients:
-              - ingred_id: '351:-1'
                 count: 9
                 
         - id: 'mat_steel_ingot'
@@ -438,19 +416,6 @@ materials:
               - ingred_id: 'mat_milled_lumber'
                 count: 3
               - ingred_id: 'mat_sticky_resin'
-                count: 1
-                
-        - id: 'mat_paint'
-          item_id: '432:0'
-          name: 'T3 Paint'
-          tradeValue: 10.0
-          category: '<lightpurple>Tier 3 Materials'
-          components:
-              - name: 'NoRightClick'
-          ingredients:
-              - ingred_id: 'mat_drying_oil'
-                count: 1
-              - ingred_id: 'mat_concentrated_dye'
                 count: 1
                 
         - id: 'mat_compacted_stone'
@@ -660,8 +625,6 @@ materials:
           ingredients:
               - ingred_id: 'mat_masonry_mortar'
                 count: 6
-              - ingred_id: 'mat_paint'
-                count: 2
                 
         - id: 'mat_capitol_footing'
           item_id: '215:0'
@@ -783,7 +746,7 @@ materials:
               - ingred_id: 'mat_decorative_jewels'
                 count: 1
               - ingred_id: 'mat_proof_of_leadership'
-                count: 2
+                count: 1
 
         - id: 'mat_proof_of_leadership'
           item_id: '347:0'
@@ -794,7 +757,7 @@ materials:
               - name: 'Tagged'
           ingredients:
               - ingred_id: 'mat_badge_of_leadership'
-                count: 7
+                count: 4
 
         - id: 'mat_badge_of_leadership'
           item_id: '421:0'
@@ -824,6 +787,7 @@ materials:
                 count: 2
               - ingred_id: 'mat_carved_leather'
                 count: 2
+                
         - id: 'mat_found_civ'
           item_id: '369:0'
           name: 'Founding Civilization Flag'

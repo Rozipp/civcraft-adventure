@@ -85,9 +85,7 @@ public abstract class CommandBase implements CommandExecutor {
 		
 		try {
 			permissionCheck();
-
 			doLogging();
-
 			if (args.length == 0) {
 				doDefaultAction();
 				return false;
@@ -111,10 +109,30 @@ public abstract class CommandBase implements CommandExecutor {
 
 		for (Integer i = 0; i < cs.size(); i++) {
 			if (cs.getCommand(i).equalsIgnoreCase(args[0])) {
-				return runSelectElement(args[0]);
-			} 
+				return runSelectElement(cs.getCommand(i));
+			}
+			for (String s : cs.getAltCommands(i))
+				if (s.equalsIgnoreCase(args[0])) {
+					return runSelectElement(cs.getCommand(i));
+				}	
+		}
+		
+		String convertComm = convertCommand(args[0]);
+		for (Integer i = 0; i < cs.size(); i++) {
+			if (cs.getCommand(i).equalsIgnoreCase(convertComm)) {
+				return runSelectElement(cs.getCommand(i));
+			}
+			for (String s : cs.getAltCommands(i))
+				if (s.equalsIgnoreCase(convertComm)) {
+					return runSelectElement(cs.getCommand(i));
+				}	
 		}
 
+		if (convertComm.equalsIgnoreCase("help")) {
+			showHelp();
+			return true;
+		}
+		
 		if (cs.sendUnknownToDefault) {
 			try {
 				doDefaultAction();
@@ -159,6 +177,15 @@ public abstract class CommandBase implements CommandExecutor {
 		return true;
 	}
 	
+	private String convertCommand(String comm) {
+		String rus = "фисвуапршолдьтщзйкыегмцчня";
+		String eng = "abcdefghijklmnopqrstuvwxyz";
+		
+		String res = comm;
+		for (int i = 0; i < rus.length(); i++)
+			res = res.replace(rus.charAt(i), eng.charAt(i));
+		return res;
+	}
 	
 	public void doLogging() {	
 	}
@@ -249,8 +276,7 @@ public abstract class CommandBase implements CommandExecutor {
 		for (String str : someArgs) {
 			combined += str + " ";
 		}
-		combined = combined.trim();
-		return combined;
+		return combined.trim();
 	}
 	
 	public void validMayor() throws CivException {
@@ -666,8 +692,6 @@ public abstract class CommandBase implements CommandExecutor {
 		return potentialMatches.get(0);
 	}
 	
-	
-
 	protected Civilization getNamedCiv(final int index, final String text) throws CivException {
 		if (this.args.length < index + 1) {
 			throw new CivException(text);

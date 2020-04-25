@@ -6,43 +6,43 @@ depend:
 
 commands:
     town:
-        aliases: [t]
+        aliases: [t,е, ещцт]
     plot:
-        aliases: [p]
+        aliases: [p,здще,з]
     resident:
-        aliases: [res]
+        aliases: [res,куы]
     dbg:
         aliases: []
     accept:
-        aliases: [yes]
+        aliases: [yes,нуы]
     deny:
-        aliases: [no]
+        aliases: [no,тщ,вутн]
     civ:
-        aliases:
+        aliases: [сшм]
     tc:
-        aliases:
+        aliases: [ес]
     cc:
-        aliases:
+        aliases: [сс]
     ac:
-        aliases:
+        aliases: [фс]
     gc:
-        aliases:
+        aliases: [пс]
     ad:
-        aliases:
+        aliases: [фв]
     build:
-        aliases:
+        aliases: [b,игшдв,и]
     market:
         aliases: [m]
     select:
         aliases:
     econ:
-        aliases: [money]
+        aliases: [money,ьщтун,ьщт]
     pay:
         aliases:
     here:
         aliases:
     camp:
-        aliases:
+        aliases: [сфьз]
     report:
         aliases:
     trade:

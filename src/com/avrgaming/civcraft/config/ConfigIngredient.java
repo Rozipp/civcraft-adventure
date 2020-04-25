@@ -3,8 +3,6 @@ package com.avrgaming.civcraft.config;
 
 public class ConfigIngredient {
 
-	//public static HashMap<String, ConfigIngredient> ingredientMap = new HashMap<String, ConfigIngredient>();
-	
 	public int type_id;
 	public int data;
 	

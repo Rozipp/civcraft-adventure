@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCave;
+import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -51,8 +52,7 @@ public class Cave extends Construct {
 	public Cave(String id, BlockCoord cornerEntrance) throws CivException {
 		this.caveEntrance = new CaveEntrance(this);
 		this.caveConfig = CivSettings.caves.get(id);
-		if (caveConfig == null)
-			throw new CivException("Не найден CaveConfigId" + id);
+		if (caveConfig == null) throw new CivException("Не найден CaveConfigId" + id);
 		try {
 			this.setName(caveConfig.name);
 		} catch (InvalidNameException e) {
@@ -64,7 +64,7 @@ public class Cave extends Construct {
 		this.hitpoints = 0;
 
 		this.lastUpdateTime = (new Date()).getTime();
-//		this.loadSettings();
+		// this.loadSettings();
 	}
 
 	public static void newCaveEntrance(String id, BlockCoord cornerEntrance) throws Exception {
@@ -159,8 +159,7 @@ public class Cave extends Construct {
 		corner.setY(10);
 		corner.setZ(caveEntrance.getCorner().getZ() * Cave.multiplerCoord);
 		this.corner = corner;
-		this.setCenterLocation(this.getCorner().getLocation().add(this.getTemplate().size_x / 2,
-				this.getTemplate().size_y / 2, this.getTemplate().size_z / 2));
+		this.setCenterLocation(this.getCorner().getLocation().add(this.getTemplate().size_x / 2, this.getTemplate().size_y / 2, this.getTemplate().size_z / 2));
 
 		this.checkBlockPermissionsAndRestrictions(null);
 
@@ -179,12 +178,9 @@ public class Cave extends Construct {
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 		for (Cave cave : CivGlobal.getCaves()) {
-			Rectangle caveR = new Rectangle(cave.getCorner().getX(), cave.getCorner().getZ(),
-					cave.getTemplate().getSize_x(), cave.getTemplate().getSize_z());
-			Rectangle thisR = new Rectangle(this.getCorner().getX(), this.getCorner().getZ(),
-					this.getTemplate().getSize_x(), this.getTemplate().getSize_z());
-			if (caveR.intersects(thisR))
-				throw new CivException("Есть пересечение с другими пещерами");
+			Rectangle caveR = new Rectangle(cave.getCorner().getX(), cave.getCorner().getZ(), cave.getTemplate().getSize_x(), cave.getTemplate().getSize_z());
+			Rectangle thisR = new Rectangle(this.getCorner().getX(), this.getCorner().getZ(), this.getTemplate().getSize_x(), this.getTemplate().getSize_z());
+			if (caveR.intersects(thisR)) throw new CivException("Есть пересечение с другими пещерами");
 		}
 	}
 
@@ -195,15 +191,14 @@ public class Cave extends Construct {
 		case "/spawn":
 			spawns.put(sb.keyvalues.get("id"), absCoord);
 			structSign = CivGlobal.getConstructSign(absCoord);
-			if (structSign == null)
-				structSign = new ConstructSign(absCoord, this);
+			if (structSign == null) structSign = new ConstructSign(absCoord, this);
 			ItemManager.setTypeIdAndData(absCoord.getBlock(), sb.getType(), sb.getData(), true);
 
 			structSign.setDirection(ItemManager.getData(absCoord.getBlock().getState()));
-//			for (String key : sb.keyvalues.keySet()) {
-//				structSign.setType(key);
-//				structSign.setAction(sb.keyvalues.get(key));
-//			}
+			// for (String key : sb.keyvalues.keySet()) {
+			// structSign.setType(key);
+			// structSign.setAction(sb.keyvalues.get(key));
+			// }
 			structSign.setOwner(this);
 			structSign.setText(new String[] { "", "Нажми", "что бы", "переместится" });
 			structSign.setAction("spawn");
@@ -224,25 +219,22 @@ public class Cave extends Construct {
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		// int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
-		if (resident == null)
-			return;
-		if (War.isWarTime())
-			return;
+		if (resident == null) return;
+		if (War.isWarTime()) return;
 
-//		Boolean hasPermission = false;
-//		if ((resident.getTown().isMayor(resident)) || (resident.getTown().getAssistantGroup().hasMember(resident))
-//				|| (resident.getCiv().getLeaderGroup().hasMember(resident))
-//				|| (resident.getCiv().getAdviserGroup().hasMember(resident))) {
-//			hasPermission = true;
-//		}
+		// Boolean hasPermission = false;
+		// if ((resident.getTown().isMayor(resident)) || (resident.getTown().getAssistantGroup().hasMember(resident))
+		// || (resident.getCiv().getLeaderGroup().hasMember(resident))
+		// || (resident.getCiv().getAdviserGroup().hasMember(resident))) {
+		// hasPermission = true;
+		// }
 		switch (sign.getAction()) {
 		case "spawn":
 			if (resident.getConstructSignConfirm() != null && resident.getConstructSignConfirm().equals(sign)) {
-				CivMessage.send(player,
-						CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
+				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
 				CivGlobal.getResident(player).teleportHome();
 			} else {
-				this.showInfo(player);
+				this.showConfirmExit(player);
 				resident.setConstructSignConfirm(sign);
 			}
 			break;
@@ -250,23 +242,32 @@ public class Cave extends Construct {
 			if (resident.getConstructSignConfirm() != null && resident.getConstructSignConfirm().equals(sign)) {
 				this.enterCave(player);
 			} else {
-				this.showInfo(player);
-				resident.setConstructSignConfirm(sign);
-				if (resident.getCiv().getCaveStatus(this) == null)
-					CaveStatus.newCaveStatus(this, resident);
+				if (playerHasTechnology(player)) {
+					this.showEnableInfo(player);
+					resident.setConstructSignConfirm(sign);
+				} else this.showDisableInfo(player);
+
+				if (resident.getCiv().getCaveStatus(this) == null) CaveStatus.newCaveStatus(this, resident);
 			}
 			break;
 		}
 	}
 
-	public void showInfo(Player player) {
+	public void showConfirmExit(Player player) {
+		CivMessage.send(player, "Для выхода из пещеры нажмите на табличку ещё раз");
+	}
+
+	public void showEnableInfo(Player player) {
 		CivMessage.send(player, "Это вход в пещеру под названием " + this.getDisplayName());
+		CivMessage.send(player, "Ваша цивилизация достаточно образована для входа в пещеру");
 		CivMessage.send(player, "Здесь писать информацию о пещере");
+		CivMessage.send(player, "Для входа в пещеру нажмите на табличку ещё раз");
+	}
+
+	public void showDisableInfo(Player player) {
+		CivMessage.send(player, "Это вход в пещеру под названием " + this.getDisplayName());
+		CivMessage.send(player, "Вашей цивилизации нужно изучить : " + getRequireString());
 		CivMessage.send(player, "Здесь писать информацию о пещере");
-		CivMessage.send(player, "Здесь писать информацию о пещере");
-		CivMessage.send(player, "Здесь писать информацию о пещере");
-		CivMessage.send(player, "Здесь писать информацию о пещере");
-		CivMessage.send(player, "Для входа впещеру нажмите на табличку ещё раз");
 	}
 
 	public void activateMobSpawners() {
@@ -283,47 +284,37 @@ public class Cave extends Construct {
 
 	public void caveFouded(Resident res) {
 		Civilization civ = res.getCiv();
-		if (civ == null)
-			return;
+		if (civ == null) return;
 		CaveStatus.newCaveStatus(this, res);
 		CivMessage.sendCiv(civ, "Игрок " + res.getName() + " нашел новую пещеру " + this.getDisplayName());
 	}
 
 	public void caveCaptured(Resident res) {
-		if (res == null)
-			return;
+		if (res == null) return;
 		Civilization newCiv = res.getCiv();
-		if (newCiv == null)
-			return;
+		if (newCiv == null) return;
 		Civilization oldCiv = this.getCiv();
-		if (oldCiv != null && newCiv.equals(oldCiv))
-			return;
+		if (oldCiv != null && newCiv.equals(oldCiv)) return;
 		if (oldCiv != null) {
 			oldCiv.removeCave(this, newCiv);
-			CivMessage.global("Цивилизация " + newCiv.getName() + " захватила пещеру " + this.getDisplayName()
-					+ " у цивилизации " + oldCiv.getName());
-		} else
-			CivMessage.global("Цивилизация " + newCiv.getName() + " заняла свободную пещеру " + this.getDisplayName());
+			CivMessage.global("Цивилизация " + newCiv.getName() + " захватила пещеру " + this.getDisplayName() + " у цивилизации " + oldCiv.getName());
+		} else CivMessage.global("Цивилизация " + newCiv.getName() + " заняла свободную пещеру " + this.getDisplayName());
 		newCiv.addCave(this);
 		this.setSQLOwner(newCiv);
 	}
 
 	public void caveUpdated() {
 		Civilization civ = getCiv();
-		if (civ == null)
-			return;
+		if (civ == null) return;
 		civ.getCaveStatus(this).editCaveStatusUpdate();
 		BlockCoord bc = this.getCornerEntrance();
-		CivMessage.sendCiv(civ, "Пещера " + this.getDisplayName() + " (" + bc.getX() + "," + bc.getY() + "," + bc.getZ()
-				+ ") обновилась");
+		CivMessage.sendCiv(civ, "Пещера " + this.getDisplayName() + " (" + bc.getX() + "," + bc.getY() + "," + bc.getZ() + ") обновилась");
 	}
 
 	public void caveUsed(Resident res) {
-		if (res == null)
-			return;
+		if (res == null) return;
 		Civilization civ = getCiv();
-		if (civ == null)
-			return;
+		if (civ == null) return;
 		civ.getCaveStatus(this).editCaveStatusUsed(res);
 		CivMessage.sendCiv(civ, "Игрок " + res.getName() + " вошел в пещеру " + this.getDisplayName());
 	}
@@ -368,7 +359,32 @@ public class Cave extends Construct {
 
 	@Override
 	protected List<HashMap<String, String>> getComponentInfoList() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String getRequireString() {
+		String out = "";
+		if (this.caveConfig.require_techs == null) return out;
+		/* Parse technoloies */
+		String[] split = this.caveConfig.require_techs.split(",");
+		for (String tech : split) {
+			tech = tech.replace(" ", "");
+			ConfigTech technology = CivSettings.techs.get(tech);
+			if (technology != null) out += technology.name + ", ";
+		}
+		return out;
+	}
+
+	public boolean playerHasTechnology(Player player) {
+		if (this.caveConfig.require_techs == null) return true;
+		Resident resident = CivGlobal.getResident(player);
+		if (resident == null || !resident.hasTown()) return false;
+		/* Parse technoloies */
+		String[] split = this.caveConfig.require_techs.split(",");
+		for (String tech : split) {
+			tech = tech.replace(" ", "");
+			if (!resident.getCiv().hasTechnology(tech)) return false;
+		}
+		return true;
 	}
 }

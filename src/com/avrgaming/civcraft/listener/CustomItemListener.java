@@ -11,7 +11,6 @@ package com.avrgaming.civcraft.listener;
 import com.avrgaming.civcraft.cache.ArrowFiredCache;
 import com.avrgaming.civcraft.cache.CivCache;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigRemovedRecipes;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -79,7 +78,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
-@SuppressWarnings("deprecation")
 public class CustomItemListener implements Listener {
 
 	public static HashMap<String, LinkedList<ItemDurabilityEntry>> itemDuraMap = new HashMap<String, LinkedList<ItemDurabilityEntry>>();
@@ -564,9 +562,7 @@ public class CustomItemListener implements Listener {
 		/* Remove any vanilla item IDs that can't be crafted from vanilla drops. */
 		LinkedList<ItemStack> removed = new LinkedList<ItemStack>();
 		for (ItemStack stack : event.getDrops()) {
-			Integer key = ItemManager.getTypeId(stack);
-
-			if (CivSettings.removedRecipies.containsKey(key)) {
+			if (CivSettings.removedRecipies.contains(stack.getType())) {
 				if (!CustomMaterial.isCustomMaterial(stack)) {
 					removed.add(stack);
 				}
@@ -819,8 +815,7 @@ public class CustomItemListener implements Listener {
 		if (LoreGuiItem.isGUIItem(stack))
 			return false;
 
-		ConfigRemovedRecipes removed = CivSettings.removedRecipies.get(ItemManager.getTypeId(stack));
-		if (removed == null && !stack.getType().equals(Material.ENCHANTED_BOOK)) {
+		if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK)) {
 			/* Check for badly enchanted tools */
 			if (stack.containsEnchantment(Enchantment.DAMAGE_ALL)
 					|| stack.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS)
@@ -878,8 +873,7 @@ public class CustomItemListener implements Listener {
 				if (craftMat != null)
 					continue; /* Assume we are good if we are custom. */
 
-				ConfigRemovedRecipes removed = CivSettings.removedRecipies.get(stack.getTypeId());
-				if (removed == null && !stack.getType().equals(Material.ENCHANTED_BOOK))
+				if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK))
 					continue; /* Not in removed list, so allow it. */
 
 				CivLog.info("Removed vanilla item:" + stack + " from " + player.getName() + " from armor.");

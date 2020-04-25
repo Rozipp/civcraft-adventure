@@ -194,7 +194,7 @@ public class CivSettings {
 	public static double startingCoins;
 
 	public static ArrayList<String> kitItems = new ArrayList<String>();
-	public static HashMap<Integer, ConfigRemovedRecipes> removedRecipies = new HashMap<Integer, ConfigRemovedRecipes>();
+	public static HashSet<Material> removedRecipies = new HashSet<Material>();
 	public static HashSet<Material> restrictedUndoBlocks = new HashSet<Material>();
 	public static boolean hasVanishNoPacket = false;
 
@@ -512,13 +512,14 @@ public class CivSettings {
 		ConfigTownHappinessLevel.loadConfig(happinessConfig, townHappinessLevels);
 		ConfigHappinessState.loadConfig(happinessConfig, happinessStates);
 		ConfigCultureBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
+		
+		ConfigCraftableMaterial.removeRecipes(craftableMaterialsConfig, removedRecipies);
 		ConfigCraftableMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
 		ConfigUnitMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
-		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
-
 		CraftableCustomMaterial.buildStaticMaterials();
-		UnitCustomMaterial.buildStaticMaterials();
 		CraftableCustomMaterial.buildRecipes();
+		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
+		UnitCustomMaterial.buildStaticMaterials();
 		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 
 		ConfigRandomEvent.loadConfig(randomEventsConfig, randomEvents, randomEventIDs);
@@ -531,7 +532,7 @@ public class CivSettings {
 		ConfigSpaceCraftMat.loadConfig(missionsConfig, space_crafts);
 
 		SoundManager.loadConfig(soundConfig);
-		ConfigRemovedRecipes.removeRecipes(craftableMaterialsConfig, removedRecipies);
+		
 		CivGlobal.tradeGoodPreGenerator.preGenerate();
 		Wall.init_settings();
 	}

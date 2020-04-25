@@ -39,8 +39,8 @@ public class BuildCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("cmd_build_Desc");
 		cs.sendUnknownToDefault = true;
 
-		cs.add("list", CivSettings.localize.localizedString("cmd_build_listDesc"));
-		cs.add("progress", CivSettings.localize.localizedString("cmd_build_progressDesc"));
+		cs.add("list", "l", CivSettings.localize.localizedString("cmd_build_listDesc"));
+		cs.add("progress", "p", CivSettings.localize.localizedString("cmd_build_progressDesc"));
 		cs.add("repairnearest", CivSettings.localize.localizedString("cmd_build_repairnearestDesc"));
 		cs.add("undo", CivSettings.localize.localizedString("cmd_build_undoDesc"));
 		cs.add("demolish", CivSettings.localize.localizedString("cmd_build_demolishDesc"));

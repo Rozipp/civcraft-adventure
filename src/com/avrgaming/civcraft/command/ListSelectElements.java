@@ -1,56 +1,94 @@
 package com.avrgaming.civcraft.command;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
-/** <b>Хранит в себе команды, их номера и коментарий к командам</b>
+/**
+ * <b>Хранит в себе команды, их номера и коментарий к командам</b>
  * 
- * @author Rozipp */
+ * @author Rozipp
+ */
 public class ListSelectElements {
+
+	class CommandElement {
+		String command;
+		List<String> altComm = new ArrayList<String>();
+		String coment;
+	}
 
 	public String perentCommand = "FIXME";
 	/** Выводить ли сообщение по умолчанию? */
 	protected boolean sendUnknownToDefault = false;
-	private ArrayList<String> commands;
-	private ArrayList<String> coments;
+	private List<CommandElement> commands = new ArrayList<CommandElement>();
 
 	public ListSelectElements() {
-		this.commands = new ArrayList<String>();
-		this.coments = new ArrayList<String>();
 	}
+
 	/** Never used */
 	public ListSelectElements(String perentCommand) {
-		this.commands = new ArrayList<String>();
-		this.coments = new ArrayList<String>();
 		this.perentCommand = perentCommand;
 	}
 
 	public String getCommand(Integer i) {
-		return commands.get(i);
+		return commands.get(i).command;
 	}
 
-	public Collection<String> getCommands() {
-		return commands;
+	public List<String> getAltCommands(Integer i) {
+		return commands.get(i).altComm;
 	}
 
 	public String getComent(Integer i) {
-		return coments.get(i);
-	}
-
-	public Collection<String> getComents() {
-		return coments;
+		return commands.get(i).coment;
 	}
 
 	public Integer size() {
-		return coments.size();
+		return commands.size();
 	}
 
 	public void add(String command, String coment) {
-		this.commands.add(command);
-		this.coments.add(coment);
+		CommandElement comEl = new CommandElement();
+		comEl.command = command;
+		comEl.coment = coment;
+		this.commands.add(comEl);
+	}
+	
+	public void add(String command, String alt1, String coment) {
+		CommandElement comEl = new CommandElement();
+		comEl.command = command;
+		comEl.coment = coment;
+		comEl.altComm.add(alt1);
+		this.commands.add(comEl);
+	}
+	
+	public void add(String command, String alt1, String alt2, String coment) {
+		CommandElement comEl = new CommandElement();
+		comEl.command = command;
+		comEl.coment = coment;
+		comEl.altComm.add(alt1);
+		comEl.altComm.add(alt2);
+		this.commands.add(comEl);
+	}
+
+	public void add(String command, String alt1, String alt2, String alt3, String coment) {
+		CommandElement comEl = new CommandElement();
+		comEl.command = command;
+		comEl.coment = coment;
+		comEl.altComm.add(alt1);
+		comEl.altComm.add(alt2);
+		comEl.altComm.add(alt3);
+		this.commands.add(comEl);
+	}
+	
+	public void add(String command, String[] altComm, String coment) {
+		CommandElement comEl = new CommandElement();
+		comEl.command = command;
+		comEl.coment = coment;
+		for (String s : altComm)
+			comEl.altComm.add(s);
+		this.commands.add(comEl);
 	}
 
 	public void showListSelectElement(Object sender) {
@@ -60,7 +98,10 @@ public class ListSelectElements {
 			string = CivColor.AddTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
 			String getCt = getComent(i);
 			Integer index = getCt.lastIndexOf("]") + 1;
-			string = CivColor.AddTabToString(string, CivColor.LightPurple + getCommand(i) + getCt.substring(0, index), 18);
+			String altComms = "";
+			for (String s : getAltCommands(i))
+				altComms = altComms + "(" + s + ")";
+			string = CivColor.AddTabToString(string, CivColor.LightPurple + getCommand(i) +altComms + getCt.substring(0, index), 18);
 			string = CivColor.AddTabToString(string, CivColor.LightGray + getComent(i).substring(index), 0);
 			string = string.replace("[", CivColor.Yellow + "[");
 			string = string.replace("]", "]" + CivColor.LightGray);
