@@ -7,17 +7,19 @@ materials:
 #============== Primary Materials
 
     - id: 'u_choiceunitcomponent'
-      item_id: '340:0'
+      item_id: '386:0'
       name: 'ChoiceUnitComponent'
-      shaped: true
       slot: 7
       components:
           - name: 'ChoiceUnitComponent'
 
     - id: 'u_foundtown'
-      item_id: '330:0'
+      item_id: '340:0'
       name: 'FoundTown'
-      shaped: true
+  #    lore: 
+  #        - 'Установка нового города'
+  #        - 'Здесь'
+      shiny: true
       slot: 6
       components:
           - name: 'FoundTown'   
@@ -28,7 +30,7 @@ materials:
       lore: 
           - 'Provides a report on the target town.'
           - 'Includes information of strategic value.'
-      shaped: true
+      shiny: true
       slot: 7
       components:
           - name: 'Espionage'
@@ -40,7 +42,7 @@ materials:
       lore: 
           - 'Steals 20% of the target towns treasury.'
           - 'Must be within 50 blocks of town hall.'
-      shaped: true
+      shiny: true
       slot: 6
       components:
           - name: 'Espionage'
@@ -52,7 +54,7 @@ materials:
       lore: 
           - 'Plunges the target civiliztion into Anarchy.'
           - 'Must be within 100 blocks of the capitol town hall.'
-      shaped: true
+      shiny: true
       slot: 5
       components:
           - name: 'Espionage'
@@ -64,7 +66,7 @@ materials:
       lore: 
           - 'Causes all cottages to starve for 3 to 50 hours. 5% chances to bring famine and down level all cottages.'
           - 'Must be within 50 blocks of a granary.'
-      shaped: true
+      shiny: true
       slot: 4
       components:
           - name: 'Espionage'
@@ -76,7 +78,7 @@ materials:
       lore: 
           - 'Allows you to take a goodie from an enemy trade outpost.'
           - 'Must be within 10 blocks of the trade outpost.'
-      shaped: true
+      shiny: true
       slot: 3
       components:
           - name: 'Espionage'
@@ -87,7 +89,7 @@ materials:
       description: 
           - 'Destroyes the nearest structure.'
           - 'Must be within 50 blocks.'
-      shaped: true
+      shiny: true
       slot: 2
       components:
           - name: 'Espionage'

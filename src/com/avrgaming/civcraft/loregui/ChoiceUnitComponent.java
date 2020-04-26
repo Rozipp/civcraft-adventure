@@ -19,7 +19,7 @@ public class ChoiceUnitComponent implements GuiAction {
 
 		String component = LoreGuiItem.getActionData(stack, "component");
 
-		uo.addComponent(component, 1);
+		uo.addComponent(component);
 
 		event.getWhoClicked().closeInventory();
 		UnitStatic.updateUnitForPlaeyr(player);

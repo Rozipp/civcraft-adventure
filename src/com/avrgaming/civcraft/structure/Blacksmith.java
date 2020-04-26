@@ -33,8 +33,7 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.tasks.NotificationTask;
-import com.avrgaming.civcraft.units.EquipmentElement;
-import com.avrgaming.civcraft.units.UnitMaterial;
+import com.avrgaming.civcraft.units.Equipments;
 import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -184,36 +183,23 @@ public class Blacksmith extends Structure {
 		}
 
 		ItemStack stack = player.getInventory().getItemInMainHand();
-		String umid = ItemManager.getUMid(stack);
+		String mid = ItemManager.getUMid(stack);
 
 		Resident resident = CivGlobal.getResident(player);
 		if (!resident.isUnitActive()) throw new CivException("Сперва активируйте юнита");
 		UnitObject uo = CivGlobal.getUnitObject(resident.getUnitObjectId());
-		if (uo == null) throw new CivException("Юнит сломан. Ишибка базы данних. Обратитесь к администрации");
+		if (uo == null) throw new CivException("Юнит сломан. Ошибка базы данних. Обратитесь к администрации");
 
-		UnitMaterial um = uo.getUnit();
-		String equip = "";
-		int new_tir = -1;
-		for (String s : EquipmentElement.allEquipments) {
-			EquipmentElement eE = um.equipmentElemens.get(s);
-			for (int i = 0; i <= 4; i++) {
-				if (eE.getMatTir(i).equalsIgnoreCase(umid)) {
-					equip = s;
-					new_tir = i;
-					break;
-				}
-				if (new_tir != -1) break;
-			}
-		}
-		if (new_tir == -1) throw new CivException("Этот предмет нельзя одеть на вашего юнита");
-		int old_tir = uo.getComponent(equip);
-		if (new_tir == old_tir) throw new CivException("На Вас надета такая же аммуниция");
+		Equipments equip = Equipments.identificateEquipments(mid);
 
-		String old_mat = (old_tir == 0) ? "" : um.getAmuntMatTir(equip, old_tir);
+		if (!uo.getConfigUnit().equipments.contains(mid)) throw new CivException("Этот предмет нельзя одеть на вашего юнита");
+		String old_mid = uo.getEquipment(equip);
+		if (mid.equals(old_mid)) throw new CivException("На Вас надета такая же аммуниция");
+
 		CivGlobal.getResident(player).getTreasury().withdraw(cost);
-
-		player.getInventory().setItemInMainHand(ItemManager.createItemStack(old_mat, 1));
-		uo.setComponent(equip, new_tir);
+		
+		player.getInventory().setItemInMainHand(ItemManager.createItemStack(old_mid, 1));
+		uo.setEquipment(equip, mid);
 		uo.rebuildUnitItem(player);
 		UnitStatic.updateUnitForPlaeyr(player);
 		CivMessage.sendSuccess(player, "Аммуниция одета удачно");

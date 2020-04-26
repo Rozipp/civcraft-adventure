@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
 
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
@@ -41,7 +42,7 @@ public class ItemManager {
 	}
 
 	public static ItemStack createItemStack(String umid, int amount) {
-		if (umid.equalsIgnoreCase("")) return null;
+		if (umid == null || umid.equalsIgnoreCase("")) return createItemStack(CivData.AIR, 0);
 		CustomMaterial lcm = CustomMaterial.getCustomMaterial(umid.toLowerCase());
 		if (lcm != null) return CustomMaterial.spawn(lcm, amount);
 		if (umid.contains(":")) {
@@ -60,7 +61,7 @@ public class ItemManager {
 				return new ItemStack(Material.valueOf(umid.toUpperCase()));
 			} catch (IllegalArgumentException e1) {
 				CivLog.warning("createItemStack() \"" + umid + "\" is not found material");
-				return null;
+				return createItemStack(CivData.AIR, 0);
 			}
 		}
 	}
@@ -79,6 +80,7 @@ public class ItemManager {
 	public static int getMaterialId(Material material) {
 		return material.getId();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static int getEnchantmentId(Enchantment e) {
 		return e.getId();
@@ -88,38 +90,47 @@ public class ItemManager {
 	public static int getTypeId(ItemStack stack) {
 		return stack.getTypeId();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static int getTypeId(Block block) {
 		return block.getTypeId();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void setTypeId(Block block, int typeId) {
 		block.setTypeId(typeId);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void setTypeId(BlockState block, int typeId) {
 		block.setTypeId(typeId);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static byte getData(Block block) {
 		return block.getData();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static short getData(ItemStack stack) {
 		return stack.getData().getData();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static byte getData(MaterialData data) {
 		return data.getData();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static byte getData(BlockState state) {
 		return state.getRawData();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void setData(Block block, int data) {
 		block.setData((byte) data);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void setData(Block block, int data, boolean update) {
 		block.setData((byte) data, update);
@@ -128,10 +139,12 @@ public class ItemManager {
 	public static void setDurability(ItemStack stack, int demage) {
 		stack.setDurability((short) demage);
 	}
+
 	public static void setDurability(ItemStack stack, double percent) {
 		short demage = (short) ((1 - percent) * stack.getType().getMaxDurability());
 		stack.setDurability(demage);
 	}
+
 	public static short getDurability(ItemStack stack) {
 		return stack.getDurability();
 	}
@@ -145,22 +158,27 @@ public class ItemManager {
 	public static int getBlockTypeId(ChunkSnapshot snapshot, int x, int y, int z) {
 		return snapshot.getBlockTypeId(x, y, z);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static int getBlockData(ChunkSnapshot snapshot, int x, int y, int z) {
 		return snapshot.getBlockData(x, y, z);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void sendBlockChange(Player player, Location loc, int type, int data) {
 		player.sendBlockChange(loc, type, (byte) data);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static int getBlockTypeIdAt(World world, int x, int y, int z) {
 		return world.getBlockTypeIdAt(x, y, z);
 	}
+
 	@SuppressWarnings("deprecation")
 	public static int getTypeId(BlockState newState) {
 		return newState.getTypeId();
 	}
+
 	@SuppressWarnings("deprecation")
 	public static void setTypeIdAndData(Block block, int type, int data, boolean update) {
 		block.setTypeIdAndData(type, (byte) data, update);
@@ -203,6 +221,7 @@ public class ItemManager {
 		}
 		return null;
 	}
+
 	/** Возвращает все NBTTag'ы предмета */
 	public static String getAllProperty(ItemStack stack) {
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
@@ -211,6 +230,7 @@ public class ItemManager {
 		}
 		return null;
 	}
+
 	/** Добавляет в NBTTag информацию value под ключом key */
 	public static ItemStack setProperty(ItemStack stack, String key, String value) {
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
@@ -223,8 +243,10 @@ public class ItemManager {
 		return CraftItemStack.asCraftMirror(nmsStack);
 	}
 
-	/** Сравнивает ItemStack с umid предмета umid может быть: 1) число_тип:число_дата предмета (пример 15:0) 2) mid CustomMaterial 3) Число тип 4) название
-	 * материала (например Material.AIR) */
+	/**
+	 * Сравнивает ItemStack с umid предмета umid может быть: 1) число_тип:число_дата предмета (пример 15:0) 2) mid CustomMaterial 3) Число тип
+	 * 4) название материала (например Material.AIR)
+	 */
 	public static boolean isCorrectItemStack(ItemStack stack, String umid) {
 		if (umid.contains(":")) {
 			String[] spl = umid.split(":");
@@ -247,6 +269,7 @@ public class ItemManager {
 			}
 		}
 	}
+
 	public static boolean isCorrectItemStack(ItemStack stack, String mid, int type, short data) {
 		if (stack == null) return false;
 		if (mid != null) {
@@ -282,8 +305,10 @@ public class ItemManager {
 		return getTypeId(stack) + ":" + getData(stack);
 	}
 
-	/** Ложит предмет в заданный слот. Если тот не пустой выбрасывает содержимое на пол. Moves an item stack off of this slot by trying to re-add it to the
-	 * inventory, if it fails, then we drop it on the ground. */
+	/**
+	 * Ложит предмет в заданный слот. Если тот не пустой выбрасывает содержимое на пол. Moves an item stack off of this slot by trying to re-add
+	 * it to the inventory, if it fails, then we drop it on the ground.
+	 */
 	public static void putItemToSlot(Player player, Inventory inv, int slot, ItemStack newItem) {
 		ItemStack stack = inv.getItem(slot);
 		inv.setItem(slot, newItem);

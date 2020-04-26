@@ -20,7 +20,6 @@ public class AdminUnitCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("cmd_mob_managament");
 
 		cs.add("setComponent", "[Equipments] [value] изменить уровень амуниции");
-		cs.add("getComponents", "показать все компоненты которые есть у юнита");
 		cs.add("spawn", "[unitId] создать нового юнита");
 		cs.add("respawn", "[Plaeyr] Дать игроку последнего его юнита.");
 		cs.add("addUnitComponent", "Добавить книгу улучшения");
@@ -50,11 +49,6 @@ public class AdminUnitCommand extends CommandBase {
 		UnitStatic.respawn(player);
 	}
 
-	public void getComponents_cmd() throws CivException {
-		Player player = getPlayer();
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player)));
-		uo.printAllComponents(player);
-	}
 	public void setComponent_cmd() throws CivException {
 		Player player = getPlayer();
 		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player)));
@@ -69,9 +63,8 @@ public class AdminUnitCommand extends CommandBase {
 			CivMessage.sendSuccess(player, "Компоненты зачарования(значение = уровень зачарования): ___???___???___???___???___");
 			throw new CivException(e.getMessage());
 		}
-		Integer value = getNamedInteger(2);
 
-		uo.setComponent(key, value);
+		uo.addComponent(key);
 		UnitStatic.updateUnitForPlaeyr(player);
 
 		CivMessage.sendSuccess(player, "установлено успешно ");

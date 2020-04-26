@@ -47,25 +47,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 	public static final int LAST_SLOT = 8;
 	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
 
-	// =============== EquipmentElemen
-	public HashMap<String, EquipmentElement> equipmentElemens = new HashMap<>();
-
-	public abstract void initAmmunitions();
-
-	public String getAmuntMatTir(String eq, Integer tir) {
-		EquipmentElement e = equipmentElemens.get(eq);
-		if (e == null)
-			return "";
-		return e.getMatTir(tir);
-	}
-
-	public Integer getSlot(String eq) {
-		EquipmentElement e = equipmentElemens.get(eq);
-		if (e == null)
-			return 0;
-		return e.getSlot();
-	}
-
 	// =============== init Unit
 	public abstract void initLore(AttributeUtil attrs, UnitObject uo);
 
@@ -76,7 +57,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 		this.configUnit = configUnit;
 		// TODO initLore
 		this.setName(configUnit.name);
-		this.initAmmunitions();
 	}
 
 	public ConfigUnit getConfigUnit() {

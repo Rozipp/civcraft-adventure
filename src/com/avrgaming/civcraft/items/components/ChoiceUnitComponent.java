@@ -61,7 +61,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 				loreArray.add(CivColor.LightGray + s);
 
 			//проверка на требуемый урвоень
-			int oldValue = uo.getComponent(comp.id);
+			int oldValue = uo.getComponentValue(comp.id);
 			int neadLevel = comp.require_level + comp.require_level_upgrade * oldValue;
 			if (neadLevel > uo.getLevel()) {
 				loreArray.add(CivColor.Red + "требуемый уровень: " + CivColor.RedBold + neadLevel);
@@ -71,7 +71,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 
 			if (comp.require_component != null) { //проверка на требуемые компоненты
 				for (String key : comp.require_component.keySet()) {
-					if (uo.getComponent(key) < comp.require_component.get(key)) {
+					if (uo.getComponentValue(key) < comp.require_component.get(key)) {
 						String levelString = ((comp.require_component.get(key) > 1)
 								? (CivColor.Red + " уровня " + CivColor.RedBold + comp.require_component.get(key))
 								: "");

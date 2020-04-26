@@ -3,9 +3,8 @@ package com.avrgaming.civcraft.units;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-
+import java.util.List;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -40,7 +39,11 @@ public class UnitObject extends SQLObject {
 	private ConfigUnit configUnit;
 	private Resident lastResident;
 	private HashMap<String, Integer> ammunitionSlots = new HashMap<>();
-	private ComponentsManager compManager = new ComponentsManager();
+
+	private HashMap<String, Integer> totalComponents = new HashMap<>();
+	private HashMap<Integer, List<String>> levelComponents = new HashMap<>();
+	private HashMap<Equipments, String> equipments = new HashMap<>();
+	private Integer levelUp = 0;
 
 	public UnitObject(String configUnitId, Town town) {
 		this.configUnitId = configUnitId;
@@ -59,11 +62,10 @@ public class UnitObject extends SQLObject {
 		this.townOwner.addUnitToList(this.getId());
 	}
 
-	public UnitObject(ResultSet rs) throws SQLException, InvalidNameException, CivException {
+	public UnitObject(ResultSet rs) throws CivException, SQLException {
 		try {
 			this.load(rs);
-		} catch (CivException e) {
-			// TODO Автоматически созданный блок catch
+		} catch (Exception e) {
 			e.printStackTrace();
 			this.delete();
 			throw new CivException(e.getMessage());
@@ -101,10 +103,8 @@ public class UnitObject extends SQLObject {
 				CivLog.info("CLEANING");
 				this.delete();
 			}
-			throw new CivException(
-					"Not fount town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
-		} else
-			this.townOwner.addUnitToList(this.getId());
+			throw new CivException("Not fount town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
+		} else this.townOwner.addUnitToList(this.getId());
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
 		this.lastResident = CivGlobal.getResident(rs.getString("lastResident"));
@@ -114,11 +114,45 @@ public class UnitObject extends SQLObject {
 			String[] ammunitionsSplit = tempAmmun.split(",");
 			for (int i = ammunitionsSplit.length - 1; i >= 0; i--) {
 				String[] a = ammunitionsSplit[i].split("=");
-				if (a.length >= 2)
-					ammunitionSlots.put(a[0].toLowerCase(), Integer.parseInt(a[1]));
+				if (a.length >= 2) ammunitionSlots.put(a[0].toLowerCase(), Integer.parseInt(a[1]));
 			}
 		}
-		compManager.loadComponents(rs.getString("components"));
+		loadComponents(rs.getString("components"));
+	}
+
+	public void loadComponents(String sourceString) {
+		if (sourceString == null || sourceString.isEmpty()) return;
+
+		String[] source = sourceString.split("@");
+
+		this.levelUp = Integer.valueOf(source[0]);
+
+		String[] aqStrings = source[1].split(",");
+		for (String eq : aqStrings) {
+			String[] keys = eq.split(":");
+			this.equipments.put(Equipments.valueOf(keys[0]), keys[1]);
+		}
+
+		String[] levelSplits = source[2].split(";");
+		for (String levelComp : levelSplits) {
+			String[] levelCompSplit = levelComp.split(":");
+
+			Integer level = Integer.parseInt(levelCompSplit[0]);
+
+			String[] componentsSplit = levelCompSplit[1].replace("[", "").replace("]", "").split(",");
+			if (componentsSplit.length < 1) continue;
+			List<String> newComponents = new ArrayList<>();
+			for (String c : componentsSplit) {
+				newComponents.add(c);
+			}
+			this.levelComponents.put(level, newComponents);
+		}
+		for (Integer level : levelComponents.keySet()) {
+			List<String> comp = levelComponents.get(level);
+			for (String key : comp) {
+				this.totalComponents.put(key, this.totalComponents.getOrDefault(key, 0) + 1);
+			}
+		}
 	}
 
 	@Override
@@ -130,17 +164,38 @@ public class UnitObject extends SQLObject {
 		hashmap.put("exp", this.exp);
 		hashmap.put("lastResident", (this.lastResident == null ? 0 : this.lastResident.getName()));
 
-		if (!ammunitionSlots.isEmpty())
-			hashmap.put("ammunitions", ammunitionSlots.toString().replace("{", "").replace("}", "").replace(" ", ""));
+		if (!ammunitionSlots.isEmpty()) hashmap.put("ammunitions", ammunitionSlots.toString().replace("{", "").replace("}", "").replace(" ", ""));
 
-		hashmap.put("components", compManager.getSaveString());
+		hashmap.put("components", getSaveComponentsString());
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
+	}
+
+	public String getSaveComponentsString() {
+		if (this.levelComponents.isEmpty()) return "";
+
+		String sss = levelUp.toString() + "@";
+		// Add equipments
+		for (Equipments eq : Equipments.values()) {
+			if (!this.equipments.containsKey(eq)) continue;
+			String comps = this.equipments.get(eq);
+			sss = sss + eq.name() + ":" + comps + ",";
+		}
+		if (sss.charAt(sss.length() - 1) == ',') sss = sss.substring(0, sss.length() - 1);
+
+		sss = sss + "@";
+		// Add levelComponents
+		for (Integer i = 0; i <= 100; i++) {
+			if (!this.levelComponents.containsKey(i)) continue;
+			List<String> comps = this.levelComponents.get(i);
+			sss = sss + i + ":" + (comps.isEmpty() ? "" : comps.toString().replace(" ", "")) + ";";
+		}
+		if (sss.charAt(sss.length() - 1) == ';') sss = sss.substring(0, sss.length() - 1);
+		return sss;
 	}
 
 	@Override
 	public void delete() throws SQLException {
-		if (townOwner != null)
-			this.townOwner.removeUnitToList(this.getId());
+		if (townOwner != null) this.townOwner.removeUnitToList(this.getId());
 		CivGlobal.removeUnitObject(this);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
@@ -151,23 +206,60 @@ public class UnitObject extends SQLObject {
 		return this.configUnit.name;
 	}
 
+	// ------------------exp level
+	public void addExp(Integer exp) {
+		this.exp = this.exp + exp;
+		while (this.exp >= this.getTotalExpToLevel(level + 1)) {
+			addLevel();
+			addLevelUp();
+			CivMessage.send(this.lastResident, CivColor.LightGrayBold + "   " + "Уровень вашего " + CivColor.PurpleBold + this.getConfigUnit().name + CivColor.LightGrayBold + " поднялся до " + CivColor.LightGray + this.getLevel());
+		}
+		this.save();
+	}
+
+	public void removeExp(Integer exp) {
+		this.exp = this.exp - exp;
+		while (this.exp < this.getTotalExpToLevel(level)) {
+			removeLevel();
+		}
+		this.save();
+	}
+
+	public float getPercentExpToNextLevel() {
+		return ((float) exp - this.getTotalExpToLevel(level)) / this.getExpToNextLevel();
+	}
+
+	public int getExpToNextLevel() {
+		return UnitStatic.first_exp + (level) * UnitStatic.step_exp;
+	}
+
+	public int getTotalExpToLevel(int level) {
+		if (level > UnitStatic.max_level) level = UnitStatic.max_level;
+		return UnitStatic.first_exp * level + (level - 1) * level * UnitStatic.step_exp / 2;
+	}
+
 	public void addLevel() {
 		this.level = this.level + 1;
 	}
 
 	public void removeLevel() {
-		if (this.level > 0)
-			this.level = this.level - 1;
-		compManager.removeLevelUp();
+		if (level > 0) {
+			level--;
+			List<String> removeComponents = levelComponents.get(level);
+			for (String key : removeComponents) {
+				levelUp = levelUp + 1;
+				int oldLevel = totalComponents.getOrDefault(key, 0);
+				if (oldLevel > 0) totalComponents.put(key, oldLevel - 1);
+				CivMessage.send(this.lastResident, "Ваш юнит забыл " + key + " уровень " + oldLevel);
+			}
+			levelComponents.remove(level);
+			removeLevelUp();
+		}
 	}
 
 	public void setLastResident(Resident res) {
 		this.lastResident = res;
 		save();
-	}
-
-	public Resident getLastResident() {
-		return this.lastResident;
 	}
 
 	public void setAmunitionSlot(String mat, Integer slot) {
@@ -179,87 +271,55 @@ public class UnitObject extends SQLObject {
 		return ammunitionSlots.get(mat);
 	}
 
-	public void setComponent(String key, Integer value) {
-		compManager.setBaseComponent(key, value);
-		this.save();
-	}
-
-	public Integer getComponent(String key) {
-		if (compManager.getBaseComponents().containsKey(key.toLowerCase()))
-			return compManager.getBaseComponents().get(key.toLowerCase());
-		return compManager.getComponentValue(key);
-	}
-
-	public boolean hasComponent(String key) {
-		return compManager.hasComponent(key);
-	}
-
-	public void addComponent(String key, Integer value) {
-		compManager.addComponenet(this.level, key, value);
-		CivMessage.send(this.lastResident, "Ваш юнит получил новый компонент " + key + "+" + value);
+	// ------------------ levelUp
+	public void addLevelUp() {
+		this.levelUp++;
 	}
 
 	public void removeLevelUp() {
-		this.compManager.removeLevelUp();
+		if (this.levelUp > 0) this.levelUp--;
 	}
 
-	public void removeLastComponent() {
-		Collection<String> ss = compManager.removeLastComponents(this.level);
-		for (String s : ss) {
-			CivMessage.send(this.lastResident, "Ваш юнит потерял компонент " + s);
-		}
+	public Integer getLevelUp() {
+		return this.levelUp;
 	}
 
-	public void addExp(Integer exp) {
-		this.exp = this.exp + exp;
-		while (this.exp >= this.getTotalExpToNextLevel()) {
-			addLevel();
-			compManager.addLevelUp();
-			CivMessage.send(this.lastResident,
-					CivColor.LightGrayBold + "   " + "Уровень вашего " + CivColor.PurpleBold + this.getConfigUnit().name
-							+ CivColor.LightGrayBold + " поднялся до " + CivColor.LightGray + this.getLevel());
-		}
-		this.save();
+	// ------------equipments
+	public void setEquipment(Equipments eq, String mid) {
+		equipments.put(eq, mid);
 	}
 
-	public void removeExp(Integer exp) {
-		this.exp = this.exp - exp;
-		while (this.exp < this.getTotalExpThisLevel()) {
-			removeLastComponent();
-			removeLevel();
-		}
-		this.save();
+	public String getEquipment(Equipments eq) {
+		return equipments.get(eq);
 	}
 
-	public float getFloatExp() {
-		return ((float) exp - this.getTotalExpThisLevel()) / this.getExpToNextLevel();
+	// ------------- Components
+	public void addComponent(String key) {
+		if (!levelComponents.containsKey(level)) levelComponents.put(level, new ArrayList<>());
+		levelComponents.get(level).add(key);
+
+		totalComponents.put(key, totalComponents.getOrDefault(key, 0) + 1);
+		int newlevel = totalComponents.get(key);
+		if (newlevel > 1)
+			CivMessage.send(this.lastResident, "Ваш юнит изучил " + key);
+		else CivMessage.send(this.lastResident, "Ваш юнит изучил " + key + " уровень " + newlevel);
 	}
 
-	public int getExpToNextLevel() {
-		return UnitStatic.first_exp + (level) * UnitStatic.step_exp;
+	public Integer getComponentValue(String key) {
+		return totalComponents.getOrDefault(key, 0);
 	}
 
-	public int getTotalExpToNextLevel() {
-		int level = this.level + 1;
-		if (level > UnitStatic.max_level)
-			level = UnitStatic.max_level;
-		return UnitStatic.first_exp * level + (level - 1) * level * UnitStatic.step_exp / 2;
+	public Boolean hasComponent(String key) {
+		return totalComponents.containsKey(key);
 	}
 
-	public int getTotalExpThisLevel() {
-		int level = this.level;
-		if (level > UnitStatic.max_level)
-			level = UnitStatic.max_level;
-		return UnitStatic.first_exp * level + (level - 1) * level * UnitStatic.step_exp / 2;
-	}
-
+	// ---------------unit
 	public UnitMaterial getUnit() {
 		return UnitStatic.getUnit(this.configUnitId);
 	}
 
 	public boolean validateUnitUse(Player player, ItemStack stack) {
-		if (stack == null)
-			return false;
+		if (stack == null) return false;
 		Resident resident = CivGlobal.getResident(player);
 		if (this.townOwner == null) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorInvalidOwner"));
@@ -276,92 +336,63 @@ public class UnitObject extends SQLObject {
 		return true;
 	}
 
-	class NewStackList {
-		HashMap<String, ItemStack> newStack = new HashMap<>();
-		ArrayList<String> newStackSlot;
-
-		public NewStackList() {
-			newStackSlot = new ArrayList<>();
-			for (int i = 0; i < 42; i++) {
-				newStackSlot.add(null);
-			}
-		}
-
-		public void addItem(String id, ItemStack stack, Integer slot) {
-			newStack.put(id, stack);
-			Integer oldslot = ammunitionSlots.getOrDefault(id, slot);
-			if (newStackSlot.get(oldslot) == null) {
-				newStackSlot.set(oldslot, id);
-				return;
-			}
-			while (newStackSlot.get(slot) != null) {
-				slot = slot + 1;
-				if (slot > 40)
-					slot = 0;
-			}
-			newStackSlot.set(slot, id);
-		}
-
-		public ItemStack getItemStack(Integer slot) {
-			String mat = newStackSlot.get(slot);
-			return getItemStack(mat);
-		}
-
-		public ItemStack getItemStack(String mat) {
-			return newStack.get(mat);
-		}
-
-		public void putAmunitionComponent(String ammunition, String key, Integer value) {
-			ItemStack stack = newStack.get(ammunition);
-			newStack.put(ammunition, UnitStatic.addAttribute(stack, key, value));
-		}
-	}
-
 	public void dressAmmunitions(Player player) {
 		PlayerInventory inv = player.getInventory();
-		UnitMaterial um;
-		um = UnitStatic.getUnit(this.configUnitId);
 
 		// создаю предметы амуниции
-		NewStackList newStack = new NewStackList();
-		for (String equip : EquipmentElement.allEquipments) {
-			Integer tir = compManager.getBaseComponentValue(equip);
-			String mat = um.getAmuntMatTir(equip, tir);
-			if (mat == null || mat == "")
-				continue;
-			newStack.addItem(equip, ItemManager.createItemStack(mat, 1), um.getSlot(equip));
+		HashMap<Equipments, ItemStack> newEquipments = new HashMap<>();
+		for (Equipments equip : Equipments.values()) {
+			String mid = equipments.get(equip);
+			if (mid == null || mid.isEmpty()) continue;
+			ItemStack is = ItemManager.createItemStack(mid, 1);
+			newEquipments.put(equip, is);
 		}
 
+		HashMap<String, Integer> newItems = new HashMap<>();
 		// проверяю все компоненты юнита
-		for (String key : compManager.getComponentsKey()) {
+		for (String key : totalComponents.keySet()) {
 			// Если это компонент предмет. Создаем его
 			UnitCustomMaterial ucmat = CustomMaterial.getUnitCustomMaterial(key);
 			if (ucmat != null) {
-				newStack.addItem(key, CustomMaterial.spawn(ucmat), ucmat.getSocketSlot());
+				newItems.put(ucmat.getConfigId(), ammunitionSlots.getOrDefault(ucmat.getConfigId(), ucmat.getSocketSlot()));
+				// CustomMaterial.spawn(ucmat)
 				continue;
 			}
 
 			// если это атрибут амуниции, добавляем его
 			ConfigUnitComponent cuc = UnitStatic.configUnitComponents.get(key);
 			if (cuc != null) {
-				newStack.putAmunitionComponent(cuc.ammunition, key, this.getComponent(key));
+				newEquipments.put(cuc.ammunition, UnitStatic.addAttribute(newEquipments.get(cuc.ammunition), key, getComponentValue(key)));
 				continue;
 			}
 
 			// если ничего не найдено
-			CivLog.warning("Компонент " + key + " у юнита id=" + this.getId()
-					+ " был удален, так как не найдена его обработка");
+			CivLog.warning("Компонент " + key + " у юнита id=" + this.getId() + " был удален, так как не найдена его обработка");
 		}
-		if (compManager.getLevelUp() > 0) {
-			newStack.addItem("u_choiceunitcomponent",
-					ItemManager.createItemStack("u_choiceunitcomponent", compManager.getLevelUp()), 7);
+		if (getLevelUp() > 0) {
+			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7)); // ItemManager.createItemStack("u_choiceunitcomponent", getLevelUp()
+		}
+
+		HashMap<Integer, ItemStack> newSlots = new HashMap<>();
+		for (Equipments equip : newEquipments.keySet()) {
+			newSlots.put(ammunitionSlots.getOrDefault(equipments.get(equip), equip.getSlot()), newEquipments.get(equip));
+		}
+
+		for (String mid : newItems.keySet()) {
+			Integer slot = newItems.get(mid);
+			if (newSlots.containsKey(slot)) {
+				while (newSlots.get(slot) != null) {
+					slot = slot + 1;
+					if (slot > 36) slot = 0;
+				}
+			}
+			newSlots.put(slot, ItemManager.createItemStack(mid, 1));
 		}
 
 		ArrayList<ItemStack> removes = new ArrayList<>(); // список предметов которые занимают нужные слоты
-		// ложу все предметы в слоты сохраненные в this.ammunitions или в стандартные из
-		// um.getSlot()
-		for (Integer slot = 0; slot <= 40; slot++) {
-			UnitStatic.putItemSlot(inv, newStack.getItemStack(slot), slot, removes);
+		// ложу все предметы в слоты сохраненные в this.ammunitions или в стандартные из um.getSlot()
+		for (Integer slot : newSlots.keySet()) {
+			UnitStatic.putItemSlot(inv, newSlots.get(slot), slot, removes);
 		}
 
 		// Try to re-add any removed items.
@@ -375,15 +406,5 @@ public class UnitObject extends SQLObject {
 	public void rebuildUnitItem(Player player) {
 		UnitStatic.removeChildrenItems(player);
 		this.dressAmmunitions(player);
-	}
-
-	public void printAllComponents(Player player) {
-		for (String key : this.compManager.getComponentsKey()) {
-			String ss = "компонент \"";
-			ss = CivColor.AddTabToString(ss, key, 10);
-			ss = ss + "\" имеет значение = ";
-			ss = CivColor.AddTabToString(ss, "" + this.getComponent(key), 2);
-			CivMessage.send(player, ss);
-		}
 	}
 }

@@ -92,24 +92,19 @@ public class CustomItemListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreakSpawnItems(BlockBreakEvent event) {
 		if (event.getBlock().getType().equals(Material.LAPIS_ORE)) {
-			if (event.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Enchantment.SILK_TOUCH)) 
-				return;
+			if (event.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Enchantment.SILK_TOUCH)) return;
 			event.setCancelled(true);
 			ItemManager.setTypeIdAndData(event.getBlock(), CivData.AIR, (byte) 0, true);
 
 			try {
 				Random rand = new Random();
 				int min = CivSettings.getInteger(CivSettings.craftableMaterialsConfig, "tungsten_min_drop");
-				int max = event.getPlayer().getInventory().getItemInMainHand()
-						.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS)
-								? CivSettings.getInteger(CivSettings.craftableMaterialsConfig,
-										"tungsten_max_drop_with_fortune")
-								: CivSettings.getInteger(CivSettings.craftableMaterialsConfig, "tungsten_max_drop");
+				int max = event.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS) ? CivSettings.getInteger(CivSettings.craftableMaterialsConfig, "tungsten_max_drop_with_fortune")
+						: CivSettings.getInteger(CivSettings.craftableMaterialsConfig, "tungsten_max_drop");
 
 				int randAmount = rand.nextInt(min + max);
 				randAmount -= min;
-				if (randAmount <= 0)
-					randAmount = 1;
+				if (randAmount <= 0) randAmount = 1;
 
 				for (int i = 0; i < randAmount; i++) {
 					ItemStack stack = CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_ore"));
@@ -126,11 +121,9 @@ public class CustomItemListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null || stack.getType().equals(Material.AIR))
-			return;
+		if (stack == null || stack.getType().equals(Material.AIR)) return;
 		CustomMaterial mat = CustomMaterial.getCustomMaterial(stack);
-		if (mat == null)
-			return;
+		if (mat == null) return;
 		mat.onBlockPlaced(event);
 	}
 
@@ -139,43 +132,33 @@ public class CustomItemListener implements Listener {
 		ItemStack stack = null;
 		if (event.getHand() == EquipmentSlot.OFF_HAND)
 			stack = event.getPlayer().getInventory().getItemInOffHand();
-		else
-			stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null)
-			return;
+		else stack = event.getPlayer().getInventory().getItemInMainHand();
+		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-		if (material != null)
-			material.onInteract(event);
+		if (material != null) material.onInteract(event);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onInteractEntity(PlayerInteractEntityEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null)
-			return;
+		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-		if (material != null)
-			material.onInteractEntity(event);
+		if (material != null) material.onInteractEntity(event);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onItemHeld(PlayerItemHeldEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null)
-			return;
+		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-		if (material != null)
-			material.onHold(event);
+		if (material != null) material.onHold(event);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void OnPlayerDropItem(PlayerDropItemEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		ItemStack stack = event.getItemDrop().getItemStack();
 
 		CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
@@ -185,15 +168,12 @@ public class CustomItemListener implements Listener {
 		}
 
 		String custom = isCustomDrop(stack);
-		if (custom != null)
-			event.setCancelled(true);
+		if (custom != null) event.setCancelled(true);
 	}
 
 	private static String isCustomDrop(ItemStack stack) {
-		if (stack == null || ItemManager.getTypeId(stack) != 166)
-			return null;
-		if (LoreGuiItem.isGUIItem(stack))
-			return null;
+		if (stack == null || ItemManager.getTypeId(stack) != 166) return null;
+		if (LoreGuiItem.isGUIItem(stack)) return null;
 		return stack.getItemMeta().getDisplayName();
 	}
 
@@ -202,18 +182,15 @@ public class CustomItemListener implements Listener {
 	public void OnCraftItemEvent(CraftItemEvent event) {
 		for (ItemStack stack : event.getInventory().getMatrix()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onCraftItem(event);
+			if (cmat != null) cmat.onCraftItem(event);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void OnPlayerItemPickup(EntityPickupItemEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		CustomMaterial cmat = CustomMaterial.getCustomMaterial(event.getItem().getItemStack());
-		if (cmat != null)
-			cmat.onPickupItem(event);
+		if (cmat != null) cmat.onPickupItem(event);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -268,10 +245,11 @@ public class CustomItemListener implements Listener {
 			LivingEntity shooter = (LivingEntity) ((Arrow) event.getDamager()).getShooter();
 
 			if (shooter instanceof Player) {
-				ItemStack inHand = ((Player) shooter).getInventory().getItemInMainHand();
+				ItemStack inHand = shooter.getEquipment().getItemInMainHand();
+				if (!CustomMaterial.getMID(inHand).contains("_bow")) inHand = shooter.getEquipment().getItemInOffHand();
+
 				CraftableCustomMaterial craftMat = CustomMaterial.getCraftableCustomMaterial(inHand);
-				if (craftMat != null)
-					craftMat.onRangedAttack(event, inHand);
+				if (craftMat != null) craftMat.onRangedAttack(event, inHand);
 			} else {
 				ArrowFiredCache afc = CivCache.arrowsFired.get(event.getDamager().getUniqueId());
 				if (afc != null) {
@@ -280,8 +258,7 @@ public class CustomItemListener implements Listener {
 					afc.destroy(event.getDamager());
 					if (defendingPlayer != null) {
 						Resident defenderResident = CivGlobal.getResident(defendingPlayer);
-						if (defenderResident != null && defenderResident.hasTown()
-								&& defenderResident.getTown().getCiv() == afc.getFromTower().getTown().getCiv()) {
+						if (defenderResident != null && defenderResident.hasTown() && defenderResident.getTown().getCiv() == afc.getFromTower().getTown().getCiv()) {
 							/* Prevent friendly fire from arrow towers. */
 							event.setCancelled(true);
 							return;
@@ -319,18 +296,14 @@ public class CustomItemListener implements Listener {
 			/* Search equipt items for defense event. */
 			for (ItemStack stack : defendingPlayer.getEquipment().getArmorContents()) {
 				CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-				if (cmat != null)
-					cmat.onDefense(event, stack);
+				if (cmat != null) cmat.onDefense(event, stack);
 			}
 			if (event.getDamager() instanceof LivingEntity) {
 				LivingEntity le = (LivingEntity) event.getDamager();
 				ItemStack chestplate = defendingPlayer.getEquipment().getChestplate();
 				AttributeUtil attrs = new AttributeUtil(chestplate);
 				if (attrs.hasEnhancement("LoreEnhancementThorns")) {
-					le.damage(
-							event.getDamage()
-									* Double.valueOf(attrs.getEnhancementData("LoreEnhancementThorns", "value")),
-							defendingPlayer);
+					le.damage(event.getDamage() * Double.valueOf(attrs.getEnhancementData("LoreEnhancementThorns", "value")), defendingPlayer);
 				}
 			}
 		}
@@ -357,14 +330,12 @@ public class CustomItemListener implements Listener {
 	public void OnInventoryClose(InventoryCloseEvent event) {
 		for (ItemStack stack : event.getInventory().getContents()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onInventoryClose(event);
+			if (cmat != null) cmat.onInventoryClose(event);
 		}
 
 		for (ItemStack stack : event.getPlayer().getInventory()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onInventoryClose(event);
+			if (cmat != null) cmat.onInventoryClose(event);
 		}
 	}
 
@@ -372,20 +343,17 @@ public class CustomItemListener implements Listener {
 	public void OnInventoryOpen(InventoryOpenEvent event) {
 		for (ItemStack stack : event.getInventory().getContents()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onInventoryOpen(event, stack);
+			if (cmat != null) cmat.onInventoryOpen(event, stack);
 		}
 
 		for (ItemStack stack : event.getPlayer().getInventory()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onInventoryOpen(event, stack);
+			if (cmat != null) cmat.onInventoryOpen(event, stack);
 		}
 
 		for (ItemStack stack : event.getPlayer().getInventory().getArmorContents()) {
 			CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
-			if (cmat != null)
-				cmat.onInventoryOpen(event, stack);
+			if (cmat != null) cmat.onInventoryOpen(event, stack);
 		}
 	}
 
@@ -521,8 +489,7 @@ public class CustomItemListener implements Listener {
 			String playerName;
 			ItemStack[] armorContents;
 
-			public SyncRestoreItemsTask(HashMap<Integer, ItemStack> restore, ItemStack[] armorContents,
-					String playerName) {
+			public SyncRestoreItemsTask(HashMap<Integer, ItemStack> restore, ItemStack[] armorContents, String playerName) {
 				this.restore = restore;
 				this.playerName = playerName;
 				this.armorContents = armorContents;
@@ -574,8 +541,7 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onItemPickup(EntityPickupItemEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			ItemStack oldStack = event.getItem().getItemStack();
@@ -591,14 +557,10 @@ public class CustomItemListener implements Listener {
 		}
 	}
 
-	/*
-	 * Called when we click on an object, used for conversion to fix up reverse
-	 * compat problems.
-	 */
+	/* Called when we click on an object, used for conversion to fix up reverse compat problems. */
 	public void convertLegacyItem(InventoryClickEvent event) {
 		ItemStack oldStack = event.getCurrentItem();
-		if ((oldStack == null) || (oldStack.getType() == Material.AIR))
-			return;
+		if ((oldStack == null) || (oldStack.getType() == Material.AIR)) return;
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(oldStack);
 		if (craftMat == null) {
 			ItemStack newStack = getConvertLegacyItem(oldStack);
@@ -632,16 +594,13 @@ public class CustomItemListener implements Listener {
 
 		boolean currentEmpty = (current == null) || (ItemManager.getTypeId(currentStack) == CivData.AIR);
 		boolean cursorEmpty = (cursor == null) || (ItemManager.getTypeId(cursorStack) == CivData.AIR);
-		if (currentEmpty && cursorEmpty)
-			return;
+		if (currentEmpty && cursorEmpty) return;
 		convertLegacyItem(event);
 
 		Inventory clickedInv = event.getClickedInventory();
 
-		if (!currentEmpty)
-			current.onInvItemPickup(event, clickedInv, currentStack);
-		if (!cursorEmpty)
-			cursor.onInvItemDrop(event, clickedInv, cursorStack);
+		if (!currentEmpty) current.onInvItemPickup(event, clickedInv, currentStack);
+		if (!cursorEmpty) cursor.onInvItemDrop(event, clickedInv, cursorStack);
 	}
 
 	private void onInventoryClickMove(InventoryClickEvent event) {
@@ -649,8 +608,7 @@ public class CustomItemListener implements Listener {
 		CustomMaterial first = CustomMaterial.getCustomMaterial(firstStack);
 
 		boolean firstEmpty = (first == null) || (ItemManager.getTypeId(firstStack) == CivData.AIR);
-		if (firstEmpty)
-			return;
+		if (firstEmpty) return;
 		convertLegacyItem(event);
 
 		InventoryView view = event.getView();
@@ -665,8 +623,7 @@ public class CustomItemListener implements Listener {
 			otherInv = view.getBottomInventory();
 		} else if (event.getRawSlot() == view.convertSlot(event.getRawSlot())) // Clicked in the top holder
 			otherInv = view.getBottomInventory();
-		else
-			otherInv = view.getTopInventory();
+		else otherInv = view.getTopInventory();
 
 		first.onInvItemPickup(event, clickedInv, firstStack);
 		first.onInvItemDrop(event, otherInv, firstStack);
@@ -681,8 +638,7 @@ public class CustomItemListener implements Listener {
 
 		boolean firstEmpty = (first == null) || (ItemManager.getTypeId(firstStack) == CivData.AIR);
 		boolean secondEmpty = (second == null) || (ItemManager.getTypeId(secondStack) == CivData.AIR);
-		if (firstEmpty && secondEmpty)
-			return;
+		if (firstEmpty && secondEmpty) return;
 		convertLegacyItem(event);
 
 		Inventory clickedInv = event.getClickedInventory();
@@ -702,8 +658,7 @@ public class CustomItemListener implements Listener {
 		ItemStack firstStack = event.getCurrentItem();
 		CustomMaterial first = CustomMaterial.getCustomMaterial(firstStack);
 		boolean firstEmpty = (first == null) || (ItemManager.getTypeId(firstStack) == CivData.AIR);
-		if (firstEmpty)
-			return;
+		if (firstEmpty) return;
 		convertLegacyItem(event);
 
 		Inventory clickedInv = event.getInventory();
@@ -713,8 +668,7 @@ public class CustomItemListener implements Listener {
 	/* Track the location of the goodie. */
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryClickEvent event) {
-		if (event.isCancelled())
-			return;
+		if (event.isCancelled()) return;
 		InventoryAction ia = event.getAction();
 		switch (ia) {
 		case NOTHING:
@@ -755,44 +709,36 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryDragEvent event) {
-		if (event.isCancelled())
-			return;
-//		Player player = (Player) event.getWhoClicked();
+		if (event.isCancelled()) return;
+		// Player player = (Player) event.getWhoClicked();
 		ItemStack firstStack = event.getOldCursor();
 		CustomMaterial first = CustomMaterial.getCustomMaterial(firstStack);
 		boolean firstEmpty = (first == null) || (ItemManager.getTypeId(firstStack) == CivData.AIR);
-		if (firstEmpty)
-			return;
+		if (firstEmpty) return;
 
 		InventoryView view = event.getView();
 
 		Inventory clickedInv = event.getInventory();
-//		Inventory otherInv = player.getInventory();
+		// Inventory otherInv = player.getInventory();
 		int ff = (int) event.getRawSlots().toArray()[0];
 		if (ff == view.convertSlot(ff)) // Clicked in the top holder
 			clickedInv = view.getTopInventory();
-		else
-			clickedInv = view.getBottomInventory();
+		else clickedInv = view.getBottomInventory();
 		// TODO Несколько перемещений
-		if (!firstEmpty)
-			first.onInvDrag(event, clickedInv, firstStack);
+		if (!firstEmpty) first.onInvDrag(event, clickedInv, firstStack);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
-		CraftableCustomMaterial craftMat = CraftableCustomMaterial
-				.getCraftableCustomMaterial(event.getPlayer().getInventory().getItemInMainHand());
-		if (craftMat == null)
-			return;
+		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(event.getPlayer().getInventory().getItemInMainHand());
+		if (craftMat == null) return;
 		craftMat.onPlayerInteractEntityEvent(event);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerLeashEvent(PlayerLeashEntityEvent event) {
-		CraftableCustomMaterial craftMat = CraftableCustomMaterial
-				.getCraftableCustomMaterial(event.getPlayer().getInventory().getItemInMainHand());
-		if (craftMat == null)
-			return;
+		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(event.getPlayer().getInventory().getItemInMainHand());
+		if (craftMat == null) return;
 		craftMat.onPlayerLeashEvent(event);
 	}
 
@@ -801,62 +747,46 @@ public class CustomItemListener implements Listener {
 		ItemStack stack = event.getItem();
 
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-		if (craftMat == null)
-			return;
+		if (craftMat == null) return;
 		craftMat.onItemDurabilityChange(event);
 	}
 
 	private static boolean isUnwantedVanillaItem(final ItemStack stack) {
-		if (stack == null)
-			return false;
+		if (stack == null) return false;
 		final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-		if (craftMat != null)
-			return false;
-		if (LoreGuiItem.isGUIItem(stack))
-			return false;
+		if (craftMat != null) return false;
+		if (LoreGuiItem.isGUIItem(stack)) return false;
 
 		if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK)) {
 			/* Check for badly enchanted tools */
-			if (stack.containsEnchantment(Enchantment.DAMAGE_ALL)
-					|| stack.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS)
-					|| stack.containsEnchantment(Enchantment.KNOCKBACK)
-					|| stack.containsEnchantment(Enchantment.DAMAGE_UNDEAD)
-					|| stack.containsEnchantment(Enchantment.DURABILITY)) {
-			} else if (stack.containsEnchantment(Enchantment.FIRE_ASPECT)
-					&& stack.getEnchantmentLevel(Enchantment.FIRE_ASPECT) > 2) {
-				// Remove any fire aspect above this amount
-			} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_MOBS)
-					&& stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS) > 1) {
-				// Only allow looting 1
-			} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS)
-					&& stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) > 1) {
-				// Only allow fortune 1
-			} else if (stack.containsEnchantment(Enchantment.DIG_SPEED)
-					&& stack.getEnchantmentLevel(Enchantment.DIG_SPEED) > 5) {
-				// only allow effiencey 5
-			} else {
-				/* Not in removed list, so allow it. */
-				return false;
-			}
+			if (stack.containsEnchantment(Enchantment.DAMAGE_ALL) || stack.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS) || stack.containsEnchantment(Enchantment.KNOCKBACK) || stack.containsEnchantment(Enchantment.DAMAGE_UNDEAD)
+					|| stack.containsEnchantment(Enchantment.DURABILITY)) {} else
+				if (stack.containsEnchantment(Enchantment.FIRE_ASPECT) && stack.getEnchantmentLevel(Enchantment.FIRE_ASPECT) > 2) {
+					// Remove any fire aspect above this amount
+				} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) && stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS) > 1) {
+					// Only allow looting 1
+				} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS) && stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) > 1) {
+					// Only allow fortune 1
+				} else if (stack.containsEnchantment(Enchantment.DIG_SPEED) && stack.getEnchantmentLevel(Enchantment.DIG_SPEED) > 5) {
+					// only allow effiencey 5
+				} else {
+					/* Not in removed list, so allow it. */
+					return false;
+				}
 		}
 		return true;
 	}
 
 	public static void removeUnwantedVanillaItems(Player player, Inventory inv) {
-		if (player.isOp())
-			return; /* Allow OP to carry vanilla stuff. */
+		if (player.isOp()) return; /* Allow OP to carry vanilla stuff. */
 		boolean sentMessage = false;
 
 		for (ItemStack stack : inv.getContents()) {
-			if (!isUnwantedVanillaItem(stack))
-				continue;
+			if (!isUnwantedVanillaItem(stack)) continue;
 			inv.remove(stack);
-			if (player != null)
-				CivLog.info("Removed vanilla item:" + stack + " from " + player.getName());
+			if (player != null) CivLog.info("Removed vanilla item:" + stack + " from " + player.getName());
 			if (!sentMessage) {
-				if (player != null)
-					CivMessage.send(player, CivColor.LightGray
-							+ CivSettings.localize.localizedString("customItem_restrictedItemsRemoved"));
+				if (player != null) CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("customItem_restrictedItemsRemoved"));
 				sentMessage = true;
 			}
 		}
@@ -867,93 +797,50 @@ public class CustomItemListener implements Listener {
 			boolean foundBad = false;
 			for (int i = 0; i < contents.length; i++) {
 				ItemStack stack = contents[i];
-				if (stack == null)
-					continue;
+				if (stack == null) continue;
 				CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-				if (craftMat != null)
-					continue; /* Assume we are good if we are custom. */
+				if (craftMat != null) continue; /* Assume we are good if we are custom. */
 
-				if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK))
-					continue; /* Not in removed list, so allow it. */
+				if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK)) continue; /* Not in removed list, so allow it. */
 
 				CivLog.info("Removed vanilla item:" + stack + " from " + player.getName() + " from armor.");
 				contents[i] = new ItemStack(Material.AIR);
 				foundBad = true;
 				if (!sentMessage) {
-					CivMessage.send(player, CivColor.LightGray
-							+ CivSettings.localize.localizedString("customItem_restrictedItemsRemoved"));
+					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("customItem_restrictedItemsRemoved"));
 					sentMessage = true;
 				}
 			}
-			if (foundBad)
-				player.getEquipment().setArmorContents(contents);
+			if (foundBad) player.getEquipment().setArmorContents(contents);
 		}
-		if (sentMessage)
-			if (player != null)
-				player.updateInventory();
+		if (sentMessage) if (player != null) player.updateInventory();
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnInventoryHold(PlayerItemHeldEvent event) {
 		ItemStack stack = event.getPlayer().getInventory().getItem(event.getNewSlot());
-		if (stack == null)
-			return;
+		if (stack == null) return;
 		CustomMaterial mat = CustomMaterial.getCustomMaterial(stack);
-		if (mat == null)
-			return;
+		if (mat == null) return;
 		mat.onHold(event);
 	}
 
-//	/* Prevent books from being inside an inventory. */
+	// /* Prevent books from being inside an inventory. */
 	/* Prevent vanilla gear from being used. */
-	/*
-	 * @EventHandler(priority = EventPriority.LOWEST) public void
-	 * OnInventoryOpenRemove(InventoryOpenEvent event) {
-	 * //CivLog.debug("open event."); if (event.getPlayer() instanceof Player) {
-	 * 
-	 * //for (ItemStack stack : event.getInventory()) { for (int i = 0; i <
-	 * event.getInventory().getSize(); i++) { ItemStack stack =
-	 * event.getInventory().getItem(i); //CivLog.debug("stack cleanup");
-	 * 
-	 * AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) {
-	 * event.getInventory().setItem(i, attrs.getStack()); } } } }
-	 */
+	/* @EventHandler(priority = EventPriority.LOWEST) public void OnInventoryOpenRemove(InventoryOpenEvent event) {
+	 * //CivLog.debug("open event."); if (event.getPlayer() instanceof Player) { //for (ItemStack stack : event.getInventory()) { for (int i =
+	 * 0; i < event.getInventory().getSize(); i++) { ItemStack stack = event.getInventory().getItem(i); //CivLog.debug("stack cleanup");
+	 * AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) { event.getInventory().setItem(i, attrs.getStack()); } } } } */
 
-	/*
-	 * @EventHandler(priority = EventPriority.LOW) public void
-	 * onPlayerLogin(PlayerLoginEvent event) {
-	 * 
-	 * class SyncTask implements Runnable { String playerName;
-	 * 
-	 * public SyncTask(String name) { playerName = name; }
-	 * 
-	 * @Override public void run() { try { Player player =
-	 * CivGlobal.getPlayer(playerName);
-	 * 
-	 * for (int i = 0; i < player.getInventory().getSize(); i++) { ItemStack stack =
-	 * player.getInventory().getItem(i);
-	 * 
-	 * AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) {
-	 * player.getInventory().setItem(i, attrs.getStack()); } }
-	 * 
-	 * ItemStack[] contents = new
-	 * ItemStack[player.getInventory().getArmorContents().length]; for (int i = 0; i
-	 * < player.getInventory().getArmorContents().length; i++) { ItemStack stack =
-	 * player.getInventory().getArmorContents()[i];
-	 * 
-	 * AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) { contents[i] =
-	 * attrs.getStack(); } else { contents[i] = stack; } }
-	 * 
-	 * player.getInventory().setArmorContents(contents);
-	 * 
-	 * } catch (CivException e) { return; }
-	 * 
-	 * } }
-	 * 
-	 * TaskMaster.syncTask(new SyncTask(event.getPlayer().getName()));
-	 * 
-	 * }
-	 */
+	/* @EventHandler(priority = EventPriority.LOW) public void onPlayerLogin(PlayerLoginEvent event) { class SyncTask implements Runnable {
+	 * String playerName; public SyncTask(String name) { playerName = name; }
+	 * @Override public void run() { try { Player player = CivGlobal.getPlayer(playerName); for (int i = 0; i < player.getInventory().getSize();
+	 * i++) { ItemStack stack = player.getInventory().getItem(i); AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) {
+	 * player.getInventory().setItem(i, attrs.getStack()); } } ItemStack[] contents = new
+	 * ItemStack[player.getInventory().getArmorContents().length]; for (int i = 0; i < player.getInventory().getArmorContents().length; i++) {
+	 * ItemStack stack = player.getInventory().getArmorContents()[i]; AttributeUtil attrs = ItemCleanup(stack); if (attrs != null) { contents[i]
+	 * = attrs.getStack(); } else { contents[i] = stack; } } player.getInventory().setArmorContents(contents); } catch (CivException e) {
+	 * return; } } } TaskMaster.syncTask(new SyncTask(event.getPlayer().getName())); } */
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void OnInventoryClickEvent(InventoryClickEvent event) {
@@ -962,11 +849,8 @@ public class CustomItemListener implements Listener {
 		}
 	}
 
-	/*
-	 * Checks a players inventory and inventories that are opened for items. -
-	 * Currently looks for old catalyst enhancements and marks them so they can be
-	 * refunded.
-	 */
+	/* Checks a players inventory and inventories that are opened for items. - Currently looks for old catalyst enhancements and marks them so
+	 * they can be refunded. */
 	public AttributeUtil ItemCleanup(ItemStack stack) {
 
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
@@ -978,48 +862,48 @@ public class CustomItemListener implements Listener {
 		if (!attrs.hasEnhancements()) {
 			return null;
 		}
-//		
-//		/* Found a legacy catalysts. Repair it. */
-//		ItemStack cleanItem = LoreCraftableMaterial.spawn(craftMat);
-//		AttributeUtil attrsClean = new AttributeUtil(cleanItem);
-//		
-//		double level = 0;
-//		for (LoreEnhancement enh : LoreCraftableMaterial.getLegacyEnhancements(stack)) {
-//			if (enh instanceof LoreEnhancementDefense) {
-//				level = Double.valueOf(attrs.getLegacyEnhancementData("LoreEnhancementDefense"));
-//				LoreCraftableMaterial compatCatalyst = getCompatibleCatalyst(craftMat);
-//				attrs.setCivCraftProperty("freeCatalyst", ""+level+":"+compatCatalyst.getId());
-//				attrs.removeLegacyEnhancement("LoreEnhancementDefense");
-//			} else if (enh instanceof LoreEnhancementAttack) {
-//				level = Double.valueOf(attrs.getLegacyEnhancementData("LoreEnhancementAttack"));
-//				LoreCraftableMaterial compatCatalyst = getCompatibleCatalyst(craftMat);
-//				attrs.setCivCraftProperty("freeCatalyst", ""+level+":"+compatCatalyst.getId());
-//				attrs.removeLegacyEnhancement("LoreEnhancementAttack");
-//			} 
-//		}
-//		
-//		attrs.setLore(attrsClean.getLore());
-//		attrs.setName(attrsClean.getName());
-//		attrs.add(Attribute.newBuilder().name("Attack").
-//				type(AttributeType.GENERIC_ATTACK_DAMAGE).
-//				amount(0).
-//				build());
-//		
-//		if (level != 0) {
-//			attrs.addLore(CivColor.LightBlue+level+" free enhancements! Redeem at blacksmith.");
-//			CivLog.cleanupLog("Converted stack:"+stack+" with enhancement level:"+level);
-//		
-//		}
-//		
-//		for (LoreEnhancement enh : LoreCraftableMaterial.getLegacyEnhancements(stack)) {
-//			if (enh instanceof LoreEnhancementSoulBound) {	
-//				LoreEnhancementSoulBound soulbound = (LoreEnhancementSoulBound)LoreEnhancement.enhancements.get("LoreEnhancementSoulBound");
-//				soulbound.add(attrs);
-//			}
-//		}
-//		
-//		
-//
+		//
+		// /* Found a legacy catalysts. Repair it. */
+		// ItemStack cleanItem = LoreCraftableMaterial.spawn(craftMat);
+		// AttributeUtil attrsClean = new AttributeUtil(cleanItem);
+		//
+		// double level = 0;
+		// for (LoreEnhancement enh : LoreCraftableMaterial.getLegacyEnhancements(stack)) {
+		// if (enh instanceof LoreEnhancementDefense) {
+		// level = Double.valueOf(attrs.getLegacyEnhancementData("LoreEnhancementDefense"));
+		// LoreCraftableMaterial compatCatalyst = getCompatibleCatalyst(craftMat);
+		// attrs.setCivCraftProperty("freeCatalyst", ""+level+":"+compatCatalyst.getId());
+		// attrs.removeLegacyEnhancement("LoreEnhancementDefense");
+		// } else if (enh instanceof LoreEnhancementAttack) {
+		// level = Double.valueOf(attrs.getLegacyEnhancementData("LoreEnhancementAttack"));
+		// LoreCraftableMaterial compatCatalyst = getCompatibleCatalyst(craftMat);
+		// attrs.setCivCraftProperty("freeCatalyst", ""+level+":"+compatCatalyst.getId());
+		// attrs.removeLegacyEnhancement("LoreEnhancementAttack");
+		// }
+		// }
+		//
+		// attrs.setLore(attrsClean.getLore());
+		// attrs.setName(attrsClean.getName());
+		// attrs.add(Attribute.newBuilder().name("Attack").
+		// type(AttributeType.GENERIC_ATTACK_DAMAGE).
+		// amount(0).
+		// build());
+		//
+		// if (level != 0) {
+		// attrs.addLore(CivColor.LightBlue+level+" free enhancements! Redeem at blacksmith.");
+		// CivLog.cleanupLog("Converted stack:"+stack+" with enhancement level:"+level);
+		//
+		// }
+		//
+		// for (LoreEnhancement enh : LoreCraftableMaterial.getLegacyEnhancements(stack)) {
+		// if (enh instanceof LoreEnhancementSoulBound) {
+		// LoreEnhancementSoulBound soulbound = (LoreEnhancementSoulBound)LoreEnhancement.enhancements.get("LoreEnhancementSoulBound");
+		// soulbound.add(attrs);
+		// }
+		// }
+		//
+		//
+		//
 		return attrs;
 	}
 

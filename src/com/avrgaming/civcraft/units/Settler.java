@@ -28,8 +28,6 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.units.EquipmentElement.Equipments;
-//import com.avrgaming.civcraft.units.EquipmentElement.Equipments;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -61,66 +59,8 @@ public class Settler extends UnitMaterial implements CallbackInterface {
 
 	@Override
 	public void initUnitObject(UnitObject uo) {
-		uo.setComponent("sword", 0);
-		uo.setComponent("u_foundtown", 1);
-	}
-	
-	@Override
-	public void initAmmunitions() {
-		EquipmentElement e = null;
-		//helmet
-		e = new EquipmentElement(39);
-		e.addMatTir("");
-		e.addMatTir("mat_leather_helmet");
-		e.addMatTir("mat_refined_leather_helmet");
-		e.addMatTir("mat_hardened_leather_helmet");
-		e.addMatTir("mat_composite_leather_helmet");
-		equipmentElemens.put(Equipments.HELMET, e);
-
-		//chestplate
-		e = new EquipmentElement(38);
-		e.addMatTir("");
-		e.addMatTir("mat_leather_chestplate");
-		e.addMatTir("mat_refined_leather_chestplate");
-		e.addMatTir("mat_hardened_leather_chestplate");
-		e.addMatTir("mat_composite_leather_chestplate");
-		equipmentElemens.put(Equipments.CHESTPLATE, e);
-
-		//leggings
-		e = new EquipmentElement(37);
-		e.addMatTir("");
-		e.addMatTir("mat_leather_leggings");
-		e.addMatTir("mat_refined_leather_leggings");
-		e.addMatTir("mat_hardened_leather_leggings");
-		e.addMatTir("mat_composite_leather_leggings");
-		equipmentElemens.put(Equipments.LEGGINGS, e);
-
-		//boots
-		e = new EquipmentElement(36);
-		e.addMatTir("");
-		e.addMatTir("mat_leather_boots");
-		e.addMatTir("mat_refined_leather_boots");
-		e.addMatTir("mat_hardened_leather_boots");
-		e.addMatTir("mat_composite_leather_boots");
-		equipmentElemens.put(Equipments.BOOTS, e);
-
-		//sword
-		e = new EquipmentElement(0);
-		e.addMatTir("mat_stone_sword");
-		e.addMatTir("mat_iron_sword");
-		e.addMatTir("mat_steel_sword");
-		e.addMatTir("mat_carbide_steel_sword");
-		e.addMatTir("mat_tungsten_sword");
-		equipmentElemens.put(Equipments.SWORD, e);
-
-		//two
-		e = new EquipmentElement(40);
-		e.addMatTir("");
-		e.addMatTir("");
-		e.addMatTir("");
-		e.addMatTir("");
-		e.addMatTir("");
-		equipmentElemens.put(Equipments.TWOHAND, e);
+		uo.setEquipment(Equipments.MAINHAND, "mat_stone_sword");
+		uo.addComponent("u_foundtown");
 	}
 	
 	public void onBuildTown(Player player, String townName) {

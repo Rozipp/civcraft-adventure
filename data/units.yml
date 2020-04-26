@@ -73,7 +73,7 @@ unit_components:
         - 'Увеличивает защиту'
   - id: 'swordattack'
     name: 'Урон меча'
-    ammunition: sword
+    ammunition: mainhand
     require_level: 0
     require_level_upgrade: 4
     max_upgrade: 30
@@ -83,7 +83,7 @@ unit_components:
         - 'Увеличивает атаку в ближнем бою'
   - id: 'bowattack'
     name: 'Урон Лука'
-    ammunition: two
+    ammunition: twohand
     require_level: 0
     require_level_upgrade: 4
     max_upgrade: 30
@@ -93,7 +93,7 @@ unit_components:
         - 'Увеличивает атаку в дальнем бою'
   - id: 'critical'
     name: 'Шанс критического удара'
-    ammunition: sword
+    ammunition: mainhand
     require_level: 0
     require_level_upgrade: 5
     max_upgrade: 30
@@ -204,7 +204,7 @@ unit_components:
 # --------------------------- меч ------------------------------
   - id: 'swordknockback'
     name: 'Отталкивание на меч'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
         - swordattack 20
     require_level: 80
@@ -215,7 +215,7 @@ unit_components:
         - 'заклининие Отдача I'
   - id: 'fireaspect'
     name: 'Горячий мечь'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
         - swordattack 20
     require_level: 0
@@ -226,7 +226,7 @@ unit_components:
         - 'заклининие Заговор огня I'
   - id: 'looting'
     name: 'Удача на мечь'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
         - swordattack 1
     require_level: 1
@@ -238,7 +238,7 @@ unit_components:
 # ------------------------------- лук -----------------------
   - id: 'bowknockback'
     name: 'Отбрасывание на лук'
-    ammunition: two
+    ammunition: twohand
     require_component:
         - bowattack 20
     require_level: 0
@@ -248,7 +248,7 @@ unit_components:
         - 'Накладает на лук заклининие Откидывание I' 
   - id: 'flame'
     name: 'Обжигание на лук'
-    ammunition: two
+    ammunition: twohand
     require_component:
         - bowattack 20
     require_level: 0
@@ -258,7 +258,7 @@ unit_components:
         - 'Накладает на лук заклининие Горящая стрела'
   - id: 'infinite'
     name: 'Бесконечные стрелы'
-    ammunition: two
+    ammunition: twohand
     require_component:
         - bowattack 20
     require_level: 0
@@ -387,7 +387,7 @@ units:
         - 'коварные миссии на територии вражеских цивилизаций'
         - 'Опыт получает за успешное выполнение миссий'
         - 'С повышение уровня открываються новые миссии.'
-    enable_components: 'maxheal,speed,protection,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
+    enable_components: 'maxheal,speed,protection,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
     
   - id: 'u_settler'
     name: "Поселенцы"
@@ -423,6 +423,7 @@ units:
         - 'владеет луком, может носить только кожанную броню.'
         - 'При увеличения уровня, лучник кроме особенных стрел'
         - 'может получить особенные пасивные способности'
+    equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword,mat_hunting_bow,mat_recurve_bow,mat_longbow,mat_marksmen_bow'
     enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
     
   - id: 'u_warrior'
@@ -441,5 +442,6 @@ units:
         - 'меча может носить только тяжелую броню и щиты.'
         - 'При увеличения уровня, увеличивает оборонительные'
         - 'способности и атаку'
+    equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword'
     enable_components: 'maxheal,speed,protection,swordattack,critical,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,swordknockback,fireaspect,looting'
    

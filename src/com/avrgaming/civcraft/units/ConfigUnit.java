@@ -8,6 +8,7 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ public class ConfigUnit {
 	public int item_id;
 	public int item_data;
 	public HashSet<String> enable_components = new HashSet<>();
+	public List<String> equipments = new ArrayList<String>();
 	public String[] lore;
 
 	public static void loadConfig(FileConfiguration cfg, Map<String, ConfigUnit> units) {
@@ -67,6 +69,13 @@ public class ConfigUnit {
 				for (String s : split)
 					unit.enable_components.add(s);
 			}
+
+			String equipments = (String) b.get("equipments");
+			if (equipments != null) {
+				for (String s : equipments.split(",")) {
+					unit.equipments.add(s.trim());
+				}
+			}
 			units.put(unit.id, unit);
 		}
 
@@ -79,6 +88,7 @@ public class ConfigUnit {
 		CivLog.info("Loaded " + units.size() + " units.");
 		ConfigUnit.loadConfigexpEntity(cfg, UnitStatic.expEntity);
 		ConfigUnitComponent.loadConfig(cfg, UnitStatic.configUnitComponents);
+
 	}
 
 	public static void loadConfigexpEntity(FileConfiguration cfg, HashMap<String, Integer> expEntity) {

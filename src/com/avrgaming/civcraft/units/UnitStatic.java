@@ -78,8 +78,7 @@ public class UnitStatic {
 				Constructor cntr = cls.getConstructor(partypes);
 				Object arglist[] = { cu.id, cu };
 				cntr.newInstance(arglist);
-			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
-					| IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				CivLog.error("-----Class '" + name + "' creation error-----");
 				e.printStackTrace();
 			}
@@ -88,8 +87,7 @@ public class UnitStatic {
 
 	public static void spawn(Inventory inv, Town town, String configUnitId) throws CivException {
 		UnitMaterial um = UnitStatic.getUnit(configUnitId);
-		if (um == null)
-			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("barracks_errorUnknown"));
+		if (um == null) throw new CivException(CivColor.Red + CivSettings.localize.localizedString("barracks_errorUnknown"));
 		ItemStack is = CustomMaterial.spawn(um);
 
 		UnitObject uo = new UnitObject(configUnitId, town);
@@ -99,18 +97,16 @@ public class UnitStatic {
 		is = initLoreStatic(is, uo);
 
 		int slot = inv.firstEmpty();
-		if (slot == -1)
-			throw new CivException(
-					CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
+		if (slot == -1) throw new CivException(CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
 		inv.setItem(slot, is);
 	}
 
 	public static void respawn(Player player) throws CivException {
 		Resident res = CivGlobal.getResident(player);
-//		int uId = res.getUnitObjectId();
-//		CivLog.debug("res.getUnitObjectId() = " + uId);
-//		if (uId == -1)
-//			throw new CivException("У это игрока не было юнита");
+		// int uId = res.getUnitObjectId();
+		// CivLog.debug("res.getUnitObjectId() = " + uId);
+		// if (uId == -1)
+		// throw new CivException("У это игрока не было юнита");
 
 		UnitObject uo = null;
 		for (UnitObject uot : CivGlobal.getUnitObjects())
@@ -119,9 +115,9 @@ public class UnitStatic {
 				break;
 			}
 
-//		if (uo.getLastResident() != res)
-//			throw new CivException(
-//					"Последний юнит игрока " + res.getName() + " принадлежит игроку " + uo.getLastResident().getName());
+		// if (uo.getLastResident() != res)
+		// throw new CivException(
+		// "Последний юнит игрока " + res.getName() + " принадлежит игроку " + uo.getLastResident().getName());
 
 		UnitMaterial um = UnitStatic.getUnit(uo.getConfigUnitId());
 		ItemStack is = CustomMaterial.spawn(um);
@@ -130,9 +126,7 @@ public class UnitStatic {
 
 		Inventory inv = player.getInventory();
 		int slot = inv.firstEmpty();
-		if (slot == -1)
-			throw new CivException(
-					CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
+		if (slot == -1) throw new CivException(CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
 		inv.setItem(slot, is);
 	}
 
@@ -149,7 +143,7 @@ public class UnitStatic {
 			attrs.addLore(CivColor.Gold + ench.getDisplayName());
 		}
 		attrs.addEnhancement("LoreEnhancementSoulBound", null, null);
-		attrs.addLore(CivColor.Rose + "Опыт: " + CivColor.YellowBold + uo.getExp() + "/" + uo.getTotalExpToNextLevel());
+		attrs.addLore(CivColor.Rose + "Опыт: " + CivColor.YellowBold + uo.getExp() + "/" + uo.getTotalExpToLevel(level + 1));
 
 		UnitStatic.getUnit(uo.getConfigUnit().id).initLore(attrs, uo);
 		is = attrs.getStack();
@@ -157,8 +151,7 @@ public class UnitStatic {
 	}
 
 	public static void putItemSlot(PlayerInventory inv, ItemStack newStack, int slot, ArrayList<ItemStack> removes) {
-		if (newStack == null)
-			return;
+		if (newStack == null) return;
 
 		AttributeUtil attrs = new AttributeUtil(newStack);
 		attrs.addEnhancement("LoreEnhancementUnitItem", null, null);
@@ -166,15 +159,13 @@ public class UnitStatic {
 		newStack = attrs.getStack();
 
 		ItemStack stack = inv.getItem(slot);
-		if (stack != null)
-			removes.add(stack);
+		if (stack != null) removes.add(stack);
 
 		inv.setItem(slot, newStack);
 	}
 
 	public static ItemStack addAttribute(ItemStack stack, String name, Integer value) {
-		if (stack == null)
-			return null;
+		if (stack == null) return null;
 		AttributeUtil attrs;
 		switch (name.toLowerCase()) {
 		// ================= Helmet
@@ -187,8 +178,7 @@ public class UnitStatic {
 		// ================= Chestplate
 		case "maxheal":
 			attrs = new AttributeUtil(stack);
-			attrs.add(Attribute.newBuilder().name("maxheal").type(AttributeType.GENERIC_MAX_HEALTH).amount(value)
-					.build());
+			attrs.add(Attribute.newBuilder().name("maxheal").type(AttributeType.GENERIC_MAX_HEALTH).amount(value).build());
 			attrs.addLore(CivColor.Blue + "+" + value + " MaxHeal");
 			stack = attrs.getStack();
 			break;
@@ -218,7 +208,7 @@ public class UnitStatic {
 			stack.addEnchantment(Enchantment.DEPTH_STRIDER, value);
 			break;
 		case "againstfall":
-//				stack.addEnchantment(Enchantment.PROTECTION_FALL, value);
+			// stack.addEnchantment(Enchantment.PROTECTION_FALL, value);
 			break;
 		case "frostwalker":
 			stack.addEnchantment(Enchantment.FROST_WALKER, value);
@@ -277,14 +267,12 @@ public class UnitStatic {
 	}
 
 	/**
-	 * Находит юнита в инвентаре. Обновляет его лоре. Обновляет уровень и опыт
-	 * игрока.
+	 * Находит юнита в инвентаре. Обновляет его лоре. Обновляет уровень и опыт игрока.
 	 */
 	public static void updateUnitForPlaeyr(Player player) {
 		Inventory inv = player.getInventory();
 		Resident resident = CivGlobal.getResident(player);
-		if (resident == null)
-			return;
+		if (resident == null) return;
 		int unitId = resident.getUnitObjectId();
 		if (unitId > 0) {
 			UnitObject uo = CivGlobal.getUnitObject(unitId);
@@ -306,10 +294,9 @@ public class UnitStatic {
 					inv.remove(isother);
 					inv.setItem(UnitMaterial.LAST_SLOT, is);
 					inv.addItem(isother);
-				} else
-					inv.setItem(UnitMaterial.LAST_SLOT, is);
+				} else inv.setItem(UnitMaterial.LAST_SLOT, is);
 			}
-			player.setExp(uo.getFloatExp());
+			player.setExp(uo.getPercentExpToNextLevel());
 			player.setLevel(uo.getLevel());
 		} else {
 			player.setExp(0);
@@ -321,10 +308,8 @@ public class UnitStatic {
 	public static void addExpToPlayer(Player player, int exp) {
 		Resident res = CivGlobal.getResident(player);
 		UnitObject uo = CivGlobal.getUnitObject(res.getUnitObjectId());
-		if (uo == null)
-			return;
-		CivMessage.send(player, CivColor.LightGray + "   " + "Ваш " + CivColor.PurpleBold + uo.getName()
-				+ CivColor.LightGray + " получил " + CivColor.Yellow + exp + CivColor.LightGray + " единиц опыта");
+		if (uo == null) return;
+		CivMessage.send(player, CivColor.LightGray + "   " + "Ваш " + CivColor.PurpleBold + uo.getName() + CivColor.LightGray + " получил " + CivColor.Yellow + exp + CivColor.LightGray + " единиц опыта");
 		uo.addExp(exp);
 		UnitStatic.updateUnitForPlaeyr(player);
 	}
@@ -341,10 +326,8 @@ public class UnitStatic {
 	/** Добавляет в NBTTag информацию value под ключом "unit_id" */
 	public static ItemStack setUnitIdNBTTag(ItemStack stack, int value) {
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
-		if (nmsStack == null)
-			return stack;
-		if (nmsStack.getTag() == null)
-			nmsStack.setTag(new NBTTagCompound());
+		if (nmsStack == null) return stack;
+		if (nmsStack.getTag() == null) nmsStack.setTag(new NBTTagCompound());
 		nmsStack.getTag().set("unit_id", new NBTTagInt(value));
 		return CraftItemStack.asCraftMirror(nmsStack);
 	}
@@ -368,8 +351,7 @@ public class UnitStatic {
 		ItemStack st = player.getInventory().getItem(UnitMaterial.LAST_SLOT);
 		if (st != null) {
 			final CustomMaterial material = CustomMaterial.getCustomMaterial(st);
-			if (material != null && material instanceof UnitMaterial)
-				return st;
+			if (material != null && material instanceof UnitMaterial) return st;
 		}
 		List<Integer> items = findAllUnits(player.getInventory());
 		return (items.size() > 0) ? player.getInventory().getItem(items.get(0)) : null;
@@ -381,8 +363,7 @@ public class UnitStatic {
 		for (final ItemStack stack : inv.getContents()) {
 			if (stack != null) {
 				final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-				if (material != null && material instanceof UnitMaterial)
-					items.add(inv.first(stack));
+				if (material != null && material instanceof UnitMaterial) items.add(inv.first(stack));
 			}
 		}
 		return items;
@@ -390,21 +371,17 @@ public class UnitStatic {
 
 	/** Удаляет все предмети юнита из инвентаря */
 	public static void removeChildrenItems(Player player) {
-		if (player == null)
-			return;
+		if (player == null) return;
 		Resident res = CivGlobal.getResident(player);
 		int unitId = res.getUnitObjectId();
-		if (unitId <= 0)
-			unitId = UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player));
+		if (unitId <= 0) unitId = UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player));
 		UnitObject uo = CivGlobal.getUnitObject(unitId);
 		for (int i = 0; i <= 40; i++) {
 			ItemStack stack = player.getInventory().getItem(i);
-			if (stack == null)
-				continue;
+			if (stack == null) continue;
 			if (CustomMaterial.hasEnhancement(stack, "LoreEnhancementUnitItem")) {
 				String mid = CustomMaterial.getMID(stack);
-				if (uo != null)
-					uo.setAmunitionSlot(mid, i);
+				if (uo != null) uo.setAmunitionSlot(mid, i);
 				player.getInventory().setItem(i, null);
 			}
 		}
@@ -417,8 +394,7 @@ public class UnitStatic {
 		ItemStack stack = findUnit(player);
 		if (stack != null) {
 			final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-			if (material != null && material instanceof UnitMaterial
-					&& ((UnitMaterial) material).getConfigUnit().id.equalsIgnoreCase(id)) {
+			if (material != null && material instanceof UnitMaterial && ((UnitMaterial) material).getConfigUnit().id.equalsIgnoreCase(id)) {
 				player.getInventory().remove(stack);
 			}
 			player.updateInventory();
@@ -455,14 +431,13 @@ public class UnitStatic {
 		/* Change move speed based on armor. */
 		ItemStack[] stacks = player.getInventory().getArmorContents();
 		for (ItemStack is : stacks) {
-			if (is == null)
-				continue;
+			if (is == null) continue;
 			AttributeUtil attrs = new AttributeUtil(is);
 			if (attrs.hasEnhancement("LoreEnhancementJumping")) {
 				Double level = Double.valueOf(attrs.getEnhancementData("LoreEnhancementJumping", "level"));
 				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999 * 20, level.intValue()));
 				return;
-//				Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
+				// Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
 			}
 		}
 		player.removePotionEffect(PotionEffectType.JUMP);
@@ -488,57 +463,41 @@ public class UnitStatic {
 		ItemStack[] armorContents = player.getInventory().getArmorContents();
 		int length = armorContents.length;
 		for (int i = 0; i < length; ++i) {
-			final CraftableCustomMaterial craftMat = CraftableCustomMaterial
-					.getCraftableCustomMaterial(armorContents[i]);
-			if (craftMat == null)
-				return false;
-			if (!craftMat.getConfigId().contains(ss))
-				return false;
+			final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(armorContents[i]);
+			if (craftMat == null) return false;
+			if (!craftMat.getConfigId().contains(ss)) return false;
 		}
 		return true;
 	}
 
 	public static boolean isWearingAnyMetal(final Player player) {
 		for (ItemStack is : player.getInventory().getArmorContents()) {
-			if (is == null)
-				continue;
-			if (isWearingAnyChain(is.getType()))
-				return true;
-			if (isWearingAnyDiamond(is.getType()))
-				return true;
-			if (isWearingAnyGold(is.getType()))
-				return true;
-			if (isWearingAnyIron(is.getType()))
-				return true;
+			if (is == null) continue;
+			if (isWearingAnyChain(is.getType())) return true;
+			if (isWearingAnyDiamond(is.getType())) return true;
+			if (isWearingAnyGold(is.getType())) return true;
+			if (isWearingAnyIron(is.getType())) return true;
 		}
 		return false;
 	}
 
 	public static boolean isWearingAnyChain(Material mat) {
-		if (mat == null)
-			return false;
-		return mat.equals(Material.CHAINMAIL_BOOTS) || mat.equals(Material.CHAINMAIL_CHESTPLATE)
-				|| mat.equals(Material.CHAINMAIL_HELMET) || mat.equals(Material.CHAINMAIL_LEGGINGS);
+		if (mat == null) return false;
+		return mat.equals(Material.CHAINMAIL_BOOTS) || mat.equals(Material.CHAINMAIL_CHESTPLATE) || mat.equals(Material.CHAINMAIL_HELMET) || mat.equals(Material.CHAINMAIL_LEGGINGS);
 	}
 
 	public static boolean isWearingAnyGold(Material mat) {
-		if (mat == null)
-			return false;
-		return mat.equals(Material.GOLD_BOOTS) || mat.equals(Material.GOLD_CHESTPLATE)
-				|| mat.equals(Material.GOLD_HELMET) || mat.equals(Material.GOLD_LEGGINGS);
+		if (mat == null) return false;
+		return mat.equals(Material.GOLD_BOOTS) || mat.equals(Material.GOLD_CHESTPLATE) || mat.equals(Material.GOLD_HELMET) || mat.equals(Material.GOLD_LEGGINGS);
 	}
 
 	public static boolean isWearingAnyIron(Material mat) {
-		if (mat == null)
-			return false;
-		return mat.equals(Material.IRON_BOOTS) || mat.equals(Material.IRON_CHESTPLATE)
-				|| mat.equals(Material.IRON_HELMET) || mat.equals(Material.IRON_LEGGINGS);
+		if (mat == null) return false;
+		return mat.equals(Material.IRON_BOOTS) || mat.equals(Material.IRON_CHESTPLATE) || mat.equals(Material.IRON_HELMET) || mat.equals(Material.IRON_LEGGINGS);
 	}
 
 	public static boolean isWearingAnyDiamond(Material mat) {
-		if (mat == null)
-			return false;
-		return mat.equals(Material.DIAMOND_BOOTS) || mat.equals(Material.DIAMOND_CHESTPLATE)
-				|| mat.equals(Material.DIAMOND_HELMET) || mat.equals(Material.DIAMOND_LEGGINGS);
+		if (mat == null) return false;
+		return mat.equals(Material.DIAMOND_BOOTS) || mat.equals(Material.DIAMOND_CHESTPLATE) || mat.equals(Material.DIAMOND_HELMET) || mat.equals(Material.DIAMOND_LEGGINGS);
 	}
 }
