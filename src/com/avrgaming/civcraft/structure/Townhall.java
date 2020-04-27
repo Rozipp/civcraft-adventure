@@ -186,8 +186,6 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 
 					break;
 			}
-
-			this.onPostBuild(absCoord, sb);
 		}
 		(new UpdateTechBar(this.getCiv())).run();
 	}

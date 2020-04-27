@@ -174,7 +174,7 @@ public class Shipyard extends WaterStructure {
     }
 
     @Override
-    public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+    public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock commandBlock) {
         switch (commandBlock.command) {
             case "/next": {
                 ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());

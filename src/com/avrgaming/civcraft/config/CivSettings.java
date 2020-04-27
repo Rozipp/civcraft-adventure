@@ -477,6 +477,7 @@ public class CivSettings {
 	}
 
 	private static void loadConfigObjects() throws InvalidConfiguration {
+		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 		ConfigTownLevel.loadConfig(townConfig, townLevels);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
 		ConfigCultureLevel.loadConfig(cultureConfig, cultureLevels);
@@ -520,7 +521,6 @@ public class CivSettings {
 		CraftableCustomMaterial.buildRecipes();
 		ConfigUnit.loadConfig(unitConfig, UnitStatic.configUnits);
 		UnitCustomMaterial.buildStaticMaterials();
-		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 
 		ConfigRandomEvent.loadConfig(randomEventsConfig, randomEvents, randomEventIDs);
 		ConfigEndCondition.loadConfig(civConfig, endConditions);

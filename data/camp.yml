@@ -101,14 +101,14 @@ upgrades:
       name: 'Каменоломня 1-го уровня'
       cost: 500.0
       annex: 'trommel'
-      transmuter_recipe: 'trommel1'
+      transmuter_recipe: 'trommel_camp'
       level: 1
       require_upgrade:
     - id: 'v_up_trommel2'
       name: 'Каменоломня 2-го уровня'
       cost: 5000.0
       annex: 'trommel'
-      transmuter_recipe: 'trommel1'
+      transmuter_recipe: 'trommel_camp'
       level: 2
       require_upgrade: 'v_up_trommel1'
 

@@ -63,14 +63,7 @@ public class ConfigCampUpgrade {
 	}
 
 	public void processAction(Camp camp) {
-
-		if (this.annex == null) {
-			CivLog.warning("No annex found for upgrade:" + this.id);
-			return;
-		}
 		CivMessage.sendCamp(camp, CivSettings.localize.localizedString("camp_upgrade_" + annex + level));
-//			default :
-//				CivLog.warning(CivSettings.localize.localizedString("var_camp_upgrade_unknown", annex, id));
 	}
 
 }

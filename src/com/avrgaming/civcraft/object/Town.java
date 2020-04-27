@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -403,13 +404,11 @@ public class Town extends SQLObject {
 		}
 		this.cultureChunks = null;
 
-		// TODO remove protected blocks?
-
 		/* Remove any related SessionDB entries */
 		CivGlobal.getSessionDatabase().deleteAllForTown(this);
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
 		CivGlobal.removeTown(this);
+		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	public Town(String name, Civilization civ) throws InvalidNameException {
@@ -1872,7 +1871,6 @@ public class Town extends SQLObject {
 	}
 
 	public void addStructure(Structure struct) {
-		CivLog.debug("addStructure " + struct.getDisplayName());
 		this.structures.put(struct.getCorner(), struct);
 
 		if (!isStructureAddable(struct)) {
@@ -1901,6 +1899,16 @@ public class Town extends SQLObject {
 			}
 		}
 		return null;
+	}
+	
+	public List<Structure> getStructuresByType(String id) {
+		List<Structure> res = new LinkedList<>();
+		for (Structure struct : this.structures.values()) {
+			if (struct.getConfigId().equalsIgnoreCase(id)) {
+				res.add(struct);
+			}
+		}
+		return res;
 	}
 
 	public void loadUpgrades() throws CivException {

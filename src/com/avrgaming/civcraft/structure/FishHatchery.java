@@ -29,12 +29,10 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
-import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
-import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class FishHatchery extends Structure {
 	public static final int MAX_CHANCE = CivSettings.getIntegerStructure("fishery.tierMax");
@@ -83,7 +81,7 @@ public class FishHatchery extends Structure {
 	}
 
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+	public void onPostBuild() {
 		this.level = getTown().saved_fish_hatchery_level;
 		this.setBiome(this.getCorner().getBlock().getBiome());
 	}

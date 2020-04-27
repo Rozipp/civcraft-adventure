@@ -50,7 +50,6 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.global.perks.Perk;
 import com.wimbli.WorldBorder.BorderData;
@@ -484,9 +483,6 @@ public abstract class Buildable extends Construct {
 	public abstract void updateBuildProgess();
 
 	public abstract void onComplete();
-
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
-	}
 
 	public void onTechUpdate() {
 	}

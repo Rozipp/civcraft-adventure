@@ -283,7 +283,7 @@ public class Barracks extends Structure {
 	}
 
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock sb) {
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		ConstructSign structSign;
 
 		switch (sb.command) {

@@ -210,7 +210,7 @@ public class SpaceShuttle extends Wonder {
 	}
 
 	@Override
-	public void onPostBuild(final BlockCoord absCoord, final SimpleBlock commandBlock) {
+	public void commandBlockRelatives(final BlockCoord absCoord, final SimpleBlock commandBlock) {
 		if (commandBlock.command.equals("/runMission")) {
 			ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
 			ItemManager.setData(absCoord.getBlock(), commandBlock.getData());

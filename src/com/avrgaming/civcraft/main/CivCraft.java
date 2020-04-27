@@ -221,7 +221,9 @@ public final class CivCraft extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
+		TaskMaster.stopAll();
+		
 		MobStatic.despawnAll();
 	}
 

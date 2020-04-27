@@ -8,8 +8,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class StockExchange
 extends Wonder {
@@ -48,7 +46,7 @@ extends Wonder {
     }
 
     @Override
-    public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+    public void onPostBuild() {
         this.level = this.getTown().saved_stock_exchange_level;
     }
 }

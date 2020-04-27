@@ -39,8 +39,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Structure extends Buildable {
-	private int level = 1;
-
 	public static String TABLE_NAME = "STRUCTURES";
 
 	public Structure(Location center, String id, Town town) throws CivException {
@@ -215,8 +213,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public void delete() throws SQLException {
-		super.delete();
-
 		if (this.getTown() != null) {
 			try {
 				this.undoFromTemplate();
@@ -227,18 +223,15 @@ public class Structure extends Buildable {
 
 			CivGlobal.removeStructure(this);
 			this.getTown().removeStructure(this);
-			this.unbindConstructBlocks();
 		}
-		this.setEnabled(false);
+		super.delete();
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	public void deleteSkipUndo() throws SQLException {
-		super.delete();
 		CivGlobal.removeStructure(this);
 		this.getTown().removeStructure(this);
-		this.unbindConstructBlocks();
-		this.setEnabled(false);
+		super.delete();
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
@@ -388,8 +381,4 @@ public class Structure extends Buildable {
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		/* Override in children */
 	}
-
-	
-
-	
 }

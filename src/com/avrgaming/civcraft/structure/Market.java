@@ -226,7 +226,7 @@ public class Market extends Structure {
 	}
 	
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock commandBlock) {
 		Integer id;
 		ConfigMarketItem item;
 		switch (commandBlock.command.toLowerCase().trim()) {

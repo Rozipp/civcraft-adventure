@@ -91,6 +91,7 @@ public class Camp extends Construct {
 	public HashSet<BlockCoord> fireFurnaceBlocks = new HashSet<BlockCoord>();
 
 	/* Transmuter */
+	List<Transmuter> trasmuters = new LinkedList<Transmuter>();
 	/** уровни пристроек в селе */
 	private HashMap<String, Integer> annexLevel = new HashMap<>();
 
@@ -193,12 +194,7 @@ public class Camp extends Construct {
 			}
 			this.upgrades.put(id, upgrade);
 			if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
-			if (upgrade.transmuter_recipe != null) {
-				for (String s : upgrade.transmuter_recipe) {
-					this.transmuterLocks.put(s, new ReentrantLock());
-				}
-			}
-			// upgrade.processAction(this);
+			upgrade.processAction(this);
 		}
 	}
 
@@ -402,7 +398,9 @@ public class Camp extends Construct {
 
 		double highestAverageBlock = (double) yTotal / (double) yCount;
 
-		if (((block.getY() > (highestAverageBlock + 10)) || (block.getY() < (highestAverageBlock - 10)))) { throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground")); }
+		if (((block.getY() > (highestAverageBlock + 10)) || (block.getY() < (highestAverageBlock - 10)))) {
+			throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
+		}
 
 	}
 
@@ -475,8 +473,7 @@ public class Camp extends Construct {
 
 					structSign.setDirection(ItemManager.getData(absCoord.getBlock().getState()));
 					structSign.setOwner(this);
-					structSign.setText(new String[] {
-							"Сад виключен", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
+					structSign.setText(new String[] { "Сад виключен", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
 					structSign.setAction("gardenupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
@@ -563,8 +560,7 @@ public class Camp extends Construct {
 					ItemManager.setTypeIdAndData(absCoord.getBlock(), sb.getType(), sb.getData(), true);
 					structSign.setDirection(ItemManager.getData(absCoord.getBlock().getState()));
 					structSign.setOwner(this);
-					structSign.setText(new String[] {
-							"Дробилка виключена", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
+					structSign.setText(new String[] { "Дробилка виключена", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
 					structSign.setAction("trommelupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
@@ -606,8 +602,7 @@ public class Camp extends Construct {
 					ItemManager.setTypeIdAndData(absCoord.getBlock(), sb.getType(), sb.getData(), true);
 					structSign.setDirection(ItemManager.getData(absCoord.getBlock().getState()));
 					structSign.setOwner(this);
-					structSign.setText(new String[] {
-							"Большой дом виключен", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
+					structSign.setText(new String[] { "Большой дом виключен", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
 					structSign.setAction("longhouseupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
@@ -807,7 +802,9 @@ public class Camp extends Construct {
 		} else CivMessage.sendCamp(this, "§e" + CivSettings.localize.localizedString("var_camp_campfireDown", this.firepoints));
 
 		final double percentLeft = this.firepoints / (double) Camp.maxFirePoints;
-		if (percentLeft < 0.3) { CivMessage.sendCamp(this, "§e" + ChatColor.BOLD + CivSettings.localize.localizedString("camp_campfire30percent")); }
+		if (percentLeft < 0.3) {
+			CivMessage.sendCamp(this, "§e" + ChatColor.BOLD + CivSettings.localize.localizedString("camp_campfire30percent"));
+		}
 		if (this.firepoints < 0) this.destroy();
 
 		this.save();
@@ -1152,12 +1149,6 @@ public class Camp extends Construct {
 		}
 	}
 
-	public void onSecondUpdate() {
-		for (String ctrId : this.transmuterLocks.keySet()) {
-			if (!this.transmuterLocks.get(ctrId).isLocked()) TaskMaster.asyncTask("camp-" + this.getCorner() + ";tr-" + ctrId, new TransmuterAsyncTask(this, CivSettings.transmuterRecipes.get(ctrId)), 0);
-		}
-	}
-
 	public void setNextRaidDate(Date next) {
 		this.nextRaidDate = next;
 		this.save();
@@ -1167,7 +1158,9 @@ public class Camp extends Construct {
 		Date raidEnd = new Date(this.nextRaidDate.getTime());
 		raidEnd.setTime(this.nextRaidDate.getTime() + (long) (3600000 * Camp.raidLength));
 		Date now = new Date();
-		if (now.getTime() > raidEnd.getTime()) { this.nextRaidDate.setTime(this.nextRaidDate.getTime() + 86400000L); }
+		if (now.getTime() > raidEnd.getTime()) {
+			this.nextRaidDate.setTime(this.nextRaidDate.getTime() + 86400000L);
+		}
 
 		return this.nextRaidDate;
 	}
@@ -1182,14 +1175,12 @@ public class Camp extends Construct {
 
 	public void purchaseUpgrade(ConfigCampUpgrade upgrade) throws CivException {
 		Resident owner = this.getOwnerResident();
-		if (!owner.getTreasury().hasEnough(upgrade.cost)) { throw new CivException(CivSettings.localize.localizedString("var_camp_ownerMissingCost", upgrade.cost, CivSettings.CURRENCY_NAME)); }
+		if (!owner.getTreasury().hasEnough(upgrade.cost)) {
+			throw new CivException(CivSettings.localize.localizedString("var_camp_ownerMissingCost", upgrade.cost, CivSettings.CURRENCY_NAME));
+		}
 
 		this.upgrades.put(upgrade.id, upgrade);
 		if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
-		if (upgrade.transmuter_recipe != null) {
-			for (String s : upgrade.transmuter_recipe)
-				this.transmuterLocks.put(s, new ReentrantLock());
-		}
 		upgrade.processAction(this);
 		this.processCommandSigns();
 		this.updateFirepit();
@@ -1202,4 +1193,19 @@ public class Camp extends Construct {
 		CivMessage.send(player, "TODO Нужно чтото написать");
 	}
 
+	@Override
+	public void onPostBuild() {
+		for (Transmuter tr : trasmuters) {
+			tr.stop();
+		}
+		trasmuters.clear();
+		for (String key : annexLevel.keySet()) {
+			if (key.equals("longhouse")) continue;
+			int level = annexLevel.get(key);
+			Transmuter tr = new Transmuter(this, key);
+			tr.addAllRecipeToLevel(key, level);
+			trasmuters.add(tr);
+			tr.run();
+		}
+	}
 }

@@ -151,7 +151,7 @@ public class Capitol extends Townhall {
 	}
 
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock sb) {
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		ConstructSign structSign;
 
 		if (sb.command.equals("/towerfire")) {

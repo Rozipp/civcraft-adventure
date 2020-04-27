@@ -73,7 +73,7 @@ extends Structure {
     }
 
     @Override
-    public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
+    public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock commandBlock) {
         if (commandBlock.command.equals("/teleport")) {
             ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
             ItemManager.setData(absCoord.getBlock(), commandBlock.getData());

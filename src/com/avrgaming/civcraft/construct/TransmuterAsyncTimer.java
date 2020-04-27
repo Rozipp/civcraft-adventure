@@ -13,19 +13,20 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
 
-public class TransmuterAsyncTask extends CivAsyncTask {
+public class TransmuterAsyncTimer extends CivAsyncTask {
 
 	Construct construct;
-	ConfigTransmuterRecipe cTranR;
+	Transmuter transmuter;
 
-	public TransmuterAsyncTask(Construct construct, ConfigTransmuterRecipe cTranR) {
+	public TransmuterAsyncTimer(Construct construct, Transmuter transmuter) {
 		this.construct = construct;
-		this.cTranR = cTranR;
+		this.transmuter = transmuter;
 	}
 
 	class FoundElement { // найденые в MultiInventory предметы
@@ -33,6 +34,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		Integer slot;
 		ItemStack stack;
 		Integer count;
+
 		public FoundElement(Inventory sInv, Integer slot, ItemStack stack, Integer count) {
 			this.sInv = sInv;
 			this.slot = slot;
@@ -43,28 +45,29 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 
 	@Override
 	public void run() {
-		ReentrantLock lock = construct.transmuterLocks.get(cTranR.id);
+		ReentrantLock lock = transmuter.lock;
 		if (lock.tryLock()) {
 			try {
 				HashMap<String, MultiInventory> multInv = new HashMap<>();
 				ArrayList<FoundElement> foundElements = new ArrayList<>();
-
-				if (hasEnoughToTransmute(this, cTranR, multInv, foundElements)) // проверка возможности операции
-					processTransmute(this, cTranR, multInv, foundElements); //выполнение операции
-
-				//уснуть на указанное в ConfigTransmuterRecipe.delay количество секунд
-				if (cTranR.delay != 0) Thread.sleep(1000 * cTranR.delay);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				int i = 1;
+				for (ConfigTransmuterRecipe cTranR : transmuter.getTransmuterRecipe()) {
+					CivLog.debug("recipe" + ++i +"  " + cTranR.id);
+					if (hasEnoughToTransmute(this, cTranR, multInv, foundElements)) {
+						processTransmute(this, cTranR, multInv, foundElements);
+						break;
+					}
+				}
 			} finally {
 				lock.unlock();
 			}
 		}
 	}
 
-	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv,
-			ArrayList<FoundElement> foundElements) {
+	boolean hasEnoughToTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv, ArrayList<FoundElement> foundElements) {
 		if (cTranI == null) return false;
+		foundElements.clear();
+		multInv.clear();
 
 		// Проверка ести ли все сундуки
 		for (SourceItem si : cTranI.sourceItems) {
@@ -78,7 +81,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		multInv.put(cTranI.resultChest, dest);
 
 		boolean fool = true;
-		for (ItemStack stack : dest.getContents()) //проверка на полность resultChest
+		for (ItemStack stack : dest.getContents()) // проверка на полность resultChest
 			if (stack == null) {
 				fool = false;
 				break;
@@ -114,6 +117,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 		}
 		return foundElements.size() == cTranI.sourceItems.size();// Если найдены все предметы, значит можно менять их на новые
 	}
+
 	/** Заменить все предметы из входных сундуков на нужные предмети в выходном БЕЗ ПРОВЕРКИ НА ВОЗМОЖНОСТЬ ОПЕРАЦИИ */
 	void processTransmute(CivAsyncTask task, ConfigTransmuterRecipe cTranI, HashMap<String, MultiInventory> multInv, ArrayList<FoundElement> foundElements) {
 		Random rand = new Random();
@@ -134,9 +138,9 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 			// удалить все найденние sourceItems
 			for (FoundElement fe : foundElements) {
 				// если инструмент, то вернуть чуть поломанный
-				if (fe.stack.getType().getMaxDurability() > 0) { 
+				if (fe.stack.getType().getMaxDurability() > 0) {
 					int damage = fe.stack.getDurability() + fe.count;
-					if (damage >= fe.stack.getType().getMaxDurability()) { //если урон большой, то удаляем инструмент
+					if (damage >= fe.stack.getType().getMaxDurability()) { // если урон большой, то удаляем инструмент
 						if (fe.stack.getAmount() == 1)
 							task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.AIR), fe.slot);
 						else {
@@ -149,7 +153,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 					}
 					break;
 				}
-				//Если бутылка, то вернуть пустую
+				// Если бутылка, то вернуть пустую
 				if (ItemManager.isCorrectItemStack(fe.stack, null, 373, (short) 0)) {
 					task.updateInventory(Action.REPLACE, fe.sInv, new ItemStack(Material.GLASS_BOTTLE, fe.count), fe.slot);
 					break;
@@ -159,7 +163,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 				task.updateInventory(Action.REPLACE, fe.sInv, fe.stack, fe.slot);
 				break;
 			}
-			//Добавить предмет в resultChest
+			// Добавить предмет в resultChest
 			MultiInventory rMInv = multInv.get(cTranI.resultChest);
 			task.updateInventory(Action.ADD, rMInv, ItemManager.createItemStack(resI.item, resI.count));
 		} catch (InterruptedException e) {
@@ -175,7 +179,7 @@ public class TransmuterAsyncTask extends CivAsyncTask {
 
 			for (ConstructChest c : chests) {
 				task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
-				//XXX Couldn't load chunk in 5000 milliseconds! Retrying.
+				// XXX Couldn't load chunk in 5000 milliseconds! Retrying.
 				Inventory tmp;
 				try {
 					tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), false);
