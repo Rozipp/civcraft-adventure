@@ -39,7 +39,7 @@ public class CivGroupCommand extends CommandBase {
 		
 		cs.add("add", CivSettings.localize.localizedString("cmd_civ_group_addDesc"));
 		cs.add("remove", CivSettings.localize.localizedString("cmd_civ_group_removeDesc"));
-		cs.add("info", CivSettings.localize.localizedString("cmd_civ_group_infoDesc"));
+		cs.add("info","i", CivSettings.localize.localizedString("cmd_civ_group_infoDesc"));
 		
 	}
 

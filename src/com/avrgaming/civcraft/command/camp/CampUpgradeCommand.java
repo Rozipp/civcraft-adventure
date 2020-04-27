@@ -33,9 +33,9 @@ public class CampUpgradeCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("cmd_camp_upgrade_name");
 		
 		
-		cs.add("list", CivSettings.localize.localizedString("cmd_camp_upgrade_listDesc"));
+		cs.add("list","l", CivSettings.localize.localizedString("cmd_camp_upgrade_listDesc"));
 		cs.add("purchased", CivSettings.localize.localizedString("cmd_camp_upgrade_purchasedDesc"));
-		cs.add("buy", CivSettings.localize.localizedString("cmd_camp_upgrade_buyDesc"));
+		cs.add("buy","b", CivSettings.localize.localizedString("cmd_camp_upgrade_buyDesc"));
 		
 	}
 

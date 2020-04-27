@@ -35,8 +35,8 @@ public class MarketBuyCommand extends CommandBase {
 		command = "/market buy";
 		displayName = CivSettings.localize.localizedString("cmd_market_buy_Name");
 		
-		cs.add("towns", CivSettings.localize.localizedString("cmd_market_buy_townsDesc"));
-		cs.add("civs", CivSettings.localize.localizedString("cmd_market_buy_civsDesc"));
+		cs.add("towns","t", CivSettings.localize.localizedString("cmd_market_buy_townsDesc"));
+		cs.add("civs","c", CivSettings.localize.localizedString("cmd_market_buy_civsDesc"));
 		
 	}
 	

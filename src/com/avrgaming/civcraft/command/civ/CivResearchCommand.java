@@ -41,15 +41,15 @@ public class CivResearchCommand extends CommandBase {
 		command = "/civ research";
 		displayName = CivSettings.localize.localizedString("cmd_civ_research_name");
 		
-		cs.add("list", CivSettings.localize.localizedString("cmd_civ_research_listDesc"));
-		cs.add("progress", CivSettings.localize.localizedString("cmd_civ_research_progressDesc"));
+		cs.add("list","l", CivSettings.localize.localizedString("cmd_civ_research_listDesc"));
+		cs.add("progress","p", CivSettings.localize.localizedString("cmd_civ_research_progressDesc"));
 		cs.add("on", CivSettings.localize.localizedString("cmd_civ_research_onDesc"));
 		cs.add("change", CivSettings.localize.localizedString("cmd_civ_research_changeDesc"));
 		cs.add("finished", CivSettings.localize.localizedString("cmd_civ_research_finishedDesc"));
 		cs.add("era", CivSettings.localize.localizedString("cmd_civ_research_eraDesc"));
-        cs.add("calc", CivSettings.localize.localizedString("cmd_civ_researchcalc_Desc"));
+        cs.add("calc","c", CivSettings.localize.localizedString("cmd_civ_researchcalc_Desc"));
         cs.add("queuelist", CivSettings.localize.localizedString("cmd_civ_research_queueList"));
-        cs.add("queueadd", CivSettings.localize.localizedString("cmd_civ_research_queueAdd"));
+        cs.add("queueadd","q", CivSettings.localize.localizedString("cmd_civ_research_queueAdd"));
         cs.add("queueremove", CivSettings.localize.localizedString("cmd_civ_research_queueRemove"));
 	}
 	

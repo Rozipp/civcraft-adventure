@@ -42,12 +42,9 @@ public class PlotCommand extends CommandBase {
 		command = "/plot";
 		displayName = CivSettings.localize.localizedString("cmd_plot_Name");
 		
-		cs.add("info", CivSettings.localize.localizedString("cmd_plot_infoDesc"));
+		cs.add("info", "i", CivSettings.localize.localizedString("cmd_plot_infoDesc"));
 		cs.add("toggle", CivSettings.localize.localizedString("cmd_plot_toggleDesc"));
 		cs.add("perm",CivSettings.localize.localizedString("cmd_plot_permDesc"));
-		cs.add("fs", CivSettings.localize.localizedString("cmd_plot_fsDesc"));
-		cs.add("nfs", CivSettings.localize.localizedString("cmd_plot_nfsDesc"));
-		cs.add("buy", CivSettings.localize.localizedString("cmd_plot_buyDesc"));
 		cs.add("addgroup", CivSettings.localize.localizedString("cmd_plot_addgroupDesc"));
 		cs.add("setowner", CivSettings.localize.localizedString("cmd_plot_setowner"));
 		cs.add("farminfo", CivSettings.localize.localizedString("cmd_plot_farminfoDesc"));

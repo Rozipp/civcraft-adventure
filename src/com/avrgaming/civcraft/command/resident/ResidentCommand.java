@@ -41,14 +41,14 @@ public class ResidentCommand extends CommandBase {
 		command = "/resident";
 		displayName = CivSettings.localize.localizedString("cmd_res_Name");
 
-		cs.add("info", CivSettings.localize.localizedString("cmd_res_infoDesc"));
+		cs.add("info", "i", CivSettings.localize.localizedString("cmd_res_infoDesc"));
 		cs.add("paydebt", CivSettings.localize.localizedString("cmd_res_paydebtDesc"));
 		cs.add("friend", CivSettings.localize.localizedString("cmd_res_friendDesc"));
 		cs.add("toggle", CivSettings.localize.localizedString("cmd_res_toggleDesc"));
 		cs.add("show", CivSettings.localize.localizedString("cmd_res_showDesc"));
 		cs.add("resetspawn", CivSettings.localize.localizedString("cmd_res_resetspawnDesc"));
 		cs.add("exchange", CivSettings.localize.localizedString("cmd_res_exchangeDesc"));
-		cs.add("book", CivSettings.localize.localizedString("cmd_res_bookDesc"));
+		cs.add("book", "b", CivSettings.localize.localizedString("cmd_res_bookDesc"));
 		cs.add("perks", CivSettings.localize.localizedString("cmd_res_perksDesc"));
 		cs.add("refresh", CivSettings.localize.localizedString("cmd_res_refreshDesc"));
 		cs.add("timezone", CivSettings.localize.localizedString("cmd_res_timezoneDesc"));

@@ -18,7 +18,7 @@ commands:
     deny:
         aliases: [no,тщ,вутн]
     civ:
-        aliases: [сшм]
+        aliases: [сшм, c]
     tc:
         aliases: [ес]
     cc:
@@ -48,7 +48,7 @@ commands:
     trade:
         aliases:
     kill:
-        aliases:
+        aliases: [k, л, suicide]
     team:
         aliases:
     sb:
