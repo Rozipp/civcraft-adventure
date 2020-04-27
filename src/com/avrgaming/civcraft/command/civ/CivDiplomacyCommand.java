@@ -48,10 +48,10 @@ public class CivDiplomacyCommand extends CommandBase {
 		command = "/civ dip";
 		displayName = CivSettings.localize.localizedString("cmd_civ_dip_name");
 		
-		cs.add("show", CivSettings.localize.localizedString("cmd_civ_dip_showDesc"));
-		cs.add("declare", CivSettings.localize.localizedString("cmd_civ_dip_declareDesc"));
+		cs.add("show","s", CivSettings.localize.localizedString("cmd_civ_dip_showDesc"));
+		cs.add("declare","d", CivSettings.localize.localizedString("cmd_civ_dip_declareDesc"));
 		cs.add("request", CivSettings.localize.localizedString("cmd_civ_dip_requestDesc"));
-		cs.add("gift", CivSettings.localize.localizedString("cmd_civ_dip_giftDesc"));
+		cs.add("gift","g", CivSettings.localize.localizedString("cmd_civ_dip_giftDesc"));
 		cs.add("global", CivSettings.localize.localizedString("cmd_civ_dip_globalDesc"));
 		cs.add("wars", CivSettings.localize.localizedString("cmd_civ_dip_warsDesc"));
 		cs.add("respond", CivSettings.localize.localizedString("cmd_civ_dip_respondDesc"));

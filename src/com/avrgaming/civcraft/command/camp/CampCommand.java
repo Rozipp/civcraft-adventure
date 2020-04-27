@@ -41,16 +41,16 @@ public class CampCommand extends CommandBase {
 		this.displayName = CivSettings.localize.localizedString("Camp");
 
 		this.cs.add("undo", CivSettings.localize.localizedString("cmd_camp_undoDesc"));
-		this.cs.add("add", CivSettings.localize.localizedString("cmd_camp_addDesc"));
-		this.cs.add("remove", CivSettings.localize.localizedString("cmd_camp_removeDesc"));
-		this.cs.add("leave", CivSettings.localize.localizedString("cmd_camp_leaveDesc"));
+		this.cs.add("add", "a", CivSettings.localize.localizedString("cmd_camp_addDesc"));
+		this.cs.add("remove", "r", CivSettings.localize.localizedString("cmd_camp_removeDesc"));
+		this.cs.add("leave", "l", CivSettings.localize.localizedString("cmd_camp_leaveDesc"));
 		this.cs.add("setowner", CivSettings.localize.localizedString("cmd_camp_setownerDesc"));
-		this.cs.add("info", CivSettings.localize.localizedString("cmd_camp_infoDesc"));
+		this.cs.add("info", "i", CivSettings.localize.localizedString("cmd_camp_infoDesc"));
 		this.cs.add("disband", CivSettings.localize.localizedString("cmd_camp_disbandDesc"));
-		this.cs.add("upgrade", CivSettings.localize.localizedString("cmd_camp_upgradeDesc"));
+		this.cs.add("upgrade", "up", CivSettings.localize.localizedString("cmd_camp_upgradeDesc"));
 		this.cs.add("refresh", CivSettings.localize.localizedString("cmd_camp_refreshDesc"));
 		this.cs.add("location", CivSettings.localize.localizedString("cmd_camp_locationDesc"));
-		this.cs.add("teleport", CivSettings.localize.localizedString("cmd_camp_teleportDesc"));
+		this.cs.add("teleport", "tp", CivSettings.localize.localizedString("cmd_camp_teleportDesc"));
 		this.cs.add("chat", CivSettings.localize.localizedString("cmd_camp_chatDesc"));
 	}
 

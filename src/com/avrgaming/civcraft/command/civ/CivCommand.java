@@ -55,14 +55,14 @@ public class CivCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("cmd_civ_name");
 
 		cs.add("townlist", CivSettings.localize.localizedString("cmd_civ_townlistDesc"));
-		cs.add("deposit", CivSettings.localize.localizedString("cmd_civ_depositDesc"));
-		cs.add("withdraw", CivSettings.localize.localizedString("cmd_civ_withdrawDesc"));
-		cs.add("info", CivSettings.localize.localizedString("cmd_civ_infoDesc"));
-		cs.add("show", CivSettings.localize.localizedString("cmd_civ_showDesc"));
-		cs.add("list", CivSettings.localize.localizedString("cmd_civ_listDesc"));
-		cs.add("research", CivSettings.localize.localizedString("cmd_civ_researchDesc"));
-		cs.add("gov", CivSettings.localize.localizedString("cmd_civ_govDesc"));
-		cs.add("time", CivSettings.localize.localizedString("cmd_civ_timeDesc"));
+		cs.add("deposit","d", CivSettings.localize.localizedString("cmd_civ_depositDesc"));
+		cs.add("withdraw","w", CivSettings.localize.localizedString("cmd_civ_withdrawDesc"));
+		cs.add("info","i", CivSettings.localize.localizedString("cmd_civ_infoDesc"));
+		cs.add("show","s", CivSettings.localize.localizedString("cmd_civ_showDesc"));
+		cs.add("list","l", CivSettings.localize.localizedString("cmd_civ_listDesc"));
+		cs.add("research","r", CivSettings.localize.localizedString("cmd_civ_researchDesc"));
+		cs.add("gov","g", CivSettings.localize.localizedString("cmd_civ_govDesc"));
+		cs.add("time","t", CivSettings.localize.localizedString("cmd_civ_timeDesc"));
 		cs.add("set", CivSettings.localize.localizedString("cmd_civ_setDesc"));
 		cs.add("group", CivSettings.localize.localizedString("cmd_civ_groupDesc"));
 		cs.add("dip", CivSettings.localize.localizedString("cmd_civ_dipDesc"));

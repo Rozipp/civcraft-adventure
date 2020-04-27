@@ -21,7 +21,7 @@ extends CommandBase {
         this.cs.add("gui", CivSettings.localize.localizedString("cmd_civ_space_guiDesc"));
         this.cs.add("complete", CivSettings.localize.localizedString("cmd_civ_space_succusessDesc"));
         this.cs.add("future", CivSettings.localize.localizedString("cmd_civ_space_futureDesc"));
-        this.cs.add("progress", CivSettings.localize.localizedString("cmd_civ_space_progressDesc"));
+        this.cs.add("progress","calc", CivSettings.localize.localizedString("cmd_civ_space_progressDesc"));
     }
 
     public void progress_cmd() throws CivException {

@@ -28,8 +28,8 @@ extends CommandBase {
         this.displayName = CivSettings.localize.localizedString("cmd_civ_trade_name");
         this.cs.add("listciv", CivSettings.localize.localizedString("cmd_civ_trade_listciv"));
         this.cs.add("listtown", CivSettings.localize.localizedString("cmd_civ_trade_listtown"));
-        this.cs.add("deposit", CivSettings.localize.localizedString("cmd_civ_trade_deposit"));
-        this.cs.add("withdraw", CivSettings.localize.localizedString("cmd_civ_trade_withdraw"));
+        this.cs.add("deposit","d", CivSettings.localize.localizedString("cmd_civ_trade_deposit"));
+        this.cs.add("withdraw","w", CivSettings.localize.localizedString("cmd_civ_trade_withdraw"));
         this.cs.add("gift", CivSettings.localize.localizedString("cmd_civ_trade_gift"));
     }
 

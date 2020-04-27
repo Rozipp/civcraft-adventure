@@ -66,12 +66,12 @@ public class TownCommand extends CommandBase {
 		cs.add("claim", CivSettings.localize.localizedString("cmd_town_claimDesc"));
 		cs.add("unclaim", CivSettings.localize.localizedString("cmd_town_unclaimDesc"));
 		cs.add("group", CivSettings.localize.localizedString("cmd_town_groupDesc"));
-		cs.add("upgrade", CivSettings.localize.localizedString("cmd_town_upgradeDesc"));
+		cs.add("upgrade","up", CivSettings.localize.localizedString("cmd_town_upgradeDesc"));
 		cs.add("info", CivSettings.localize.localizedString("cmd_town_infoDesc"));
 		cs.add("add", CivSettings.localize.localizedString("cmd_town_addDesc"));
-		cs.add("members", CivSettings.localize.localizedString("cmd_town_membersDesc"));
+		cs.add("members","list", CivSettings.localize.localizedString("cmd_town_membersDesc"));
 		cs.add("deposit", CivSettings.localize.localizedString("cmd_town_depositDesc"));
-		cs.add("withdraw", CivSettings.localize.localizedString("cmd_town_withdrawDesc"));
+		cs.add("withdraw","w", CivSettings.localize.localizedString("cmd_town_withdrawDesc"));
 		cs.add("set", CivSettings.localize.localizedString("cmd_town_setDesc"));
 		cs.add("leave", CivSettings.localize.localizedString("cmd_town_leaveDesc"));
 		cs.add("show", CivSettings.localize.localizedString("cmd_town_showDesc"));
@@ -91,21 +91,21 @@ public class TownCommand extends CommandBase {
 		cs.add("claimmayor", CivSettings.localize.localizedString("cmd_town_claimmayorDesc"));
 //		cs.add("movestructure", "[coord] [town] moves the structure specified by the coord to the specfied town.");
 		cs.add("enablestructure", CivSettings.localize.localizedString("cmd_town_enableStructureDesc"));
-		cs.add("location", CivSettings.localize.localizedString("cmd_town_locationDesc"));
+		cs.add("location","l", CivSettings.localize.localizedString("cmd_town_locationDesc"));
 		cs.add("changetown", CivSettings.localize.localizedString("cmd_town_switchtown"));
-		cs.add("teleport", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
-		cs.add("build", "[название города] Построить новый город если ви являетесь поселенцем");
+		cs.add("teleport","tp", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
+//		cs.add("build","b", "[название города] Построить новый город если ви являетесь поселенцем");
 	}
 
-	public void build_cmd() throws CivException {
-		String townName = this.getNamedString(1, "Введите название города");
-		Player player = this.getPlayer();
-		Resident resident = this.getResident();
-		if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
-			((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
-		} else //TODO
-			throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");
-	}
+//	public void build_cmd() throws CivException {
+//		String townName = this.getNamedString(1, "Введите название города");
+//		Player player = this.getPlayer();
+//		Resident resident = this.getResident();
+//		if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
+//			((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
+//		} else //TODO
+//			throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");
+//	}
 
 	public void teleport_cmd() throws CivException {
 		final Resident resident = this.getResident();
