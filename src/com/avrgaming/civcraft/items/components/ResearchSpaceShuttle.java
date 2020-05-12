@@ -26,7 +26,7 @@ public class ResearchSpaceShuttle extends ItemComponent implements CallbackInter
     public void onPrepareCreate(AttributeUtil attrUtil) {
         attrUtil.addLore((Object)ChatColor.RESET + CivColor.Gold + CivSettings.localize.localizedString("researchSpaceShuttle_lore1"));
         attrUtil.addLore((Object)ChatColor.RESET + CivColor.Red + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
-        attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
+      //TODO вернуть       attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
         attrUtil.addLore(CivColor.Gold + CivSettings.localize.localizedString("Soulbound"));
     }
 

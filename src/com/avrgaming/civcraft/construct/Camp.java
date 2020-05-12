@@ -547,7 +547,7 @@ public class Camp extends Construct {
 					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
-					this.addConstructChest(structChest);
+					this.addChest(structChest);
 					CivGlobal.addConstructChest(structChest);
 
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
@@ -590,7 +590,7 @@ public class Camp extends Construct {
 					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
-					this.addConstructChest(structChest);
+					this.addChest(structChest);
 					CivGlobal.addConstructChest(structChest);
 
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
@@ -619,7 +619,7 @@ public class Camp extends Construct {
 					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
-					this.addConstructChest(structChest);
+					this.addChest(structChest);
 					CivGlobal.addConstructChest(structChest);
 
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));

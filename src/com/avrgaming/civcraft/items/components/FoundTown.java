@@ -98,26 +98,17 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 	}
 	
 	public void onInteract(PlayerInteractEvent event) {
-		
 		event.setCancelled(true);
-		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
-				!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-			return;
-		}
-		
+		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+
 		try {
 			foundTown(event.getPlayer());
 		} catch (CivException e) {
 			CivMessage.sendError(event.getPlayer(), e.getMessage());
 		}
-		
-		class SyncTask implements Runnable {
-			String name;
-				
-			public SyncTask(String name) {
-				this.name = name;
-			}
-			
+
+		String name = event.getPlayer().getName();
+		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
 				Player player;
@@ -128,9 +119,7 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 				}
 				player.updateInventory();
 			}
-		}
-		TaskMaster.syncTask(new SyncTask(event.getPlayer().getName()));
-
+		});
 	}
 
 	@Override
@@ -151,53 +140,5 @@ public class FoundTown extends ItemComponent implements CallbackInterface {
 		CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 
 		resident.setInteractiveMode(new InteractiveTownName());
-
-//		if (!StringUtils.isAlpha(townName) || !StringUtils.isAsciiPrintable(townName)) {
-//			CivMessage.send(player, CivColor.Rose + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_town_nameInvalid"));
-//			return;
-//		}
-//
-//		townName = townName.replace(" ", "_");
-//		townName = townName.replace("\"", "");
-//		townName = townName.replace("\'", "");
-//
-//		resident.desiredTownName = townName;
-//		CivMessage.send(player, CivColor.LightGreen
-//				+ CivSettings.localize.localizedString("var_interactive_town_confirmName", CivColor.Yellow + resident.desiredTownName + CivColor.LightGreen));
-//
-//		class SyncTask implements Runnable {
-//			Resident resident;
-//
-//			public SyncTask(Resident resident) {
-//				this.resident = resident;
-//			}
-//
-//			@Override
-//			public void run() {
-//				Player player;
-//				try {
-//					player = CivGlobal.getPlayer(resident);
-//				} catch (CivException e) {
-//					return;
-//				}
-//
-//				CivMessage.sendHeading(player, CivSettings.localize.localizedString("interactive_town_surveyResults"));
-//				CivMessage.send(player, TownCommand.survey(player.getLocation()));
-//
-//				Location capLoc = resident.getCiv().getCapitolTownHallLocation();
-//				if (capLoc == null) {
-//					CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_town_noCapitol"));
-//					resident.clearInteractiveMode();
-//					return;
-//				}
-//
-//				CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_town_confirm"));
-//
-//				resident.setInteractiveMode(new InteractiveConfirmTownCreation());
-//			}
-//		}
-//
-//		TaskMaster.syncTask(new SyncTask(resident));
 	}	
-
 }

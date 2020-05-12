@@ -6,11 +6,14 @@
 # without any units attached.
 # Speed bonus with Armor Contents
 base:
-    T1_metal_speed: -0.01
-    T2_metal_speed: -0.02
-    T3_metal_speed: -0.03
-    T4_metal_speed: -0.04
+    T1_metal_speed: -0.10
+    T2_metal_speed: -0.20
+    T3_metal_speed: -0.30
+    T4_metal_speed: -0.40
     normal_speed: 0.2
+
+# если юнита не использовали указанное количество минут, то он возвращаеться в бараки    
+unit_time_diactivate: 1
 
 # Special information per unit
 unit_info:
@@ -276,7 +279,16 @@ unit_components:
     gui_lore:
         - 'Добавляет книги с помощью которой'
         - 'можно создать новый город' 
-#--------------- шпион   ---------------------------     
+#--------------- шпион   ---------------------------    
+  - id: 'u_botltest'
+    name: 'Тестовая бутылка'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 373
+    gui_slot: 1
+    gui_lore:
+        - 'тестовая бутылка'
+   
   - id: 'u_investigate_town'
     name: 'Иследовать город'
     ammunition: item
@@ -387,7 +399,7 @@ units:
         - 'коварные миссии на територии вражеских цивилизаций'
         - 'Опыт получает за успешное выполнение миссий'
         - 'С повышение уровня открываються новые миссии.'
-    enable_components: 'maxheal,speed,protection,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
+    enable_components: 'u_botltest,maxheal,speed,protection,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
     
   - id: 'u_settler'
     name: "Поселенцы"
@@ -398,7 +410,7 @@ units:
     cost: 25000.0
     hammer_cost: 1000.0
     limit: 1
-    item_id: 381
+    item_id: 330
     item_data: 0
     lore:
         - 'Отряд строителей. Отличаються большой скоростью'

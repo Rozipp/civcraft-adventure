@@ -20,10 +20,11 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.loregui.GuiPage;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -59,7 +60,7 @@ public class ResidentCommand extends CommandBase {
 		cs.add("upgrade", CivSettings.localize.localizedString("cmd_res_upgradeDesc"));
 		cs.add("dip", CivSettings.localize.localizedString("cmd_res_dipDesc"));
 		cs.add("report", CivSettings.localize.localizedString("cmd_res_reportDesc"));
-		//cs.add("switchtown", "[town] - Allows you to instantly change your town to this town, if this town belongs to your civ.");
+		// cs.add("switchtown", "[town] - Allows you to instantly change your town to this town, if this town belongs to your civ.");
 	}
 
 	public void report_cmd() throws CivException {
@@ -78,8 +79,7 @@ public class ResidentCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_res_report_badMessage", CivColor.GoldBold + split[2] + " " + split[3]));
 		}
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
-		CivMessage.send((Object) this.sender,
-				CivColor.Red + admin + ": Complaint #" + report.getId() + ": " + "§a" + result + "§b" + " (" + sdf.format(report.getCloseTime()) + ")");
+		CivMessage.send((Object) this.sender, CivColor.Red + admin + ": Complaint #" + report.getId() + ": " + "§a" + result + "§b" + " (" + sdf.format(report.getCloseTime()) + ")");
 		resident.setReportChecked(false);
 	}
 
@@ -212,36 +212,37 @@ public class ResidentCommand extends CommandBase {
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("cmd_res_bookSuccess"));
 	}
 
-	/* We need to figure out how to handle debt for the resident when he switches towns. Should we even allow this? idk. Maybe war respawn points is enough? */
-//	public void switchtown_cmd() throws CivException {
-//		Town town = getNamedTown(1);
-//		Resident resident = getResident();
-//		
-//		if (resident.getTown() == town) {
-//			throw new CivException("You cannot switch to your own town.");
-//		}
-//		
-//		if (resident.getTown().getMotherCiv() != town.getMotherCiv()) {
-//			throw new CivException("You cannot place yourself into a conquered civ's town.");
-//		}
-//		
-//		if (town.getCiv() != resident.getCiv()) {
-//			throw new CivException("You cannot switch to a town not in your civ.");
-//		}
-//		
-//		if (town.getMayorGroup().hasMember(resident) && town.getMayorGroup().getMemberCount() <= 1) {
-//			throw new CivException("You are the last mayor of the town and cannot leave it.");
-//		}
-//		
-//		resident.getTown().removeResident(resident);
-//		try {
-//			town.addResident(resident);
-//		} catch (AlreadyRegisteredException e) {
-//			e.printStackTrace();
-//			throw new CivException("You already belong to this town.");
-//		}
-//		
-//	}
+	/* We need to figure out how to handle debt for the resident when he switches towns. Should we even allow this? idk. Maybe war respawn
+	 * points is enough? */
+	// public void switchtown_cmd() throws CivException {
+	// Town town = getNamedTown(1);
+	// Resident resident = getResident();
+	//
+	// if (resident.getTown() == town) {
+	// throw new CivException("You cannot switch to your own town.");
+	// }
+	//
+	// if (resident.getTown().getMotherCiv() != town.getMotherCiv()) {
+	// throw new CivException("You cannot place yourself into a conquered civ's town.");
+	// }
+	//
+	// if (town.getCiv() != resident.getCiv()) {
+	// throw new CivException("You cannot switch to a town not in your civ.");
+	// }
+	//
+	// if (town.getMayorGroup().hasMember(resident) && town.getMayorGroup().getMemberCount() <= 1) {
+	// throw new CivException("You are the last mayor of the town and cannot leave it.");
+	// }
+	//
+	// resident.getTown().removeResident(resident);
+	// try {
+	// town.addResident(resident);
+	// } catch (AlreadyRegisteredException e) {
+	// e.printStackTrace();
+	// throw new CivException("You already belong to this town.");
+	// }
+	//
+	// }
 
 	public void exchange_cmd() throws CivException {
 		Player player = getPlayer();
@@ -258,24 +259,24 @@ public class ResidentCommand extends CommandBase {
 		int exchangeID;
 		double rate;
 		switch (type) {
-			case "iron" :
-				exchangeID = CivData.IRON_INGOT;
-				rate = CivSettings.iron_rate;
-				break;
-			case "gold" :
-				exchangeID = CivData.GOLD_INGOT;
-				rate = CivSettings.gold_rate;
-				break;
-			case "diamond" :
-				exchangeID = CivData.DIAMOND;
-				rate = CivSettings.diamond_rate;
-				break;
-			case "emerald" :
-				exchangeID = CivData.EMERALD;
-				rate = CivSettings.emerald_rate;
-				break;
-			default :
-				throw new CivException(CivSettings.localize.localizedString("var_cmd_res_exchangeInvalid", type));
+		case "iron":
+			exchangeID = CivData.IRON_INGOT;
+			rate = CivSettings.iron_rate;
+			break;
+		case "gold":
+			exchangeID = CivData.GOLD_INGOT;
+			rate = CivSettings.gold_rate;
+			break;
+		case "diamond":
+			exchangeID = CivData.DIAMOND;
+			rate = CivSettings.diamond_rate;
+			break;
+		case "emerald":
+			exchangeID = CivData.EMERALD;
+			rate = CivSettings.emerald_rate;
+			break;
+		default:
+			throw new CivException(CivSettings.localize.localizedString("var_cmd_res_exchangeInvalid", type));
 		}
 
 		double exchangeRate;
@@ -299,7 +300,7 @@ public class ResidentCommand extends CommandBase {
 			if (CivGlobal.isBonusGoodie(is)) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_res_exchangeNoTradeGoods"));
 			}
-			if (CustomMaterial.hasEnhancement(is, "LoreEnhancementBuyItem")) {
+			if (Enchantments.hasEnchantment(is, CustomEnchantment.BuyItem)) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_res_exchangeNoBuyItems"));
 			}
 
@@ -361,12 +362,10 @@ public class ResidentCommand extends CommandBase {
 		}
 
 		if (!resident.getTreasury().hasEnough(resident.getTreasury().getDebt())) {
-			throw new CivException(
-					CivSettings.localize.localizedString("var_cmd_res_paydebtError1", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
+			throw new CivException(CivSettings.localize.localizedString("var_cmd_res_paydebtError1", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
 		}
 
-		CivMessage.sendSuccess(sender,
-				CivSettings.localize.localizedString("var_cmd_res_paydebtSuccess", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_res_paydebtSuccess", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
 		resident.payOffDebt();
 	}
 
@@ -379,30 +378,24 @@ public class ResidentCommand extends CommandBase {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("var_Resident", resident.getName()));
 		Date lastOnline = new Date(resident.getLastOnline());
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
-		CivMessage.send(sender,
-				CivColor.Green + CivSettings.localize.localizedString("cmd_res_showLastOnline") + " " + CivColor.LightGreen + sdf.format(lastOnline));
+		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showLastOnline") + " " + CivColor.LightGreen + sdf.format(lastOnline));
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + resident.getTownString());
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Camp") + " " + CivColor.LightGreen + resident.getCampString());
 
 		if (sender.getName().equalsIgnoreCase(resident.getName()) || sender.isOp()) {
-			CivMessage.send(sender,
-					CivColor.Green + CivSettings.localize.localizedString("cmd_res_showTreasure") + " " + CivColor.LightGreen
-							+ resident.getTreasury().getBalance() + " " + CivColor.Green + CivSettings.localize.localizedString("cmd_res_showTaxes") + " "
-							+ CivColor.LightGreen + (resident.getPropertyTaxOwed() + resident.getFlatTaxOwed()));
+			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showTreasure") + " " + CivColor.LightGreen + resident.getTreasury().getBalance() + " " + CivColor.Green
+					+ CivSettings.localize.localizedString("cmd_res_showTaxes") + " " + CivColor.LightGreen + (resident.getPropertyTaxOwed() + resident.getFlatTaxOwed()));
 			if (resident.hasTown()) {
 				if (resident.getSelectedTown() != null) {
-					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen
-							+ resident.getSelectedTown().getName());
+					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen + resident.getSelectedTown().getName());
 				} else {
-					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen
-							+ resident.getTown().getName());
+					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen + resident.getTown().getName());
 				}
 			}
 		}
 
 		if (resident.getTreasury().inDebt()) {
-			CivMessage.send(resident, CivColor.Yellow + CivSettings.localize.localizedString("cmd_res_showDebt") + " " + resident.getTreasury().getDebt() + " "
-					+ CivSettings.CURRENCY_NAME);
+			CivMessage.send(resident, CivColor.Yellow + CivSettings.localize.localizedString("cmd_res_showDebt") + " " + resident.getTreasury().getDebt() + " " + CivSettings.CURRENCY_NAME);
 		}
 
 		if (resident.getDaysTilEvict() > 0) {
@@ -415,8 +408,8 @@ public class ResidentCommand extends CommandBase {
 	@Override
 	public void doDefaultAction() throws CivException {
 		showHelp();
-		//info_cmd();
-		//CivMessage.send(sender, CivColor.LightGray+"Subcommands available: See /resident help");
+		// info_cmd();
+		// CivMessage.send(sender, CivColor.LightGray+"Subcommands available: See /resident help");
 	}
 
 	@Override

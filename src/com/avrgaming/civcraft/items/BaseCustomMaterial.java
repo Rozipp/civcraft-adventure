@@ -32,6 +32,8 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -168,9 +170,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 			}
 		}
 
-		AttributeUtil attrs = new AttributeUtil(stack);
-		if (attrs.hasEnhancement("LoreEnhancementUnitItem") && toInv.getType() != InventoryType.PLAYER) {
-//			CivMessage.sendError(player, "Нельзя использовать этот предмет в инвентаре " + toInv.getType());
+		if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem) && toInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
@@ -183,7 +183,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onInvDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
+	public void onInvItemDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
 	}
 
 	@Override
@@ -296,7 +296,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 
 	@Override
 	public boolean isCanUseInventoryTypes(Inventory inv) {
-		if (inv == null) return true;
+		if (inv == null) return false;
 		switch (inv.getType()) {
 			case CHEST :
 			case CRAFTING :

@@ -2,7 +2,6 @@ package com.avrgaming.civcraft.command.debug;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
@@ -57,13 +56,13 @@ public class DebugCaveCommand extends CommandBase {
 	}
 
 	public void cavegenerate_cmd() throws CivException {
-		String playerName;
-
-		if (sender instanceof Player) {
-			playerName = sender.getName();
-		} else {
-			playerName = null;
-		}
+//		String playerName;
+//
+//		if (sender instanceof Player) {
+//			playerName = sender.getName();
+//		} else {
+//			playerName = null;
+//		}
 
 		CivMessage.send(sender, "Starting Trade Generation task...");
 //TODO		TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
@@ -71,7 +70,7 @@ public class DebugCaveCommand extends CommandBase {
 
 	public void regencavechunk_cmd() {
 
-		World world = Bukkit.getWorld("world");
+//		World world = Bukkit.getWorld("world");
 
 //TODO		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
 //

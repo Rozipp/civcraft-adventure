@@ -41,7 +41,6 @@ import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -218,7 +217,6 @@ public class CivSettings {
 	public static Localize localize;
 
 	public static boolean hasTitleAPI = false;
-	public static boolean hasITag = false;
 
 	public static boolean hasCustomMobs = false;
 
@@ -292,7 +290,6 @@ public class CivSettings {
 		alwaysCrumble.add(CivData.ENDER_CHEST);
 		alwaysCrumble.add(CivData.BEACON);
 
-		LoreEnhancement.init();
 		(new File("templates/undo")).mkdirs();
 		(new File("templates/inprogress/")).mkdirs();
 
@@ -313,13 +310,6 @@ public class CivSettings {
 			CivLog.info("TitleAPI hooks enabled");
 		} else {
 			CivLog.warning("TitleAPI not found, not registering TitleAPI hooks. This is fine if you're not using TitleAPI.");
-		}
-
-		if (CivSettings.plugin.hasPlugin("CustomMobs") && CivSettings.getBoolean(spawnersConfig, "enable")) {
-			hasCustomMobs = true;
-			CivLog.info("CustomMobs hooks enabled");
-		} else {
-			CivLog.warning("CustomMobs not found or disabled, not registering CustomMob hooks. This is fine if you're not using Custom Mobs.");
 		}
 
 		try {
@@ -533,7 +523,7 @@ public class CivSettings {
 
 		SoundManager.loadConfig(soundConfig);
 		
-		CivGlobal.tradeGoodPreGenerator.preGenerate();
+//		CivGlobal.tradeGoodPreGenerator.preGenerate();
 		Wall.init_settings();
 	}
 

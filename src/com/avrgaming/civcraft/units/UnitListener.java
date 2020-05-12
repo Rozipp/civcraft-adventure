@@ -55,12 +55,7 @@ public class UnitListener implements Listener {
 		resident.setUnitObjectId(0);
 		UnitStatic.updateUnitForPlaeyr(player);
 		resident.calculateWalkingModifier(player);
-//		Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin) ItemJoin.getInstance(), (Runnable) new Runnable() {
-//			@Override
-//			public void run() {
 		UnitStatic.setModifiedMovementSpeed(player);
-//			}
-//		}, 1L);
 	}
 
 }

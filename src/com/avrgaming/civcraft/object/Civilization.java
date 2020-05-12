@@ -30,7 +30,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.capture.CivPoint;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.config.ConfigTech;
@@ -643,7 +642,6 @@ public class Civilization extends SQLObject {
 			}
 
 			CivGlobal.addCiv(civ);
-			CivPoint.addCiv(civ);
 			ItemStack newStack = new ItemStack(Material.AIR);
 			player.getInventory().setItemInMainHand(newStack);
 			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", civ.getName()),

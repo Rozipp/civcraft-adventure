@@ -520,7 +520,7 @@ public abstract class Construct extends SQLObject {
 				ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 				if (structChest == null) structChest = new ConstructChest(absCoord, this);
 				structChest.setChestId(sb.keyvalues.get("id"));
-				this.addConstructChest(structChest);
+				this.addChest(structChest);
 				CivGlobal.addConstructChest(structChest);
 
 				/* Convert sign data to chest data. */
@@ -729,7 +729,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	// ------------ ConstructChest
-	public void addConstructChest(ConstructChest chest) {
+	public void addChest(ConstructChest chest) {
 		this.сonstructChests.put(chest.getCoord(), chest);
 	}
 

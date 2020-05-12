@@ -13,16 +13,29 @@ materials:
       components:
           - name: 'ChoiceUnitComponent'
 
+    - id: 'u_botltest'
+      item_id: '438:0'
+      name: 'BotlTest'
+      slot: 7
+      components:
+          - name: 'Cooldown'
+            cooldown: '20'
+          - name: 'NBT'
+            potion: 'fire_resistance'
+            
+
     - id: 'u_foundtown'
       item_id: '340:0'
       name: 'FoundTown'
-  #    lore: 
-  #        - 'Установка нового города'
-  #        - 'Здесь'
+      lore: 
+          - 'Установка нового города'
+          - 'Здесь'
       shiny: true
       slot: 6
       components:
-          - name: 'FoundTown'   
+          - name: 'FoundTown'
+          - name: 'Cooldown'
+            cooldown: '400'   
 
     - id: 'u_investigate_town'
       item_id: '340:0'

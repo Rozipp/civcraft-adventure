@@ -22,9 +22,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Resident;
@@ -33,59 +34,53 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class GivePlayerStartingKit implements Runnable {
 
 	public String name;
-	
+
 	public GivePlayerStartingKit(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public void run() {
 		try {
 			Player player = CivGlobal.getPlayer(name);
-			
+
 			for (String kitItems : CivSettings.kitItems) {
 				String[] split = kitItems.split(":");
-				
+
 				ItemStack stack;
 				try {
 					Integer type = Integer.valueOf(split[0]);
 					Integer amount = Integer.valueOf(split[1]);
 
 					stack = ItemManager.createItemStack(type, amount);
-					
-
 
 				} catch (NumberFormatException e) {
 					String customMatID = split[0];
 					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(customMatID);
 					if (craftMat == null) {
-						CivLog.warning("Couldn't find custom material:"+customMatID+" to give to player on first join.");
+						CivLog.warning("Couldn't find custom material:" + customMatID + " to give to player on first join.");
 						continue;
 					}
-					
+
 					stack = CraftableCustomMaterial.spawn(craftMat);
 				}
-//				if (split[0] == "mat_tutorial_book" || split[0] == "mat_found_camp")
-//				{
-					stack = CraftableCustomMaterial.addEnhancement(stack, LoreEnhancement.getFromName("LoreEnhancementSoulBound"));
-//				}
-				
+				Enchantments.addEnchantment(stack, CustomEnchantment.SoulBound, 1);
+
 				player.getInventory().addItem(stack);
 			}
-			
+
 			Resident resident = CivGlobal.getResident(name);
 			if (resident != null) {
 				resident.getTreasury().deposit(CivSettings.startingCoins);
 				resident.setGivenKit(true);
 			}
-			
-		
+
 		} catch (CivException e) {
-		//	e.printStackTrace();
-			CivLog.warning("Tried to give starting kit to offline player:"+name);
+			// e.printStackTrace();
+			CivLog.warning("Tried to give starting kit to offline player:" + name);
 			return;
 		}
-		
+
 	}
 
 }

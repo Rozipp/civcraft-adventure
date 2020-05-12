@@ -51,9 +51,9 @@ public class ChoiceUnitComponent extends ItemComponent {
 			return;
 		}
 
-		for (ConfigUnitComponent comp : UnitStatic.configUnitComponents.values()) {
-			if (!uo.getConfigUnit().enable_components.contains(comp.id)) continue; // если не относиться к етому юниту то пропустить
-
+		for (String enable_component : uo.getConfigUnit().enable_components) {
+			ConfigUnitComponent comp = UnitStatic.configUnitComponents.get(enable_component);
+			
 			Boolean isRequire = true;
 			int type = comp.gui_item_id;
 			ArrayList<String> loreArray = new ArrayList<>();

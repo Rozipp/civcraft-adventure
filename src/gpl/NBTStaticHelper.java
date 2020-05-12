@@ -1,4 +1,4 @@
-package com.avrgaming.civcraft.util;
+package gpl;
 
 public class NBTStaticHelper {
 

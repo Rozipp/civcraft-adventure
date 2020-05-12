@@ -517,4 +517,32 @@ public class SQL {
 		}
 	}
 
+	public static void clearTableData() {
+		CivLog.debug("-------------------------- Clears all table data ------------------------");
+		SQL.deleteTable(ConfigMarketItem.TABLE_NAME);
+		SQL.deleteTable(EventTimer.TABLE_NAME);
+		SQL.deleteTable(BonusGoodie.TABLE_NAME);
+		SQL.deleteTable(Civilization.TABLE_NAME);
+		SQL.deleteTable(Coalition.TABLE_NAME);
+		SQL.deleteTable(MissionLogger.TABLE_NAME);
+		SQL.deleteTable(ProtectedBlock.TABLE_NAME);
+		SQL.deleteTable(Relation.TABLE_NAME);
+		SQL.deleteTable(Report.TABLE_NAME);
+		SQL.deleteTable(Resident.TABLE_NAME);
+		SQL.deleteTable(ConstructSign.TABLE_NAME);
+		SQL.deleteTable(Town.TABLE_NAME);
+		SQL.deleteTable(TownChunk.TABLE_NAME);
+		SQL.deleteTable(TradeGood.TABLE_NAME);
+		SQL.deleteTable(WallBlock.TABLE_NAME);
+		SQL.deleteTable(PermissionGroup.TABLE_NAME);
+		SQL.deleteTable(RandomEvent.TABLE_NAME);
+		SQL.deleteTable(RoadBlock.TABLE_NAME);
+		SQL.deleteTable(SessionDatabase.TABLE_NAME);
+		SQL.deleteTable(Wonder.TABLE_NAME);
+		SQL.deleteTable(Structure.TABLE_NAME);
+		SQL.deleteTable(BiomeCache.TABLE_NAME);
+		SQL.deleteTable(Camp.TABLE_NAME);
+		SQL.deleteTable(UnitObject.TABLE_NAME);
+	}
+
 }

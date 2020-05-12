@@ -46,8 +46,6 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask2;
 import com.avrgaming.civcraft.tutorial.Book;
-import com.avrgaming.civcraft.units.Settler;
-import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -57,7 +55,7 @@ import com.avrgaming.global.perks.components.CustomTemplate;
 
 public class TownCommand extends CommandBase {
 
-	public static final long INVITE_TIMEOUT = 30000; //30 seconds
+	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
 
 	public void init() {
 		command = "/town";
@@ -66,12 +64,12 @@ public class TownCommand extends CommandBase {
 		cs.add("claim", CivSettings.localize.localizedString("cmd_town_claimDesc"));
 		cs.add("unclaim", CivSettings.localize.localizedString("cmd_town_unclaimDesc"));
 		cs.add("group", CivSettings.localize.localizedString("cmd_town_groupDesc"));
-		cs.add("upgrade","up", CivSettings.localize.localizedString("cmd_town_upgradeDesc"));
+		cs.add("upgrade", "up", CivSettings.localize.localizedString("cmd_town_upgradeDesc"));
 		cs.add("info", CivSettings.localize.localizedString("cmd_town_infoDesc"));
 		cs.add("add", CivSettings.localize.localizedString("cmd_town_addDesc"));
-		cs.add("members","list", CivSettings.localize.localizedString("cmd_town_membersDesc"));
+		cs.add("members", "list", CivSettings.localize.localizedString("cmd_town_membersDesc"));
 		cs.add("deposit", CivSettings.localize.localizedString("cmd_town_depositDesc"));
-		cs.add("withdraw","w", CivSettings.localize.localizedString("cmd_town_withdrawDesc"));
+		cs.add("withdraw", "w", CivSettings.localize.localizedString("cmd_town_withdrawDesc"));
 		cs.add("set", CivSettings.localize.localizedString("cmd_town_setDesc"));
 		cs.add("leave", CivSettings.localize.localizedString("cmd_town_leaveDesc"));
 		cs.add("show", CivSettings.localize.localizedString("cmd_town_showDesc"));
@@ -83,29 +81,34 @@ public class TownCommand extends CommandBase {
 		cs.add("outlaw", CivSettings.localize.localizedString("cmd_town_outlawDesc"));
 		cs.add("leavegroup", CivSettings.localize.localizedString("cmd_town_leavegroupDesc"));
 		cs.add("select", CivSettings.localize.localizedString("cmd_town_selectDesc"));
-//		cs.add("capture", "[town] - instantly captures this town if they have a missing or illegally placed town hall during WarTime.");
+		// cs.add("capture", "[town] - instantly captures this town if they have a missing or illegally placed town hall during WarTime.");
 		cs.add("capitulate", CivSettings.localize.localizedString("cmd_town_capitulateDesc"));
 		cs.add("survey", CivSettings.localize.localizedString("cmd_town_surveyDesc"));
 		cs.add("templates", CivSettings.localize.localizedString("cmd_town_templatesDesc"));
 		cs.add("event", CivSettings.localize.localizedString("cmd_town_eventDesc"));
 		cs.add("claimmayor", CivSettings.localize.localizedString("cmd_town_claimmayorDesc"));
-//		cs.add("movestructure", "[coord] [town] moves the structure specified by the coord to the specfied town.");
+		// cs.add("movestructure", "[coord] [town] moves the structure specified by the coord to the specfied town.");
 		cs.add("enablestructure", CivSettings.localize.localizedString("cmd_town_enableStructureDesc"));
-		cs.add("location","l", CivSettings.localize.localizedString("cmd_town_locationDesc"));
+		cs.add("location", "l", CivSettings.localize.localizedString("cmd_town_locationDesc"));
 		cs.add("changetown", CivSettings.localize.localizedString("cmd_town_switchtown"));
-		cs.add("teleport","tp", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
-//		cs.add("build","b", "[название города] Построить новый город если ви являетесь поселенцем");
+		cs.add("teleport", "tp", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
+		cs.add("getunit", "unit", "gu", "Открыть сундук с юнитами");
+		// cs.add("build","b", "[название города] Построить новый город если ви являетесь поселенцем");
 	}
 
-//	public void build_cmd() throws CivException {
-//		String townName = this.getNamedString(1, "Введите название города");
-//		Player player = this.getPlayer();
-//		Resident resident = this.getResident();
-//		if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
-//			((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
-//		} else //TODO
-//			throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");
-//	}
+	public void getunit_cmd() throws CivException {
+		this.getResident().getTown().unitInventory.showUnits(getPlayer());
+	}
+
+	// public void build_cmd() throws CivException {
+	// String townName = this.getNamedString(1, "Введите название города");
+	// Player player = this.getPlayer();
+	// Resident resident = this.getResident();
+	// if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
+	// ((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
+	// } else //TODO
+	// throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");
+	// }
 
 	public void teleport_cmd() throws CivException {
 		final Resident resident = this.getResident();
@@ -121,17 +124,15 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
 		}
 		if (!resident.getTreasury().hasEnough(5000.0)) {
-			throw new CivException(
-					CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
-							"§c" + Resident.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
+			throw new CivException(CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
+					"§c" + Resident.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
 		}
 		final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", player);
 		final long timeNow = Calendar.getInstance().getTimeInMillis();
 		if (nextUse > timeNow) {
 			throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
 		}
-		final TeleportPlayerTask2 teleportPlayerTask = new TeleportPlayerTask2(resident, this.getPlayer(),
-				town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
+		final TeleportPlayerTask2 teleportPlayerTask = new TeleportPlayerTask2(resident, this.getPlayer(), town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
 		teleportPlayerTask.run(true);
 	}
 
@@ -164,8 +165,7 @@ public class TownCommand extends CommandBase {
 		request.civ = resident.getCiv();
 		final String fullPlayerName = player.getDisplayName();
 		try {
-			Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_changetownrequest_requestMessage", fullPlayerName,
-					"§c" + resident.getTown().getName(), "§c" + town.getName()), 30000L, request);
+			Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_changetownrequest_requestMessage", fullPlayerName, "§c" + resident.getTown().getName(), "§c" + town.getName()), 30000L, request);
 			CivMessage.send(this.sender, "§7" + CivSettings.localize.localizedString("var_switchtown_pleaseWait"));
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
@@ -182,8 +182,7 @@ public class TownCommand extends CommandBase {
 				CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
 			} else {
 				CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
-				CivMessage.send(sender,
-						CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + townhall.getCorner());
+				CivMessage.send(sender, CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + townhall.getCorner());
 			}
 		}
 	}
@@ -221,46 +220,46 @@ public class TownCommand extends CommandBase {
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_enableStructureSuccess"));
 	}
 
-//	public void movestructure_cmd() throws CivException {
-//		Town town = getSelectedTown();
-//		Resident resident = getResident();
-//		String coordString = getNamedString(1, "Coordinate of structure. Example: world,555,65,444");
-//		Town targetTown = getNamedTown(2);
-//		Structure struct;
-//		
-//		try {
-//			struct = CivGlobal.getStructure(new BlockCoord(coordString));
-//		} catch (Exception e) {
-//			throw new CivException("Invalid structure coordinate. Example: world,555,65,444");
-//		}
-//
-//		if (struct instanceof TownHall || struct instanceof Capitol) {
-//			throw new CivException("Cannot move town halls or capitols.");
-//		}
-//		
-//		if (War.isWarTime()) {
-//			throw new CivException("Cannot move structures during war time.");
-//		}
-//		
-//		if (struct == null) {
-//			throw new CivException("Structure at:"+coordString+" is not found.");
-//		}
-//		
-//		if (!resident.getCiv().getLeaderGroup().hasMember(resident)) {
-//			throw new CivException("You must be the civ's leader in order to do this.");
-//		}
-//		
-//		if (town.getCiv() != targetTown.getCiv()) {
-//			throw new CivException("You can only move structures between towns in your own civ.");
-//		}
-//		
-//		town.removeStructure(struct);
-//		targetTown.addStructure(struct);
-//		struct.setTown(targetTown);
-//		struct.save();
-//		
-//		CivMessage.sendSuccess(sender, "Moved structure "+coordString+" to town "+targetTown.getName());
-//	}
+	// public void movestructure_cmd() throws CivException {
+	// Town town = getSelectedTown();
+	// Resident resident = getResident();
+	// String coordString = getNamedString(1, "Coordinate of structure. Example: world,555,65,444");
+	// Town targetTown = getNamedTown(2);
+	// Structure struct;
+	//
+	// try {
+	// struct = CivGlobal.getStructure(new BlockCoord(coordString));
+	// } catch (Exception e) {
+	// throw new CivException("Invalid structure coordinate. Example: world,555,65,444");
+	// }
+	//
+	// if (struct instanceof TownHall || struct instanceof Capitol) {
+	// throw new CivException("Cannot move town halls or capitols.");
+	// }
+	//
+	// if (War.isWarTime()) {
+	// throw new CivException("Cannot move structures during war time.");
+	// }
+	//
+	// if (struct == null) {
+	// throw new CivException("Structure at:"+coordString+" is not found.");
+	// }
+	//
+	// if (!resident.getCiv().getLeaderGroup().hasMember(resident)) {
+	// throw new CivException("You must be the civ's leader in order to do this.");
+	// }
+	//
+	// if (town.getCiv() != targetTown.getCiv()) {
+	// throw new CivException("You can only move structures between towns in your own civ.");
+	// }
+	//
+	// town.removeStructure(struct);
+	// targetTown.addStructure(struct);
+	// struct.setTown(targetTown);
+	// struct.save();
+	//
+	// CivMessage.sendSuccess(sender, "Moved structure "+coordString+" to town "+targetTown.getName());
+	// }
 
 	public void claimmayor_cmd() throws CivException {
 		Town town = getSelectedTown();
@@ -288,8 +287,7 @@ public class TownCommand extends CommandBase {
 	public void templates_cmd() throws CivException {
 		Player player = getPlayer();
 		Town town = getSelectedTown();
-		Inventory inv = Bukkit.getServer().createInventory(player, Book.MAX_CHEST_SIZE * 9,
-				town.getName() + " " + CivSettings.localize.localizedString("cmd_town_templatesHeading"));
+		Inventory inv = Bukkit.getServer().createInventory(player, Book.MAX_CHEST_SIZE * 9, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_templatesHeading"));
 
 		for (ConfigBuildableInfo info : CivSettings.structures.values()) {
 			for (Perk p : CustomTemplate.getTemplatePerksForBuildable(town, info.template_name)) {
@@ -313,7 +311,7 @@ public class TownCommand extends CommandBase {
 		Queue<ChunkCoord> openSet = new LinkedList<ChunkCoord>();
 		openSet.add(start);
 		/* Try to get the surrounding chunks and get their biome info. */
-		//Enqueue all neighbors.
+		// Enqueue all neighbors.
 		while (!openSet.isEmpty()) {
 			ChunkCoord node = openSet.poll();
 
@@ -323,13 +321,13 @@ public class TownCommand extends CommandBase {
 
 			if (node.manhattanDistance(start) > lvl.chunks) {
 				continue;
-				//	break;
+				// break;
 			}
 
 			closedSet.add(node);
 
-			//Enqueue all neighbors.
-			int[][] offset = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+			// Enqueue all neighbors.
+			int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 			for (int i = 0; i < 4; i++) {
 				ChunkCoord nextCoord = new ChunkCoord(node.getWorldname(), node.getX() + offset[i][0], node.getZ() + offset[i][1]);
 
@@ -343,7 +341,7 @@ public class TownCommand extends CommandBase {
 
 		HashMap<String, Integer> biomes = new HashMap<String, Integer>();
 
-		//	double coins = 0.0;
+		// double coins = 0.0;
 		double hammers = 0.0;
 		double growth = 0.0;
 		double happiness = 0.0;
@@ -363,7 +361,7 @@ public class TownCommand extends CommandBase {
 
 			ConfigCultureBiomeInfo info = CivSettings.getCultureBiome(biome.name());
 
-			//	coins += info.coins;
+			// coins += info.coins;
 			hammers += info.hammers;
 			growth += info.growth;
 			happiness += info.happiness;
@@ -371,20 +369,19 @@ public class TownCommand extends CommandBase {
 		}
 
 		outList.add(CivColor.LightBlue + CivSettings.localize.localizedString("cmd_town_biomeList"));
-		//int totalBiomes = 0;
+		// int totalBiomes = 0;
 		String out = "";
 		for (String biome : biomes.keySet()) {
 			Integer count = biomes.get(biome);
 			out += CivColor.Green + biome + ": " + CivColor.LightGreen + count + CivColor.Green + ", ";
-			//totalBiomes += count;
+			// totalBiomes += count;
 		}
 		outList.add(out);
-		//	outList.add(CivColor.Green+"Biome Count: "+CivColor.LightGreen+totalBiomes);
+		// outList.add(CivColor.Green+"Biome Count: "+CivColor.LightGreen+totalBiomes);
 
 		outList.add(CivColor.LightBlue + CivSettings.localize.localizedString("cmd_town_totals"));
-		outList.add(CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_happiness") + " " + CivColor.LightGreen + df.format(happiness)
-				+ CivColor.Green + " " + CivSettings.localize.localizedString("Hammers") + " " + CivColor.LightGreen + df.format(hammers) + CivColor.Green + " "
-				+ CivSettings.localize.localizedString("cmd_town_growth") + " " + CivColor.LightGreen + df.format(growth) + CivColor.Green + " "
+		outList.add(CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_happiness") + " " + CivColor.LightGreen + df.format(happiness) + CivColor.Green + " " + CivSettings.localize.localizedString("Hammers") + " "
+				+ CivColor.LightGreen + df.format(hammers) + CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_growth") + " " + CivColor.LightGreen + df.format(growth) + CivColor.Green + " "
 				+ CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + df.format(beakers));
 		return outList;
 	}
@@ -407,8 +404,7 @@ public class TownCommand extends CommandBase {
 		}
 
 		if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
-			CivMessage.send(sender,
-					CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_cmd_town_capitulatePrompt1", town.getCiv().getName()));
+			CivMessage.send(sender, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_cmd_town_capitulatePrompt1", town.getCiv().getName()));
 			CivMessage.send(sender, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("cmd_town_capitulateConfirm"));
 			return;
 		}
@@ -420,44 +416,45 @@ public class TownCommand extends CommandBase {
 		CivMessage.global(CivSettings.localize.localizedString("var_cmd_town_capitulateSuccess1", town.getName(), town.getCiv().getName()));
 	}
 
-//	public void capture_cmd() throws CivException {
-//		this.validLeaderAdvisor();
-//		
-//		if (!War.isWarTime()) {
-//			throw new CivException("Can only use this command during war time.");
-//		}
-//		
-//		Town town = getNamedTown(1);
-//		Civilization civ = getSenderCiv();
-//		
-//		if (town.getCiv().isAdminCiv()) {
-//			throw new CivException("Cannot capture spawn town.");
-//		}
-//		
-//		TownHall townhall = town.getTownHall();
-//		if (townhall != null && townhall.isValid()) {
-//			throw new CivException("Cannot capture, this town has a valid town hall.");
-//		}
-//		
-//		if (town.claimed) {
-//			throw new CivException("Town has already been claimed this war time.");
-//		}
-//		
-//		if (town.getMotherCiv() != null) {
-//			throw new CivException("Cannot capture a town already captured by another civ!");
-//		}
-//		
-//		if (town.isCapitol()) {
-//			town.getCiv().onDefeat(civ);
-//			CivMessage.global("The capitol civilization of "+town.getCiv().getName()+" had an illegal or missing town hall and was claimed by "+civ.getName());
-//		} else {
-//			town.onDefeat(civ);
-//			CivMessage.global("The town of "+town.getName()+" had an illegal or missing town hall and was claimed by "+civ.getName());
-//		}
-//		
-//		town.claimed = true;
-//		
-//	}
+	// public void capture_cmd() throws CivException {
+	// this.validLeaderAdvisor();
+	//
+	// if (!War.isWarTime()) {
+	// throw new CivException("Can only use this command during war time.");
+	// }
+	//
+	// Town town = getNamedTown(1);
+	// Civilization civ = getSenderCiv();
+	//
+	// if (town.getCiv().isAdminCiv()) {
+	// throw new CivException("Cannot capture spawn town.");
+	// }
+	//
+	// TownHall townhall = town.getTownHall();
+	// if (townhall != null && townhall.isValid()) {
+	// throw new CivException("Cannot capture, this town has a valid town hall.");
+	// }
+	//
+	// if (town.claimed) {
+	// throw new CivException("Town has already been claimed this war time.");
+	// }
+	//
+	// if (town.getMotherCiv() != null) {
+	// throw new CivException("Cannot capture a town already captured by another civ!");
+	// }
+	//
+	// if (town.isCapitol()) {
+	// town.getCiv().onDefeat(civ);
+	// CivMessage.global("The capitol civilization of "+town.getCiv().getName()+" had an illegal or missing town hall and was claimed by
+	// "+civ.getName());
+	// } else {
+	// town.onDefeat(civ);
+	// CivMessage.global("The town of "+town.getName()+" had an illegal or missing town hall and was claimed by "+civ.getName());
+	// }
+	//
+	// town.claimed = true;
+	//
+	// }
 
 	public void select_cmd() throws CivException {
 		Resident resident = getResident();
@@ -527,8 +524,7 @@ public class TownCommand extends CommandBase {
 		town.mayorWantsToDisband = true;
 
 		if (town.leaderWantsToDisband && town.mayorWantsToDisband) {
-			CivMessage.sendCiv(town.getCiv(), CivSettings.localize.localizedString("Town") + " " + town.getName() + " "
-					+ CivSettings.localize.localizedString("cmd_civ_disbandtownSuccess"));
+			CivMessage.sendCiv(town.getCiv(), CivSettings.localize.localizedString("Town") + " " + town.getName() + " " + CivSettings.localize.localizedString("cmd_civ_disbandtownSuccess"));
 			town.disband();
 		}
 
@@ -537,14 +533,14 @@ public class TownCommand extends CommandBase {
 
 	public void top5_cmd() {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_top5Heading"));
-//		TreeMap<Integer, Town> scores = new TreeMap<Integer, Town>();
-//		
-//		for (Town town : CivGlobal.getTowns()) {
-//			if (town.getCiv().isAdminCiv()) {
-//				continue;
-//			}
-//			scores.put(town.getScore(), town);
-//		}
+		// TreeMap<Integer, Town> scores = new TreeMap<Integer, Town>();
+		//
+		// for (Town town : CivGlobal.getTowns()) {
+		// if (town.getCiv().isAdminCiv()) {
+		// continue;
+		// }
+		// scores.put(town.getScore(), town);
+		// }
 
 		synchronized (CivGlobal.townScores) {
 			int i = 1;
@@ -598,7 +594,7 @@ public class TownCommand extends CommandBase {
 			try {
 				CivMessage.send(CivGlobal.getPlayer(residentToKick), CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_evictAlert"));
 			} catch (CivException e) {
-				//Player not online.
+				// Player not online.
 			}
 			CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_evictSuccess1", residentToKick.getName(), resident.getName()));
 			return;
@@ -643,8 +639,7 @@ public class TownCommand extends CommandBase {
 
 							CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_showCost1", potentialDistanceLow));
 							CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_showCost3"));
-							CivMessage.send(player, CivColor.Yellow
-									+ CivSettings.localize.localizedString("var_cmd_town_showCost3", potentialDistanceHigh, CivSettings.CURRENCY_NAME));
+							CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_showCost3", potentialDistanceHigh, CivSettings.CURRENCY_NAME));
 						} else {
 							CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_showNoTownHall"));
 						}
@@ -770,17 +765,15 @@ public class TownCommand extends CommandBase {
 		}
 
 		if (War.isWithinWarDeclareDays() && town.getCiv().getDiplomacyManager().isAtWar()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_addCloseToWar") + " " + War.time_declare_days + " "
-					+ CivSettings.localize.localizedString("cmd_civ_dip_declareTooCloseToWar4"));
+			throw new CivException(CivSettings.localize.localizedString("cmd_town_addCloseToWar") + " " + War.time_declare_days + " " + CivSettings.localize.localizedString("cmd_civ_dip_declareTooCloseToWar4"));
 		}
 
 		if (newResident.hasCamp()) {
 			try {
 				Player resPlayer = CivGlobal.getPlayer(newResident);
-				CivMessage.send(resPlayer,
-						CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_addAlertError1", player.getName(), town.getName()));
+				CivMessage.send(resPlayer, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_addAlertError1", player.getName(), town.getName()));
 			} catch (CivException e) {
-				//player not online
+				// player not online
 			}
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addhasCamp", newResident.getName()));
 		}
@@ -800,8 +793,7 @@ public class TownCommand extends CommandBase {
 
 		newResident.validateJoinTown(town);
 
-		Question.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()),
-				INVITE_TIMEOUT, join);
+		Question.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()), INVITE_TIMEOUT, join);
 
 		CivMessage.sendSuccess(sender, CivColor.LightGray + CivSettings.localize.localizedString("var_cmd_town_addSuccess", args[1], town.getName()));
 	}
@@ -811,31 +803,31 @@ public class TownCommand extends CommandBase {
 		cmd.onCommand(sender, null, "info", this.stripArgs(args, 1));
 	}
 
-//	public void new_cmd() throws CivException {
-//		if (!(sender instanceof Player)) {
-//			return;
-//		}
-//		
-//		Resident resident = CivGlobal.getResident((Player)sender);
-//		
-//		if (resident == null || !resident.hasTown()) {
-//			throw new CivException("You are not part of a civilization.");
-//		}
-//		
-//		ConfigUnit unit = Unit.getPlayerUnit((Player)sender);
-//		if (unit == null || !unit.id.equals("u_settler")) {			
-//			throw new CivException("You must be a settler in order to found a town.");
-//		}
-//		
-//		CivMessage.sendHeading(sender, "Founding A New Town");
-//		CivMessage.send(sender, CivColor.LightGreen+"This looks like a good place to settle!");
-//		CivMessage.send(sender, " ");
-//		CivMessage.send(sender, CivColor.LightGreen+ChatColor.BOLD+"What shall your new Town be called?");
-//		CivMessage.send(sender, CivColor.LightGray+"(To cancel, type 'cancel')");
-//		
-//		resident.setInteractiveMode(new InteractiveTownName());
-//
-//	}
+	// public void new_cmd() throws CivException {
+	// if (!(sender instanceof Player)) {
+	// return;
+	// }
+	//
+	// Resident resident = CivGlobal.getResident((Player)sender);
+	//
+	// if (resident == null || !resident.hasTown()) {
+	// throw new CivException("You are not part of a civilization.");
+	// }
+	//
+	// ConfigUnit unit = Unit.getPlayerUnit((Player)sender);
+	// if (unit == null || !unit.id.equals("u_settler")) {
+	// throw new CivException("You must be a settler in order to found a town.");
+	// }
+	//
+	// CivMessage.sendHeading(sender, "Founding A New Town");
+	// CivMessage.send(sender, CivColor.LightGreen+"This looks like a good place to settle!");
+	// CivMessage.send(sender, " ");
+	// CivMessage.send(sender, CivColor.LightGreen+ChatColor.BOLD+"What shall your new Town be called?");
+	// CivMessage.send(sender, CivColor.LightGray+"(To cancel, type 'cancel')");
+	//
+	// resident.setInteractiveMode(new InteractiveTownName());
+	//
+	// }
 
 	public void claim_cmd() throws CivException {
 		if (War.isWarTime()) {
@@ -849,11 +841,11 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
 		}
 
-//		boolean outpost = false;
-//		if (args.length >= 2 && args[1].equalsIgnoreCase("outpost")) {
-//			outpost = true;
-//			CivMessage.send(player, "Claiming an outpost!");
-//		}
+		// boolean outpost = false;
+		// if (args.length >= 2 && args[1].equalsIgnoreCase("outpost")) {
+		// outpost = true;
+		// CivMessage.send(player, "Claiming an outpost!");
+		// }
 
 		TownChunk.claim(town, player, false);
 	}
@@ -925,7 +917,7 @@ public class TownCommand extends CommandBase {
 
 	@Override
 	public void doDefaultAction() {
-		//TODO make this an info command.
+		// TODO make this an info command.
 		showHelp();
 	}
 

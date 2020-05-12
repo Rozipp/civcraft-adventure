@@ -8,8 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
-import gpl.AttributeUtil;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,17 +21,16 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveRepairItem;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.components.RepairCost;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementNoRepair;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -73,13 +70,12 @@ public class Barracks extends Structure {
 	public double getRepairCost() {
 		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
 	}
-	
+
 	private String getUnitSignText(int index) throws IndexOutOfBoundsException {
 		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
 
 		if (unitList.size() == 0) {
-			return "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray
-					+ CivSettings.localize.localizedString("Available");
+			return "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Available");
 		}
 
 		ConfigUnit unit = unitList.get(index);
@@ -99,8 +95,8 @@ public class Barracks extends Structure {
 				this.unitNameSign.setText(getUnitSignText(newIndex));
 				index = newIndex;
 			} catch (IndexOutOfBoundsException e) {
-				//index = 0;
-				//this.unitNameSign.setText(getUnitSignText(index));
+				// index = 0;
+				// this.unitNameSign.setText(getUnitSignText(index));
 			}
 			this.unitNameSign.update();
 		} else {
@@ -116,31 +112,18 @@ public class Barracks extends Structure {
 		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
 
 		ConfigUnit unit = unitList.get(index);
-		if (unit == null) {
-			throw new CivException(CivSettings.localize.localizedString("barracks_unknownUnit"));
-		}
-
-		if (unit.limit != 0 && unit.limit < getTown().getUnitTypeCount(unit.id)) {
-			throw new CivException(CivSettings.localize.localizedString("var_barracks_atLimit", unit.name));
-		}
-
-		if (!unit.isAvailable(getTown())) {
-			throw new CivException(CivSettings.localize.localizedString("barracks_unavailable"));
-		}
-
-		if (this.trainingUnit != null) {
-			throw new CivException(CivSettings.localize.localizedString("var_barracks_inProgress", this.trainingUnit.name));
-		}
-
+		if (unit == null) throw new CivException(CivSettings.localize.localizedString("barracks_unknownUnit"));
+		// TODO Добавить проверку на количество юнитов if (unit.limit != 0 && unit.limit < getTown().getUnitTypeCount(unit.id)) throw new
+		// CivException(CivSettings.localize.localizedString("var_barracks_atLimit", unit.name));
+		if (!unit.isAvailable(getTown())) throw new CivException(CivSettings.localize.localizedString("barracks_unavailable"));
+		if (this.trainingUnit != null) throw new CivException(CivSettings.localize.localizedString("var_barracks_inProgress", this.trainingUnit.name));
 		double coinCost = unit.cost;
-		if (!getTown().getTreasury().hasEnough(coinCost)) {
-			throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost, CivSettings.CURRENCY_NAME));
-		}
+		if (!getTown().getTreasury().hasEnough(coinCost)) throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost, CivSettings.CURRENCY_NAME));
 
 		getTown().getTreasury().withdraw(coinCost);
 
-		this.setCurrentHammers(0.0);
-		this.setTrainingUnit(unit);
+		this.currentHammers = 0.0;
+		this.trainingUnit = unit;
 		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_barracks_begin", unit.name));
 		this.updateTraining();
 		this.onTechUpdate();
@@ -152,24 +135,24 @@ public class Barracks extends Structure {
 		if (resident == null) return;
 
 		switch (sign.getAction()) {
-			case "prev" :
-				changeIndex((index - 1));
-				break;
-			case "next" :
-				changeIndex((index + 1));
-				break;
-			case "train" :
-				if (resident.hasTown()) {
-					try {
-						train(resident);
-					} catch (CivException e) {
-						CivMessage.send(player, CivColor.Rose + e.getMessage());
-					}
+		case "prev":
+			changeIndex((index - 1));
+			break;
+		case "next":
+			changeIndex((index + 1));
+			break;
+		case "train":
+			if (resident.hasTown()) {
+				try {
+					train(resident);
+				} catch (CivException e) {
+					CivMessage.send(player, CivColor.Rose + e.getMessage());
 				}
-				break;
-			case "repair_item" :
-				repairItem(player, resident, event);
-				break;
+			}
+			break;
+		case "repair_item":
+			repairItem(player, resident, event);
+			break;
 		}
 	}
 
@@ -180,10 +163,8 @@ public class Barracks extends Structure {
 				throw new CivException(CivSettings.localize.localizedString("barracks_repair_noItem"));
 			}
 
-			for (final LoreEnhancement loreEnhancement : new AttributeUtil(inHand).getEnhancements()) {
-				if (loreEnhancement instanceof LoreEnhancementNoRepair) {
-					throw new CivException(CivSettings.localize.localizedString("barracks_repair_noRepairEnch"));
-				}
+			if (Enchantments.hasEnchantment(inHand, CustomEnchantment.NoRepair)) {
+				throw new CivException(CivSettings.localize.localizedString("barracks_repair_noRepairEnch"));
 			}
 
 			if (inHand.getType().getMaxDurability() == 0) {
@@ -254,32 +235,20 @@ public class Barracks extends Structure {
 		resident.getTreasury().withdraw(cost);
 		player.getInventory().getItemInMainHand().setDurability((short) 0);
 
-		CivMessage.sendSuccess(player,
-				CivSettings.localize.localizedString("var_barracks_repair_Success", craftMat.getName(), cost, CivSettings.CURRENCY_NAME));
+		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_barracks_repair_Success", craftMat.getName(), cost, CivSettings.CURRENCY_NAME));
 
 	}
 
 	@Override
 	public void onTechUpdate() {
-
-		class BarracksSyncUpdate implements Runnable {
-
-			ConstructSign unitNameSign;
-
-			public BarracksSyncUpdate(ConstructSign unitNameSign) {
-				this.unitNameSign = unitNameSign;
-			}
-
+		ConstructSign unitNameSign = this.unitNameSign;
+		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
-
-				this.unitNameSign.setText(getUnitSignText(index));
-				this.unitNameSign.update();
+				unitNameSign.setText(getUnitSignText(index));
+				unitNameSign.update();
 			}
-		}
-
-		TaskMaster.syncTask(new BarracksSyncUpdate(this.unitNameSign));
-
+		});
 	}
 
 	@Override
@@ -287,90 +256,97 @@ public class Barracks extends Structure {
 		ConstructSign structSign;
 
 		switch (sb.command) {
-			case "/prev" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_previousUnit"));
-				structSign.setDirection(sb.getData());
-				structSign.setAction("prev");
-				structSign.update();
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+		case "/prev":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_previousUnit"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("prev");
+			structSign.update();
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				break;
-			case "/unitname" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
+			break;
+		case "/unitname":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText(getUnitSignText(0));
-				structSign.setDirection(sb.getData());
-				structSign.setAction("info");
-				structSign.update();
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText(getUnitSignText(0));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("info");
+			structSign.update();
 
-				this.unitNameSign = structSign;
+			this.unitNameSign = structSign;
 
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				break;
-			case "/next" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
+			break;
+		case "/next":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_nextUnit"));
-				structSign.setDirection(sb.getData());
-				structSign.setAction("next");
-				structSign.update();
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_nextUnit"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("next");
+			structSign.update();
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				break;
-			case "/train" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
+			break;
+		case "/train":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_train"));
-				structSign.setDirection(sb.getData());
-				structSign.setAction("train");
-				structSign.update();
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_train"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("train");
+			structSign.update();
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				break;
-			case "/progress" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
+			break;
+		case "/progress":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText("");
-				structSign.setDirection(sb.getData());
-				structSign.setAction("");
-				structSign.update();
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("");
+			structSign.setDirection(sb.getData());
+			structSign.setAction("");
+			structSign.update();
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
+			this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
 
-				break;
-			case "/repair" :
-				ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
-				ItemManager.setData(absCoord.getBlock(), sb.getData());
+			break;
+		case "/repair":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-				structSign = new ConstructSign(absCoord, this);
-				structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_repairItem"));
-				structSign.setDirection(sb.getData());
-				structSign.setAction("repair_item");
-				structSign.update();
-				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_repairItem"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("repair_item");
+			structSign.update();
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 
-				break;
+			break;
 
 		}
+	}
+
+	public void onPostBuild() {
+		ArrayList<ConstructChest> chests = this.getAllChestsById("0");
+		if (chests.size() == 0) return;
+		Chest chest = (Chest) chests.get(0).getCoord().getBlock().getState();
+		getTown().unitInventory.chest = chest;
 	}
 
 	public int getIndex() {
@@ -385,18 +361,6 @@ public class Barracks extends Structure {
 		return trainingUnit;
 	}
 
-	public void setTrainingUnit(ConfigUnit trainingUnit) {
-		this.trainingUnit = trainingUnit;
-	}
-
-	public double getCurrentHammers() {
-		return currentHammers;
-	}
-
-	public void setCurrentHammers(double currentHammers) {
-		this.currentHammers = currentHammers;
-	}
-
 	public void createUnit(ConfigUnit unit) {
 
 		// Find the chest inventory
@@ -405,39 +369,8 @@ public class Barracks extends Structure {
 			return;
 		}
 
-		Chest chest = (Chest) chests.get(0).getCoord().getBlock().getState();
-
-//XXX from original
-//		try {
-//			Class<?> c = Class.forName(unit.class_name);
-//			Method m = c.getMethod("spawn", Inventory.class, Town.class);
-//			m.invoke(null, chest.getInventory(), this.getTown());
-//			
-//			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_barracks_completedTraining",unit.name));
-//			this.trainingUnit = null;
-//			this.currentHammers = 0.0;
-//			
-//			CivGlobal.getSessionDB().delete_all(getSessionKey());
-//			
-//		} catch (ClassNotFoundException | SecurityException | 
-//				IllegalAccessException | IllegalArgumentException | NoSuchMethodException e) {
-//			this.trainingUnit = null;
-//			this.currentHammers = 0.0;
-//			CivMessage.sendTown(getTown(), CivColor.Red+CivSettings.localize.localizedString("barracks_errorUnknown")+e.getMessage());
-//		} catch (InvocationTargetException e) {
-//			CivMessage.sendTown(getTown(), CivColor.Rose+e.getCause().getMessage());
-//			this.currentHammers -= 20.0;
-//			if (this.currentHammers < 0.0) {
-//				this.currentHammers = 0.0;
-//			}
-//		//	e.getCause().getMessage()
-//			//e.printStackTrace();
-//		//	CivMessage.sendTown(getTown(), CivColor.Rose+e.getMessage());
-//		}
-
-//XXX		spawn unit from Rozipp
 		try {
-			UnitStatic.spawn(chest.getInventory(), this.getTown(), unit.id);
+			UnitStatic.spawn(this.getTown(), unit.id);
 
 			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_barracks_completedTraining", unit.name));
 			this.trainingUnit = null;
@@ -473,15 +406,13 @@ public class Barracks extends Structure {
 			for (int j = 0; j < 16; j++) {
 				if (textIndex == 0) {
 					text[2] += "[";
-				} else
-					if (textIndex == ((size * 15) + 3)) {
-						text[2] += "]";
-					} else
-						if (textIndex < textCount) {
-							text[2] += "=";
-						} else {
-							text[2] += "_";
-						}
+				} else if (textIndex == ((size * 15) + 3)) {
+					text[2] += "]";
+				} else if (textIndex < textCount) {
+					text[2] += "=";
+				} else {
+					text[2] += "_";
+				}
 
 				textIndex++;
 			}
@@ -525,8 +456,8 @@ public class Barracks extends Structure {
 					lastSave = new Date();
 				}
 			}
-		},0);
-		
+		}, 0);
+
 	}
 
 	@Override

@@ -8,17 +8,22 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
-import java.util.List;
-
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMission;
 import com.avrgaming.civcraft.config.ConfigUnitMaterial;
 import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.items.components.ItemComponent;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class UnitCustomMaterial extends BaseCustomMaterial {
@@ -27,9 +32,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	public UnitCustomMaterial(String id, int minecraftId, short damage) {
 		super(id, minecraftId, damage);
-	}
-	@Override
-	public void addMaterial() {
 		CustomMaterial.unitMaterials.put(this.getId(), this);
 	}
 
@@ -51,15 +53,41 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	@Override
 	public void onItemSpawn(ItemSpawnEvent event) {
-		// Never let these spawn as items.
 		event.setCancelled(true);
 	}
 
-	public void setLoreArray(List<String> lore) {
-		super.setLore("");
-		for (String str : lore) {
-			this.addLore(str);
+	@Override
+	public void onDropItem(PlayerDropItemEvent event) {
+		CivLog.debug("onDropItem");
+		ItemComponent ic = components.get("Cooldown");
+		if (ic != null && ic.getString("lock") != null) {
+			event.setCancelled(true);
+			event.getItemDrop().setItemStack(null);
 		}
+	}
+
+	@Override
+	public void onPickupItem(EntityPickupItemEvent event) {
+		ItemComponent ic = components.get("Cooldown");
+		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+	}
+
+	@Override
+	public void onInvItemPickup(InventoryClickEvent event, Inventory fromInv, ItemStack stack) {
+		ItemComponent ic = components.get("Cooldown");
+		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+	}
+
+	@Override
+	public void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack) {
+		ItemComponent ic = components.get("Cooldown");
+		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+	}
+
+	@Override
+	public void onInvItemDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
+		ItemComponent ic = components.get("Cooldown");
+		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
 	}
 
 	public int getSocketSlot() {
@@ -72,23 +100,23 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	@Override
 	public void onInteractEntity(PlayerInteractEntityEvent event) {
-		//	CivLog.debug("\tMissionBook )
+		// CivLog.debug("\tMissionBook )
 		event.setCancelled(true);
 	}
 
 	@Override
 	public boolean isCanUseInventoryTypes(Inventory inv) {
 		switch (inv.getType()) {
-			case CHEST :
-			case DROPPER :
-			case ENDER_CHEST :
-			case HOPPER :
-			case PLAYER :
-			case SHULKER_BOX :
-			case WORKBENCH :
-				return true;
-			default :
-				return false;
+		case CHEST:
+		case DROPPER:
+		case ENDER_CHEST:
+		case HOPPER:
+		case PLAYER:
+		case SHULKER_BOX:
+		case WORKBENCH:
+			return true;
+		default:
+			return false;
 		}
 	}
 

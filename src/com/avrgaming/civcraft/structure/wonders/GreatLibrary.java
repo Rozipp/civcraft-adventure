@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -30,9 +29,10 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigEnchant;
 import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -43,8 +43,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class GreatLibrary extends Wonder {
 
-	public GreatLibrary(Location center, String id, Town town)
-			throws CivException {
+	public GreatLibrary(Location center, String id, Town town) throws CivException {
 		super(center, id, town);
 	}
 
@@ -58,18 +57,18 @@ public class GreatLibrary extends Wonder {
 			addBuffs();
 		}
 	}
-	
+
 	@Override
 	public void onComplete() {
 		addBuffs();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		removeBuffs();
 	}
-	
+
 	@Override
 	protected void removeBuffs() {
 		this.removeBuffFromCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
@@ -81,103 +80,102 @@ public class GreatLibrary extends Wonder {
 		this.addBuffToCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
 		this.addBuffToTown(this.getTown(), "buff_greatlibrary_double_tax_beakers");
 	}
-	
-	
+
 	@Override
 	public void updateSignText() {
-		
+
 		for (ConstructSign sign : getSigns()) {
 			ConfigEnchant enchant;
 			switch (sign.getAction().toLowerCase()) {
 			case "0":
 				enchant = CivSettings.enchants.get("ench_fire_aspect");
-				sign.setText(enchant.name+"\n\n"+CivColor.LightGreen+enchant.cost+" "+CivSettings.CURRENCY_NAME);
+				sign.setText(enchant.name + "\n\n" + CivColor.LightGreen + enchant.cost + " " + CivSettings.CURRENCY_NAME);
 				break;
 			case "1":
 				enchant = CivSettings.enchants.get("ench_fire_protection");
-				sign.setText(enchant.name+"\n\n"+CivColor.LightGreen+enchant.cost+" "+CivSettings.CURRENCY_NAME);
+				sign.setText(enchant.name + "\n\n" + CivColor.LightGreen + enchant.cost + " " + CivSettings.CURRENCY_NAME);
 				break;
 			case "2":
 				enchant = CivSettings.enchants.get("ench_flame");
-				sign.setText(enchant.name+"\n\n"+CivColor.LightGreen+enchant.cost+" "+CivSettings.CURRENCY_NAME);				
-				break;			
+				sign.setText(enchant.name + "\n\n" + CivColor.LightGreen + enchant.cost + " " + CivSettings.CURRENCY_NAME);
+				break;
 			case "3":
 				enchant = CivSettings.enchants.get("ench_punchout");
-				sign.setText(enchant.name+"\n\n"+CivColor.LightGreen+enchant.cost+" "+CivSettings.CURRENCY_NAME);
+				sign.setText(enchant.name + "\n\n" + CivColor.LightGreen + enchant.cost + " " + CivSettings.CURRENCY_NAME);
 				break;
 			}
-			
+
 			sign.update();
 		}
 	}
-	
+
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-		//int special_id = Integer.valueOf(sign.getAction());
+		// int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
-		
+
 		if (resident == null) {
 			return;
 		}
-		
+
 		if (resident.getCiv() != this.getCiv()) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember",this.getCiv().getName()));
+			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember", this.getCiv().getName()));
 			return;
 		}
-//		XXX ПРоверка на лидера цивы
-//		if (!this.getCiv().getLeaderGroup().hasMember(resident)) {
-//            CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_onlyleader", this.getCiv().getName()));
-//            return;
-//        }
-		
+		// XXX ПРоверка на лидера цивы
+		// if (!this.getCiv().getLeaderGroup().hasMember(resident)) {
+		// CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_onlyleader", this.getCiv().getName()));
+		// return;
+		// }
+
 		ItemStack hand = player.getInventory().getItemInMainHand();
 		ConfigEnchant configEnchant;
-		
+
 		switch (sign.getAction()) {
 		case "0": /* fire aspect */
-			if (!Enchantment.FIRE_ASPECT.canEnchantItem(hand)) {
+			if (!CustomEnchantment.FIRE_ASPECT.canEnchantItem(hand)) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_cannotEnchant"));
 				return;
 			}
-			
+
 			configEnchant = CivSettings.enchants.get("ench_fire_aspect");
 			if (!resident.getTreasury().hasEnough(configEnchant.cost)) {
-				CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("var_library_enchant_cannotAfford",configEnchant.cost,CivSettings.CURRENCY_NAME));
+				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_library_enchant_cannotAfford", configEnchant.cost, CivSettings.CURRENCY_NAME));
 				return;
 			}
-			
+
 			resident.getTreasury().withdraw(configEnchant.cost);
-			hand.addEnchantment(Enchantment.FIRE_ASPECT, 2);			
+			hand = Enchantments.addEnchantment(hand, CustomEnchantment.FIRE_ASPECT, 2);
 			break;
 		case "1": /* fire protection */
-			if (!Enchantment.PROTECTION_FIRE.canEnchantItem(hand)) {
+			if (!CustomEnchantment.PROTECTION_FIRE.canEnchantItem(hand)) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_cannotEnchant"));
-				return;	
+				return;
 			}
-			
+
 			configEnchant = CivSettings.enchants.get("ench_fire_protection");
 			if (!resident.getTreasury().hasEnough(configEnchant.cost)) {
-				CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("var_library_enchant_cannotAfford",configEnchant.cost,CivSettings.CURRENCY_NAME));
+				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_library_enchant_cannotAfford", configEnchant.cost, CivSettings.CURRENCY_NAME));
 				return;
 			}
-			
+
 			resident.getTreasury().withdraw(configEnchant.cost);
-			hand.addEnchantment(Enchantment.PROTECTION_FIRE, 3);			
+			hand = Enchantments.addEnchantment(hand, CustomEnchantment.PROTECTION_FIRE, 3);
 			break;
 		case "2": /* flame */
-			if (!Enchantment.ARROW_FIRE.canEnchantItem(hand)) {
+			if (!CustomEnchantment.ARROW_FIRE.canEnchantItem(hand)) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_cannotEnchant"));
-				return;	
-			}
-			
-			configEnchant = CivSettings.enchants.get("ench_flame");
-			if (!resident.getTreasury().hasEnough(configEnchant.cost)) {
-				CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("var_library_enchant_cannotAfford",configEnchant.cost,CivSettings.CURRENCY_NAME));
 				return;
 			}
-			
+
+			configEnchant = CivSettings.enchants.get("ench_flame");
+			if (!resident.getTreasury().hasEnough(configEnchant.cost)) {
+				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_library_enchant_cannotAfford", configEnchant.cost, CivSettings.CURRENCY_NAME));
+				return;
+			}
+
 			resident.getTreasury().withdraw(configEnchant.cost);
-			hand.addEnchantment(Enchantment.ARROW_FIRE, 1);	
+			hand = Enchantments.addEnchantment(hand, CustomEnchantment.ARROW_FIRE, 1);
 			break;
 		case "3":
 			switch (ItemManager.getTypeId(hand)) {
@@ -187,35 +185,35 @@ public class GreatLibrary extends Wonder {
 			case CivData.DIAMOND_PICKAXE:
 			case CivData.GOLD_PICKAXE:
 				configEnchant = CivSettings.enchants.get("ench_punchout");
-				
-				if (!CustomMaterial.isCustomMaterial(hand)) {					
+
+				if (!CustomMaterial.isCustomMaterial(hand)) {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_nonEnchantable"));
 					return;
 				}
-				
-				if (CustomMaterial.hasEnhancement(hand, configEnchant.enchant_id)) {
+
+				if (Enchantments.hasEnchantment(hand, CustomEnchantment.getByName(configEnchant.enchant_id))) {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_hasEnchantment"));
 					return;
 				}
-				
+
 				if (!resident.getTreasury().hasEnough(configEnchant.cost)) {
-					CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("var_library_enchant_cannotAfford",configEnchant.cost,CivSettings.CURRENCY_NAME));
+					CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_library_enchant_cannotAfford", configEnchant.cost, CivSettings.CURRENCY_NAME));
 					return;
 				}
-				
+
 				resident.getTreasury().withdraw(configEnchant.cost);
-				ItemStack newItem = CustomMaterial.addEnhancement(hand, LoreEnhancement.getFromName(configEnchant.enchant_id));				
-				player.getInventory().setItemInMainHand(newItem);
+				Enchantments.addEnchantment(hand, CustomEnchantment.getByName(configEnchant.enchant_id), 1);
+				player.getInventory().setItemInMainHand(hand);
 				break;
 			default:
 				CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_cannotEnchant"));
-				return;	
+				return;
 			}
 			break;
 		default:
 			return;
 		}
-		
+		player.getInventory().setItemInMainHand(hand);
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("library_enchantment_success"));
 	}
 

@@ -8,7 +8,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.TaskMaster;
 
 public class Transmuter {
@@ -33,7 +32,6 @@ public class Transmuter {
 		if (ctr != null) {
 			this.cTranRs.add(ctr);
 			calcDelay();
-			CivLog.debug("addRecipe: " +s);
 		}
 	}
 

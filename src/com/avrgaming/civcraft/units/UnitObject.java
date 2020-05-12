@@ -32,12 +32,14 @@ public class UnitObject extends SQLObject {
 
 	public static final String TABLE_NAME = "UNITS";
 
-	private Town townOwner;
 	private int exp;
 	private int level;
 	private String configUnitId;
 	private ConfigUnit configUnit;
-	private Resident lastResident;
+	private Town townOwner;
+	private Resident lastResident = null;
+	private int lastHashCode = 0;
+	private long lastActivate = 0;
 	private HashMap<String, Integer> ammunitionSlots = new HashMap<>();
 
 	private HashMap<String, Integer> totalComponents = new HashMap<>();
@@ -51,7 +53,6 @@ public class UnitObject extends SQLObject {
 		this.townOwner = town;
 		this.level = 0;
 		this.exp = 0;
-		this.lastResident = null;
 		try {
 			this.saveNow();
 		} catch (SQLException e) {
@@ -59,7 +60,7 @@ public class UnitObject extends SQLObject {
 		}
 		UnitMaterial um = UnitStatic.getUnit(this.configUnit.id);
 		um.initUnitObject(this);
-		this.townOwner.addUnitToList(this.getId());
+		this.townOwner.unitInventory.addUnit(this.getId());
 	}
 
 	public UnitObject(ResultSet rs) throws CivException, SQLException {
@@ -73,7 +74,6 @@ public class UnitObject extends SQLObject {
 	}
 
 	// -----------------SQL begin
-
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
 			final String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" //
@@ -82,6 +82,8 @@ public class UnitObject extends SQLObject {
 					+ "`town_id` int(11) DEFAULT '0'," //
 					+ "`exp` int(11) DEFAULT '0'," //
 					+ "`lastResident` VARCHAR(64) DEFAULT NULL," //
+					+ "`lastHashCode` int(11) DEFAULT 0," //
+					+ "`lastActivate` BIGINT NOT NULL DEFAULT 0," //
 					+ "`ammunitions` mediumtext DEFAULT NULL," //
 					+ "`components` mediumtext DEFAULT NULL," //
 					+ "PRIMARY KEY (`id`))";
@@ -100,14 +102,16 @@ public class UnitObject extends SQLObject {
 		if (this.townOwner == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
 			if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
-				CivLog.info("CLEANING");
+				CivLog.info("CLEANING town_id = " + rs.getInt("town_id"));
 				this.delete();
 			}
 			throw new CivException("Not fount town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
-		} else this.townOwner.addUnitToList(this.getId());
+		} else this.townOwner.unitInventory.addUnit(this.getId());
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
 		this.lastResident = CivGlobal.getResident(rs.getString("lastResident"));
+		this.lastHashCode = rs.getInt("lastHashCode");
+		this.lastActivate = rs.getLong("lastActivate");
 
 		String tempAmmun = rs.getString("ammunitions");
 		if (tempAmmun != null) {
@@ -163,6 +167,8 @@ public class UnitObject extends SQLObject {
 		hashmap.put("town_id", this.townOwner.getId());
 		hashmap.put("exp", this.exp);
 		hashmap.put("lastResident", (this.lastResident == null ? 0 : this.lastResident.getName()));
+		hashmap.put("lastHashCode", this.lastHashCode);
+		hashmap.put("lastActivate", this.lastActivate);
 
 		if (!ammunitionSlots.isEmpty()) hashmap.put("ammunitions", ammunitionSlots.toString().replace("{", "").replace("}", "").replace(" ", ""));
 
@@ -195,7 +201,7 @@ public class UnitObject extends SQLObject {
 
 	@Override
 	public void delete() throws SQLException {
-		if (townOwner != null) this.townOwner.removeUnitToList(this.getId());
+		if (townOwner != null) this.townOwner.unitInventory.removeUnit(this.getId());
 		CivGlobal.removeUnitObject(this);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
@@ -257,9 +263,22 @@ public class UnitObject extends SQLObject {
 		}
 	}
 
-	public void setLastResident(Resident res) {
+	// --------------------
+	public void used(Resident res, ItemStack is) {
 		this.lastResident = res;
+		this.lastActivate = System.currentTimeMillis();
+		this.lastHashCode = is.hashCode();
 		save();
+	}
+
+	public boolean validLastActivate() {
+		if (lastHashCode == 0) return false;
+		if (lastActivate == 0) return true;
+		return (System.currentTimeMillis() - lastActivate) < UnitStatic.unitTimeDiactivate * 60000;
+	}
+
+	public boolean validLastHashCode(ItemStack is) {
+		return lastHashCode == is.hashCode();
 	}
 
 	public void setAmunitionSlot(String mat, Integer slot) {
@@ -329,7 +348,7 @@ public class UnitObject extends SQLObject {
 			CivMessage.sendError(player, "У вас нет города");
 			return false;
 		}
-		if (!resident.getCiv().equals(this.townOwner.getCiv())) {
+		if (!resident.getTown().equals(this.townOwner)) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorNotOwner"));
 			return false;
 		}
@@ -355,7 +374,6 @@ public class UnitObject extends SQLObject {
 			UnitCustomMaterial ucmat = CustomMaterial.getUnitCustomMaterial(key);
 			if (ucmat != null) {
 				newItems.put(ucmat.getConfigId(), ammunitionSlots.getOrDefault(ucmat.getConfigId(), ucmat.getSocketSlot()));
-				// CustomMaterial.spawn(ucmat)
 				continue;
 			}
 
@@ -373,11 +391,11 @@ public class UnitObject extends SQLObject {
 			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7)); // ItemManager.createItemStack("u_choiceunitcomponent", getLevelUp()
 		}
 
+		//раскладываем созданные предметы по слотам, сохраненных в this.ammunitions или в стандартные из um.getSlot() 
 		HashMap<Integer, ItemStack> newSlots = new HashMap<>();
 		for (Equipments equip : newEquipments.keySet()) {
 			newSlots.put(ammunitionSlots.getOrDefault(equipments.get(equip), equip.getSlot()), newEquipments.get(equip));
 		}
-
 		for (String mid : newItems.keySet()) {
 			Integer slot = newItems.get(mid);
 			if (newSlots.containsKey(slot)) {
@@ -390,9 +408,8 @@ public class UnitObject extends SQLObject {
 		}
 
 		ArrayList<ItemStack> removes = new ArrayList<>(); // список предметов которые занимают нужные слоты
-		// ложу все предметы в слоты сохраненные в this.ammunitions или в стандартные из um.getSlot()
 		for (Integer slot : newSlots.keySet()) {
-			UnitStatic.putItemSlot(inv, newSlots.get(slot), slot, removes);
+			UnitStatic.putItemToPlayerSlot(inv, newSlots.get(slot), slot, removes);
 		}
 
 		// Try to re-add any removed items.
@@ -407,4 +424,5 @@ public class UnitObject extends SQLObject {
 		UnitStatic.removeChildrenItems(player);
 		this.dressAmmunitions(player);
 	}
+
 }

@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.util.Random;
 
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -30,27 +29,18 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.generator.BlockPopulator;
-import org.bukkit.plugin.Plugin;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.gmail.filoghost.holographicdisplays.api.line.ItemLine;
-import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 
 public class TradeGoodPopulator extends BlockPopulator {
 	
@@ -62,7 +52,7 @@ public class TradeGoodPopulator extends BlockPopulator {
     public static void buildTradeGoodie(ConfigTradeGood good, BlockCoord coord, World world, boolean sync) {
     	TradeGood new_good = new TradeGood(good, coord);            
     	CivGlobal.addTradeGood(new_good);
-        final Plugin CivCraftGoods = (Plugin)CivCraft.getPlugin();
+//        final Plugin CivCraftGoods = (Plugin)CivCraft.getPlugin();
 
     	BlockFace direction = null;
     	Block top = null;
@@ -104,26 +94,26 @@ public class TradeGoodPopulator extends BlockPopulator {
     		}
     	}
 
-        final Location loc = new Location(coord.getBlock().getWorld(), coord.getBlock().getX() + 0.5, (double)(coord.getBlock().getY() + 5), coord.getBlock().getZ() + 0.5);
-        final Hologram holoTradeGood = HologramsAPI.createHologram(CivCraftGoods, loc);
-
-        ItemLine tradeGoodItem;
-		TextLine tradeGoodName;
-		TextLine tradeGoodValue;
-        String color;
-        if (good.water) {
-            tradeGoodItem = holoTradeGood.appendItemLine(ItemManager.createItemStack(good.material, (short)good.material_data, 1));
-            tradeGoodName = holoTradeGood.appendTextLine(CivColor.GoldBold + "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0440\u0435\u0441\u0443\u0440\u0441 " + CivColor.LightBlueBold + CivColor.ITALIC + good.name);
-            tradeGoodValue = holoTradeGood.appendTextLine(CivColor.LightPurpleBold + "\u0414\u0430\u0435\u0442: ");
-            color = "§7";
-        }
-        else {
-            tradeGoodItem = holoTradeGood.appendItemLine(ItemManager.createItemStack(good.material, (short)good.material_data, 1));
-            tradeGoodName = holoTradeGood.appendTextLine(CivColor.GoldBold + "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0440\u0435\u0441\u0443\u0440\u0441 " + CivColor.LightGreenBold + CivColor.ITALIC + good.name);
-            tradeGoodValue = holoTradeGood.appendTextLine(CivColor.LightPurpleBold + "\u0414\u0430\u0435\u0442: ");
-            color = "§c";
-        }
-		final TextLine tradeGoodBuffs = holoTradeGood.appendTextLine(color + getHumanBuffList(good));
+//XXX HoloDisp Выключен    	
+//        final Location loc = new Location(coord.getBlock().getWorld(), coord.getBlock().getX() + 0.5, (double)(coord.getBlock().getY() + 5), coord.getBlock().getZ() + 0.5);
+//        final Hologram holoTradeGood = HologramsAPI.createHologram(CivCraftGoods, loc);
+//        ItemLine tradeGoodItem;
+//		TextLine tradeGoodName;
+//		TextLine tradeGoodValue;
+//        String color;
+//        if (good.water) {
+//            tradeGoodItem = holoTradeGood.appendItemLine(ItemManager.createItemStack(good.material, (short)good.material_data, 1));
+//            tradeGoodName = holoTradeGood.appendTextLine(CivColor.GoldBold + "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0440\u0435\u0441\u0443\u0440\u0441 " + CivColor.LightBlueBold + CivColor.ITALIC + good.name);
+//            tradeGoodValue = holoTradeGood.appendTextLine(CivColor.LightPurpleBold + "\u0414\u0430\u0435\u0442: ");
+//            color = "§7";
+//        }
+//        else {
+//            tradeGoodItem = holoTradeGood.appendItemLine(ItemManager.createItemStack(good.material, (short)good.material_data, 1));
+//            tradeGoodName = holoTradeGood.appendTextLine(CivColor.GoldBold + "\u0422\u043e\u0440\u0433\u043e\u0432\u044b\u0439 \u0440\u0435\u0441\u0443\u0440\u0441 " + CivColor.LightGreenBold + CivColor.ITALIC + good.name);
+//            tradeGoodValue = holoTradeGood.appendTextLine(CivColor.LightPurpleBold + "\u0414\u0430\u0435\u0442: ");
+//            color = "§c";
+//        }
+//		final TextLine tradeGoodBuffs = holoTradeGood.appendTextLine(color + getHumanBuffList(good));
     	Block signBlock = top.getRelative(direction);
     	signBlock.setType(Material.WALL_SIGN);
     	//TODO make sign a structure sign?
@@ -236,10 +226,10 @@ public class TradeGoodPopulator extends BlockPopulator {
  	
     }
 
-    public static void setTradeGoodInfo(final ItemLine item, final TextLine name, final TextLine value, final TextLine buffs) {
-        item.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
-        name.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
-        value.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
-        buffs.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
-    }
+//    public static void setTradeGoodInfo(final ItemLine item, final TextLine name, final TextLine value, final TextLine buffs) {
+//        item.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
+//        name.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
+//        value.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
+//        buffs.setTouchHandler(whoClicked -> CivMessage.send(whoClicked, CivColor.LightBlueItalic + CivSettings.localize.localizedString("tradeHoloMoreInfoHere")));
+//    }
 }

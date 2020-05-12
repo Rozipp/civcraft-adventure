@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -13,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigEnchant;
 import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -90,7 +91,6 @@ public class Oracle extends Wonder {
         }
     }
     
-    @SuppressWarnings("deprecation")
 	@Override
     public void processSignAction(final Player player, final ConstructSign sign, final PlayerInteractEvent event) {
         final Resident resident = CivGlobal.getResident(player);
@@ -109,7 +109,7 @@ public class Oracle extends Wonder {
             CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_onlyleader", this.getCiv().getName()));
             return;
         }
-        final ItemStack hand = player.getItemInHand();
+        ItemStack hand = player.getInventory().getItemInMainHand();
         final String action = sign.getAction();
         int n = -1;
         switch (action.hashCode()) {
@@ -144,11 +144,11 @@ public class Oracle extends Wonder {
         }
             switch (n) {
             case 0: {
-                if (!Enchantment.THORNS.canEnchantItem(hand)) {
+                if (!CustomEnchantment.THORNS.canEnchantItem(hand)) {
                     CivMessage.sendError(player, CivSettings.localize.localizedString("oracle_enchant_cannotEnchant"));
                     return;
                 }
-                if (hand.containsEnchantment(Enchantment.THORNS)) {
+                if (Enchantments.hasEnchantment(hand, CustomEnchantment.THORNS)) {
                     try {
                         throw new CivException(CivSettings.localize.localizedString("library_enchant_hasEnchant"));
                     }
@@ -162,15 +162,15 @@ public class Oracle extends Wonder {
                     return;
                 }
                 resident.getTreasury().withdraw(configEnchant.cost);
-                hand.addEnchantment(Enchantment.THORNS, 2);
+                hand = Enchantments.addEnchantment(hand, CustomEnchantment.THORNS, 2);
                 break;
             }
             case 1: {
-                if (!Enchantment.FROST_WALKER.canEnchantItem(hand)) {
+                if (!CustomEnchantment.FROST_WALKER.canEnchantItem(hand)) {
                     CivMessage.sendError(player, CivSettings.localize.localizedString("moscowstateuni_enchant_cannotEnchant"));
                     return;
                 }
-                if (hand.containsEnchantment(Enchantment.FROST_WALKER)) {
+                if (Enchantments.hasEnchantment(hand, CustomEnchantment.FROST_WALKER)) {
                     try {
                         throw new CivException(CivSettings.localize.localizedString("library_enchant_hasEnchant"));
                     }
@@ -184,15 +184,15 @@ public class Oracle extends Wonder {
                     return;
                 }
                 resident.getTreasury().withdraw(configEnchant.cost);
-                hand.addEnchantment(Enchantment.FROST_WALKER, 1);
+                hand = Enchantments.addEnchantment(hand, CustomEnchantment.FROST_WALKER, 1);
                 break;
             }
             case 2: {
-                if (!Enchantment.PROTECTION_FALL.canEnchantItem(hand)) {
+                if (!CustomEnchantment.PROTECTION_FALL.canEnchantItem(hand)) {
                     CivMessage.sendError(player, CivSettings.localize.localizedString("oracle_enchant_cannotEnchant"));
                     return;
                 }
-                if (hand.containsEnchantment(Enchantment.PROTECTION_FALL)) {
+                if (Enchantments.hasEnchantment(hand, CustomEnchantment.PROTECTION_FALL)) {
                     try {
                         throw new CivException(CivSettings.localize.localizedString("library_enchant_hasEnchant"));
                     }
@@ -206,15 +206,15 @@ public class Oracle extends Wonder {
                     return;
                 }
                 resident.getTreasury().withdraw(configEnchant.cost);
-                hand.addEnchantment(Enchantment.PROTECTION_FALL, 2);
+                hand = Enchantments.addEnchantment(hand, CustomEnchantment.PROTECTION_FALL, 2);
                 break;
             }
                 case 3: {
-                	if (!Enchantment.DEPTH_STRIDER.canEnchantItem(hand)) {
+                	if (!CustomEnchantment.DEPTH_STRIDER.canEnchantItem(hand)) {
                         CivMessage.sendError(player, CivSettings.localize.localizedString("oracle_enchant_cannotEnchant"));
                         return;
                     }
-                    if (hand.containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                    if (Enchantments.hasEnchantment(hand, CustomEnchantment.DEPTH_STRIDER)) {
                         try {
                             throw new CivException(CivSettings.localize.localizedString("library_enchant_hasEnchant"));
                         }
@@ -228,13 +228,14 @@ public class Oracle extends Wonder {
                         return;
                     }
                     resident.getTreasury().withdraw(configEnchant.cost);
-                    hand.addEnchantment(Enchantment.DEPTH_STRIDER, 2);
+                    hand = Enchantments.addEnchantment(hand, CustomEnchantment.DEPTH_STRIDER, 2);
                     break;
                 }
                 default: {
                     return;
                 }
             }
+            player.getInventory().setItemInMainHand(hand);
         CivMessage.sendSuccess((CommandSender)player, CivSettings.localize.localizedString("library_enchantment_success"));
     }
 	/*

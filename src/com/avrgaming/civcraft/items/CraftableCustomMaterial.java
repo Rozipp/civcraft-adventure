@@ -41,10 +41,6 @@ public class CraftableCustomMaterial extends BaseCustomMaterial {
 
 	public CraftableCustomMaterial(String id, int typeID, short damage) {
 		super(id, typeID, damage);
-	}
-
-	@Override
-	public void addMaterial() {
 		CustomMaterial.craftableMaterials.put(this.getId(), this);
 	}
 

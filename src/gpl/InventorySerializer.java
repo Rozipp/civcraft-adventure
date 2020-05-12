@@ -11,6 +11,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.util.ItemManager;
 
@@ -20,6 +21,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class InventorySerializer {
 	
+	@SuppressWarnings("deprecation")
 	private static String getSerializedItemStack(ItemStack is) {
         String serializedItemStack = new String();
         
@@ -43,7 +45,7 @@ public class InventorySerializer {
         {
             for (Entry<Enchantment,Integer> ench : isEnch.entrySet())
             {
-                serializedItemStack += "&e@" + ItemManager.getEnchantmentId(ench.getKey()) + "@" + ench.getValue();
+                serializedItemStack += "&e@" + (ench.getKey().getId()) + "@" + ench.getValue();
             }
         }
        
@@ -65,10 +67,6 @@ public class InventorySerializer {
         CustomMaterial mat = CustomMaterial.getCustomMaterial(is);
         if (mat != null) {
         	serializedItemStack += "&C@" + mat.getId();
-        	
-        	if (CustomMaterial.hasEnhancements(is)) {
-    			serializedItemStack += "&Enh@" + CustomMaterial.serializeEnhancements(is);
-        	}
         }
         
         AttributeUtil attrs = new AttributeUtil(is);
@@ -104,7 +102,7 @@ public class InventorySerializer {
             }
             else if (itemAttribute[0].equals("e") && createdItemStack)
             {
-                is.addEnchantment(ItemManager.getEnchantById(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
+                is = Enchantments.addEnchantment(is, Enchantments.enchantmentList.get(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
             } 
             else if (itemAttribute[0].equals("l") && createdItemStack) 
             {
@@ -123,13 +121,12 @@ public class InventorySerializer {
             	CustomMaterial mat = CustomMaterial.getCustomMaterial(itemAttribute[1]);
                 try {
                 	AttributeUtil attrs = new AttributeUtil(is);
-                	CustomMaterial.setMIDAndName(attrs, itemAttribute[1], mat.getName());
+                	attrs.setCivCraftProperty("mid", itemAttribute[1]);
+            		attrs.setName(mat.getName());
                 	is = attrs.getStack();
                 } catch (NullPointerException e) {
                 	e.printStackTrace();
                 }
-            } else if (itemAttribute[0].equals("Enh")) {
-            	is = CustomMaterial.deserializeEnhancements(is, itemAttribute[1]);
             } else if (itemAttribute[0].equals("LC")) {
             	AttributeUtil attrs = new AttributeUtil(is);
             	attrs.setColor(Long.valueOf(itemAttribute[1]));

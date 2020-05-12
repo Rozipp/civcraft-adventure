@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -31,7 +32,7 @@ public class ConfigUnit {
 	public int limit;
 	public int item_id;
 	public int item_data;
-	public HashSet<String> enable_components = new HashSet<>();
+	public Set<String> enable_components = new HashSet<>();
 	public List<String> equipments = new ArrayList<String>();
 	public String[] lore;
 
@@ -83,7 +84,8 @@ public class ConfigUnit {
 		UnitStatic.T2_metal_speed = (float) cfg.getDouble("base.T2_metal_speed");
 		UnitStatic.T3_metal_speed = (float) cfg.getDouble("base.T3_metal_speed");
 		UnitStatic.T4_metal_speed = (float) cfg.getDouble("base.T4_metal_speed");
-		UnitStatic.normal_speed = 0.2f;
+		UnitStatic.normal_speed = (float) cfg.getDouble("base.normal_speed");
+		UnitStatic.unitTimeDiactivate = cfg.getInt("unit_time_diactivate");
 
 		CivLog.info("Loaded " + units.size() + " units.");
 		ConfigUnit.loadConfigexpEntity(cfg, UnitStatic.expEntity);
@@ -116,7 +118,8 @@ public class ConfigUnit {
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {
 				if (town.hasStructure(require_struct)) {
-					if (limit == 0 || town.getUnitTypeCount(id) < limit) return true;
+//TODO Поменять лимит юнитов					if (limit == 0 || town.getUnitTypeCount(id) < limit) 
+						return true;
 				}
 			}
 		}

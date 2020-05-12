@@ -21,44 +21,44 @@ public class TagManager {
 	 public static Set<String> curators;
 	 public static Set<String> devs;
 
-	public static void editNameTag(final Player var1) {
+	public static void editNameTag(final Player player) {
 	        String prefix = "";
 	        String suffix = "";
-	        if (PermissionGroup.hasGroup(var1.getName(), "premium")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "premium")) {
 	            prefix = CivColor.BOLD + "§eP" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "ultra")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "ultra")) {
 	            prefix = "§a" + CivColor.BOLD +  "§dU" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "deluxe")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "deluxe")) {
 	            prefix = "§a" + CivColor.BOLD +  "§bD" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "improver")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "improver")) {
 	            prefix = "§a" + CivColor.BOLD +  "С" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "moderator")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "moderator")) {
 	            prefix = "§a" + CivColor.BOLD + "§aM" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "stmoderator")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "stmoderator")) {
 	            prefix = "§a" + CivColor.BOLD + "St.M" + TagManager.reset;
 	        }
-	        if (PermissionGroup.hasGroup(var1.getName(), "winner")) {
+	        if (PermissionGroup.hasGroup(player.getName(), "winner")) {
 	            prefix = "§6" + CivColor.BOLD + "WIN" + TagManager.reset;
 	        }
-	        if (isCurator(var1)) {
+	        if (isCurator(player)) {
 	        	prefix = CivColor.Gold + "K" + TagManager.reset;
 	        }
-	        if (isDev(var1)) {
+	        if (isDev(player)) {
 	            prefix = CivColor.RoseBold + "DEV" + TagManager.reset;
 	        }
 	        
-	        final Resident resident = CivGlobal.getResident(var1);
+	        final Resident resident = CivGlobal.getResident(player);
 	        try {
 	            if (resident != null && !StringUtils.isBlank(resident.getPrefix())) {
-	                if (var1.hasPermission("civcraft.prefix") && !isDev(var1)) {
+	                if (player.hasPermission("civcraft.prefix") && !isDev(player)) {
 	                    prefix = CivColor.LightBlueBold + resident.getPrefix() + TagManager.reset;
 	                }
-	                else if (isDev(var1)) {
+	                else if (isDev(player)) {
 	                    prefix = CivColor.DarkPurple + resident.getPrefix() + TagManager.reset;
 	                }
 	            }
@@ -76,12 +76,12 @@ public class TagManager {
 	        if (!StringUtils.isBlank(prefix)) {
 	            fullCustom += " ";
 	        }
-	        fullCustom = fullCustom + var1.getName() + suffix;
+	        fullCustom = fullCustom + player.getName() + suffix;
 	        fullCustom = normalizeColors(fullCustom);
-	        var1.setCustomNameVisible(true);
-	        var1.setCustomName(fullCustom);
-	        var1.setPlayerListName(fullCustom);
-	        TagManager.hash.put(var1.getName(), fullCustom);
+	        player.setCustomNameVisible(true);
+	        player.setCustomName(fullCustom);
+	        player.setPlayerListName(fullCustom);
+	        TagManager.hash.put(player.getName(), fullCustom);
 	        if (resident != null) {
 	            resident.setSavedPrefix(prefix);
 	        }

@@ -15,10 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -29,7 +30,6 @@ import com.avrgaming.civcraft.util.CivColor;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -53,6 +53,7 @@ public class UnitStatic {
 	public static float T3_metal_speed;
 	public static float T4_metal_speed;
 	public static float normal_speed;
+	public static int unitTimeDiactivate = 1;
 
 	public static int first_exp = 100;
 	public static int step_exp = 15;
@@ -85,49 +86,24 @@ public class UnitStatic {
 		}
 	}
 
-	public static void spawn(Inventory inv, Town town, String configUnitId) throws CivException {
+	public static void spawn(Town town, String configUnitId) throws CivException {
 		UnitMaterial um = UnitStatic.getUnit(configUnitId);
 		if (um == null) throw new CivException(CivColor.Red + CivSettings.localize.localizedString("barracks_errorUnknown"));
-		ItemStack is = CustomMaterial.spawn(um);
 
 		UnitObject uo = new UnitObject(configUnitId, town);
 		CivGlobal.addUnitObject(uo);
-		is = setUnitIdNBTTag(is, uo.getId());
-
-		is = initLoreStatic(is, uo);
-
-		int slot = inv.firstEmpty();
-		if (slot == -1) throw new CivException(CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
-		inv.setItem(slot, is);
 	}
 
-	public static void respawn(Player player) throws CivException {
-		Resident res = CivGlobal.getResident(player);
-		// int uId = res.getUnitObjectId();
-		// CivLog.debug("res.getUnitObjectId() = " + uId);
-		// if (uId == -1)
-		// throw new CivException("У это игрока не было юнита");
-
-		UnitObject uo = null;
-		for (UnitObject uot : CivGlobal.getUnitObjects())
-			if (uot.getLastResident() == res) {
-				uo = uot;
-				break;
-			}
-
-		// if (uo.getLastResident() != res)
-		// throw new CivException(
-		// "Последний юнит игрока " + res.getName() + " принадлежит игроку " + uo.getLastResident().getName());
+	public static ItemStack respawn(int id) {
+		UnitObject uo = CivGlobal.getUnitObject(id);
+		if (uo == null) return null;
 
 		UnitMaterial um = UnitStatic.getUnit(uo.getConfigUnitId());
+
 		ItemStack is = CustomMaterial.spawn(um);
 		is = setUnitIdNBTTag(is, uo.getId());
 		is = initLoreStatic(is, uo);
-
-		Inventory inv = player.getInventory();
-		int slot = inv.firstEmpty();
-		if (slot == -1) throw new CivException(CivSettings.localize.localizedString("var_settler_errorBarracksFull", um.getConfigUnit().name));
-		inv.setItem(slot, is);
+		return is;
 	}
 
 	public static ItemStack initLoreStatic(ItemStack is, UnitObject uo) {
@@ -135,29 +111,24 @@ public class UnitStatic {
 		AttributeUtil attrs = new AttributeUtil(is);
 
 		attrs.setName(uo.getName() + " уровень " + level);
-		attrs.setLore("");
 		attrs.setLore(uo.getConfigUnit().lore);
 		attrs.addLore(CivColor.Rose + "Создан в городе: " + CivColor.LightBlue + uo.getTownOwner().getName());
+		attrs.addLore(CivColor.Rose + "id = " + uo.getId());
 
-		for (LoreEnhancement ench : attrs.getEnhancements()) {
-			attrs.addLore(CivColor.Gold + ench.getDisplayName());
-		}
-		attrs.addEnhancement("LoreEnhancementSoulBound", null, null);
+		// for (LoreEnhancement ench : attrs.getEnhancements()) {
+		// attrs.addLore(CivColor.Gold + ench.getDisplayName());
+		// }
 		attrs.addLore(CivColor.Rose + "Опыт: " + CivColor.YellowBold + uo.getExp() + "/" + uo.getTotalExpToLevel(level + 1));
 
 		UnitStatic.getUnit(uo.getConfigUnit().id).initLore(attrs, uo);
 		is = attrs.getStack();
+		uo.setLastHashCode(is.hashCode());
 		return is;
 	}
 
-	public static void putItemSlot(PlayerInventory inv, ItemStack newStack, int slot, ArrayList<ItemStack> removes) {
+	public static void putItemToPlayerSlot(PlayerInventory inv, ItemStack newStack, int slot, ArrayList<ItemStack> removes) {
 		if (newStack == null) return;
-
-		AttributeUtil attrs = new AttributeUtil(newStack);
-		attrs.addEnhancement("LoreEnhancementUnitItem", null, null);
-		attrs.addLore(CivColor.Gold + "Передмет юнита");
-		newStack = attrs.getStack();
-
+		newStack = Enchantments.addEnchantment(newStack, CustomEnchantment.UnitItem, 1);
 		ItemStack stack = inv.getItem(slot);
 		if (stack != null) removes.add(stack);
 
@@ -170,10 +141,10 @@ public class UnitStatic {
 		switch (name.toLowerCase()) {
 		// ================= Helmet
 		case "oxygen":
-			stack.addEnchantment(Enchantment.OXYGEN, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.OXYGEN, value);
 			break;
 		case "waterworker":
-			stack.addEnchantment(Enchantment.WATER_WORKER, 1);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.WATER_WORKER, 1);
 			break;
 		// ================= Chestplate
 		case "maxheal":
@@ -183,74 +154,60 @@ public class UnitStatic {
 			stack = attrs.getStack();
 			break;
 		case "protection":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementDefense", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Defense, value);
 			break;
 		case "thorns":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementThorns", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Thorns, value);
 			break;
 		// ================= Leggings
 		case "jumping":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementJumping", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Jumping, value);
 			break;
 		case "speed":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementSpeed", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Speed, value);
 			break;
 		// ================= Boots
 		case "depthstrider":
-			stack.addEnchantment(Enchantment.DEPTH_STRIDER, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.DEPTH_STRIDER, value);
 			break;
 		case "againstfall":
-			// stack.addEnchantment(Enchantment.PROTECTION_FALL, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.PROTECTION_FALL, value);
 			break;
 		case "frostwalker":
-			stack.addEnchantment(Enchantment.FROST_WALKER, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.FROST_WALKER, value);
 			break;
 		// =================Ammunitions
 		case "fireprotection":
-			stack.addEnchantment(Enchantment.PROTECTION_FIRE, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.PROTECTION_FIRE, value);
 			break;
 		// ================= Sword
 		case "swordattack":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementAttack", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Attack, value);
 			break;
 		case "critical":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementCritical", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Critical, value);
 			break;
 		case "swordknockback":
-			stack.addEnchantment(Enchantment.ARROW_KNOCKBACK, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_KNOCKBACK, value);
 			break;
 		case "fireaspect":
-			stack.addEnchantment(Enchantment.FIRE_ASPECT, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.FIRE_ASPECT, value);
 			break;
 		case "looting":
-			stack.addEnchantment(Enchantment.LOOT_BONUS_MOBS, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS, value);
 			break;
 		// ================= Bow
 		case "bowattack":
-			attrs = new AttributeUtil(stack);
-			LoreEnhancement.addLoreEnchancementValue(attrs, "LoreEnhancementAttack", value);
-			stack = attrs.getStack();
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Attack, value);
 			break;
 		case "bowknockback":
-			stack.addEnchantment(Enchantment.ARROW_KNOCKBACK, 1);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_KNOCKBACK, 1);
 			break;
 		case "flame":
-			stack.addEnchantment(Enchantment.ARROW_FIRE, value);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_FIRE, value);
 			break;
 		case "infinite":
-			stack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
+			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_INFINITE, value);
 			break;
 		default:
 			break;
@@ -266,9 +223,7 @@ public class UnitStatic {
 		expEntity.put(entityName, exp);
 	}
 
-	/**
-	 * Находит юнита в инвентаре. Обновляет его лоре. Обновляет уровень и опыт игрока.
-	 */
+	/** Находит юнита в инвентаре. Обновляет его лоре. Обновляет уровень и опыт игрока. */
 	public static void updateUnitForPlaeyr(Player player) {
 		Inventory inv = player.getInventory();
 		Resident resident = CivGlobal.getResident(player);
@@ -379,7 +334,7 @@ public class UnitStatic {
 		for (int i = 0; i <= 40; i++) {
 			ItemStack stack = player.getInventory().getItem(i);
 			if (stack == null) continue;
-			if (CustomMaterial.hasEnhancement(stack, "LoreEnhancementUnitItem")) {
+			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
 				String mid = CustomMaterial.getMID(stack);
 				if (uo != null) uo.setAmunitionSlot(mid, i);
 				player.getInventory().setItem(i, null);
@@ -389,7 +344,7 @@ public class UnitStatic {
 		player.updateInventory();
 	}
 
-	public static void removeUnit(final Player player, final String id) {
+	public static void removeUnit(final Player player, String id) {
 		removeChildrenItems(player);
 		ItemStack stack = findUnit(player);
 		if (stack != null) {
@@ -432,12 +387,10 @@ public class UnitStatic {
 		ItemStack[] stacks = player.getInventory().getArmorContents();
 		for (ItemStack is : stacks) {
 			if (is == null) continue;
-			AttributeUtil attrs = new AttributeUtil(is);
-			if (attrs.hasEnhancement("LoreEnhancementJumping")) {
-				Double level = Double.valueOf(attrs.getEnhancementData("LoreEnhancementJumping", "level"));
-				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999 * 20, level.intValue()));
+			if (Enchantments.hasEnchantment(is, CustomEnchantment.Jumping)) {
+				Integer level = Enchantments.getLevelEnchantment(is, CustomEnchantment.Jumping);
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999 * 20, level));
 				return;
-				// Double.valueOf(attrs.getEnhancementData("LoreEnhancementSpeed", "value"));
 			}
 		}
 		player.removePotionEffect(PotionEffectType.JUMP);

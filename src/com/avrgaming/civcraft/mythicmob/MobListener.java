@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.mythicmob;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +14,8 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.units.UnitStatic;
@@ -42,7 +43,7 @@ public class MobListener implements Listener {
 		Double modify = 1.0;
 		if (killer != null) {
 			ItemStack stack = killer.getInventory().getItemInMainHand();
-			modify = modify + 0.3 * stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
+			modify = modify + 0.3 * Enchantments.getLevelEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS);
 		}
 		event.setDrops(cm.getItemsDrop(itemDrops, modify));
 

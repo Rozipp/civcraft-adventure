@@ -16,9 +16,10 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentDefense;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementDefense;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -36,8 +37,7 @@ public class Defense extends ItemComponent {
 
 		Resident resident = CivGlobal.getResident(event.getPlayer());
 		if (!resident.hasTechForItem(event.getPlayer().getInventory().getItem(event.getNewSlot()))) {
-			CivMessage.send(resident, CivColor.Rose + CivSettings.localize.localizedString("itemLore_Warning") + " - " + CivColor.LightGray
-					+ CivSettings.localize.localizedString("itemLore_defenseHalfPower"));
+			CivMessage.send(resident, CivColor.Rose + CivSettings.localize.localizedString("itemLore_Warning") + " - " + CivColor.LightGray + CivSettings.localize.localizedString("itemLore_defenseHalfPower"));
 		}
 	}
 
@@ -52,12 +52,8 @@ public class Defense extends ItemComponent {
 		}
 
 		double extraDef = 0;
-		AttributeUtil attrs = new AttributeUtil(stack);
-
-		for (LoreEnhancement enh : attrs.getEnhancements()) {
-			if (enh instanceof LoreEnhancementDefense) {
-				extraDef += ((LoreEnhancementDefense) enh).getExtraDefense(attrs);
-			}
+		if (Enchantments.hasEnchantment(stack, CustomEnchantment.Defense)) {
+			extraDef += EnchantmentDefense.defensePerLevel * Enchantments.getLevelEnchantment(stack, CustomEnchantment.Defense);
 		}
 
 		defValue += extraDef;

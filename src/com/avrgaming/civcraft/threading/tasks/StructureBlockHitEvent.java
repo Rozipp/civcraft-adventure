@@ -10,18 +10,18 @@ package com.avrgaming.civcraft.threading.tasks;
 
 import java.util.Random;
 
-import gpl.AttributeUtil;
-
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentPunchout;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementPunchout;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -68,21 +68,17 @@ public class StructureBlockHitEvent implements Runnable {
 				damage = material.onStructureBlockBreak(dmgBlock, damage);
 			}
 
-			if (player.getInventory().getItemInMainHand() != null && !player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
-				AttributeUtil attrs = new AttributeUtil(player.getInventory().getItemInMainHand());
-				for (LoreEnhancement enhance : attrs.getEnhancements()) {
-					if (enhance instanceof LoreEnhancementPunchout) damage = ((LoreEnhancementPunchout) enhance).onStructureBlockBreak(dmgBlock, damage);
-				}
+			ItemStack hand = player.getInventory().getItemInMainHand();
+			if (hand != null && !hand.getType().equals(Material.AIR)) {
+				if (Enchantments.hasEnchantment(hand, CustomEnchantment.Punchout)) damage = EnchantmentPunchout.onStructureBlockBreak(dmgBlock, damage);
 			}
 			int addinationalDamage = 0;
 			if (resident.getCiv() != null && resident.getCiv().getCapitol() != null) {
 				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraCPdmgTown")
-						&& (CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol
-								|| CivGlobal.getNearestStructure(player.getLocation()) instanceof Townhall)) {
+						&& (CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol || CivGlobal.getNearestStructure(player.getLocation()) instanceof Townhall)) {
 					addinationalDamage += this.getAddinationalBreak();
 				}
-				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraStrucutreDmgTown")
-						&& !(CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol)
+				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraStrucutreDmgTown") && !(CivGlobal.getNearestStructure(player.getLocation()) instanceof Capitol)
 						&& !(CivGlobal.getNearestStructure(player.getLocation()) instanceof Townhall)) {
 					addinationalDamage += this.getAddinationalBreak();
 				}
@@ -91,16 +87,15 @@ public class StructureBlockHitEvent implements Runnable {
 				CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_StructureBlockHitEvent_punchoutDmg", (damage - 1)));
 			}
 			if (addinationalDamage != 0) {
-				CivMessage.send(player, "§a" + CivSettings.localize.localizedString("var_StructureBlockHitEvent_talentDmg", "§2" + addinationalDamage + "§a",
-						"§2" + CivSettings.localize.localizedString("Damage")));
+				CivMessage.send(player, "§a" + CivSettings.localize.localizedString("var_StructureBlockHitEvent_talentDmg", "§2" + addinationalDamage + "§a", "§2" + CivSettings.localize.localizedString("Damage")));
 				damage += addinationalDamage;
 			}
 			dmgBlock.getOwner().onDamage(damage, world, player, dmgBlock.getCoord(), dmgBlock);
 		} else {
-			CivMessage.sendErrorNoRepeat(player,
-					CivSettings.localize.localizedString("var_StructureBlockHitEvent_Invulnerable", dmgBlock.getOwner().getDisplayName()));
+			CivMessage.sendErrorNoRepeat(player, CivSettings.localize.localizedString("var_StructureBlockHitEvent_Invulnerable", dmgBlock.getOwner().getDisplayName()));
 		}
 	}
+
 	public int getAddinationalBreak() {
 		final Random rand = CivCraft.civRandom;
 		int damage = 0;

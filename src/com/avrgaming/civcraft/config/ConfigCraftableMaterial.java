@@ -25,7 +25,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 	/* Required */
 	public String category = CivSettings.localize.localizedString("config_material_misc");
 	public String categoryCivColortripped = category;
-	public int tier;
+	public int tier = 0;
 
 	/* Optional */
 	public boolean craftable = false;
@@ -65,13 +65,13 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 			mat.category = CivColor.colorize(category);
 			mat.categoryCivColortripped = CivColor.stripTags(category);
 
-			if (mat.category.toLowerCase().contains("tier 1")) {
+			if (mat.category.toLowerCase().contains("ier 1")) {
 				mat.tier = 1;
-			} else if (mat.category.toLowerCase().contains("tier 2")) {
+			} else if (mat.category.toLowerCase().contains("ier 2")) {
 				mat.tier = 2;
-			} else if (mat.category.toLowerCase().contains("tier 3")) {
+			} else if (mat.category.toLowerCase().contains("ier 3")) {
 				mat.tier = 3;
-			} else if (mat.category.toLowerCase().contains("tier 4")) {
+			} else if (mat.category.toLowerCase().contains("ier 4")) {
 				mat.tier = 4;
 			} else {
 				mat.tier = 0;
@@ -136,8 +136,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 				Boolean ignore_data = (Boolean) ingred.get("ignore_data");
 				if (ignore_data == null || ignore_data == false)
 					ingredient.ignore_data = false;
-				else
-					ingredient.ignore_data = true;
+				else ingredient.ignore_data = true;
 
 				Integer count = (Integer) ingred.get("count");
 				if (count != null) ingredient.count = count;
@@ -146,7 +145,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 				if (letter != null) ingredient.letter = letter;
 
 				mat.ingredients.put(key, ingredient);
-				//ConfigIngredient.ingredientMap.put(ingredient.custom_id, ingredient);
+				// ConfigIngredient.ingredientMap.put(ingredient.custom_id, ingredient);
 			}
 		} else mat.craftable = false;
 

@@ -50,7 +50,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementSoulBound;
 import com.avrgaming.civcraft.lorestorage.LoreStoreage;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -93,7 +92,7 @@ public class DebugCommand extends CommandBase {
 		this.cs.add("reloadconf", "перезагрузка настроек из файла");
 		this.cs.add("tradegood", "Дебаг торговых ресурсов");
 		this.cs.add("cave", "Дебаг пещер");
-		
+
 		cs.add("map", "shows a town chunk map of the current area.");
 
 		cs.add("moveframes", "[x] [y] [z] moves item frames in this chunk to x,y,z");
@@ -101,7 +100,7 @@ public class DebugCommand extends CommandBase {
 		cs.add("makeframe", "[loc] [direction]");
 		cs.add("dupe", "duplicates the item in your hand.");
 		cs.add("test", "Run test suite commands.");
-		
+
 		cs.add("firework", "fires off a firework here.");
 		cs.add("sound", "[name] [pitch]");
 		cs.add("arrow", "[power] change arrow's power.");
@@ -110,9 +109,9 @@ public class DebugCommand extends CommandBase {
 		cs.add("givebuff", "[id] gives this id buff to a town.");
 		cs.add("unloadchunk", "[x] [z] - unloads this chunk.");
 		cs.add("setspeed", "[speed] - set your speed to this");
-		
+
 		cs.add("restoresigns", "restores all structure signs");
-		
+
 		cs.add("quickcodereload", "Reloads the quick code plugin");
 		cs.add("loadbans", "Loads bans from ban list into global table");
 		cs.add("setallculture", "[amount] - sets all towns culture in the world to this amount.");
@@ -135,8 +134,6 @@ public class DebugCommand extends CommandBase {
 		cs.add("getit", "gives you an item.");
 		cs.add("showinv", "shows you an inventory");
 		cs.add("showcraftinv", "shows you crafting inventory");
-		cs.add("setspecial", "sets special stuff");
-		cs.add("getspecial", "gets the special stuff");
 		cs.add("setcivnbt", "[key] [value] - adds this key.");
 		cs.add("getcivnbt", "[key] - gets this key");
 		cs.add("getmid", "Gets the MID of this item.");
@@ -147,9 +144,8 @@ public class DebugCommand extends CommandBase {
 		cs.add("loadperks", "loads perks for yourself");
 		cs.add("colorme", "[hex] adds nbt color value to item held.");
 		cs.add("preview", "show a single block preview at your feet.");
-		cs.add("sql", "Show SQL health info.");
 		cs.add("templatetest", "tests out some new template stream code.");
-//		cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
+		// cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
 		cs.add("matmap", "prints the material map.");
 		cs.add("ping", "print something.");
 		cs.add("datebypass", "Bypasses certain date restrictions");
@@ -258,211 +254,211 @@ public class DebugCommand extends CommandBase {
 
 	public void buildspawn_cmd() throws CivException {
 		/* First create a new Civilization and spawn capitol */
-//		String civName = getNamedString(1, "Enter a Civ name/");
-//		String capitolName = getNamedString(2, "Enter a capitol name.");
-//		Resident resident = getResident();
-//
-//		try {
-//			/* Build a spawn civ. */
-//			Civilization spawnCiv = new Civilization(civName, capitolName, "spawn", resident);
-//			spawnCiv.saveNow();
-//
-//			/* Build a spawn capitol */
-//			Town spawnCapitol = new Town(capitolName, resident, spawnCiv);
-//			spawnCapitol.saveNow();
-//
-//			PermissionGroup leaders = new PermissionGroup(spawnCiv, "leaders");
-//			spawnCiv.addGroup(leaders);
-//			leaders.addMember(resident);
-//			spawnCiv.setLeader(resident);
-//			spawnCiv.setLeaderGroup(leaders);
-//			leaders.save();
-//
-//			PermissionGroup advisers = new PermissionGroup(spawnCiv, "advisers");
-//			spawnCiv.addGroup(advisers);
-//			spawnCiv.setAdviserGroup(advisers);
-//			advisers.save();
-//
-//			PermissionGroup mayors = new PermissionGroup(spawnCapitol, "mayors");
-//			spawnCapitol.addGroup(mayors);
-//			spawnCapitol.setMayorGroup(mayors);
-//			mayors.addMember(resident);
-//			mayors.save();
-//
-//			PermissionGroup assistants = new PermissionGroup(spawnCapitol, "assistants");
-//			spawnCapitol.addGroup(assistants);
-//			spawnCapitol.setAssistantGroup(assistants);
-//			assistants.save();
-//
-//			PermissionGroup residents = new PermissionGroup(spawnCapitol, "residents");
-//			spawnCapitol.addGroup(residents);
-//			spawnCapitol.setDefaultGroup(residents);
-//			residents.save();
-//
-//			spawnCiv.addTown(spawnCapitol);
-//			spawnCiv.setCapitolName(spawnCapitol.getName());
-//
-//			spawnCiv.setAdminCiv(true);
-//			spawnCiv.save();
-//			spawnCapitol.save();
-//			resident.save();
-//
-//			CivGlobal.addTown(spawnCapitol);
-//			CivGlobal.addCiv(spawnCiv);
-//
-//			/* Setup leader and adivsers groups. */
-//			try {
-//				spawnCapitol.addResident(resident);
-//			} catch (AlreadyRegisteredException e) {
-//				e.printStackTrace();
-//				return;
-//			}
-//
-//			class BuildSpawnTask implements Runnable {
-//				CommandSender sender;
-//				int start_x;
-//				int start_y;
-//				int start_z;
-//				Town spawnCapitol;
-//
-//				public BuildSpawnTask(CommandSender sender, int x, int y, int z, Town capitol) {
-//					this.sender = sender;
-//					this.start_x = x;
-//					this.start_y = y;
-//					this.start_z = z;
-//					this.spawnCapitol = capitol;
-//				}
-//
-//				@Override
-//				public void run() {
-//					try {
-//
-//						/* Initialize the spawn template */
-//						Template tpl ;
-//						try {
-//							tpl = new Template("templates/spawn.def");
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//							throw new CivException("IO Error.");
-//						}
-//
-//						Player player = (Player) sender;
-//						ConfigBuildableInfo info = new ConfigBuildableInfo();
-//						info.tile_improvement = false;
-//						info.templateYShift = 0;
-//						Location center = BuildableStatic.repositionCenterStatic(player.getLocation(), info, tpl);
-//
-//						CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
-//						for (int y = start_y; y < tpl.size_y; y++) {
-//							for (int x = start_x; x < tpl.size_x; x++) {
-//								for (int z = start_z; z < tpl.size_z; z++) {
-//									BlockCoord next = new BlockCoord(center);
-//									next.setX(next.getX() + x);
-//									next.setY(next.getY() + y);
-//									next.setZ(next.getZ() + z);
-//
-//									SimpleBlock sb = tpl.blocks[x][y][z];
-//
-//									if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
-//										String buildableName = sb.command.replace("/", "");
-//
-//										info = null;
-//										for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
-//											if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
-//												info = buildInfo;
-//												break;
-//											}
-//										}
-//										if (info == null) {
-//											try {
-//												Block block = next.getBlock();
-//												ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
-//												continue;
-//											} catch (Exception e) {
-//												e.printStackTrace();
-//												continue;
-//											}
-//										}
-//
-//										CivMessage.send(sender, "Setting up " + buildableName);
-//										int yShift = 0;
-//										String lines[] = sb.getKeyValueString().split(",");
-//										String split[] = lines[0].split(":");
-//										String dir = split[0];
-//										yShift = Integer.valueOf(split[1]);
-//
-//										Location loc = next.getLocation();
-//										loc.setY(loc.getY() + yShift);
-//
-//										Structure struct = Structure.newStructure(loc, info.id, spawnCapitol);
-//										if (struct instanceof Capitol) {
-//											AdminTownCommand.claimradius(spawnCapitol, center, 15);
-//										}
-//										struct.setTemplateFilePath(Template.getTemplateFilePath(info.template_name, dir, null));
-//										struct.bindBuildableBlocks();
-//										struct.setComplete(true);
-//										struct.setHitpoints(info.max_hitpoints);
-//										CivGlobal.addStructure(struct);
-//										spawnCapitol.addStructure(struct);
-//
-//										Template tplStruct;
-//										try {
-//											tplStruct = Template.getTemplate(struct.getTemplateFilePath());
-//											struct.postBuildSyncTask(tplStruct, 10);
-//										} catch (IOException e) {
-//											e.printStackTrace();
-//											throw new CivException("IO Exception.");
-//										}
-//
-//										struct.save();
-//										spawnCapitol.save();
-//
-//									} else
-//										if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
-//											try {
-//												Block block = next.getBlock();
-//												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
-//
-//												Sign s = (Sign) block.getState();
-//												for (int j = 0; j < 4; j++) {
-//													s.setLine(j, sb.message[j]);
-//												}
-//
-//												s.update();
-//											} catch (Exception e) {
-//												e.printStackTrace();
-//											}
-//										} else {
-//											try {
-//												Block block = next.getBlock();
-//												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
-//											} catch (Exception e) {
-//												e.printStackTrace();
-//											}
-//										}
-//								}
-//							}
-//						}
-//
-//						CivMessage.send(sender, "Finished building.");
-//
-//						spawnCapitol.addAccumulatedCulture(60000000);
-//						spawnCapitol.save();
-//
-//					} catch (CivException e) {
-//						e.printStackTrace();
-//						CivMessage.send(sender, e.getMessage());
-//					}
-//				}
-//			}
-//
-//			TaskMaster.syncTask(new BuildSpawnTask(sender, 0, 0, 0, spawnCapitol));
-//		} catch (InvalidNameException e) {
-//			throw new CivException(e.getMessage());
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new CivException("Internal DB Error.");
-//		}
+		// String civName = getNamedString(1, "Enter a Civ name/");
+		// String capitolName = getNamedString(2, "Enter a capitol name.");
+		// Resident resident = getResident();
+		//
+		// try {
+		// /* Build a spawn civ. */
+		// Civilization spawnCiv = new Civilization(civName, capitolName, "spawn", resident);
+		// spawnCiv.saveNow();
+		//
+		// /* Build a spawn capitol */
+		// Town spawnCapitol = new Town(capitolName, resident, spawnCiv);
+		// spawnCapitol.saveNow();
+		//
+		// PermissionGroup leaders = new PermissionGroup(spawnCiv, "leaders");
+		// spawnCiv.addGroup(leaders);
+		// leaders.addMember(resident);
+		// spawnCiv.setLeader(resident);
+		// spawnCiv.setLeaderGroup(leaders);
+		// leaders.save();
+		//
+		// PermissionGroup advisers = new PermissionGroup(spawnCiv, "advisers");
+		// spawnCiv.addGroup(advisers);
+		// spawnCiv.setAdviserGroup(advisers);
+		// advisers.save();
+		//
+		// PermissionGroup mayors = new PermissionGroup(spawnCapitol, "mayors");
+		// spawnCapitol.addGroup(mayors);
+		// spawnCapitol.setMayorGroup(mayors);
+		// mayors.addMember(resident);
+		// mayors.save();
+		//
+		// PermissionGroup assistants = new PermissionGroup(spawnCapitol, "assistants");
+		// spawnCapitol.addGroup(assistants);
+		// spawnCapitol.setAssistantGroup(assistants);
+		// assistants.save();
+		//
+		// PermissionGroup residents = new PermissionGroup(spawnCapitol, "residents");
+		// spawnCapitol.addGroup(residents);
+		// spawnCapitol.setDefaultGroup(residents);
+		// residents.save();
+		//
+		// spawnCiv.addTown(spawnCapitol);
+		// spawnCiv.setCapitolName(spawnCapitol.getName());
+		//
+		// spawnCiv.setAdminCiv(true);
+		// spawnCiv.save();
+		// spawnCapitol.save();
+		// resident.save();
+		//
+		// CivGlobal.addTown(spawnCapitol);
+		// CivGlobal.addCiv(spawnCiv);
+		//
+		// /* Setup leader and adivsers groups. */
+		// try {
+		// spawnCapitol.addResident(resident);
+		// } catch (AlreadyRegisteredException e) {
+		// e.printStackTrace();
+		// return;
+		// }
+		//
+		// class BuildSpawnTask implements Runnable {
+		// CommandSender sender;
+		// int start_x;
+		// int start_y;
+		// int start_z;
+		// Town spawnCapitol;
+		//
+		// public BuildSpawnTask(CommandSender sender, int x, int y, int z, Town capitol) {
+		// this.sender = sender;
+		// this.start_x = x;
+		// this.start_y = y;
+		// this.start_z = z;
+		// this.spawnCapitol = capitol;
+		// }
+		//
+		// @Override
+		// public void run() {
+		// try {
+		//
+		// /* Initialize the spawn template */
+		// Template tpl ;
+		// try {
+		// tpl = new Template("templates/spawn.def");
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// throw new CivException("IO Error.");
+		// }
+		//
+		// Player player = (Player) sender;
+		// ConfigBuildableInfo info = new ConfigBuildableInfo();
+		// info.tile_improvement = false;
+		// info.templateYShift = 0;
+		// Location center = BuildableStatic.repositionCenterStatic(player.getLocation(), info, tpl);
+		//
+		// CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
+		// for (int y = start_y; y < tpl.size_y; y++) {
+		// for (int x = start_x; x < tpl.size_x; x++) {
+		// for (int z = start_z; z < tpl.size_z; z++) {
+		// BlockCoord next = new BlockCoord(center);
+		// next.setX(next.getX() + x);
+		// next.setY(next.getY() + y);
+		// next.setZ(next.getZ() + z);
+		//
+		// SimpleBlock sb = tpl.blocks[x][y][z];
+		//
+		// if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
+		// String buildableName = sb.command.replace("/", "");
+		//
+		// info = null;
+		// for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
+		// if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
+		// info = buildInfo;
+		// break;
+		// }
+		// }
+		// if (info == null) {
+		// try {
+		// Block block = next.getBlock();
+		// ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+		// continue;
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// continue;
+		// }
+		// }
+		//
+		// CivMessage.send(sender, "Setting up " + buildableName);
+		// int yShift = 0;
+		// String lines[] = sb.getKeyValueString().split(",");
+		// String split[] = lines[0].split(":");
+		// String dir = split[0];
+		// yShift = Integer.valueOf(split[1]);
+		//
+		// Location loc = next.getLocation();
+		// loc.setY(loc.getY() + yShift);
+		//
+		// Structure struct = Structure.newStructure(loc, info.id, spawnCapitol);
+		// if (struct instanceof Capitol) {
+		// AdminTownCommand.claimradius(spawnCapitol, center, 15);
+		// }
+		// struct.setTemplateFilePath(Template.getTemplateFilePath(info.template_name, dir, null));
+		// struct.bindBuildableBlocks();
+		// struct.setComplete(true);
+		// struct.setHitpoints(info.max_hitpoints);
+		// CivGlobal.addStructure(struct);
+		// spawnCapitol.addStructure(struct);
+		//
+		// Template tplStruct;
+		// try {
+		// tplStruct = Template.getTemplate(struct.getTemplateFilePath());
+		// struct.postBuildSyncTask(tplStruct, 10);
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// throw new CivException("IO Exception.");
+		// }
+		//
+		// struct.save();
+		// spawnCapitol.save();
+		//
+		// } else
+		// if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
+		// try {
+		// Block block = next.getBlock();
+		// ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+		//
+		// Sign s = (Sign) block.getState();
+		// for (int j = 0; j < 4; j++) {
+		// s.setLine(j, sb.message[j]);
+		// }
+		//
+		// s.update();
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// } else {
+		// try {
+		// Block block = next.getBlock();
+		// ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// }
+		// }
+		//
+		// CivMessage.send(sender, "Finished building.");
+		//
+		// spawnCapitol.addAccumulatedCulture(60000000);
+		// spawnCapitol.save();
+		//
+		// } catch (CivException e) {
+		// e.printStackTrace();
+		// CivMessage.send(sender, e.getMessage());
+		// }
+		// }
+		// }
+		//
+		// TaskMaster.syncTask(new BuildSpawnTask(sender, 0, 0, 0, spawnCapitol));
+		// } catch (InvalidNameException e) {
+		// throw new CivException(e.getMessage());
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// throw new CivException("Internal DB Error.");
+		// }
 
 	}
 
@@ -472,14 +468,10 @@ public class DebugCommand extends CommandBase {
 
 		String filePatch = null;
 
-		if (Template.checkFile(filename))
-			filePatch = filename;
-		if (Template.checkFile(filename + ".def"))
-			filePatch = filename + ".def";
-		if (Template.checkFile("templates/" + filename))
-			filePatch = "templates/" + filename;
-		if (Template.checkFile("templates/" + filename + ".def"))
-			filePatch = "templates/" + filename + ".def";
+		if (Template.checkFile(filename)) filePatch = filename;
+		if (Template.checkFile(filename + ".def")) filePatch = filename + ".def";
+		if (Template.checkFile("templates/" + filename)) filePatch = "templates/" + filename;
+		if (Template.checkFile("templates/" + filename + ".def")) filePatch = "templates/" + filename + ".def";
 
 		Template tpl = Template.getTemplate(filePatch);
 		if (tpl == null) {
@@ -489,50 +481,23 @@ public class DebugCommand extends CommandBase {
 		tpl.buildTemplate(new BlockCoord(player.getLocation()));
 	}
 
-	public void sql_cmd() {
-//		HashMap<String, String> stats = new HashMap<String, String>();
-//		CivMessage.send(sender, "ConnectionsRequested: " + SQL.gameDatabase.getStats().getConnectionsRequested());
-//		CivMessage.send(sender, "Free Pool Members: " + SQL.gameDatabase.getStats().getTotalFree());
-//		CivMessage.send(sender, "Leased Pool Members: " + SQL.gameDatabase.getStats().getTotalLeased());
-//		CivMessage.send(sender, "--------------------------");
-//
-//		stats.clear();
-//		for (String key : SQLUpdate.statSaveRequests.keySet()) {
-//			Integer requests = SQLUpdate.statSaveRequests.get(key);
-//			Integer completes = SQLUpdate.statSaveCompletions.get(key);
-//
-//			if (requests == null) {
-//				requests = 0;
-//			}
-//
-//			if (completes == null) {
-//				completes = 0;
-//			}
-//
-//			CivMessage.send(sender, key + " requested:" + requests + " completed:" + completes);
-//		}
-
-//		CivMessage.send(sender, makeInfoString(stats, CivColor.Green, CivColor.LightGreen));
-		CivMessage.send(sender, "TODO NOT WORK");
-	}
-
 	public void preview_cmd() throws CivException {
-//		Player player = getPlayer();
-//		PlayerBlockChangeUtil util = new PlayerBlockChangeUtil();
-//		
-//		ProtocolManager manager = ProtocolLibrary.getProtocolManager();
-//		PacketContainer mapChunk =  manager.createPacket(Packets.Server.MAP_CHUNK);
-//		
-//		mapChunk.getBytes().write(arg0, arg1)
-//		//Packet3CExplosion expo = new Packet3CExplosion();
-//		//Packet51MapChunk c = new Packet51MapChunk();
-//		c.
-//		//mapChunk.set
-//		
-//		
-//		//util.addUpdateBlock(player.getName(), new BlockCoord(player.getLocation().add(0, -1, 0)), CivData.WOOD, 3);
-//		//util.sendUpdate(player.getName());
-//		//CivMessage.sendSuccess(player, "Changed block");
+		// Player player = getPlayer();
+		// PlayerBlockChangeUtil util = new PlayerBlockChangeUtil();
+		//
+		// ProtocolManager manager = ProtocolLibrary.getProtocolManager();
+		// PacketContainer mapChunk = manager.createPacket(Packets.Server.MAP_CHUNK);
+		//
+		// mapChunk.getBytes().write(arg0, arg1)
+		// //Packet3CExplosion expo = new Packet3CExplosion();
+		// //Packet51MapChunk c = new Packet51MapChunk();
+		// c.
+		// //mapChunk.set
+		//
+		//
+		// //util.addUpdateBlock(player.getName(), new BlockCoord(player.getLocation().add(0, -1, 0)), CivData.WOOD, 3);
+		// //util.sendUpdate(player.getName());
+		// //CivMessage.sendSuccess(player, "Changed block");
 	}
 
 	public void colorme_cmd() throws CivException {
@@ -556,8 +521,7 @@ public class DebugCommand extends CommandBase {
 		int radius = getNamedInteger(1);
 
 		HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
-		Road.getCircle(player.getLocation().getBlockX(), player.getLocation().getBlockY() - 1,
-				player.getLocation().getBlockZ(), player.getLocation().getWorld().getName(), radius, simpleBlocks);
+		Road.getCircle(player.getLocation().getBlockX(), player.getLocation().getBlockY() - 1, player.getLocation().getBlockZ(), player.getLocation().getWorld().getName(), radius, simpleBlocks);
 
 		for (SimpleBlock sb : simpleBlocks.values()) {
 			Block block = player.getWorld().getBlockAt(sb.x, sb.y, sb.z);
@@ -634,33 +598,6 @@ public class DebugCommand extends CommandBase {
 		CivMessage.send(player, "MID:" + CustomMaterial.getMID(inHand));
 	}
 
-	public void setspecial_cmd() throws CivException {
-		Player player = getPlayer();
-		ItemStack inHand = player.getInventory().getItemInMainHand();
-		if (inHand == null) {
-			throw new CivException("You need an item in your hand.");
-		}
-
-		// AttributeUtil attrs = new AttributeUtil(inHand);
-		// attrs.setCivCraftProperty("customId", "testMyCustomId");
-		ItemStack stack = CustomMaterial.addEnhancement(inHand, new LoreEnhancementSoulBound());
-		player.getInventory().setItemInMainHand(stack);
-		CivMessage.send(player, "Set it.");
-	}
-
-	public void getspecial_cmd() throws CivException {
-		Player player = getPlayer();
-		ItemStack inHand = player.getInventory().getItemInMainHand();
-		if (inHand == null) {
-			throw new CivException("You need an item in your hand.");
-		}
-
-		AttributeUtil attrs = new AttributeUtil(inHand);
-		String value = attrs.getCivCraftProperty("soulbound");
-
-		CivMessage.send(player, "Got:" + value);
-	}
-
 	public void showinv_cmd() throws CivException {
 		Book.spawnGuiBook(getPlayer());
 	}
@@ -734,8 +671,7 @@ public class DebugCommand extends CommandBase {
 
 		Block b = Bukkit.getWorld("world").getBlockAt(x, y, z);
 
-		CivMessage.send(sender,
-				"type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
+		CivMessage.send(sender, "type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
 
 	}
 
@@ -787,8 +723,7 @@ public class DebugCommand extends CommandBase {
 		for (TownChunk chunk : town.savedEdgeBlocks) {
 			for (int x = 0; x < 16; x++) {
 				for (int z = 0; z < 16; z++) {
-					Block b = Bukkit.getWorld("world").getHighestBlockAt(((chunk.getChunkCoord().getX() + x << 4) + x),
-							((chunk.getChunkCoord().getZ() << 4) + z));
+					Block b = Bukkit.getWorld("world").getHighestBlockAt(((chunk.getChunkCoord().getX() + x << 4) + x), ((chunk.getChunkCoord().getZ() << 4) + z));
 					Bukkit.getWorld("world").playEffect(b.getLocation(), Effect.MOBSPAWNER_FLAMES, 1);
 				}
 			}
@@ -889,8 +824,6 @@ public class DebugCommand extends CommandBase {
 
 	}
 
-	
-
 	public void restoresigns_cmd() {
 
 		CivMessage.send(sender, "restoring....");
@@ -972,8 +905,7 @@ public class DebugCommand extends CommandBase {
 			return;
 		}
 		for (Wall wall : walls) {
-			CivMessage.send(player, "Wall:" + wall.getId() + " town:" + wall.getTown() + " chunk:"
-					+ new ChunkCoord(player.getLocation()));
+			CivMessage.send(player, "Wall:" + wall.getId() + " town:" + wall.getTown() + " chunk:" + new ChunkCoord(player.getLocation()));
 		}
 	}
 
@@ -1010,8 +942,7 @@ public class DebugCommand extends CommandBase {
 		Player player = getPlayer();
 		FireworkEffectPlayer fw = new FireworkEffectPlayer();
 		try {
-			fw.playFirework(player.getWorld(), player.getLocation(),
-					FireworkEffect.builder().withColor(Color.RED).flicker(true).with(Type.BURST).build());
+			fw.playFirework(player.getWorld(), player.getLocation(), FireworkEffect.builder().withColor(Color.RED).flicker(true).with(Type.BURST).build());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1025,8 +956,7 @@ public class DebugCommand extends CommandBase {
 
 	public void dupe_cmd() throws CivException {
 		Player player = getPlayer();
-		if (player.getInventory().getItemInMainHand() == null
-				|| ItemManager.getTypeId(player.getInventory().getItemInMainHand()) == 0) {
+		if (player.getInventory().getItemInMainHand() == null || ItemManager.getTypeId(player.getInventory().getItemInMainHand()) == 0) {
 			throw new CivException("No item in hand.");
 		}
 		player.getInventory().addItem(player.getInventory().getItemInMainHand());
@@ -1065,6 +995,7 @@ public class DebugCommand extends CommandBase {
 		new ItemFrameStorage(loc, face);
 		CivMessage.send(sender, "Created frame.");
 	}
+
 	public void frame_cmd() throws CivException {
 		Town town = getSelectedTown();
 
@@ -1084,6 +1015,7 @@ public class DebugCommand extends CommandBase {
 		}
 
 	}
+
 	public void moveframes_cmd() throws CivException {
 		Player player = getPlayer();
 		Chunk chunk = player.getLocation().getChunk();
@@ -1114,42 +1046,43 @@ public class DebugCommand extends CommandBase {
 				return;
 			}
 
-			CivMessage.send(sender,
-					"loc:" + cc.getChunkCoord() + " town:" + cc.getTown().getName() + " civ:" + cc.getCiv().getName()
-							+ " distanceToNearest:" + cc.getDistanceToNearestEdge(cc.getTown().savedEdgeBlocks));
+			CivMessage.send(sender, "loc:" + cc.getChunkCoord() + " town:" + cc.getTown().getName() + " civ:" + cc.getCiv().getName() + " distanceToNearest:" + cc.getDistanceToNearestEdge(cc.getTown().savedEdgeBlocks));
 		}
 	}
 
-//	public void addculture_cmd() throws CivException {
-//		if (args.length < 3) {
-//			throw new CivException("enter the town, then level you want to set.");
-//		}
-//		
-//		Town town = getNamedTown(1);
-//
-//		try {
-//			
-//			int level = Integer.valueOf(args[2]);
-//			town.addCulture(level);
-//			CivMessage.sendSuccess(sender, "Added "+args[2]+" culture to town "+args[1]);
-//		} catch (NumberFormatException e) {
-//			throw new CivException(args[2]+" is not a number.");
-//		}
-//		
-//	}
+	// public void addculture_cmd() throws CivException {
+	// if (args.length < 3) {
+	// throw new CivException("enter the town, then level you want to set.");
+	// }
+	//
+	// Town town = getNamedTown(1);
+	//
+	// try {
+	//
+	// int level = Integer.valueOf(args[2]);
+	// town.addCulture(level);
+	// CivMessage.sendSuccess(sender, "Added "+args[2]+" culture to town "+args[1]);
+	// } catch (NumberFormatException e) {
+	// throw new CivException(args[2]+" is not a number.");
+	// }
+	//
+	// }
 
 	public void map_cmd() throws CivException {
 		Player player = getPlayer();
 		CivMessage.send(player, AsciiMap.getMapAsString(player.getLocation()));
 	}
+
 	public void cave_cmd() {
 		final DebugCaveCommand cmd = new DebugCaveCommand();
 		cmd.onCommand(this.sender, null, "cave", this.stripArgs(this.args, 1));
 	}
+
 	public void tradegood_cmd() {
 		final DebugTradeGoodCommand cmd = new DebugTradeGoodCommand();
 		cmd.onCommand(this.sender, null, "tradegood", this.stripArgs(this.args, 1));
 	}
+
 	public void reloadconf_cmd() {
 		final DebugReloadConfCommand cmd = new DebugReloadConfCommand();
 		cmd.onCommand(this.sender, null, "reloadconf", this.stripArgs(this.args, 1));

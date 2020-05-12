@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Location;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -139,15 +138,6 @@ public class Blacksmith extends Structure {
 
 	public String getkey(Player player, Structure struct, String tag) {
 		return player.getUniqueId().toString() + "_" + struct.getConfigId() + "_" + struct.getCorner().toString() + "_" + tag;
-	}
-
-	public void saveItem(ItemStack item, String key) {
-		String value = "" + ItemManager.getTypeId(item) + ":";
-		for (Enchantment e : item.getEnchantments().keySet()) {
-			value += ItemManager.getEnchantmentId(e) + "," + item.getEnchantmentLevel(e);
-			value += ":";
-		}
-		sessionAdd(key, value);
 	}
 
 	public static boolean canSmelt(int blockid) {

@@ -42,7 +42,7 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 	public void onPrepareCreate(AttributeUtil attrUtil) {
 		attrUtil.addLore(ChatColor.RESET+CivColor.Gold+CivSettings.localize.localizedString("buildcamp_lore1"));
 		attrUtil.addLore(ChatColor.RESET+CivColor.Rose+CivSettings.localize.localizedString("itemLore_RightClickToUse"));		
-		attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
+//TODO вернуть		attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
 		attrUtil.addLore(CivColor.Gold+CivSettings.localize.localizedString("itemLore_Soulbound"));
 	}
 	

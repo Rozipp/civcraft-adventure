@@ -13,7 +13,6 @@ import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -50,9 +49,7 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 			try {
 				HashMap<String, MultiInventory> multInv = new HashMap<>();
 				ArrayList<FoundElement> foundElements = new ArrayList<>();
-				int i = 1;
 				for (ConfigTransmuterRecipe cTranR : transmuter.getTransmuterRecipe()) {
-					CivLog.debug("recipe" + ++i +"  " + cTranR.id);
 					if (hasEnoughToTransmute(this, cTranR, multInv, foundElements)) {
 						processTransmute(this, cTranR, multInv, foundElements);
 						break;

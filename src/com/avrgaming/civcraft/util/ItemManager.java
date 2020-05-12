@@ -9,7 +9,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -41,10 +40,14 @@ public class ItemManager {
 		return new ItemStack(typeId, amount, data);
 	}
 
+	public static ItemStack createItemStack(Material mat, int amount) {
+		return new ItemStack(mat, (short) 0);
+	}
+
 	public static ItemStack createItemStack(String umid, int amount) {
 		if (umid == null || umid.equalsIgnoreCase("")) return createItemStack(CivData.AIR, 0);
-		CustomMaterial lcm = CustomMaterial.getCustomMaterial(umid.toLowerCase());
-		if (lcm != null) return CustomMaterial.spawn(lcm, amount);
+		CustomMaterial cm = CustomMaterial.getCustomMaterial(umid.toLowerCase());
+		if (cm != null) return CustomMaterial.spawn(cm, amount);
 		if (umid.contains(":")) {
 			String[] spl = umid.split(":");
 			try {
@@ -58,7 +61,7 @@ public class ItemManager {
 			return createItemStack(Integer.parseInt(umid), amount);
 		} catch (NumberFormatException e) {
 			try {
-				return new ItemStack(Material.valueOf(umid.toUpperCase()));
+				return createItemStack(Material.valueOf(umid.toUpperCase()), amount);
 			} catch (IllegalArgumentException e1) {
 				CivLog.warning("createItemStack() \"" + umid + "\" is not found material");
 				return createItemStack(CivData.AIR, 0);
@@ -72,18 +75,8 @@ public class ItemManager {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static Enchantment getEnchantById(int id) {
-		return Enchantment.getById(id);
-	}
-
-	@SuppressWarnings("deprecation")
 	public static int getMaterialId(Material material) {
 		return material.getId();
-	}
-
-	@SuppressWarnings("deprecation")
-	public static int getEnchantmentId(Enchantment e) {
-		return e.getId();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -321,4 +314,16 @@ public class ItemManager {
 			}
 		}
 	}
+
+	public static ItemStack foundItem(Inventory inv, int lastHashCode) {
+		for (ItemStack is : inv) {
+			if (is == null) continue;
+			if (is.hashCode() == lastHashCode) return is;
+		}
+		return null;
+	}
+
+	public static boolean isPresent(final ItemStack item) {
+        return item != null && item.getType() != Material.AIR;
+    }
 }

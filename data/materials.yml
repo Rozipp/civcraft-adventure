@@ -1744,7 +1744,8 @@ materials:
           components:
               - name: 'NoRightClick'
           ingredients:
-              - ingred_id: 'mat_ender_pearl'
+          #TODO
+              - ingred_id: '1:0'
                 count: 9
         
         - id: 'mat_vanilla_slime'

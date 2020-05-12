@@ -11,8 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementAttack;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -42,13 +42,11 @@ public class RangedAttack extends ItemComponent {
 
 		Resident resident = CivGlobal.getResident(event.getPlayer());
 		if (!resident.hasTechForItem(event.getPlayer().getInventory().getItem(event.getNewSlot()))) {
-			CivMessage.send(resident, CivColor.Rose + CivSettings.localize.localizedString("itemLore_Warning") + " - " + CivColor.LightGray
-					+ CivSettings.localize.localizedString("itemLore_attackHalfDamage"));
+			CivMessage.send(resident, CivColor.Rose + CivSettings.localize.localizedString("itemLore_Warning") + " - " + CivColor.LightGray + CivSettings.localize.localizedString("itemLore_attackHalfDamage"));
 		}
 	}
 
 	public void onRangedAttack(EntityDamageByEntityEvent event, ItemStack inHand) {
-		AttributeUtil attrs = new AttributeUtil(inHand);
 		double dmg = this.getDouble("value");
 
 		if (event.getDamager() instanceof Arrow) {
@@ -64,10 +62,8 @@ public class RangedAttack extends ItemComponent {
 		}
 
 		double extraAtt = 0.0;
-		for (LoreEnhancement enh : attrs.getEnhancements()) {
-			if (enh instanceof LoreEnhancementAttack) {
-				extraAtt += ((LoreEnhancementAttack) enh).getExtraAttack(attrs);
-			}
+		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Attack)) {
+			extraAtt += Enchantments.getLevelEnchantment(inHand, CustomEnchantment.Attack);
 		}
 		dmg += extraAtt;
 

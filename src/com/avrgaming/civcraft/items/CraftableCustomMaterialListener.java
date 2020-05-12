@@ -20,7 +20,6 @@ import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.config.ConfigTechItem;
 import com.avrgaming.civcraft.items.components.Tagged;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -161,41 +160,6 @@ public class CraftableCustomMaterialListener implements Listener {
 				TaskMaster.asyncTask(new AsyncTask(resident, amount), 0);
 			}
 		}
-	}
-
-	private boolean checkCustomMismatch(ItemStack item1, ItemStack item2) {
-		// if (LoreMaterial.isCustom(item1)) {
-		// // CivLog.debug("\tmatrix is custom.");
-		// if (!LoreMaterial.isCustom(item2)) {
-		// /* custom item mismatch. */
-		// // CivLog.debug("custom mismatch.");
-		// return false;
-		// }
-		//
-		// LoreMaterial mMatrixMaterial = LoreMaterial.getMaterial(item2);
-		//
-		// if (!(mMatrixMaterial instanceof LoreCraftableMaterial)) {
-		// /* some other kind of custom item, not valid. */
-		// // CivLog.debug("another type of lorecraft.");
-		// return false;
-		// }
-		//
-		// LoreCraftableMaterial isMaterial = (LoreCraftableMaterial) LoreMaterial.getMaterial(item1);
-		// LoreCraftableMaterial matrixCraftMaterial = (LoreCraftableMaterial)mMatrixMaterial;
-		//
-		// // CivLog.debug("\tmatrix:"+isMaterial.getConfigId()+" vs "+matrixCraftMaterial.getConfigId());
-		// if (!isMaterial.getConfigId().equals(matrixCraftMaterial.getConfigId())) {
-		// /* custom item id's don't match. */
-		// // CivLog.debug("invalid custom");
-		// return false;
-		// }
-		//
-		// /* By reaching this point, this itemstack is in the right location and matches this recipe. */
-		// //CivLog.debug("item ok.");
-		// } else {
-		// //CivLog.debug("\tmatrix not custom");
-		// }
-		return true;
 	}
 
 	private boolean matrixContainsCustom(ItemStack[] matrix) {

@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.util.ItemManager;
 
 public class ConfigTransmuterRecipe {
 
@@ -26,6 +25,7 @@ public class ConfigTransmuterRecipe {
 		public Integer count;
 		public String chest;
 	}
+
 	public static class ResultItem {
 		public String item;
 		public Integer count;
@@ -54,10 +54,10 @@ public class ConfigTransmuterRecipe {
 						String source_item = (String) ingred.get("item");
 						if (source_item == null) throw new CivException("ConfigTransmuterRecipe sourceItem.item = null in recipe " + ctr.id);
 						String[] source_item_split = source_item.split(",");
-//						for (String s : source_item_split)
-//							if (ItemManager.createItemStack(s, 1) == null) {
-//								throw new CivException("ConfigTransmuterRecipe can not create sourceItem " + sourceItem.item + " in recipe " + ctr.id);
-//							}
+						// for (String s : source_item_split)
+						// if (ItemManager.createItemStack(s, 1) == null) {
+						// throw new CivException("ConfigTransmuterRecipe can not create sourceItem " + sourceItem.item + " in recipe " + ctr.id);
+						// }
 						sourceItem.item = source_item_split;
 						sourceItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
 						sourceItem.chest = (String) ingred.get("chest");
@@ -71,27 +71,19 @@ public class ConfigTransmuterRecipe {
 			List<Map<?, ?>> configResultItems = (List<Map<?, ?>>) b.get("result_item");
 			int max_rate = 0;
 			ResultItem max_rate_item = null;
-//			try {
-				if (configResultItems != null) {
-					for (Map<?, ?> ingred : configResultItems) {
-						ResultItem resultItem = new ResultItem();
-						resultItem.item = (String) ingred.get("item");
-//						if (ItemManager.createItemStack(resultItem.item, 1) == null) {
-//							throw new CivException("ConfigTransmuterRecipe can not create resultItem " + resultItem.item + " in recipe " + ctr.id);
-//						}
-						resultItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
-						resultItem.rate = (Integer) ingred.get("rate");
-						if (max_rate < resultItem.rate) {
-							max_rate = resultItem.rate;
-							max_rate_item = resultItem;
-						}
-						ctr.resultItems.add(resultItem);
+			if (configResultItems != null) {
+				for (Map<?, ?> ingred : configResultItems) {
+					ResultItem resultItem = new ResultItem();
+					resultItem.item = (String) ingred.get("item");
+					resultItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
+					resultItem.rate = (Integer) ingred.get("rate");
+					if (max_rate < resultItem.rate) {
+						max_rate = resultItem.rate;
+						max_rate_item = resultItem;
 					}
+					ctr.resultItems.add(resultItem);
 				}
-//			} catch (CivException e) {
-//				CivLog.error(e.getMessage());
-//				continue;
-//			}
+			}
 			// результат с самым большым шансом нужен для организации повышения шанса других предметов
 			ctr.resultItems.remove(max_rate_item);
 			ctr.lastResultItems = max_rate_item;
