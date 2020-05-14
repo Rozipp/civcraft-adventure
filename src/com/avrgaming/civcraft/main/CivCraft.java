@@ -15,7 +15,6 @@ import java.util.Random;
 
 import com.avrgaming.donate.Donate;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -263,12 +262,6 @@ public final class CivCraft extends JavaPlugin {
 		pluginManager.registerEvents(new PvPListener(), this);
 		pluginManager.registerEvents(new UnitListener(), this);
 		pluginManager.registerEvents(new MobListener(), this);
-
-		if ((hasPlugin("iTag") || hasPlugin("TagAPI")) && hasPlugin("ProtocolLib")) {
-			CivLog.debug("TagAPI Registered");
-		} else {
-			CivLog.warning("TagAPI not found, not registering TagAPI hooks. This is fine if you're not using TagAPI.");
-		}
 
 		pluginManager.registerEvents(new ArmorListener(getConfig().getStringList("blocked")), this);
 	}

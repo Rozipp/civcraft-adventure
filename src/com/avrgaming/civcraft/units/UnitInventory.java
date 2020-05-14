@@ -11,7 +11,6 @@ import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Town;
 
 public class UnitInventory {
@@ -44,12 +43,10 @@ public class UnitInventory {
 			// }
 
 			if (!uo.validLastActivate()) {
-				CivLog.debug("respawn");
 				guiInventory.addItem(UnitStatic.respawn(uo.getId()));
 				continue;
 			}
 
-			CivLog.debug("create gui Item");
 			guiInventory.addItem(UnitInventoryListener.buildGuiUnit(uo));
 		}
 		for (Integer uId : deleteUnit) {

@@ -469,7 +469,7 @@ public class SQL {
 		try {
 			context = SQL.getGameConnection();
 			ps = context.prepareStatement("DROP TABLE " + table_clear);
-			CivLog.debug("deleted " + table_clear);
+			CivLog.info("deleted " + table_clear);
 			ps.execute();
 		} catch (SQLException e) {
 			CivLog.error("not deleted " + table_clear);
@@ -518,7 +518,7 @@ public class SQL {
 	}
 
 	public static void clearTableData() {
-		CivLog.debug("-------------------------- Clears all table data ------------------------");
+		CivLog.info("-------------------------- Clears all table data ------------------------");
 		SQL.deleteTable(ConfigMarketItem.TABLE_NAME);
 		SQL.deleteTable(EventTimer.TABLE_NAME);
 		SQL.deleteTable(BonusGoodie.TABLE_NAME);

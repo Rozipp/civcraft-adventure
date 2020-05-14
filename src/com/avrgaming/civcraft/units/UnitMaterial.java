@@ -32,7 +32,6 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;
@@ -101,7 +100,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
-		CivLog.debug("UnitMaterial.onInteract");
 		event.setCancelled(true);
 		Player player = event.getPlayer();
 		Resident resident = CivGlobal.getResident(player);

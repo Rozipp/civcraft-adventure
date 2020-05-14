@@ -49,7 +49,6 @@ public class BuildAsyncTask extends CivAsyncTask {
 	private final int SAVE_INTERVAL = 5 * 1000; /* once every 5 sec. */
 
 	public BuildAsyncTask(Buildable bld) {
-		CivLog.debug("build log: screate BuildAsyncTask after 1000ms");
 		buildable = bld;
 		period = 500;
 		tpl = buildable.getTemplate();

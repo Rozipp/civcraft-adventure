@@ -17,7 +17,6 @@ import org.bukkit.plugin.Plugin;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigFishing;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
@@ -42,7 +41,6 @@ public class FishingListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerFish(PlayerFishEvent event) {
 		if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-			CivLog.debug("NOT cancelling player fish event...");
 			// event.getPlayer().
 			// event.setCancelled(true);
 			Player player = event.getPlayer();

@@ -264,7 +264,6 @@ public class ConfigTownUpgrade {
 			if (town.saved_trommel_level < Integer.valueOf(args[1].trim())) {
 				town.saved_trommel_level = Integer.valueOf(args[1].trim());
 				for (Structure structure : town.getStructuresByType("s_trommel")) {
-					CivLog.debug("Found s_trommel");
 					structure.onPostBuild();
 				}
 				CivMessage.sendTown(town, CivSettings.localize.localizedString("var_townupgrade_trommels", town.saved_trommel_level));

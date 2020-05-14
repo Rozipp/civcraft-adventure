@@ -22,7 +22,6 @@ import com.avrgaming.civcraft.config.ConfigTechItem;
 import com.avrgaming.civcraft.items.components.Tagged;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
@@ -173,7 +172,6 @@ public class CraftableCustomMaterialListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void OnPrepareItemCraftEvent(PrepareItemCraftEvent event) {
-		CivLog.debug("PrepareItemCraftEvent: " + event.getRecipe());
 		if (event.getRecipe() instanceof ShapedRecipe) {
 			String key = CraftableCustomMaterial.getShapedRecipeKey(event.getInventory().getMatrix());
 			CraftableCustomMaterial loreMat = CraftableCustomMaterial.shapedKeys.get(key);

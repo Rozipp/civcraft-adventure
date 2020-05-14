@@ -2278,7 +2278,6 @@ public class Civilization extends SQLObject {
 			CivMessage.sendHeading(player, "Все пещеры");
 		} else
 			CivMessage.sendHeading(player, statusType + " пещеры");
-		CivLog.debug("this.caveStatuses.size() = " + this.caveStatuses.size());
 		for (CaveStatus cs : this.caveStatuses.values()) {
 			if (statusType != null && cs.statusType != statusType)
 				continue;
@@ -2325,13 +2324,10 @@ public class Civilization extends SQLObject {
 	private void loadCaveStatus(String string) {
 		if (string == null || string.isEmpty())
 			return;
-		CivLog.debug("loadCaveStatus " + string);
 		String[] csSpl = string.split(",");
 		for (int k = 0; k < csSpl.length; k++) {
-			CivLog.debug("csSpl [" + k + "] = " + csSpl[k]);
 			String[] propertySpl = csSpl[k].split(":");
 			int id = Integer.parseInt(propertySpl[0]);
-			CivLog.debug(" id = " + id);
 
 			StatusType statusType = StatusType.valueOf(propertySpl[1]);
 			Date date = new Date(Long.parseLong(propertySpl[2]));

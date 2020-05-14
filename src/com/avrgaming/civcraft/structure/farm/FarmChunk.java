@@ -174,7 +174,7 @@ public class FarmChunk {
 
 	public void addGrowBlock(String world, int x, int y, int z, int typeid, int data, boolean spawn) {
 		if ((x > -64 && x < 64) && ((z > -64 && z < 64))) {
-			CivLog.debug("Didn't grow in town " + this.town.getName() + ": " + x + " " + y + " " + z);
+			CivLog.warning("Didn't grow in town " + this.town.getName() + ": " + x + " " + y + " " + z);
 			// Don't grow in spawn, gosh
 			return;
 		}
@@ -226,7 +226,7 @@ public class FarmChunk {
 			effectiveGrowthRate = (double) this.town.getGrowth().total / (double) 100;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			CivLog.debug("Farm at location" + this.getCoord() + " in town " + this.getTown().getName() + " Growth Error");
+			CivLog.error("Farm at location" + this.getCoord() + " in town " + this.getTown().getName() + " Growth Error");
 		}
 
 		for (Component comp : this.getFarm().attachedComponents) {

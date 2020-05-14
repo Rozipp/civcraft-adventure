@@ -118,20 +118,13 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		CivLog.debug("CustomItemListener.onPlayerInteract");
-		if (event.isCancelled()) return;
 		ItemStack stack = null;
 		if (event.getHand() == EquipmentSlot.OFF_HAND)
 			stack = event.getPlayer().getInventory().getItemInOffHand();
 		else stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null) {
-			CivLog.debug("stack == null");
-			return;
-		}
+		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-		if (material != null)
-			material.onInteract(event);
-		else CivLog.debug("material == null");
+		if (material != null) material.onInteract(event);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)

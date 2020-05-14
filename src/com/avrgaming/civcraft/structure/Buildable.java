@@ -29,7 +29,6 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.ControlPoint;
@@ -246,7 +245,6 @@ public abstract class Buildable extends Construct {
 		if (!this.info.id.equalsIgnoreCase("s_capitol") && !this.info.id.equalsIgnoreCase("s_townhall")) {
 			CultureChunk cc = CivGlobal.getCultureChunk(centerBlock.getLocation());
 			if (cc == null || cc.getTown().getCiv() != this.getCiv()) {
-				CivLog.debug("Строим здание " + this.getDisplayName() + " не в пределах культуры");
 				throw new CivException(CivSettings.localize.localizedString("buildable_notInCulture"));
 			}
 		} else {

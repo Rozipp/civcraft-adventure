@@ -13,7 +13,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.TradeShip;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -425,9 +424,7 @@ public class TradeLevelComponent extends Component {
 							double valueForStack = Double.parseDouble(tradeValue);
 							double moneyForStack = countInStackToConsume * valueForStack;
 							monetaryValue += moneyForStack;
-						} else {
-							CivLog.debug("tradeValue null for item");
-						}
+						} 
 	
 						processItemsFromStack(stack, countInStackToConsume);
 						countConsumed += countInStackToConsume;

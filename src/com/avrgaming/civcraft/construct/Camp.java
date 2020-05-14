@@ -1121,7 +1121,6 @@ public class Camp extends Construct {
 
 	@Override
 	public void onDamage(int amount, World world, Player player, BlockCoord hit, ConstructDamageBlock hit2) {
-		CivLog.debug("onDamage");
 		ControlPoint cp = (ControlPoint) this.controlBlocks.get(hit);
 		if (cp != null) {
 			Date now = new Date();

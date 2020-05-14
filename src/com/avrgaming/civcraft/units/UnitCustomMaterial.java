@@ -23,7 +23,6 @@ import com.avrgaming.civcraft.config.ConfigUnitMaterial;
 import com.avrgaming.civcraft.items.BaseCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.items.components.ItemComponent;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class UnitCustomMaterial extends BaseCustomMaterial {
@@ -58,7 +57,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	@Override
 	public void onDropItem(PlayerDropItemEvent event) {
-		CivLog.debug("onDropItem");
 		ItemComponent ic = components.get("Cooldown");
 		if (ic != null && ic.getString("lock") != null) {
 			event.setCancelled(true);

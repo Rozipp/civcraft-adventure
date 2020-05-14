@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import com.avrgaming.civcraft.main.CivCraft;
-import com.avrgaming.civcraft.main.CivLog;
 
 import net.minecraft.server.v1_12_R1.AttributeInstance;
 import net.minecraft.server.v1_12_R1.AttributeModifier;
@@ -117,12 +116,10 @@ public class HorseModifier {
     
     public static boolean isCivCraftHorse(LivingEntity entity) {
     	if (!entity.hasMetadata(HORSE_META)) {
-    		CivLog.debug("Player tried using Horse without meta: "+HORSE_META);
     		return false;
     	}
     	
     	if (!isHorse(entity)) {
-    		CivLog.debug("Player tried using Horse that isn't a Horse? Error in HorseModifier.java.");
     		return false;
     	}
     	

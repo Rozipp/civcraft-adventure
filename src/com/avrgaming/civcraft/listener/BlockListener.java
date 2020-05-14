@@ -21,7 +21,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.ControlPoint;
@@ -32,13 +31,11 @@ import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableLayer;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-// import com.avrgaming.civcraft.structure.CannonShip;
 import com.avrgaming.civcraft.structure.CannonTower;
 import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.structure.Pasture;
 import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.RoadBlock;
-// import com.avrgaming.civcraft.structure.Stable;
 import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.wonders.Battledome;
@@ -398,7 +395,6 @@ public class BlockListener implements Listener {
 			public void run() {
 				if (entity != null) {
 					if (!HorseModifier.isCivCraftHorse(entity)) {
-						CivLog.warning("Removing a normally spawned horse.");
 						entity.remove();
 					}
 				}
@@ -415,7 +411,6 @@ public class BlockListener implements Listener {
 				return;
 			}
 
-			CivLog.warning("Canceling horse spawn reason:" + event.getSpawnReason().name());
 			event.setCancelled(true);
 		}
 
@@ -939,11 +934,9 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnPlayerInteractEvent(PlayerInteractEvent event) {
-		CivLog.debug("BlockListener.OnPlayerInteractEvent");
 		Resident resident = CivGlobal.getResident(event.getPlayer());
 
 		if (resident == null) {
-			CivLog.debug("resident == null");
 			event.setCancelled(true);
 			return;
 		}
@@ -954,7 +947,6 @@ public class BlockListener implements Listener {
 				Integer item = ItemManager.getTypeId(event.getPlayer().getInventory().getItemInMainHand());
 				// block cheats for placing water/lava/fire/lighter use.
 				if (item == 326 || item == 327 || item == 259 || (item >= 8 && item <= 11) || item == 51) {
-					CivLog.debug("block cheats for placing water/lava/fire/lighter use");
 					event.setCancelled(true);
 				}
 			}
@@ -987,7 +979,6 @@ public class BlockListener implements Listener {
 		Block soilBlock2 = event.getPlayer().getLocation().getBlock().getRelative(0, -1, 0);
 		if ((event.getAction() == Action.PHYSICAL)) {
 			if (ItemManager.getTypeId(soilBlock1) == CivData.FARMLAND || ItemManager.getTypeId(soilBlock2) == CivData.FARMLAND) {
-				CivLog.debug("CivData.FARMLAND");
 				event.setCancelled(true);
 				return;
 			}
@@ -1009,10 +1000,8 @@ public class BlockListener implements Listener {
 		boolean leftClick = event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK);
 
 		if (event.getClickedBlock() != null) {
-			CivLog.debug("event.getClickedBlock() = "  + event.getClickedBlock());
 
 			if (MarkerPlacementManager.isPlayerInPlacementMode(event.getPlayer())) {
-				CivLog.debug("MarkerPlacementManager");
 				Block block;
 				if (event.getBlockFace().equals(BlockFace.UP)) {
 					block = event.getClickedBlock().getRelative(event.getBlockFace());
@@ -1037,7 +1026,6 @@ public class BlockListener implements Listener {
 			if (sign != null) {
 				if (leftClick || sign.isAllowRightClick()) {
 					if (sign.getOwner() != null && sign.getOwner().isActive()) {
-						CivLog.debug("processSignAction");
 						try {
 							sign.getOwner().processSignAction(event.getPlayer(), sign, event);
 							event.setCancelled(true);

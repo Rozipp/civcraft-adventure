@@ -239,7 +239,7 @@ public class CivSettings {
 		String languageFile = CivSettings.getStringBase("localization_file");
 		localize = new Localize(plugin, languageFile);
 
-		CivLog.debug(localize.localizedString("welcome_string", "test", 1337, 100.50));
+		CivLog.info(localize.localizedString("welcome_string", "test", 1337, 100.50));
 		CURRENCY_NAME = localize.localizedString("civ_currencyName");
 		CivGlobal.fullMessage = CivSettings.localize.localizedString("civGlobal_serverFullMsg");
 

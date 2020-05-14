@@ -13,7 +13,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CustomEnchantment {
@@ -91,13 +90,11 @@ public class CustomEnchantment {
 	protected CustomEnchantment(Enchantment enchant) {
 		this.id = enchant.getId();
 		this.name = enchant.getName().trim();
-		CivLog.debug("register new vanila enchant  " + name);
 		if (!Enchantments.enchantmentList.containsKey(id)) Enchantments.enchantmentList.put(id, this);
 	}
 
 	protected CustomEnchantment(int id, String name, ItemSet itemSet, int maxLevel, String group) {
 		Validate.notEmpty(name, "The name must be present and not empty");
-		CivLog.debug("register new Custom enchant  " + name);
 
 		this.id = id;
 		this.addNaturalItems(itemSet);

@@ -251,7 +251,6 @@ public class Structure extends Buildable {
 
 	public void build(Player player) {
 		// Before we place the blocks, give our build function a chance to work on it
-		CivLog.debug("build log: structure.build ");
 		try {
 			this.runOnBuild(this.getCorner().getChunkCoord());
 		} catch (CivException e1) {

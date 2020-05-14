@@ -1527,7 +1527,7 @@ public class Town extends SQLObject {
 			out += "<h3><b>" + this.getName() + "</b> (<i>" + this.getCiv().getName() + "</i>)</h3>";
 			out += "<b>" + CivSettings.localize.localizedString("Mayors") + " " + this.getMayorGroup().getMembersString() + "</b>";
 		} catch (Exception e) {
-			CivLog.debug("Town: " + this.getName());
+			CivLog.error("Town: " + this.getName());
 			e.printStackTrace();
 		}
 
@@ -1876,7 +1876,6 @@ public class Town extends SQLObject {
 
 	public Structure getStructureByType(String id) {
 		for (Structure struct : this.structures.values()) {
-			CivLog.debug(struct.getConfigId());
 			if (id.equalsIgnoreCase(struct.getConfigId())) {
 				return struct;
 			}
@@ -2046,8 +2045,8 @@ public class Town extends SQLObject {
 			try {
 				cultureSource += cc.getGrowth();
 			} catch (NullPointerException e) {
+				CivLog.error(this.getName() + " - Culture Chunks: " + cc);
 				e.printStackTrace();
-				CivLog.debug(this.getName() + " - Culture Chunks: " + cc);
 			}
 
 		}

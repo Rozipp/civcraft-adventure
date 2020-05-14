@@ -77,18 +77,16 @@ extends EndGameCondition {
         int towncountglobal = 0;
         int towncountciv = 0;
         for (Town town : CivGlobal.getTowns()) {
-            if (town.getName() != null) {
+            if (town.getName() == null) {
                 ++towncountglobal;
                 continue;
             }
-            CivLog.debug("Town with number " + towncountglobal + " = null. Sure ?\nEndCondition Class");
         }
         for (Town town : civ.getTowns()) {
             if (town.getName() != null) {
                 ++towncountciv;
                 continue;
             }
-            CivLog.debug("Town with number " + towncountciv + " = null. Sure ?\nEndCondition Class");
         }
         double captured = (double)towncountciv / (double)towncountglobal;
         if (!hasChichenItza) {
