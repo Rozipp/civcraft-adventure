@@ -36,6 +36,7 @@ import com.avrgaming.civcraft.enchantment.CustomEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.components.ItemComponent;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 
 import gpl.AttributeUtil;
@@ -94,6 +95,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		for (ItemComponent ic : this.components.values()) {
+			CivLog.debug("BaseCustomMaterial.onInteract component " + ic.getName());
 			ic.onInteract(event);
 		}
 	}

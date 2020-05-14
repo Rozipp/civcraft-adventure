@@ -133,7 +133,9 @@ public class BlockListener implements Listener {
 	public void onEntityTameEvent(EntityTameEvent event) {
 		if (event.getEntity() instanceof Wolf) {
 			Wolf wolf = (Wolf) event.getEntity();
-			if (wolf.getName().contains("Direwolf")) { event.setCancelled(true); }
+			if (wolf.getName().contains("Direwolf")) {
+				event.setCancelled(true);
+			}
 		}
 	}
 
@@ -235,7 +237,9 @@ public class BlockListener implements Listener {
 	public void onProjectileHitEvent(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof Arrow) {
 			ArrowFiredCache afc = CivCache.arrowsFired.get(event.getEntity().getUniqueId());
-			if (afc != null) { afc.setHit(true); }
+			if (afc != null) {
+				afc.setHit(true);
+			}
 		}
 
 		if (event.getEntity() instanceof Fireball) {
@@ -378,7 +382,9 @@ public class BlockListener implements Listener {
 			ChunkCoord coord = new ChunkCoord(event.getEntity().getLocation());
 			Pasture pasture = Pasture.pastureChunks.get(coord);
 
-			if (pasture != null) { pasture.onBreed(event.getEntity()); }
+			if (pasture != null) {
+				pasture.onBreed(event.getEntity());
+			}
 		}
 
 		class SyncTask implements Runnable {
@@ -415,7 +421,9 @@ public class BlockListener implements Listener {
 
 		ChunkCoord coord = new ChunkCoord(event.getLocation());
 		TownChunk tc = CivGlobal.getTownChunk(coord);
-		if (tc == null) { return; }
+		if (tc == null) {
+			return;
+		}
 		// TODO from furnex Даже не понял о чем текст
 		// if (tc.perms.isMobs() == false) {
 		// if (event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
@@ -438,11 +446,15 @@ public class BlockListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnEntityExplodeEvent(EntityExplodeEvent event) {
 
-		if (event.getEntity() == null) { return; }
+		if (event.getEntity() == null) {
+			return;
+		}
 		/* prevent ender dragons from breaking blocks. */
 		if (event.getEntityType().equals(EntityType.COMPLEX_PART)) {
 			event.setCancelled(true);
-		} else if (event.getEntityType().equals(EntityType.ENDER_DRAGON)) { event.setCancelled(true); }
+		} else if (event.getEntityType().equals(EntityType.ENDER_DRAGON)) {
+			event.setCancelled(true);
+		}
 
 		for (Block block : event.blockList()) {
 			bcoord.setFromLocation(block.getLocation());
@@ -483,15 +495,16 @@ public class BlockListener implements Listener {
 			}
 
 			TownChunk tc = CivGlobal.getTownChunk(coord);
-			if (tc == null) { continue; }
+			if (tc == null) {
+				continue;
+			}
 			event.setCancelled(true);
 			return;
 		}
 
 	}
 
-	private final BlockFace[] faces = new BlockFace[] {
-			BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.SELF, BlockFace.UP };
+	private final BlockFace[] faces = new BlockFace[] { BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.SELF, BlockFace.UP };
 
 	public BlockCoord generatesCobble(int id, Block b) {
 		int mirrorID1 = (id == CivData.WATER_RUNNING || id == CivData.WATER ? CivData.LAVA_RUNNING : CivData.WATER_RUNNING);
@@ -500,7 +513,9 @@ public class BlockListener implements Listener {
 		int mirrorID4 = (id == CivData.WATER_RUNNING || id == CivData.WATER ? CivData.LAVA : CivData.WATER_RUNNING);
 		for (BlockFace face : faces) {
 			Block r = b.getRelative(face, 1);
-			if (ItemManager.getTypeId(r) == mirrorID1 || ItemManager.getTypeId(r) == mirrorID2 || ItemManager.getTypeId(r) == mirrorID3 || ItemManager.getTypeId(r) == mirrorID4) { return new BlockCoord(r); }
+			if (ItemManager.getTypeId(r) == mirrorID1 || ItemManager.getTypeId(r) == mirrorID2 || ItemManager.getTypeId(r) == mirrorID3 || ItemManager.getTypeId(r) == mirrorID4) {
+				return new BlockCoord(r);
+			}
 		}
 
 		return null;
@@ -540,7 +555,9 @@ public class BlockListener implements Listener {
 			int toid = ItemManager.getTypeId(b);
 			if (toid == CivData.COBBLESTONE || toid == CivData.OBSIDIAN) {
 				BlockCoord other = generatesCobble(id, b);
-				if (other != null && other.getBlock().getType() != Material.AIR) { other.getBlock().setType(Material.NETHERRACK); }
+				if (other != null && other.getBlock().getType() != Material.AIR) {
+					other.getBlock().setType(Material.NETHERRACK);
+				}
 			}
 		}
 	}
@@ -554,8 +571,7 @@ public class BlockListener implements Listener {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("var_moblistener_spawn"));
 				return;
 			}
-		} catch (NullPointerException ex) {
-		}
+		} catch (NullPointerException ex) {}
 		if (resident == null) {
 			event.setCancelled(true);
 			return;
@@ -600,7 +616,11 @@ public class BlockListener implements Listener {
 
 		TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(event.getNewState().getChunk()));
 		if (tc == null) return;
-		if (tc.perms.isFire() == false) { if (event.getNewState().getType() == Material.FIRE) { event.setCancelled(true); } }
+		if (tc.perms.isFire() == false) {
+			if (event.getNewState().getType() == Material.FIRE) {
+				event.setCancelled(true);
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
@@ -680,11 +700,15 @@ public class BlockListener implements Listener {
 
 				/* Building is validated, grab the layer and determine if this would set it over the limit. */
 				BuildableLayer layer = buildable.layerValidPercentages.get(bcoord.getY());
-				if (layer == null) { continue; }
+				if (layer == null) {
+					continue;
+				}
 
 				/* Update the layer. */
 				layer.current += BuildableStatic.getReinforcementValue(ItemManager.getTypeId(event.getBlockPlaced()));
-				if (layer.current < 0) { layer.current = 0; }
+				if (layer.current < 0) {
+					layer.current = 0;
+				}
 				buildable.layerValidPercentages.put(bcoord.getY(), layer);
 			}
 		}
@@ -828,10 +852,14 @@ public class BlockListener implements Listener {
 
 				/* Building is validated, grab the layer and determine if this would set it over the limit. */
 				BuildableLayer layer = buildable.layerValidPercentages.get(bcoord.getY());
-				if (layer == null) { continue; }
+				if (layer == null) {
+					continue;
+				}
 
 				double current = layer.current - BuildableStatic.getReinforcementValue(ItemManager.getTypeId(event.getBlock()));
-				if (current < 0) { current = 0; }
+				if (current < 0) {
+					current = 0;
+				}
 				Double percentValid = (double) (current) / (double) layer.max;
 
 				if (percentValid < StructureValidator.validPercentRequirement) {
@@ -911,9 +939,11 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnPlayerInteractEvent(PlayerInteractEvent event) {
+		CivLog.debug("BlockListener.OnPlayerInteractEvent");
 		Resident resident = CivGlobal.getResident(event.getPlayer());
 
 		if (resident == null) {
+			CivLog.debug("resident == null");
 			event.setCancelled(true);
 			return;
 		}
@@ -923,7 +953,10 @@ public class BlockListener implements Listener {
 			if (event.getAction() == Action.RIGHT_CLICK_AIR) {
 				Integer item = ItemManager.getTypeId(event.getPlayer().getInventory().getItemInMainHand());
 				// block cheats for placing water/lava/fire/lighter use.
-				if (item == 326 || item == 327 || item == 259 || (item >= 8 && item <= 11) || item == 51) { event.setCancelled(true); }
+				if (item == 326 || item == 327 || item == 259 || (item >= 8 && item <= 11) || item == 51) {
+					CivLog.debug("block cheats for placing water/lava/fire/lighter use");
+					event.setCancelled(true);
+				}
 			}
 			return;
 		}
@@ -954,6 +987,7 @@ public class BlockListener implements Listener {
 		Block soilBlock2 = event.getPlayer().getLocation().getBlock().getRelative(0, -1, 0);
 		if ((event.getAction() == Action.PHYSICAL)) {
 			if (ItemManager.getTypeId(soilBlock1) == CivData.FARMLAND || ItemManager.getTypeId(soilBlock2) == CivData.FARMLAND) {
+				CivLog.debug("CivData.FARMLAND");
 				event.setCancelled(true);
 				return;
 			}
@@ -975,8 +1009,10 @@ public class BlockListener implements Listener {
 		boolean leftClick = event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK);
 
 		if (event.getClickedBlock() != null) {
+			CivLog.debug("event.getClickedBlock() = "  + event.getClickedBlock());
 
 			if (MarkerPlacementManager.isPlayerInPlacementMode(event.getPlayer())) {
+				CivLog.debug("MarkerPlacementManager");
 				Block block;
 				if (event.getBlockFace().equals(BlockFace.UP)) {
 					block = event.getClickedBlock().getRelative(event.getBlockFace());
@@ -1001,6 +1037,7 @@ public class BlockListener implements Listener {
 			if (sign != null) {
 				if (leftClick || sign.isAllowRightClick()) {
 					if (sign.getOwner() != null && sign.getOwner().isActive()) {
+						CivLog.debug("processSignAction");
 						try {
 							sign.getOwner().processSignAction(event.getPlayer(), sign, event);
 							event.setCancelled(true);
@@ -1020,8 +1057,7 @@ public class BlockListener implements Listener {
 		}
 
 		if (event.hasItem()) {
-			if (event.getItem() == null) {
-			} else {
+			if (event.getItem() == null) {} else {
 				if (CivSettings.restrictedItems.containsKey(event.getItem().getType())) {
 					OnPlayerUseItem(event);
 					if (event.isCancelled()) return;
@@ -1053,7 +1089,9 @@ public class BlockListener implements Listener {
 
 	public static void OnPlayerSwitchEvent(PlayerInteractEvent event) {
 
-		if (event.getClickedBlock() == null) { return; }
+		if (event.getClickedBlock() == null) {
+			return;
+		}
 
 		Resident resident = CivGlobal.getResident(event.getPlayer().getName());
 
@@ -1259,7 +1297,9 @@ public class BlockListener implements Listener {
 			// frameStore.clearItem();
 			// TaskMaster.syncTask(new DelayItemDrop(stack, event.getEntity().getLocation()));
 			// }
-			if (event.getRemover() instanceof Player) { CivMessage.sendError((Player) event.getRemover(), CivSettings.localize.localizedString("blockBreak_errorItemFrame")); }
+			if (event.getRemover() instanceof Player) {
+				CivMessage.sendError((Player) event.getRemover(), CivSettings.localize.localizedString("blockBreak_errorItemFrame"));
+			}
 			event.setCancelled(true);
 			return;
 		}
@@ -1518,15 +1558,7 @@ public class BlockListener implements Listener {
 
 					public void onHit() {
 						int spread = 3;
-						int[][] offset = {
-								{
-										-1, 0 },
-								{
-										1, 0 },
-								{
-										0, -1 },
-								{
-										0, 1 } };
+						int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 						for (int i = 0; i < 4; i++) {
 							int x = offset[i][0] * spread;
 							int y = 0;
@@ -1623,7 +1655,9 @@ public class BlockListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPotionSplashEvent(PotionSplashEvent event) {
 		ThrownPotion potion = event.getPotion();
-		if (!(potion.getShooter() instanceof Player)) { return; }
+		if (!(potion.getShooter() instanceof Player)) {
+			return;
+		}
 
 		Player attacker = (Player) potion.getShooter();
 
@@ -1710,10 +1744,16 @@ public class BlockListener implements Listener {
 		PVPDenyReason reason = PVPDenyReason.NON_PVP_ZONE;
 
 		/* Outlaws can only pvp each other if they are declared at this location. */
-		if (CivGlobal.isOutlawHere(defenderResident, tc) || CivGlobal.isOutlawHere(attackerResident, tc)) { return PVPDenyReason.ALLOWED; }
+		if (CivGlobal.isOutlawHere(defenderResident, tc) || CivGlobal.isOutlawHere(attackerResident, tc)) {
+			return PVPDenyReason.ALLOWED;
+		}
 
-		if (defenderResident.isProtected()) { return PVPDenyReason.DEFENDER_PROTECTED; }
-		if (attackerResident.isProtected()) { return PVPDenyReason.ATTACKER_PROTECTED; }
+		if (defenderResident.isProtected()) {
+			return PVPDenyReason.DEFENDER_PROTECTED;
+		}
+		if (attackerResident.isProtected()) {
+			return PVPDenyReason.ATTACKER_PROTECTED;
+		}
 
 		/* If it is WarTime and the town we're in is at war, allow neutral players to be targeted by anybody. */
 		if (War.isWarTime()) {
@@ -1738,7 +1778,9 @@ public class BlockListener implements Listener {
 				// attackerResident.getTown().getCiv() == tc.getTown().getCiv()) {
 				return PVPDenyReason.ALLOWED;
 				// }
-			} else if (reason.equals(PVPDenyReason.NON_PVP_ZONE)) { reason = PVPDenyReason.NOT_AT_WAR; }
+			} else if (reason.equals(PVPDenyReason.NON_PVP_ZONE)) {
+				reason = PVPDenyReason.NOT_AT_WAR;
+			}
 		}
 
 		return reason;

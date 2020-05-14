@@ -60,12 +60,4 @@ mysql:
     password: 'PasswordForDatabaseUser'
     table_prefix: ''
    
-global_database:
-    useSSL: 'false'
-    hostname: localhost
-    port: '3306'
-    database: global
-    username: user
-    password: 'PasswordForDatabaseUser'
-
 server_phase: 'beta8'

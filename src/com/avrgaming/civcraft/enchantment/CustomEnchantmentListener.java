@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.units.UnitStatic;
 
@@ -31,6 +32,7 @@ public class CustomEnchantmentListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		CivLog.debug("CustomEnchantmentListener.onPlayerInteract");
 		ItemStack stack = event.getItem();
 		if (stack == null) return;
 		if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {

@@ -128,7 +128,7 @@ public class ArmorListener implements Listener{
 						player.updateInventory();
 					}
 				}
-			}
+			} 
 		}
 	}
 

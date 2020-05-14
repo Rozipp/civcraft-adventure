@@ -80,7 +80,7 @@ public class CustomItemListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreakSpawnItems(BlockBreakEvent event) {
 		if (event.getBlock().getType().equals(Material.LAPIS_ORE)) {
-			if (Enchantments.hasEnchantment(event.getPlayer().getInventory().getItemInMainHand(),CustomEnchantment.SILK_TOUCH)) return;
+			if (Enchantments.hasEnchantment(event.getPlayer().getInventory().getItemInMainHand(), CustomEnchantment.SILK_TOUCH)) return;
 			event.setCancelled(true);
 			ItemManager.setTypeIdAndData(event.getBlock(), CivData.AIR, (byte) 0, true);
 
@@ -116,16 +116,22 @@ public class CustomItemListener implements Listener {
 		mat.onBlockPlaced(event);
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		CivLog.debug("CustomItemListener.onPlayerInteract");
 		if (event.isCancelled()) return;
 		ItemStack stack = null;
 		if (event.getHand() == EquipmentSlot.OFF_HAND)
 			stack = event.getPlayer().getInventory().getItemInOffHand();
 		else stack = event.getPlayer().getInventory().getItemInMainHand();
-		if (stack == null) return;
+		if (stack == null) {
+			CivLog.debug("stack == null");
+			return;
+		}
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-		if (material != null) material.onInteract(event);
+		if (material != null)
+			material.onInteract(event);
+		else CivLog.debug("material == null");
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
@@ -706,7 +712,7 @@ public class CustomItemListener implements Listener {
 		if (craftMat != null) return false;
 		if (LoreGuiItem.isGUIItem(stack)) return false;
 
-		//TODO Пустой текст зачарования
+		// TODO Пустой текст зачарования
 		if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK)) {
 			/* Check for badly enchanted tools */
 			if (stack.containsEnchantment(Enchantment.DAMAGE_ALL) || stack.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS) || stack.containsEnchantment(Enchantment.KNOCKBACK) || stack.containsEnchantment(Enchantment.DAMAGE_UNDEAD)

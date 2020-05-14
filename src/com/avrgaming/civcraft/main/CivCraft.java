@@ -150,7 +150,7 @@ public final class CivCraft extends JavaPlugin {
 
 		TaskMaster.stopAll();
 		MobStatic.despawnAll();
-		HandlerList.unregisterAll(this);
+//		HandlerList.unregisterAll(this);
 	}
 
 	private void initCommands() {

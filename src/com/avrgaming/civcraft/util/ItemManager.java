@@ -209,9 +209,9 @@ public class ItemManager {
 			NBTTagCompound civcraftCompound = nmsStack.getTag().getCompound("civcraft");
 			if (civcraftCompound != null) {
 				NBTTagString strTag = (NBTTagString) civcraftCompound.get(key);
-				if (strTag != null) return strTag.toString().replace("\"", "");
+				if (strTag != null) return strTag.toString().replace("\"", ""); 
 			}
-		}
+		} 
 		return null;
 	}
 

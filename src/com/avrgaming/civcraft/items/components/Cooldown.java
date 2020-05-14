@@ -20,7 +20,7 @@ public class Cooldown extends ItemComponent {
 		attrUtil.addLore(ChatColor.GOLD + "Cooldown " + getString("cooldown"));
 		attrUtil.addLore(ChatColor.RESET + CivColor.Rose + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
 	}
-
+	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		ItemStack stack = event.getItem();

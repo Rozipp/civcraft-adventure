@@ -49,6 +49,7 @@ import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
@@ -467,14 +468,15 @@ public class BonusGoodieManager implements Listener {
 	/* Prevent the player from using items that are actually trade goodies. */
 	@EventHandler(priority = EventPriority.LOW)
 	public void OnPlayerInteractEvent(PlayerInteractEvent event) {
-
+CivLog.debug("BonusGoodieManager.OnPlayerInteractEvent");
 		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
 		BonusGoodie goodie = CivGlobal.getBonusGoodie(item);
 		if (goodie == null) {
 			return;
 		}
-
+		CivLog.debug("goodie != null");
 		if (event.getClickedBlock() == null) {
+			
 			event.setCancelled(true);
 			return;
 		}
