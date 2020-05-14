@@ -246,11 +246,11 @@ transmuter:
            rate: 2
 #----------- Camp
            
-    - id: 'trommel_camp'
+    - id: 'sifter1'
       source_item:
          - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: 'trommelsource'
-      result_chest: 'trommelresult'
+           chest: 'siftersource'
+      result_chest: 'sifterresult'
       result_item:
            #Gravel
          - item: '13:0'
@@ -261,3 +261,21 @@ transmuter:
            #gold
          - item: '266:0'
            rate: 2
+           
+    - id: 'sifter2'
+      source_item:
+         - item: '4:0,1:0,1:1,1:3,1:5'
+           chest: 'siftersource'
+      result_chest: 'sifterresult'
+      result_item:
+           #Gravel
+         - item: '13:0'
+           rate: 90
+           #IRON_INGOT
+         - item: '265:0'
+           rate: 8
+           #gold
+         - item: '266:0'
+           rate: 2
+           
+           

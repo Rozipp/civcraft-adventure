@@ -235,11 +235,12 @@ public class Camp extends Construct {
 
 	@Override
 	public void delete() throws SQLException {
-		TagManager.editNameTag(this);
 		for (Resident resident : this.members.values()) {
 			resident.setCamp((Camp) null);
 			resident.save();
 		}
+		this.members.clear();
+		TagManager.editNameTag(this);
 		this.unbindCampBlocks();
 		SQL.deleteNamedObject(this, TABLE_NAME);
 		CivGlobal.removeCamp(this.getName());
@@ -527,20 +528,20 @@ public class Camp extends Construct {
 					this.addConstructBlock(absCoord, false);
 				}
 				break;
-			case "/sifter": // /chest,id:trommelresult,level:1,annex:trommel, для совместимости
+			case "/sifter": // /chest,id:sifterresult,level:1,annex:sifter, для совместимости
 				level = 1;
-				annex = "trommel";
+				annex = "sifter";
 				Integer idchest = Integer.valueOf(sb.keyvalues.get("id"));
 				switch (idchest) {
 				case 0:
-					chestId = "trommelsource";
+					chestId = "siftersource";
 					break;
 				case 1:
-					chestId = "trommelresult";
+					chestId = "sifterresult";
 					break;
 				default:
 					CivLog.warning("Unknown ID for sifter in camp:" + idchest);
-					chestId = "trommelnull";
+					chestId = "sifternull";
 					break;
 				}
 				if (annexLevel.getOrDefault(annex, 0) >= level) {
@@ -561,7 +562,7 @@ public class Camp extends Construct {
 					structSign.setDirection(ItemManager.getData(absCoord.getBlock().getState()));
 					structSign.setOwner(this);
 					structSign.setText(new String[] { "Дробилка виключена", "Нажми сюда или введи", "/camp upgrade", "что бы влючить" });
-					structSign.setAction("trommelupgrade");
+					structSign.setAction("sifterupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
 					CivGlobal.addConstructSign(structSign);
@@ -712,8 +713,8 @@ public class Camp extends Construct {
 		case "gardenupgrade":
 			processSignActionUpgrade(player, "v_up_garden1", sign);
 			break;
-		case "trommelupgrade":
-			processSignActionUpgrade(player, "v_up_trommel1", sign);
+		case "sifterupgrade":
+			processSignActionUpgrade(player, "v_up_sifter1", sign);
 			break;
 		case "longhouseupgrade":
 			processSignActionUpgrade(player, "v_up_longhouse1", sign);
@@ -978,10 +979,10 @@ public class Camp extends Construct {
 			}
 
 			// Each block has a 50% chance of starting a fire
-			if (rand.nextInt(100) <= 50) {
-				ItemManager.setTypeId((Block) coord.getBlock(), 51);
-				continue;
-			}
+//			if (rand.nextInt(100) <= 50) {
+//				ItemManager.setTypeId((Block) coord.getBlock(), 51);
+//				continue;
+//			}
 
 			// Each block has a 1% chance of launching an explosion effect
 			if (rand.nextInt(100) <= 1) {

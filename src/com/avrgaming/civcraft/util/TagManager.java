@@ -68,7 +68,7 @@ public class TagManager {
 	            if (resident.getCiv() != null) {
 	                suffix = CivGlobal.getNameTagColor(resident.getCiv()) + " [" + resident.getCiv().getTag() + "]";
 	            }
-	            else if (resident.getCiv() == null && resident.getCamp() != null) {
+	            else if (resident.getCamp() != null) {
 	                suffix = "§7 [" + StringUtils.left(resident.getCamp().getName(), 5) + "]";
 	            }
 	        }
