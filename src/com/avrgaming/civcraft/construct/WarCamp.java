@@ -37,7 +37,6 @@ import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.RespawnLocationHolder;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;

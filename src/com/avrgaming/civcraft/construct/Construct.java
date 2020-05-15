@@ -44,7 +44,6 @@ import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.RoadBlock;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;

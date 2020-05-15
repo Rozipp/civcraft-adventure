@@ -234,7 +234,7 @@ public class CivColor {
 	}
 
 	/** в строку string добавляет строку addString, если длина строки addString менше чем length, то добавляет пробелы */
-	public static String AddTabToString(String string, String addString, Integer length) {
+	public static String addTabToString(String string, String addString, Integer length) {
 		string += addString;
 		for (Integer i = addString.length(); i <= length; i++) {
 			string += " ";

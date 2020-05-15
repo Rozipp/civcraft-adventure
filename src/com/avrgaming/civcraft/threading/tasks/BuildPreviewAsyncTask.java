@@ -16,10 +16,10 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;

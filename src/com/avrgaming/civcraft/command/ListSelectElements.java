@@ -95,14 +95,14 @@ public class ListSelectElements {
 		CivMessage.send(sender, CivColor.LightPurple + "Help " + CivColor.BOLD + CivColor.Green + perentCommand);
 		for (Integer i = 0; i < size(); i++) {
 			String string = "";
-			string = CivColor.AddTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
+			string = CivColor.addTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
 			String getCt = getComent(i);
 			Integer index = getCt.lastIndexOf("]") + 1;
 			String altComms = "";
 			for (String s : getAltCommands(i))
 				altComms = altComms + "(" + s + ")";
-			string = CivColor.AddTabToString(string, CivColor.LightPurple + getCommand(i) +altComms + getCt.substring(0, index), 18);
-			string = CivColor.AddTabToString(string, CivColor.LightGray + getComent(i).substring(index), 0);
+			string = CivColor.addTabToString(string, CivColor.LightPurple + getCommand(i) +altComms + getCt.substring(0, index), 18);
+			string = CivColor.addTabToString(string, CivColor.LightGray + getComent(i).substring(index), 0);
 			string = string.replace("[", CivColor.Yellow + "[");
 			string = string.replace("]", "]" + CivColor.LightGray);
 			string = string.replace("(", CivColor.Yellow + "(");

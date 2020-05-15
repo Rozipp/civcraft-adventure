@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -19,7 +20,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableLayer;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;

@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -14,7 +15,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.global.perks.Perk;
 import com.avrgaming.global.perks.components.PerkComponent;
 

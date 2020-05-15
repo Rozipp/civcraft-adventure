@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructBlock;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -37,7 +38,6 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.object.WallBlock;
 import com.avrgaming.civcraft.permission.PlotPermissions;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;

@@ -6,7 +6,7 @@
  * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
  * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
  * obtained from AVRGAMING LLC. */
-package com.avrgaming.civcraft.template;
+package com.avrgaming.civcraft.construct;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -513,7 +513,7 @@ public class Template {
 			Material.REDSTONE_TORCH_ON, Material.REDSTONE_TORCH_OFF, Material.STONE_BUTTON, Material.CACTUS, Material.SUGAR_CANE, Material.COMMAND_REPEATING, Material.TRAP_DOOR, Material.PUMPKIN_STEM, Material.MELON_STEM, Material.VINE,
 			Material.WATER_LILY, Material.BREWING_STAND, Material.COCOA, Material.TRIPWIRE, Material.TRIPWIRE_HOOK, Material.FLOWER_POT, Material.CARROT, Material.POTATO, Material.WOOD_BUTTON, Material.ANVIL, Material.GOLD_PLATE,
 			Material.IRON_PLATE, Material.REDSTONE_COMPARATOR_ON, Material.REDSTONE_COMPARATOR_OFF, Material.DAYLIGHT_DETECTOR, Material.ACTIVATOR_RAIL, Material.WOOD_DOOR, Material.IRON_DOOR, Material.SPRUCE_DOOR, Material.BIRCH_DOOR,
-			Material.JUNGLE_DOOR, Material.ACACIA_DOOR, Material.DARK_OAK_DOOR, Material.SIGN, Material.WALL_SIGN);
+			Material.JUNGLE_DOOR, Material.ACACIA_DOOR, Material.DARK_OAK_DOOR, Material.SIGN, Material.WALL_SIGN, Material.BED);
 
 	@SuppressWarnings("deprecation")
 	public static boolean isAttachable(int blockID) {

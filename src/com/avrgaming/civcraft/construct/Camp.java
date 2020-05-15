@@ -21,7 +21,6 @@ import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.RoadBlock;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -194,7 +193,6 @@ public class Camp extends Construct {
 			}
 			this.upgrades.put(id, upgrade);
 			if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
-			upgrade.processAction(this);
 		}
 	}
 
@@ -235,6 +233,10 @@ public class Camp extends Construct {
 
 	@Override
 	public void delete() throws SQLException {
+		for (Transmuter tr : trasmuters) {
+			tr.stop();
+		}
+		trasmuters.clear();
 		for (Resident resident : this.members.values()) {
 			resident.setCamp((Camp) null);
 			resident.save();
@@ -479,18 +481,6 @@ public class Camp extends Construct {
 					structSign.update();
 					this.addConstructSign(structSign);
 					CivGlobal.addConstructSign(structSign);
-
-					// ItemManager.setTypeId(absCoord.getBlock(),
-					// ItemManager.getMaterialId(Material.SIGN_POST));
-					// ItemManager.setData(absCoord.getBlock(), sb.getData());
-					//
-					// Sign sign = (Sign)absCoord.getBlock().getState();
-					// sign.setLine(0, "Garden Disabled");
-					// sign.setLine(1, "Upgrade using");
-					// sign.setLine(2, "/camp upgrade");
-					// sign.setLine(3, "command");
-					// sign.update();
-					// this.addConstructBlock(absCoord,false);
 				} else {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
 					this.removeContructBlock(absCoord);
@@ -531,20 +521,20 @@ public class Camp extends Construct {
 			case "/sifter": // /chest,id:sifterresult,level:1,annex:sifter, для совместимости
 				level = 1;
 				annex = "sifter";
-				Integer idchest = Integer.valueOf(sb.keyvalues.get("id"));
-				switch (idchest) {
-				case 0:
-					chestId = "siftersource";
-					break;
-				case 1:
-					chestId = "sifterresult";
-					break;
-				default:
-					CivLog.warning("Unknown ID for sifter in camp:" + idchest);
-					chestId = "sifternull";
-					break;
-				}
 				if (annexLevel.getOrDefault(annex, 0) >= level) {
+					Integer idchest = Integer.valueOf(sb.keyvalues.get("id"));
+					switch (idchest) {
+					case 0:
+						chestId = "siftersource";
+						break;
+					case 1:
+						chestId = "sifterresult";
+						break;
+					default:
+						CivLog.warning("Unknown ID for sifter in camp:" + idchest);
+						chestId = "sifternull";
+						break;
+					}
 					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
@@ -554,7 +544,6 @@ public class Camp extends Construct {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
 					byte data2 = CivData.convertSignDataToChestData((byte) sb.getData());
 					ItemManager.setData(absCoord.getBlock(), data2);
-
 				} else {
 					structSign = CivGlobal.getConstructSign(absCoord);
 					if (structSign == null) structSign = new ConstructSign(absCoord, this);
@@ -566,19 +555,6 @@ public class Camp extends Construct {
 					structSign.update();
 					this.addConstructSign(structSign);
 					CivGlobal.addConstructSign(structSign);
-
-					// ItemManager.setTypeId(absCoord.getBlock(),
-					// ItemManager.getMaterialId(Material.SIGN_POST));
-					// ItemManager.setData(absCoord.getBlock(), sb.getData());
-					// Sign sign = (Sign) absCoord.getBlock().getState();
-					// sign.setLine(0, CivSettings.localize.localizedString("camp_" + annex +
-					// "UpgradeSign", level));
-					// // "camp_sifterUpgradeSign1"
-					// sign.setLine(1,
-					// CivSettings.localize.localizedString("upgradeUsing_SignText"));
-					// sign.setLine(2, "/camp upgrade");
-					// sign.setLine(3, "");
-					// sign.update();
 				}
 				this.addConstructBlock(absCoord, false);
 				break;
@@ -702,13 +678,6 @@ public class Camp extends Construct {
 			return;
 		}
 
-		// Boolean hasPermission = false;
-		// if ((resident.getTown().isMayor(resident)) ||
-		// (resident.getTown().getAssistantGroup().hasMember(resident))
-		// || (resident.getCiv().getLeaderGroup().hasMember(resident))
-		// || (resident.getCiv().getAdviserGroup().hasMember(resident))) {
-		// hasPermission = true;
-		// }
 		switch (sign.getAction()) {
 		case "gardenupgrade":
 			processSignActionUpgrade(player, "v_up_garden1", sign);
@@ -741,13 +710,12 @@ public class Camp extends Construct {
 			try {
 				this.purchaseUpgrade(upgrade);
 			} catch (CivException e) {
-				e.printStackTrace();
-				CivMessage.sendSuccess(player, "Неизвесная ошибка улучшения");
+				CivMessage.sendError(player, e.getMessage());
 				return;
 			}
-			CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_camp_upgrade_buySuccess", upgrade.name));
+			CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_camp_upgrade_buySuccess", CivColor.GreenBold + upgrade.name));
 		} else {
-			CivMessage.sendSuccess(player, "Для покупки улучшения " + upgrade.name + " у вас должно быть " + upgrade.cost + " монет.");
+			CivMessage.sendSuccess(player, "Для покупки улучшения " + CivColor.GreenBold + upgrade.name + CivColor.LightGreen + " у вас должно быть " + CivColor.YellowBold + upgrade.cost + CivColor.LightGreen + " монет.");
 			CivMessage.sendSuccess(player, "Повторно нажмите на табличку для подтверждения покупки");
 			resident.setConstructSignConfirm(sign);
 		}
@@ -979,10 +947,10 @@ public class Camp extends Construct {
 			}
 
 			// Each block has a 50% chance of starting a fire
-//			if (rand.nextInt(100) <= 50) {
-//				ItemManager.setTypeId((Block) coord.getBlock(), 51);
-//				continue;
-//			}
+			// if (rand.nextInt(100) <= 50) {
+			// ItemManager.setTypeId((Block) coord.getBlock(), 51);
+			// continue;
+			// }
 
 			// Each block has a 1% chance of launching an explosion effect
 			if (rand.nextInt(100) <= 1) {
@@ -1181,9 +1149,8 @@ public class Camp extends Construct {
 
 		this.upgrades.put(upgrade.id, upgrade);
 		if (annexLevel.getOrDefault(upgrade.annex, 0) < upgrade.level) annexLevel.put(upgrade.annex, upgrade.level);
-		upgrade.processAction(this);
-		this.processCommandSigns();
-		this.updateFirepit();
+		this.postBuildSyncTask();
+		CivMessage.sendCamp(this, CivSettings.localize.localizedString("camp_upgrade_" + upgrade.annex + upgrade.level));
 		owner.getTreasury().withdraw(upgrade.cost);
 		this.save();
 	}

@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
 
 public class ConfigCampUpgrade {
 
@@ -60,10 +59,6 @@ public class ConfigCampUpgrade {
 			return true;
 		}
 		return false;
-	}
-
-	public void processAction(Camp camp) {
-		CivMessage.sendCamp(camp, CivSettings.localize.localizedString("camp_upgrade_" + annex + level));
 	}
 
 }

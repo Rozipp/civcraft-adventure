@@ -25,7 +25,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobSpawner;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;

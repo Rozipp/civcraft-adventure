@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Queue;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.template.Template;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
