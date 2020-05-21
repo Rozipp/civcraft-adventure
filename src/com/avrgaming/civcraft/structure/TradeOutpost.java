@@ -46,21 +46,15 @@ public class TradeOutpost extends Structure {
 	protected TradeGood good = null;
 	protected BonusGoodie goodie = null;
 
-	public TradeOutpost(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
-		loadSettings();
+	public TradeOutpost(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public TradeOutpost(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		loadSettings();
-	}
-
-	public void loadSettings() {
 	}
 
 	public void checkForTradeGood(BlockCoord coord) {
-
 	}
 
 	public BlockCoord getTradeGoodCoord() {
@@ -84,7 +78,8 @@ public class TradeOutpost extends Structure {
 	@Override
 	public void onDemolish() throws CivException {
 
-		/* If the trade goodie is not in our frame, we should not allow the trade outpost to be demolished. As it may result in an inconsistent state. */
+		/* If the trade goodie is not in our frame, we should not allow the trade outpost to be demolished. As it may result in an inconsistent
+		 * state. */
 		if (this.frameStore == null) {
 			return;
 		}
@@ -156,7 +151,7 @@ public class TradeOutpost extends Structure {
 
 			ConstructBlock sb = new ConstructBlock(new BlockCoord(b), this);
 			this.addConstructBlock(sb.getCoord(), false);
-			//CivGlobal.addStructureBlock(sb.getCoord(), this);
+			// CivGlobal.addStructureBlock(sb.getCoord(), this);
 		}
 
 		/* Place the sign. */
@@ -167,7 +162,7 @@ public class TradeOutpost extends Structure {
 		s.setLine(0, good.getInfo().name);
 		s.update();
 		ConstructBlock sb = new ConstructBlock(new BlockCoord(b), this);
-		//CivGlobal.addStructureBlock(sb.getCoord(), this);
+		// CivGlobal.addStructureBlock(sb.getCoord(), this);
 		this.addConstructBlock(sb.getCoord(), false);
 
 		/* Place the itemframe. */
@@ -215,16 +210,16 @@ public class TradeOutpost extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		if (this.goodie != null) {
 			this.goodie.delete();
 		}
-//		if (this.getGood() != null) {
-//			this.getGood().setStruct(null);
-//			this.getGood().setTown(null);
-//			this.getGood().setCiv(null);
-//			this.getGood().save();
-//		}
+		// if (this.getGood() != null) {
+		// this.getGood().setStruct(null);
+		// this.getGood().setTown(null);
+		// this.getGood().setCiv(null);
+		// this.getGood().save();
+		// }
 		super.delete();
 	}
 
@@ -233,11 +228,7 @@ public class TradeOutpost extends Structure {
 		super.onDestroy();
 
 		if (this.goodie != null) {
-			try {
-				this.goodie.delete();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.goodie.delete();
 		}
 	}
 
@@ -263,13 +254,13 @@ public class TradeOutpost extends Structure {
 			return;
 		}
 
-		/* Add custom item. This function is called on reload. The constructor either loads the good or creates a new one at the trade outpost if no good could
-		 * be found. */
+		/* Add custom item. This function is called on reload. The constructor either loads the good or creates a new one at the trade outpost if no
+		 * good could be found. */
 		try {
 			this.goodie = new BonusGoodie(this);
 
 			if (this.goodie.getFrame() == null) {
-				//goodie not in a frame, skip it.
+				// goodie not in a frame, skip it.
 				return;
 			}
 
@@ -307,7 +298,7 @@ public class TradeOutpost extends Structure {
 			}
 
 			if (ItemManager.getTypeId(coord.getBlock()) == CivData.BEDROCK || ItemManager.getTypeId(coord.getBlock()) == CivData.AIR) {
-				//Be a bit more careful not to destroy any of the item frames..
+				// Be a bit more careful not to destroy any of the item frames..
 				continue;
 			}
 
@@ -327,8 +318,7 @@ public class TradeOutpost extends Structure {
 
 			// Each block has a 1% chance of launching an explosion effect
 			if (rand.nextInt(100) <= 1) {
-				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED)
-						.withTrail().withFlicker().build();
+				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
 				FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
 				for (int i = 0; i < 3; i++) {
 					try {

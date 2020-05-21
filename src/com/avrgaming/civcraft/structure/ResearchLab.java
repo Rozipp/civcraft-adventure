@@ -3,16 +3,14 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 
 public class ResearchLab extends Structure {
 	
-	public ResearchLab(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public ResearchLab(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public ResearchLab(ResultSet rs) throws SQLException, CivException {
@@ -24,11 +22,6 @@ public class ResearchLab extends Structure {
 		return "warning";
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-	
 	@Override
 	public void onLoad() {
 		if (this.isActive()) {
@@ -53,7 +46,6 @@ public class ResearchLab extends Structure {
 
 	protected void addBuffs() {
 		this.addBuffToTown(this.getTown(), "buff_profit_sharing");
-
 	}
 	
 	protected void addBuffToTown(Town town, String id) {

@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
@@ -45,8 +44,8 @@ public class TradeShip extends WaterStructure {
 
 	private TradeLevelComponent consumeComp = null;
 
-	public TradeShip(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public TradeShip(String id, Town town) throws CivException {
+		super(id, town);
 		setUpgradeLvl(town.saved_tradeship_upgrade_levels);
 		this.lastConsume = 128;
 	}
@@ -408,7 +407,7 @@ public class TradeShip extends WaterStructure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		super.delete();
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();

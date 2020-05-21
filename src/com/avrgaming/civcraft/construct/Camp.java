@@ -3,6 +3,7 @@ package com.avrgaming.civcraft.construct;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigCampUpgrade;
 import com.avrgaming.civcraft.config.ConfigConsumeLevel;
 import com.avrgaming.civcraft.database.SQL;
@@ -11,18 +12,15 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.components.Tagged;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -32,7 +30,6 @@ import com.avrgaming.civcraft.util.MultiInventory;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TagManager;
 
-import gpl.AttributeUtil;
 import lombok.Getter;
 import lombok.Setter;
 import ua.rozipp.sound.SoundManager;
@@ -48,7 +45,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import org.bukkit.ChatColor;
@@ -77,8 +73,9 @@ public class Camp extends Construct {
 	public static final String SUBDIR = "camp";
 	private static Integer coal_per_firepoint;
 	private static Integer maxFirePoints;
-	private static Integer maxHitPoints;
 	private static int raidLength;
+
+	public static ConfigBuildableInfo campInfo;
 
 	private HashMap<String, Resident> members = new HashMap<String, Resident>();
 	/** можно ли отменить установку лагеря */
@@ -100,8 +97,6 @@ public class Camp extends Construct {
 	/* Longhouse Stuff. */
 	public ReentrantLock lockLonghouse = new ReentrantLock();
 
-	/* Doors we protect. */
-	// public HashSet<BlockCoord> doors = new HashSet<BlockCoord>();
 	/* Control blocks */
 	public HashMap<BlockCoord, ControlPoint> controlBlocks = new HashMap<BlockCoord, ControlPoint>();
 	private Date nextRaidDate;
@@ -109,25 +104,32 @@ public class Camp extends Construct {
 	private HashMap<String, ConfigCampUpgrade> upgrades = new HashMap<String, ConfigCampUpgrade>();
 
 	// -------------constructor
-	public Camp(Resident owner, String name, Location corner) throws CivException {
-		this.ownerName = owner.getUid().toString();
-		this.setSQLOwner(owner);
-		this.corner = new BlockCoord(corner);
+	public Camp(Resident resident) throws CivException {
+		this.ownerName = resident.getUid().toString();
+		this.setSQLOwner(resident);
 		try {
-			this.setName(name);
-		} catch (InvalidNameException var6) {
-			throw new CivException("Плохое имя для деревни, выберите другое.");
-		}
+			this.setName(resident.getName());
+		} catch (InvalidNameException var6) {}
 		this.nextRaidDate = new Date();
 		this.nextRaidDate.setTime(this.nextRaidDate.getTime() + 86400000L);
-		this.hitpoints = Camp.maxHitPoints;
-		this.firepoints = 1;
+		this.firepoints = 2;
 		this.loadSettings();
 	}
 
 	public Camp(ResultSet rs) throws SQLException, CivException {
 		this.load(rs);
 		this.loadSettings();
+	}
+
+	public static Camp newCamp(Player player, Location location) throws CivException {
+		Resident resident = CivGlobal.getResident(player);
+		if (resident.hasTown()) throw new CivException(CivSettings.localize.localizedString("buildcamp_hasTown"));
+		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("buildcamp_hascamp"));
+
+		Camp camp = new Camp(resident);
+		camp.initDefaultTemplate(location);
+		camp.checkBlockPermissionsAndRestrictions(player);
+		return camp;
 	}
 
 	// ----------- dataBase
@@ -197,7 +199,8 @@ public class Camp extends Construct {
 	}
 
 	public void loadSettings() {
-		this.hitpoints = Camp.maxHitPoints;
+		this.setInfo(Camp.campInfo);
+		this.setHitpoints(getMaxHitPoints());
 		super.loadSettings();
 	}
 
@@ -216,8 +219,9 @@ public class Camp extends Construct {
 		try {
 			Camp.coal_per_firepoint = CivSettings.getInteger(CivSettings.campConfig, "camp.coal_per_firepoint");
 			Camp.maxFirePoints = CivSettings.getInteger(CivSettings.campConfig, "camp.firepoints");
-			Camp.maxHitPoints = CivSettings.getInteger(CivSettings.campConfig, "camp.hitpoints");
+			int maxHitPoints = CivSettings.getInteger(CivSettings.campConfig, "camp.hitpoints");
 			Camp.raidLength = CivSettings.getInteger(CivSettings.campConfig, "camp.raid_length");
+			Camp.campInfo = new ConfigBuildableInfo("camp", "Camp", false, "camp", false, maxHitPoints, -1);
 		} catch (InvalidConfiguration var7) {
 			var7.printStackTrace();
 		}
@@ -232,7 +236,7 @@ public class Camp extends Construct {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		for (Transmuter tr : trasmuters) {
 			tr.stop();
 		}
@@ -243,8 +247,12 @@ public class Camp extends Construct {
 		}
 		this.members.clear();
 		TagManager.editNameTag(this);
-		this.unbindCampBlocks();
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		this.unbindConstructBlocks();
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		CivGlobal.removeCamp(this.getName());
 	}
 
@@ -254,173 +262,37 @@ public class Camp extends Construct {
 	}
 
 	// ----------- build
-	public static void newCamp(Resident resident, Player player, String name) {
-		TaskMaster.syncTask(new Runnable() {
-			public void run() {
-				try {
-					Camp existCamp = CivGlobal.getCamp(name);
-					if (existCamp != null) throw new CivException("(" + name + ") " + CivSettings.localize.localizedString("camp_nameTaken"));
-					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
-					if (craftMat == null || !craftMat.hasComponent("FoundCamp")) throw new CivException(CivSettings.localize.localizedString("camp_missingItem"));
-
-					Camp camp = new Camp(resident, name, player.getLocation());
-					camp.build(player);
-					camp.setUndoable(true);
-					CivGlobal.addCamp(camp);
-					camp.save();
-					CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("camp_createSuccess"));
-					player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-					resident.clearInteractiveMode();
-					TagManager.editNameTag(player);
-				} catch (Exception var6) {
-					CivMessage.sendError(player, var6.getMessage());
-					var6.printStackTrace();
-				}
-			}
-		});
-	}
-
-	@Override
-	public void build(Player player) throws CivException {
-		Location loc = player.getLocation();
+	public void createCamp(Player player) throws CivException {
 		Resident resident = CivGlobal.getResident(player);
-		Template tpl;
-		if (resident.desiredTemplate != null) {
-			tpl = resident.desiredTemplate;
-			resident.desiredTemplate = null;
-		} else {
-			String templatePath = Template.getTemplateFilePath(SUBDIR, Template.getDirection(loc), "default");
-			tpl = Template.getTemplate(templatePath);
-			if (tpl == null) throw new CivException("Темплатет отсутствует");
-		}
-		this.setTemplate(tpl);
-		this.corner.setFromLocation(this.repositionCenter(loc, tpl.getDirection(), (double) tpl.size_x, (double) tpl.size_z));
-		this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		// Save the template x,y,z for later. This lets us know our own dimensions.
-		// this is saved in the db so it remains valid even if the template changes.
 
-		this.checkBlockPermissionsAndRestrictions(player);
-
-		try {
-			tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
-		} catch (IOException var8) {
-			var8.printStackTrace();
-		}
-
-		this.getTemplate().buildTemplate(corner);
-		this.bindBlocks();
-
-		try {
-			this.saveNow();
-		} catch (SQLException var7) {
-			var7.printStackTrace();
-			throw new CivException("Internal SQL Error.");
-		}
+		this.setUndoable(true);
+		this.build(player);
 		this.addMember(resident);
-		resident.save();
-		SoundManager.playSound("campCreation", loc);
+		CivGlobal.addCamp(this);
+		this.save();
+		SoundManager.playSound("campCreation", this.getCenterLocation());
+		CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("camp_createSuccess"));
+		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+		resident.clearInteractiveMode();
+		TagManager.editNameTag(player);
 	}
 
-	protected Location repositionCenter(Location center, String dir, double x_size, double z_size) throws CivException {
-		Location loc = new Location(center.getWorld(), center.getX(), center.getY(), center.getZ(), center.getYaw(), center.getPitch());
-		if (dir.equalsIgnoreCase("east")) {
-			loc.setZ(loc.getZ() - z_size / 2);
-			loc.setX(loc.getX() + SHIFT_OUT);
-			return loc;
-		}
-		if (dir.equalsIgnoreCase("west")) {
-			loc.setZ(loc.getZ() - z_size / 2);
-			loc.setX(loc.getX() - (SHIFT_OUT + x_size));
-			return loc;
-		}
-		if (dir.equalsIgnoreCase("north")) {
-			loc.setX(loc.getX() - x_size / 2);
-			loc.setZ(loc.getZ() - (SHIFT_OUT + z_size));
-			return loc;
-		}
-		if (dir.equalsIgnoreCase("south")) {
-			loc.setX(loc.getX() - x_size / 2);
-			loc.setZ(loc.getZ() + SHIFT_OUT);
-			return loc;
-		}
-		return loc;
-
+	public Location repositionCenter(Location center, Template tpl) throws CivException {
+		return BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl, true);
 	}
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
-		Block block = this.getCorner().getBlock();
-		int sizeX = this.getTemplate().getSize_x();
-		int sizeY = this.getTemplate().getSize_y();
-		int sizeZ = this.getTemplate().getSize_z();
-
-		ChunkCoord ccoord = new ChunkCoord(block.getLocation());
-		if (CivGlobal.getCultureChunk(ccoord) != null) throw new CivException(CivSettings.localize.localizedString("camp_checkInCivError"));
-		if (block.getY() >= 200.0D) throw new CivException(CivSettings.localize.localizedString("camp_checkTooHigh"));
-		if (sizeY + block.getY() >= 255) throw new CivException(CivSettings.localize.localizedString("camp_checkWayTooHigh"));
-		if (block.getY() < CivGlobal.minBuildHeight) throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
-		if (!player.isOp()) BuildableStatic.validateDistanceFromSpawn(block.getLocation());
-
-		int yTotal = 0;
-		int yCount = 0;
-		LinkedList<RoadBlock> deletedRoadBlocks = new LinkedList<RoadBlock>();
-
-		for (int x = 0; x < sizeX; x++) {
-			for (int y = 0; y < sizeY; y++) {
-				for (int z = 0; z < sizeZ; z++) {
-					Block b = block.getRelative(x, y, z);
-					if (ItemManager.getTypeId(b) == CivData.CHEST) throw new CivException(CivSettings.localize.localizedString("cannotBuild_chestInWay"));
-
-					BlockCoord coord = new BlockCoord(b);
-					ChunkCoord chunkCoord = new ChunkCoord(coord.getLocation());
-					TownChunk tc = CivGlobal.getTownChunk(chunkCoord);
-					if (tc != null && !tc.perms.hasPermission(PlotPermissions.Type.DESTROY, CivGlobal.getResident(player))) {
-						throw new CivException(CivSettings.localize.localizedString("cannotBuild_needPermissions") + " " + b.getX() + "," + b.getY() + "," + b.getZ());
-					}
-					if (CivGlobal.getProtectedBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
-					if (CivGlobal.getConstructBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
-					if (CivGlobal.getFarmChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
-					if (CivGlobal.getWallChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_wallInWay"));
-
-					yTotal += b.getWorld().getHighestBlockYAt(block.getX() + x, block.getZ() + z);
-					++yCount;
-					RoadBlock rb = CivGlobal.getRoadBlock(coord);
-					if (CivGlobal.getRoadBlock(coord) != null) {
-						/* XXX Special case. Since road blocks can be built in wilderness we don't want people griefing with them. Building a structure over a road
-						 * block should always succeed. */
-						deletedRoadBlocks.add(rb);
-					}
-				}
-			}
+		for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+			if (CivGlobal.getCultureChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("camp_checkInCivError"));
 		}
-
-		/* Delete any roads that we're building over. */
-		for (RoadBlock roadBlock : deletedRoadBlocks) {
-			roadBlock.getRoad().deleteRoadBlock(roadBlock);
-		}
-
-		double highestAverageBlock = (double) yTotal / (double) yCount;
-
-		if (((block.getY() > (highestAverageBlock + 10)) || (block.getY() < (highestAverageBlock - 10)))) {
-			throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
-		}
-
-	}
-
-	public void unbindCampBlocks() {
-		for (BlockCoord bcoord : this.constructBlocks.keySet()) {
-			CivGlobal.removeConstructBlock(bcoord);
-		}
+		super.checkBlockPermissionsAndRestrictions(player);
 	}
 
 	// ------------ delete
 	public void destroy() {
 		this.fancyCampBlockDestory();
-		try {
-			this.delete();
-		} catch (SQLException var2) {
-			var2.printStackTrace();
-		}
+		this.delete();
 	}
 
 	public void disband() {
@@ -430,11 +302,7 @@ public class Camp extends Construct {
 		} catch (IOException | CivException e) {
 			this.fancyDestroyConstructBlocks();
 		}
-		try {
-			this.delete();
-		} catch (SQLException var2) {
-			var2.printStackTrace();
-		}
+		this.delete();
 	}
 
 	public void undo() {
@@ -444,11 +312,7 @@ public class Camp extends Construct {
 		} catch (IOException | CivException e) {
 			this.fancyDestroyConstructBlocks();
 		}
-		try {
-			this.delete();
-		} catch (SQLException var2) {
-			var2.printStackTrace();
-		}
+		this.delete();
 	}
 
 	@Override
@@ -758,24 +622,27 @@ public class Camp extends Construct {
 		while (mInv.contains(null, CivData.COAL, (short) 0, Camp.coal_per_firepoint) && this.firepoints < Camp.maxFirePoints) {
 			try {
 				mInv.removeItem(CivData.COAL, Camp.coal_per_firepoint, true);
+				this.firepoints++;
+				coutAddFirePoints++;
 			} catch (CivException var4) {
 				var4.printStackTrace();
 			}
-			this.firepoints++;
-			coutAddFirePoints++;
 		}
-
-		if (coutAddFirePoints > 1) {
-			final double percentLeft = this.firepoints / (double) Camp.maxFirePoints;
-			CivMessage.sendCamp(this, "§e" + "Костер в вашем лагере разгорелся до " + (Math.round(percentLeft * 100)) + "%");
-		} else CivMessage.sendCamp(this, "§e" + CivSettings.localize.localizedString("var_camp_campfireDown", this.firepoints));
+		if (this.firepoints < 0) {
+			this.destroy();
+			return;
+		}
 
 		final double percentLeft = this.firepoints / (double) Camp.maxFirePoints;
-		if (percentLeft < 0.3) {
-			CivMessage.sendCamp(this, "§e" + ChatColor.BOLD + CivSettings.localize.localizedString("camp_campfire30percent"));
-		}
-		if (this.firepoints < 0) this.destroy();
 
+		if (coutAddFirePoints > 0) {
+			if (percentLeft != 1) CivMessage.sendCamp(this, "§e" + "Костер в вашем лагере разгорелся. " + this.firepoints + " часов горения осталось.");
+		} else
+			CivMessage.sendCamp(this, "§e" + CivSettings.localize.localizedString("var_camp_campfireDown", this.firepoints));
+
+		if (percentLeft < 0.3) {
+			CivMessage.sendCamp(this, "§e" + ChatColor.RED + ChatColor.BOLD + CivSettings.localize.localizedString("camp_campfire30percent"));
+		}
 		this.save();
 		this.updateFirepit();
 	}
@@ -838,12 +705,7 @@ public class Camp extends Construct {
 			Tagged tag = (Tagged) craftMat.getComponent("Tagged");
 			Resident res = CivGlobal.getResident(this.getOwnerName());
 
-			token = tag.addTag(token, res.getUid().toString());
-
-			AttributeUtil attrs = new AttributeUtil(token);
-			attrs.addLore(CivColor.LightGray + res.getName());
-			token = attrs.getStack();
-
+			token = tag.addTag(token, res.getName());
 			mInv.addItems(token, true);
 		}
 
@@ -931,39 +793,33 @@ public class Camp extends Construct {
 			if (CivGlobal.getConstructChest(coord) != null) continue;
 			if (CivGlobal.getConstructSign(coord) != null) continue;
 			if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
-			if (ItemManager.getTypeId(coord.getBlock()) == CivData.SIGN) continue;
-			if (ItemManager.getTypeId(coord.getBlock()) == CivData.WALL_SIGN) continue;
-
 			if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
 				ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
 				continue;
 			}
-			Random rand = new Random();
 
-			// Each block has a 10% chance to turn into gravel
-			if (rand.nextInt(100) <= 10) {
-				ItemManager.setTypeId((Block) coord.getBlock(), 13);
-				continue;
-			}
-
-			// Each block has a 50% chance of starting a fire
-			// if (rand.nextInt(100) <= 50) {
-			// ItemManager.setTypeId((Block) coord.getBlock(), 51);
-			// continue;
-			// }
-
+			double nextrand = CivCraft.civRandom.nextDouble();
 			// Each block has a 1% chance of launching an explosion effect
-			if (rand.nextInt(100) <= 1) {
+			if (nextrand <= 0.002) {
 				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
 				FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
-
-				for (int i = 0; i < 3; ++i) {
-					try {
-						fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
-					} catch (Exception var8) {
-						var8.printStackTrace();
-					}
+				try {
+					fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
+				} catch (Exception var8) {
+					var8.printStackTrace();
 				}
+			}
+			if (nextrand <= 0.05) {
+				ItemManager.setTypeId(coord.getBlock(), 51);
+				continue; // Each block has a 5% chance of starting a fire
+			}
+			if (nextrand <= 0.2) {
+				ItemManager.setTypeId((Block) coord.getBlock(), 13);
+				continue; // Each block has a 20% chance to turn into gravel
+			}
+			if (nextrand <= 0.8) {
+				ItemManager.setTypeId(coord.getBlock(), 0);
+				continue; // Each block has a 80% chance of clear
 			}
 		}
 	}

@@ -77,13 +77,8 @@ public class InteractiveSpyMission implements InteractiveResponse {
 	}
 
 	@Override
-	public void respond(String message, Resident resident) {
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(resident);
-		} catch (CivException e) {
-			return;
-		}
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 		resident.clearInteractiveMode();
 
 		if (!message.equalsIgnoreCase("yes")) {

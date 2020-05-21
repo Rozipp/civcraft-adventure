@@ -55,8 +55,7 @@ public class HourlyTickEvent implements EventInterface {
             int percentageCompleteHammers = (int)((double)Math.round(Double.parseDouble(split[1])) / Double.parseDouble(CivSettings.spacemissions_levels.get((Object)Integer.valueOf((int)civ.getCurrentMission())).require_hammers) * 100.0);
             CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_spaceshuttle_progress", CivColor.Red + missionName + CivColor.RESET, "§b" + completedBeakers + CivColor.Red + "(" + percentageCompleteBeakers + "%)" + CivColor.RESET, CivColor.LightGray + completedHammers + CivColor.Red + "(" + percentageCompleteHammers + "%)" + CivColor.RESET));
         }
-//TODO для всех онлайн игроков писать команду ad dynmapwonder 
-//TODO from furnex
+//TODO from furnex для всех онлайн игроков писать команду ad dynmapwonder 
 //        Iterator var15 = Bukkit.getOnlinePlayers().iterator();
 //
 //	      while(var15.hasNext()) {

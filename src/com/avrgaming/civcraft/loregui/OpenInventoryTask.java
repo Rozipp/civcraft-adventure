@@ -3,6 +3,7 @@ package com.avrgaming.civcraft.loregui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+@Deprecated
 public class OpenInventoryTask implements Runnable {
 
 	public Inventory inv;

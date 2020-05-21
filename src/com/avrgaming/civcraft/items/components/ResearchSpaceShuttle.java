@@ -36,10 +36,10 @@ public class ResearchSpaceShuttle extends ItemComponent implements CallbackInter
     }
 
     @Override
-    public void execute(String playerName) {
+    public void execute(String ... strings) {
         Player player;
         try {
-            player = CivGlobal.getPlayer(playerName);
+            player = CivGlobal.getPlayer(strings[0]);
         }
         catch (CivException e) {
             return;

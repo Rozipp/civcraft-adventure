@@ -21,7 +21,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -43,8 +42,8 @@ public class Grocer extends Structure {
 
 	private NonMemberFeeComponent nonMemberFeeComponent; 
 	
-	public Grocer(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Grocer( String id, Town town) throws CivException {
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 		setLevel(town.saved_grocer_levels);

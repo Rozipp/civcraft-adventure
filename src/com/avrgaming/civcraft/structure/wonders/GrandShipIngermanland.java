@@ -3,8 +3,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.components.ProjectileCannonComponent;
 import com.avrgaming.civcraft.exception.CivException;
@@ -17,9 +15,9 @@ public class GrandShipIngermanland extends Wonder {
 	ProjectileArrowComponent arrowComponent;
 	ProjectileCannonComponent cannonComponent;
 	
-	public GrandShipIngermanland(Location center, String id, Town town)
+	public GrandShipIngermanland(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public GrandShipIngermanland(ResultSet rs) throws SQLException, CivException {

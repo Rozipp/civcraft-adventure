@@ -26,7 +26,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class CraftableCustomMaterialListener implements Listener {
@@ -269,10 +268,7 @@ public class CraftableCustomMaterialListener implements Listener {
 				}
 
 				Tagged tagged = (Tagged) craftMat.getComponent("Tagged");
-				ItemStack stack = tagged.addTag(event.getInventory().getResult(), tag);
-				AttributeUtil attrs = new AttributeUtil(stack);
-				attrs.addLore(CivColor.LightGray + tag);
-				stack = attrs.getStack();
+				ItemStack stack = tagged.addTag(result, tag);
 				event.getInventory().setResult(stack);
 			}
 		}

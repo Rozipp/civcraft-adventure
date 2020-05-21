@@ -40,7 +40,8 @@ public class InteractiveRepairItem implements InteractiveResponse {
 	
 	
 	@Override
-	public void respond(String message, Resident resident) {
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 		resident.clearInteractiveMode();
 
 		if (!message.equalsIgnoreCase("yes")) {

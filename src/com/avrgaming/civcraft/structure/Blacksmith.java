@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -53,8 +52,8 @@ public class Blacksmith extends Structure {
 	private NonMemberFeeComponent nonMemberFeeComponent;
 	public static HashMap<BlockCoord, Blacksmith> blacksmithAnvils = new HashMap<BlockCoord, Blacksmith>();
 
-	public Blacksmith(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Blacksmith(String id, Town town) throws CivException {
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 	}

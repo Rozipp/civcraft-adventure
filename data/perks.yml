@@ -44,7 +44,7 @@ perks:
       item_id: 91
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'haunted'
             template: 'camp'
             id: 'camp'
@@ -54,7 +54,7 @@ perks:
       item_id: 170
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'viking'
             template: 'camp'
             id: 'camp'
@@ -230,7 +230,7 @@ perks:
       item_id: 179
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'turkish'
             template: 'capitol' 
             id: 's_capitol'
@@ -321,7 +321,7 @@ perks:
       item_id: 179
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'turkish'
             template: 'town_hall'
             id: 's_townhall'
@@ -394,7 +394,7 @@ perks:
       item_id: 322
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'slavic'
             template: 'town_hall'
             id: 's_townhall'
@@ -422,7 +422,7 @@ perks:
       item_id: 79
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'arctic'
             template: 'camp'
             id: 'camp'
@@ -468,7 +468,7 @@ perks:
       item_id: 79
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'arctic'
             template: 'capitol' 
             id: 's_capitol'
@@ -577,7 +577,7 @@ perks:
       item_id: 79
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'arctic'
             template: 'town_hall'
             id: 's_townhall'
@@ -626,7 +626,7 @@ perks:
       item_id: 98
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'aztec'
             template: 'camp'
             id: 'camp'
@@ -681,7 +681,7 @@ perks:
       item_id: 98
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'aztec'
             template: 'capitol' 
             id: 's_capitol'
@@ -790,7 +790,7 @@ perks:
       item_id: 98
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'aztec'
             template: 'town_hall'
             id: 's_townhall'
@@ -830,7 +830,7 @@ perks:
       item_id: 24
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'egyptian'
             template: 'camp'
             id: 'camp'
@@ -876,7 +876,7 @@ perks:
       item_id: 24
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'egyptian'
             template: 'capitol' 
             id: 's_capitol'
@@ -985,7 +985,7 @@ perks:
       item_id: 24
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'egyptian'
             template: 'town_hall'
             id: 's_townhall'
@@ -1033,7 +1033,7 @@ perks:
       item_id: 155
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'roman'
             template: 'camp'
             id: 'camp'
@@ -1079,7 +1079,7 @@ perks:
       item_id: 155
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'roman'
             template: 'capitol' 
             id: 's_capitol'
@@ -1188,7 +1188,7 @@ perks:
       item_id: 155
       data: 2
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'roman'
             template: 'town_hall'
             id: 's_townhall'
@@ -1235,7 +1235,7 @@ perks:
       item_id: 87
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'hell'
             template: 'camp'
             id: 'camp'
@@ -1290,7 +1290,7 @@ perks:
       item_id: 87
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'hell'
             template: 'capitol' 
             id: 's_capitol'
@@ -1408,7 +1408,7 @@ perks:
       item_id: 87
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'hell'
             template: 'town_hall'
             id: 's_townhall'
@@ -1465,7 +1465,7 @@ perks:
       item_id: 18
       data: 3
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'elven'
             template: 'camp'
             id: 'camp'
@@ -1511,7 +1511,7 @@ perks:
       item_id: 18
       data: 3
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'elven'
             template: 'capitol' 
             id: 's_capitol'
@@ -1620,7 +1620,7 @@ perks:
       item_id: 18
       data: 3
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'elven'
             template: 'town_hall'
             id: 's_townhall'
@@ -1676,7 +1676,7 @@ perks:
       item_id: 397
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'cultist'
             template: 'camp'
             id: 'camp'
@@ -1722,7 +1722,7 @@ perks:
       item_id: 397
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'cultist'
             template: 'capitol' 
             id: 's_capitol'
@@ -1831,7 +1831,7 @@ perks:
       item_id: 397
       data: 1
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'cultist'
             template: 'town_hall'
             id: 's_townhall'
@@ -1887,7 +1887,7 @@ perks:
       item_id: 169
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'atlantean'
             template: 'camp'
             id: 'camp'
@@ -1933,7 +1933,7 @@ perks:
       item_id: 169
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'atlantean'
             template: 'capitol' 
             id: 's_capitol'
@@ -2042,7 +2042,7 @@ perks:
       item_id: 169
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'atlantean'
             template: 'town_hall'
             id: 's_townhall'
@@ -2097,7 +2097,7 @@ perks:
       item_id: 91
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'haunted'
             template: 'camp'
             id: 'camp'
@@ -2109,7 +2109,7 @@ perks:
       item_id: 267
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'medieval'
             template: 'camp'
             id: 'camp'
@@ -2146,7 +2146,7 @@ perks:
       item_id: 267
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'medieval'
             template: 'camp'
             id: 'camp'
@@ -2165,7 +2165,7 @@ perks:
       item_id: 267
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'medieval'
             template: 'capitol'
             id: 's_capitol'
@@ -2275,7 +2275,7 @@ perks:
       item_id: 267
       data: 0
       components:
-          - name: 'CustomPersonalTemplate'
+          - name: 'CustomTemplate'
             theme: 'medieval'
             template: 'town_hall'
             id: 's_townhall'

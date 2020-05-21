@@ -26,11 +26,11 @@ import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class BuildPreviewAsyncTask extends CivAsyncTask {
-	/* This task slow-builds a struct block-by-block based on the town's hammer rate. This task is per-structure building and will use the CivAsynTask interface
-	 * to send synchronous requests to the main thread to build individual blocks. */
+	/* This task slow-builds a struct block-by-block based on the town's hammer rate. This task is per-structure building and will use the
+	 * CivAsynTask interface to send synchronous requests to the main thread to build individual blocks. */
 
 	public Template tpl;
-	public Block centerBlock;
+	public BlockCoord corner;
 	public UUID playerUUID;
 	public Boolean aborted = false;
 	public ReentrantLock lock = new ReentrantLock();
@@ -38,13 +38,13 @@ public class BuildPreviewAsyncTask extends CivAsyncTask {
 	private int speed;
 	private Resident resident;
 
-	public BuildPreviewAsyncTask(Template t, Block center, UUID playerUUID) {
-		tpl = t;
-		centerBlock = center;
-		this.playerUUID = playerUUID;
-		resident = CivGlobal.getResidentViaUUID(playerUUID);
-		this.blocksPerTick = 100;
-		this.speed = 60;
+	public BuildPreviewAsyncTask(Template tpl, BlockCoord corner, Player player) {
+		this.tpl = tpl;
+		this.corner = corner;
+		this.playerUUID = player.getUniqueId();
+		this.resident = CivGlobal.getResident(player);
+		this.blocksPerTick = 1000;
+		this.speed = 500;
 	}
 
 	public Player getPlayer() throws CivException {
@@ -59,17 +59,17 @@ public class BuildPreviewAsyncTask extends CivAsyncTask {
 	public void run() {
 		try {
 			int count = 0;
-			for (int y = 0; y < tpl.size_y; y++) {
-				for (int x = 0; x < tpl.size_x; x++) {
-					for (int z = 0; z < tpl.size_z; z++) {
+			for (int y = 1; y < tpl.size_y-1; y++) {
+				for (int x = 1; x < tpl.size_x-1; x++) {
+					for (int z = 1; z < tpl.size_z-1; z++) {
 						if (aborted) return;
-						Block b = centerBlock.getRelative(x, y, z);
+						Block b = corner.getBlockRelative(x, y, z);
 
 						if (tpl.blocks[x][y][z].isAir()) continue;
 						lock.lock();
 						try {
-							ItemManager.sendBlockChange(getPlayer(), b.getLocation(), ItemManager.getMaterialId(CivSettings.previewMaterial), 5);
 							resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
+							ItemManager.sendBlockChange(getPlayer(), b.getLocation(), CivSettings.previewMaterial, 5);
 							count++;
 						} finally {
 							lock.unlock();
@@ -87,7 +87,7 @@ public class BuildPreviewAsyncTask extends CivAsyncTask {
 				}
 			}
 		} catch (CivException | InterruptedException e) {
-			//abort task.
+			// abort task.
 		}
 	}
 

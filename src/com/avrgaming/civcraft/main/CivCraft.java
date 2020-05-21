@@ -38,7 +38,6 @@ import com.avrgaming.civcraft.mythicmob.MobPoolSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
-import com.avrgaming.civcraft.siege.CannonListener;
 import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.structure.farm.FarmGrowthSyncTask;
 import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
@@ -256,7 +255,6 @@ public final class CivCraft extends JavaPlugin {
 			pluginManager.registerEvents(new DisableXPListener(), this);
 		}
 		pluginManager.registerEvents(new TradeInventoryListener(), this);
-		pluginManager.registerEvents(new CannonListener(), this);
 		pluginManager.registerEvents(new WarListener(), this);
 		pluginManager.registerEvents(new FishingListener(), this);
 		pluginManager.registerEvents(new PvPListener(), this);

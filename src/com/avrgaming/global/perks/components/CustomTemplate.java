@@ -1,6 +1,8 @@
 package com.avrgaming.global.perks.components;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.entity.Player;
 
@@ -69,9 +71,9 @@ public class CustomTemplate extends PerkComponent {
 		return false;
 	}
 
-	public static ArrayList<Perk> getTemplatePerksForBuildable(Town town, String buildableBaseName) {
+	public static Set<Perk> getTemplatePerksForBuildable(Town town, String buildableBaseName) {
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getTemplateSessionKey(town, buildableBaseName));
-		ArrayList<Perk> perks = new ArrayList<Perk>();
+		Set<Perk> perks = new HashSet<Perk>();
 
 		for (SessionEntry entry : entries) {
 			String[] split = entry.value.split(":");

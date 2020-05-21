@@ -21,8 +21,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -32,8 +30,8 @@ import com.avrgaming.civcraft.object.Town;
 
 public class NotreDame extends Wonder {
 
-	public NotreDame(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public NotreDame(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public NotreDame(ResultSet rs) throws SQLException, CivException {

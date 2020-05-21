@@ -60,7 +60,7 @@ public class Cave extends Construct {
 		this.setTemplate(Template.getTemplate(Template.getCaveFilePath(caveConfig.template_name)));
 		this.caveEntrance.setTemplate(Template.getTemplate(Template.getCaveFilePath(caveConfig.template_entrance)));
 		this.setCornerEntrance(cornerEntrance);
-		this.hitpoints = 0;
+		this.setHitpoints(0);
 
 		this.lastUpdateTime = (new Date()).getTime();
 		// this.loadSettings();
@@ -105,7 +105,7 @@ public class Cave extends Construct {
 		this.setName(rs.getString("name"));
 		this.setCaveConfig(CivSettings.caves.get(rs.getString("config_id")));
 		this.setSQLOwner(CivGlobal.getCivFromId(rs.getInt("owner_civ_id")));
-		this.setCorner(new BlockCoord(rs.getString("coord")));
+		this.corner = new BlockCoord(rs.getString("coord"));
 		this.setCornerEntrance(new BlockCoord(rs.getString("corner_entrance")));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 		this.caveEntrance.setTemplate(Template.getTemplate(rs.getString("template_entrance")));
@@ -138,7 +138,7 @@ public class Cave extends Construct {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class Cave extends Construct {
 	}
 
 	@Override
-	public void build(Player player) throws Exception {
+	public void build(Player player) throws CivException {
 		BlockCoord corner = new BlockCoord();
 		corner.setWorldname(Cave.worldCavesName);
 		corner.setX(caveEntrance.getCorner().getX() * Cave.multiplerCoord);
@@ -353,7 +353,7 @@ public class Cave extends Construct {
 	}
 
 	public void setCornerEntrance(BlockCoord bc) {
-		caveEntrance.setCorner(bc);
+		caveEntrance.corner = bc;
 	}
 
 	@Override

@@ -11,6 +11,7 @@ package com.avrgaming.civcraft.object;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -106,7 +108,7 @@ public class Town extends SQLObject {
 	private ConcurrentHashMap<BlockCoord, Buildable> disabledBuildables = new ConcurrentHashMap<BlockCoord, Buildable>();
 
 	public UnitInventory unitInventory = new UnitInventory(this);
-	
+
 	private int level;
 	private double taxRate;
 	private double flatTax;
@@ -404,12 +406,12 @@ public class Town extends SQLObject {
 		/* Remove any related SessionDB entries */
 		CivGlobal.getSessionDatabase().deleteAllForTown(this);
 
+		civ.addTown(this);
 		CivGlobal.removeTown(this);
 		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
-	public Town(String name, Civilization civ) throws InvalidNameException {
-		this.setName(name);
+	public Town(Civilization civ) {
 		this.setLevel(1);
 		this.setTaxRate(0.0);
 		this.setFlatTax(0.0);
@@ -444,9 +446,7 @@ public class Town extends SQLObject {
 		String[] split = upgradeString.split(",");
 
 		for (String str : split) {
-			if (str == null || str.equals("")) {
-				continue;
-			}
+			if (str == null || str.equals("")) continue;
 
 			ConfigTownUpgrade upgrade = CivSettings.townUpgrades.get(str);
 			if (upgrade == null) {
@@ -853,108 +853,105 @@ public class Town extends SQLObject {
 		this.baseHammers = hammerRate;
 	}
 
-	public static Town newTown(Resident resident, String name, Civilization civ, boolean capitol, Location loc) throws CivException, SQLException {
-		if (civ == null) throw new CivException(CivSettings.localize.localizedString("town_found_errorNotInCiv"));
-		civ.isCanCreateNewTown(resident, name, capitol, loc);
+	public void checkCanCreatedTown(Resident resident, Structure structure) throws CivException {
+		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("town_found_errorIncamp"));
+		if (resident.getTown() != null && resident.getTown().isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("var_town_found_errorIsMayor", resident.getTown().getName()));
 
+		if (getCiv() == null) throw new CivException(CivSettings.localize.localizedString("town_found_errorNotInCiv"));
+		if (War.isWarTime() && getCiv().getDiplomacyManager().isAtWar()) throw new CivException(CivSettings.localize.localizedString("town_found_errorAtWar"));
+		Double costTown = 10000.0 * (getCiv().getTownCount()); // TODO для основания города в казне цивилизации должно быть
+		if (!getCiv().getTreasury().hasEnough(costTown)) throw new CivException("TODO для основания города в казне цивилизации должно быть " + costTown + " коинов");
+
+		double minDistanceFriendSqr;
+		double minDistanceEnemySqr;
+		try {
+			minDistanceFriendSqr = Math.pow(CivSettings.getDouble(CivSettings.townConfig, "town.min_town_distance"), 2);
+			minDistanceEnemySqr = Math.pow(CivSettings.getDouble(CivSettings.townConfig, "town.min_town_distance_enemy"), 2);
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+			throw new CivException(CivSettings.localize.localizedString("internalException"));
+		}
+
+		for (Town town : CivGlobal.getTowns()) {
+			Location loc2 = town.getLocation();
+			if (loc2 == null) continue;
+
+			double distSqr = loc2.distanceSquared(structure.getCenterLocation());
+			double minDistanceSqr;
+			if (town.getCiv().getDiplomacyManager().atWarWith(civ)) {
+				minDistanceSqr = minDistanceEnemySqr;
+			} else
+				minDistanceSqr = minDistanceFriendSqr;
+
+			if (distSqr < minDistanceSqr) {
+				DecimalFormat df = new DecimalFormat("###.##");
+				throw new CivException(CivSettings.localize.localizedString("var_town_found_errorTooClose", town.getName(), df.format(Math.sqrt(distSqr)), minDistanceSqr));
+			}
+		}
+	}
+
+	public void createTown(Resident resident, Structure structure) throws CivException {
 		Player player = CivGlobal.getPlayer(resident.getName());
 		try {
-			Town newTown;
-			try {
-				newTown = new Town(name, civ);
-			} catch (InvalidNameException e) {
-				throw new CivException(CivSettings.localize.localizedString("var_town_found_errorInvalidName", name));
-			}
-
-			CivGlobal.addTown(newTown);
-			newTown.saveNow();
-			civ.addTown(newTown);
+			this.saveNow();
+			CivGlobal.addTown(this);
+			getCiv().addTown(this);
 
 			// Create permission groups for town.
-			PermissionGroup residentsGroup;
 			try {
-				residentsGroup = new PermissionGroup(newTown, "residents");
-				residentsGroup.addMember(resident);
-				residentsGroup.saveNow();
-				newTown.setDefaultGroup(residentsGroup);
+				PermissionGroup residentsGroup = new PermissionGroup(this, "residents");
+				this.setDefaultGroup(residentsGroup);
+				try {
+					if (resident.getTown() != null) {
+						CivMessage.sendTown(resident.getTown(), CivSettings.localize.localizedString("var_town_found_leftTown", resident.getName()));
+						resident.getTown().removeResident(resident);
+					}
+					this.addResident(resident);
+					resident.saveNow();
+				} catch (AlreadyRegisteredException e) {
+					e.printStackTrace();
+					throw new CivException(CivSettings.localize.localizedString("town_found_residentError"));
+				}
 
-				PermissionGroup mayorGroup = new PermissionGroup(newTown, "mayors");
+				PermissionGroup mayorGroup = new PermissionGroup(this, "mayors");
 				mayorGroup.addMember(resident);
 				mayorGroup.saveNow();
-				newTown.setMayorGroup(mayorGroup);
+				this.setMayorGroup(mayorGroup);
 
-				PermissionGroup assistantGroup = new PermissionGroup(newTown, "assistants");
+				PermissionGroup assistantGroup = new PermissionGroup(this, "assistants");
 				assistantGroup.saveNow();
-				newTown.setAssistantGroup(assistantGroup);
+				this.setAssistantGroup(assistantGroup);
 			} catch (InvalidNameException e2) {
 				e2.printStackTrace();
 				throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
 			}
 
-			// ChunkCoord cl = new ChunkCoord(loc);
-			// TownChunk tc = new TownChunk(newTown, cl);
-			// tc.perms.addGroup(residentsGroup);
-			// try {
-			// newTown.addTownChunk(tc);
-			// } catch (AlreadyRegisteredException e1) {
-			// throw new CivException(CivSettings.localize.localizedString("town_found_errorTownHasChunk"));
-			// }
-			//
-			// tc.save();
-			// CivGlobal.addTownChunk(tc);
-
+			// build TownHall
 			try {
-				Location centerLoc = loc;
-				ConfigBuildableInfo buildableInfo;
-				Structure struct;
-				if (capitol) {
-					buildableInfo = CivSettings.structures.get("s_capitol");
-					newTown.getTreasury().deposit(buildableInfo.cost);
-					struct = new Capitol(centerLoc, buildableInfo.id, newTown);
-				} else {
-					buildableInfo = CivSettings.structures.get("s_townhall");
-					newTown.getTreasury().deposit(buildableInfo.cost);
-					struct = new Structure(centerLoc, buildableInfo.id, newTown);
-				}
-
-				Template tpl = resident.desiredTemplate;
-				if (tpl == null) {
-					String filePath = Template.getTemplateFilePath(centerLoc, buildableInfo, null);
-					tpl = Template.getTemplate(filePath);
-				}
-				struct.setTemplate(tpl);
-				Location cornerLoc = struct.repositionCenter(centerLoc, tpl);
-				struct.setCorner(new BlockCoord(cornerLoc));
-				struct.setCenterLocation(struct.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-
-				newTown.buildStructure(player, struct);
+				this.getTreasury().deposit(structure.getCost());
+				structure.setSQLOwner(this);
+				this.buildStructure(player, structure);
 			} catch (CivException e) {
-				civ.removeTown(newTown);
-				newTown.delete();
+				getCiv().removeTown(this);
+				this.delete();
 				throw e;
 			}
 
-			civ.getTreasury().deposit(10000.0 * (civ.getTownCount() - 1));
-
-			try {
-				if (resident.getTown() != null) {
-					CivMessage.sendTown(resident.getTown(), CivSettings.localize.localizedString("var_town_found_leftTown", resident.getName()));
-					resident.getTown().removeResident(resident);
-				}
-				newTown.addResident(resident);
-			} catch (AlreadyRegisteredException e) {
-				e.printStackTrace();
-				throw new CivException(CivSettings.localize.localizedString("town_found_residentError"));
-			}
-			resident.saveNow();
+			getCiv().getTreasury().deposit(10000.0 * (getCiv().getTownCount() - 1)); // TODO
 
 			CivGlobal.processCulture();
-			newTown.saveNow();
-			return newTown;
+			this.saveNow();
+			return;
 		} catch (SQLException e2) {
 			e2.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
 		}
+	}
+
+	public Location getLocation() {
+		Townhall townhall = getTownHall();
+		if (townhall == null) return null;
+		return townhall.getCenterLocation();
 	}
 
 	public PermissionGroup getDefaultGroup() {
@@ -987,11 +984,13 @@ public class Town extends SQLObject {
 
 		if (grp.getName().equalsIgnoreCase(this.defaultGroupName)) {
 			this.defaultGroup = grp;
-		} else if (grp.getName().equalsIgnoreCase(this.mayorGroupName)) {
-			this.mayorGroup = grp;
-		} else if (grp.getName().equalsIgnoreCase(this.assistantGroupName)) {
-			this.assistantGroup = grp;
-		}
+		} else
+			if (grp.getName().equalsIgnoreCase(this.mayorGroupName)) {
+				this.mayorGroup = grp;
+			} else
+				if (grp.getName().equalsIgnoreCase(this.assistantGroupName)) {
+					this.assistantGroup = grp;
+				}
 
 		groups.put(grp.getName(), grp);
 
@@ -1699,11 +1698,8 @@ public class Town extends SQLObject {
 
 	public void checkIsTownCanBuildStructure(Buildable buildable) throws CivException {
 		if (!this.hasUpgrade(buildable.getRequiredUpgrade())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingUpgrade") + " §6" + CivSettings.getUpgradeById(buildable.getRequiredUpgrade()).name);
-
 		if (!this.hasTechnology(buildable.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(buildable.getRequiredTechnology()).name);
-
 		if (!buildable.isAvailable()) throw new CivException(CivSettings.localize.localizedString("town_structure_errorNotAvaliable"));
-
 		if (buildable.getLimit() != 0)
 			if (getStructureTypeCount(buildable.getConfigId()) >= buildable.getLimit()) throw new CivException(CivSettings.localize.localizedString("var_town_structure_errorLimitMet", buildable.getLimit(), buildable.getDisplayName()));
 
@@ -1714,23 +1710,19 @@ public class Town extends SQLObject {
 		if (inProgress != null)
 			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + ". " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
 
-		// TownChunk centertc = CivGlobal.getTownChunk(origin);
-		// if (centertc == null && ignoreBorders == false) {
-		// throw new CivException(CivSettings.localize.localizedString("buildable_errorNotInTown"));
-		// }
+		ArrayList<ChunkCoord> chunks = BuildableStatic.getChunkCoords(buildable);
+		if (getTownChunks().size() + chunks.size() > getMaxPlots())
+			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
+					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
 
-		Location locCorner = buildable.getCorner().getLocation();
-		Template tpl = buildable.getTemplate();
-		for (int dx = 0; dx * 16 < tpl.size_x; dx++) {
-			for (int dz = 0; dz * 16 < tpl.size_x; dz++) {
-				Location lc = locCorner.clone();
-				lc.add(dx * 16, 0, dz * 16);
-				TownChunk tc = CivGlobal.getTownChunk(lc);
-				if (tc != null && tc.getTown() != this) {
-					throw new CivException("Один из чанков, занимаемых зданием, пренадлежит городу " + tc.getTown());
-				}
-			}
+		for (ChunkCoord cc : chunks) {
+			TownChunk tc = CivGlobal.getTownChunk(cc);
+			if (tc != null && tc.getTown() != this) throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown());
 		}
+	}
+
+	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
+
 	}
 
 	public void rebuildStructure(Player player, Structure struct) throws CivException {
@@ -1739,7 +1731,7 @@ public class Town extends SQLObject {
 			return;
 		}
 
-		Structure replaceStruct = this.getStructureByType(struct.getReplaceStructure());
+		Structure replaceStruct = this.getStructureByType(struct.getInfo().replace_structure);
 		if (replaceStruct == null) throw new CivException("Заменяемое здание " + struct.getReplaceStructure() + " не найдено");
 
 		try {
@@ -1845,9 +1837,10 @@ public class Town extends SQLObject {
 			if (this.getTileImprovementCount() > maxTileImprovements) {
 				return false;
 			}
-		} else if ((struct.getLimit() != 0) && (count > struct.getLimit())) {
-			return false;
-		}
+		} else
+			if ((struct.getLimit() != 0) && (count > struct.getLimit())) {
+				return false;
+			}
 
 		return true;
 	}
@@ -1947,13 +1940,8 @@ public class Town extends SQLObject {
 			throw new CivException(CivSettings.localize.localizedString("town_demolish_CannotNotNow"));
 		}
 
-		try {
-			struct.onDemolish();
-			struct.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
-		}
+		struct.onDemolish();
+		struct.delete();
 	}
 
 	public boolean hasStructure(String require_structure) {
@@ -3182,16 +3170,9 @@ public class Town extends SQLObject {
 		return failed;
 	}
 
-	public ArrayList<Perk> getTemplatePerks(Buildable buildable, Resident resident, ConfigBuildableInfo info) {
-		ArrayList<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, info.template_name);
-
-		for (Perk perk : resident.getPersonalTemplatePerks(info)) {
-			perks.add(perk);
-		}
-		for (Perk perk : resident.getUnboundTemplatePerks(perks, info)) {
-			perks.add(perk);
-		}
-
+	public Set<Perk> getTemplatePerks(Buildable buildable, Resident resident, ConfigBuildableInfo info) {
+		Set<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, info.template_name);
+		perks.addAll(resident.getUnboundTemplatePerks(perks, info));
 		return perks;
 	}
 
@@ -3238,7 +3219,7 @@ public class Town extends SQLObject {
 		}
 
 		Player player = CivGlobal.getPlayer(resident);
-		Buildable buildable = CivGlobal.getNearestStructure(player.getLocation());
+		Buildable buildable = CivGlobal.getNearestBuildable(player.getLocation());
 		if (buildable == null) throw new CivException(CivSettings.localize.localizedString("town_refresh_couldNotFind"));
 		if (!buildable.isActive()) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorInProfress"));
 		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorWar"));

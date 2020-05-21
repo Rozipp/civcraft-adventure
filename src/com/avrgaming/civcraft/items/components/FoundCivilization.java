@@ -18,12 +18,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.construct.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.interactive.InteractiveCivName;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
@@ -48,7 +50,8 @@ public class FoundCivilization extends ItemComponent implements CallbackInterfac
 		/* Build a preview for the Capitol structure. */
 		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
 		ConfigBuildableInfo info = CivSettings.structures.get("s_capitol");
-		BuildableStatic.buildVerifyStatic(player, info, player.getLocation(), this);
+		Construct construct = new Capitol("s_capitol", null);
+		new ChoiseTemplate(player, construct, this);
 	}
 
 	public void onInteract(PlayerInteractEvent event) {
@@ -79,11 +82,11 @@ public class FoundCivilization extends ItemComponent implements CallbackInterfac
 	}
 
 	@Override
-	public void execute(String playerName) {
+	public void execute(String ... strings) {
 
 		Player player;
 		try {
-			player = CivGlobal.getPlayer(playerName);
+			player = CivGlobal.getPlayer(strings[0]);
 		} catch (CivException e) {
 			return;
 		}
@@ -91,7 +94,7 @@ public class FoundCivilization extends ItemComponent implements CallbackInterfac
 		Resident resident = CivGlobal.getResident(player);
 
 		/* Save the location so we dont have to re-validate the structure position. */
-		resident.desiredTownLocation = player.getLocation();
+//		resident.desiredTownLocation = player.getLocation();
 		CivMessage.sendHeading(player, CivSettings.localize.localizedString("foundCiv_Heading"));
 		CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("foundCiv_Prompt1"));
 		CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("foundCiv_Prompt2"));

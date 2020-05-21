@@ -4,7 +4,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.locks.ReentrantLock;
-import org.bukkit.Location;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
@@ -14,8 +13,8 @@ extends Structure {
     public int virtualPotatoCount = 0;
     public ReentrantLock lock = new ReentrantLock();
 
-    public SilkwormFarm(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public SilkwormFarm(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     public SilkwormFarm(ResultSet rs) throws SQLException, CivException {

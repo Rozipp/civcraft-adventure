@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.TreeMap;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -58,8 +57,8 @@ public class Barracks extends Structure {
 	private TreeMap<Integer, ConstructSign> progresBar = new TreeMap<Integer, ConstructSign>();
 	private Date lastSave = null;
 
-	public Barracks(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Barracks(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Barracks(ResultSet rs) throws SQLException, CivException {

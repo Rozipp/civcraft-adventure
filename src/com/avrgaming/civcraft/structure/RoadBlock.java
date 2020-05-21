@@ -109,12 +109,16 @@ public class RoadBlock extends SQLObject implements ConstructDamageBlock {
 	}
 	
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		if (this.coord != null && this.road != null) {
 			road.removeRoadBlock(this);
 		}
 		
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Road getRoad() {

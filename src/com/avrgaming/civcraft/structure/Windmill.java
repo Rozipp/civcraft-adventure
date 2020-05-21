@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,8 +43,8 @@ public class Windmill extends Structure {
 		super(rs);
 	}
 
-	public Windmill(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Windmill(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	@Override

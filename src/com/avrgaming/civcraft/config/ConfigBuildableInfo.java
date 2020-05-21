@@ -48,6 +48,19 @@ public class ConfigBuildableInfo {
 	public List<HashMap<String, String>> components = new LinkedList<HashMap<String, String>>();
 	public boolean has_template = true;
 
+	public ConfigBuildableInfo() {
+	}
+
+	public ConfigBuildableInfo(String id, String displayName, boolean ignore_floating, String template_name, boolean tile_improvement, int max_hitpoints, int templateYShift) {
+		this.id = id;
+		this.displayName = displayName;
+		this.ignore_floating = ignore_floating;
+		this.template_name = template_name;
+		this.tile_improvement = tile_improvement;
+		this.max_hitpoints = max_hitpoints;
+		this.templateYShift = templateYShift;
+	}
+
 	public boolean isAvailable(Town town) {
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {

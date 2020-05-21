@@ -144,13 +144,11 @@ public class TradeGoodPopulator extends BlockPopulator {
             if (sync) {
                 try {
                 	pbsign.saveNow();
-                    structSign.saveNow();
                 } catch (SQLException e) {
                 	e.printStackTrace();
                 }
             } else {
             	pbsign.save();
-                structSign.save();
             }
     	}
         

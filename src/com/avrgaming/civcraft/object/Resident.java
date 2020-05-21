@@ -21,8 +21,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,10 +31,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -69,10 +68,8 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
-// import com.avrgaming.civcraft.structure.TeslaShip;
 import com.avrgaming.civcraft.structure.TeslaTower;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -85,7 +82,6 @@ import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.global.perks.Perk;
-import com.avrgaming.global.perks.components.CustomPersonalTemplate;
 import com.avrgaming.global.perks.components.CustomTemplate;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -142,21 +138,19 @@ public class Resident extends SQLObject {
 	private Town selectedTown = null;
 
 	private Scoreboard scoreboard = null;
-	public String desiredCivName;
-	public String desiredCapitolName;
-	public String desiredTownName;
-	public String desiredTag;
-	public Location desiredTownLocation = null;
-	public Template desiredTemplate = null;
 	/** Если нужно повтороное нажатие на табличку, то эта переменная служит памятью последнего нажатия */
 	public ConstructSign constructSignConfirm = null;
 
 	/* XXX This buildable is used as place to store which buildable we're working on when interacting with GUI items. We want to be able to pass
 	 * the buildable object to the GUI's action function, but there isn't a good way to do this ATM. If we had a way to send arbitary objects it
 	 * would be better. Could we store it here on the resident object? */
-	public Buildable pendingBuildable;
-	public ConfigBuildableInfo pendingBuildableInfo;
 	public CallbackInterface pendingCallback;
+	// public String desiredCivName;
+	// public String desiredCapitolName;
+	// public String desiredTownName;
+	// public String desiredTag;
+	// public Location desiredTownLocation = null;
+	// public Template desiredTemplate = null;
 
 	private boolean showScout = true;
 	private boolean showTown = true;
@@ -167,7 +161,7 @@ public class Resident extends SQLObject {
 	private String savedInventory = null;
 	private boolean isProtected = false;
 
-	public ConcurrentHashMap<BlockCoord, SimpleBlock> previewUndo = null;
+	public ConcurrentHashMap<BlockCoord, SimpleBlock> previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
 	public LinkedHashMap<String, Perk> perks = new LinkedHashMap<String, Perk>();
 	private Date lastKilledTime = null;
 	private String lastIP = "";
@@ -287,7 +281,8 @@ public class Resident extends SQLObject {
 				try {
 					if (CivSettings.getStringBase("cleanupDatabase").equalsIgnoreCase("true"))
 						this.saveNow();
-					else this.dontSaveTown = true;
+					else
+						this.dontSaveTown = true;
 				} catch (InvalidConfiguration e) {
 					this.dontSaveTown = true;
 				}
@@ -356,9 +351,10 @@ public class Resident extends SQLObject {
 
 		if (this.itemMode.equals("rare")) {
 			flagString += "itemModeRare,";
-		} else if (this.itemMode.equals("none")) {
-			flagString += "itemModeNone,";
-		}
+		} else
+			if (this.itemMode.equals("none")) {
+				flagString += "itemModeNone,";
+			}
 
 		return flagString;
 	}
@@ -610,9 +606,10 @@ public class Resident extends SQLObject {
 					}
 					out += grp.getName() + "(" + grp.getTown().getName() + ")";
 
-				} else if (grp.getCiv() != null) {
-					out += CivColor.Gold + grp.getName() + "(" + grp.getCiv().getName() + ")";
-				}
+				} else
+					if (grp.getCiv() != null) {
+						out += CivColor.Gold + grp.getName() + "(" + grp.getCiv().getName() + ")";
+					}
 
 				out += ", ";
 			}
@@ -666,11 +663,12 @@ public class Resident extends SQLObject {
 
 		if (stack.getAmount() < amount) {
 			return false;
-		} else if (stack.getAmount() == amount) {
-			inv.removeItem(stack);
-		} else {
-			stack.setAmount(stack.getAmount() - amount);
-		}
+		} else
+			if (stack.getAmount() == amount) {
+				inv.removeItem(stack);
+			} else {
+				stack.setAmount(stack.getAmount() - amount);
+			}
 
 		player.updateInventory();
 		return true;
@@ -827,6 +825,7 @@ public class Resident extends SQLObject {
 	public void clearInteractiveMode() {
 		this.interactiveMode = false;
 		this.interactiveResponse = null;
+		this.pendingCallback = null;
 	}
 
 	public InteractiveResponse getInteractiveResponse() {
@@ -847,10 +846,11 @@ public class Resident extends SQLObject {
 	public void showWarnings(Player player) {
 		/* Notify Resident of any invalid structures. */
 		if (this.getTown() != null) {
-			for (Buildable struct : this.getTown().invalidStructures) {
-				CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_resident_structInvalidAlert1", struct.getDisplayName(), struct.getCorner()) + " "
-						+ CivSettings.localize.localizedString("resident_structInvalidAlert2") + " " + struct.getInvalidReason());
-			}
+			// for (Buildable struct : this.getTown().invalidStructures) {
+			// CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_resident_structInvalidAlert1",
+			// struct.getDisplayName(), struct.getCorner()) + " "
+			// + CivSettings.localize.localizedString("resident_structInvalidAlert2") + " " + struct.getInvalidReason());
+			// }
 
 			/* Show any event messages. */
 			if (this.getTown().getActiveEvent() != null) {
@@ -860,17 +860,12 @@ public class Resident extends SQLObject {
 
 	}
 
-	public void startPreviewTask(Template tpl, Block block, UUID uuid) {
-		this.previewTask = new BuildPreviewAsyncTask(tpl, block, uuid);
+	public void startPreviewTask(Template tpl, BlockCoord bcoord, Player player) {
+		this.previewTask = new BuildPreviewAsyncTask(tpl, bcoord, player);
 		TaskMaster.asyncTask(previewTask, 0);
 	}
 
 	public void undoPreview() {
-		if (this.previewUndo == null) {
-			this.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
-			return;
-		}
-
 		if (this.previewTask != null) {
 			previewTask.lock.lock();
 			try {
@@ -880,33 +875,19 @@ public class Resident extends SQLObject {
 			}
 		}
 
+		Player player;
 		try {
-			Player player = CivGlobal.getPlayer(this);
-			Resident resident = this;
-			TaskMaster.asyncTask(new Runnable() {
-				@Override
-				public void run() {
-					for (BlockCoord coord : resident.previewUndo.keySet()) {
-						// int count = 0;
-						SimpleBlock sb = resident.previewUndo.get(coord);
-						ItemManager.sendBlockChange(player, coord.getLocation(), sb.getType(), sb.getData());
-						// count++;
-						// if (count > 50) {
-						// count = 0;
-						// try {
-						// Thread.sleep(1000);
-						// } catch (InterruptedException e) {
-						// e.printStackTrace();
-						// }
-						// }
-					}
-					resident.previewUndo.clear();
-					resident.previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
-				}
-			}, 0);
+			player = CivGlobal.getPlayer(this);
 		} catch (CivException e) {
-			return;// Fall down and return.
+			e.printStackTrace();
+			return;
 		}
+
+		for (BlockCoord coord : this.previewUndo.keySet()) {
+			SimpleBlock sb = this.previewUndo.get(coord);
+			ItemManager.sendBlockChange(player, coord.getLocation(), sb.getType(), sb.getData());
+		}
+		this.previewUndo.clear();
 	}
 
 	public void onRoadTest(BlockCoord coord, Player player) {
@@ -967,34 +948,20 @@ public class Resident extends SQLObject {
 
 			@Override
 			public void run() {
-				// try {
-				// resident.perks.clear();
-				// Player player = CivGlobal.getPlayer(resident);
-				// try {
-				// CivGlobal.perkManager.loadPerksForResident(resident);
-				// } catch (SQLException e) {
-				// CivMessage.sendError(player, CivSettings.localize.localizedString("resident_couldnotloadperks"));
-				// e.printStackTrace();
-				// return;
-				// } catch (NotVerifiedException e) {
-				// return;
-				// }
-				// } catch (CivException e1) {
-				// return;
-				// }
 				try {
 
 					String perkMessage = "";
 					if (CivSettings.getString(CivSettings.perkConfig, "system.free_perks").equalsIgnoreCase("true")) {
 						resident.giveAllFreePerks();
 						perkMessage = CivSettings.localize.localizedString("PlayerLoginAsync_perksMsg1") + " ";
-					} else if (CivSettings.getString(CivSettings.perkConfig, "system.free_admin_perks").equalsIgnoreCase("true")) {
-						if (player.hasPermission(CivSettings.MINI_ADMIN) || player.hasPermission(CivSettings.FREE_PERKS)) {
-							resident.giveAllFreePerks();
-							perkMessage = CivSettings.localize.localizedString("PlayerLoginAsync_perksMsg1") + ": ";
-							perkMessage += "Weather" + ", ";
+					} else
+						if (CivSettings.getString(CivSettings.perkConfig, "system.free_admin_perks").equalsIgnoreCase("true")) {
+							if (player.hasPermission(CivSettings.MINI_ADMIN) || player.hasPermission(CivSettings.FREE_PERKS)) {
+								resident.giveAllFreePerks();
+								perkMessage = CivSettings.localize.localizedString("PlayerLoginAsync_perksMsg1") + ": ";
+								perkMessage += "Weather" + ", ";
+							}
 						}
-					}
 
 					for (ConfigPerk p : CivSettings.templates.values()) {
 						if (player.hasPermission("civ.perk." + p.simple_name)) {
@@ -1076,36 +1043,13 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public LinkedList<Perk> getPersonalTemplatePerks(ConfigBuildableInfo info) {
-		LinkedList<Perk> templates = new LinkedList<Perk>();
-
-		for (Perk perk : this.perks.values()) {
-			CustomPersonalTemplate customTemplate = (CustomPersonalTemplate) perk.getComponent("CustomPersonalTemplate");
-			if (customTemplate == null) {
-				continue;
-			}
-
-			if (customTemplate.getString("id").equals(info.id)) {
-				templates.add(perk);
-			}
-		}
-		return templates;
-	}
-
-	public ArrayList<Perk> getUnboundTemplatePerks(ArrayList<Perk> alreadyBoundPerkList, ConfigBuildableInfo info) {
-		ArrayList<Perk> unboundPerks = new ArrayList<Perk>();
+	public Set<Perk> getUnboundTemplatePerks(Set<Perk> alreadyBoundPerkList, ConfigBuildableInfo info) {
+		Set<Perk> unboundPerks = new HashSet<Perk>();
 		for (Perk ourPerk : perks.values()) {
-
 			if (!ourPerk.getConfigId().contains("template")) {
 				CustomTemplate customTemplate = (CustomTemplate) ourPerk.getComponent("CustomTemplate");
-				if (customTemplate == null) {
-					continue;
-				}
-
-				if (!customTemplate.getString("template").equals(info.template_name)) {
-					/* Not the correct template. */
-					continue;
-				}
+				if (customTemplate == null) continue;
+				if (!customTemplate.getString("template").equals(info.template_name)) continue;
 
 				boolean has = false;
 				for (Perk perk : alreadyBoundPerkList) {
@@ -1115,11 +1059,9 @@ public class Resident extends SQLObject {
 						continue;
 					}
 				}
-
 				if (!has) unboundPerks.add(ourPerk);
 			}
 		}
-
 		return unboundPerks;
 	}
 
@@ -1160,13 +1102,14 @@ public class Resident extends SQLObject {
 							CivColor.LightGreen + CivSettings.localize.localizedString("var_resident_tradeWait1", CivColor.LightBlue + resident.getName()),
 							CivColor.LightGray + " " + CivSettings.localize.localizedString("resident_tradeWait2"));
 					inv.setItem(i, guiStack);
-				} else if ((i - start) == 7) {
-					ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-							CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
-					inv.setItem(i, guiStack);
-				} else {
-					inv.setItem(i, signStack);
-				}
+				} else
+					if ((i - start) == 7) {
+						ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
+								CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
+						inv.setItem(i, guiStack);
+					} else {
+						inv.setItem(i, signStack);
+					}
 			}
 
 			start = 4 * 9;
@@ -1176,23 +1119,26 @@ public class Resident extends SQLObject {
 							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeClicktoConfirm"));
 					inv.setItem(i, guiStack);
 
-				} else if ((i - start) == 0) {
-					ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeRemove") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove100") + " " + CivSettings.CURRENCY_NAME,
-							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove1000") + " " + CivSettings.CURRENCY_NAME);
-					inv.setItem(i, guiStack);
-				} else if ((i - start) == 1) {
-					ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeAdd") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.GOLD_INGOT), 0,
-							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd100") + " " + CivSettings.CURRENCY_NAME,
-							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd1000") + " " + CivSettings.CURRENCY_NAME);
-					inv.setItem(i, guiStack);
-				} else if ((i - start) == 7) {
-					ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-							CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
-					inv.setItem(i, guiStack);
-				} else {
-					inv.setItem(i, signStack);
-				}
+				} else
+					if ((i - start) == 0) {
+						ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeRemove") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
+								CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove100") + " " + CivSettings.CURRENCY_NAME,
+								CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove1000") + " " + CivSettings.CURRENCY_NAME);
+						inv.setItem(i, guiStack);
+					} else
+						if ((i - start) == 1) {
+							ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeAdd") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.GOLD_INGOT), 0,
+									CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd100") + " " + CivSettings.CURRENCY_NAME,
+									CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd1000") + " " + CivSettings.CURRENCY_NAME);
+							inv.setItem(i, guiStack);
+						} else
+							if ((i - start) == 7) {
+								ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
+										CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
+								inv.setItem(i, guiStack);
+							} else {
+								inv.setItem(i, signStack);
+							}
 			}
 
 			/* Set up middle divider. */
@@ -1247,13 +1193,14 @@ public class Resident extends SQLObject {
 		if (this.itemMode.equals("all")) {
 			this.itemMode = "rare";
 			CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemRare"));
-		} else if (this.itemMode.equals("rare")) {
-			this.itemMode = "none";
-			CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemNone"));
-		} else {
-			this.itemMode = "all";
-			CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemAll"));
-		}
+		} else
+			if (this.itemMode.equals("rare")) {
+				this.itemMode = "none";
+				CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemNone"));
+			} else {
+				this.itemMode = "all";
+				CivMessage.send(this, CivColor.LightGreen + CivSettings.localize.localizedString("resident_toggleItemAll"));
+			}
 		this.save();
 	}
 

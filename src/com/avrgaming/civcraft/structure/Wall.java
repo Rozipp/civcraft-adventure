@@ -47,7 +47,7 @@ import com.avrgaming.civcraft.war.War;
 
 public class Wall extends Structure {
 
-	//TODO make these configurable.
+	// TODO make these configurable.
 	private static int RECURSION_LIMIT;
 
 	private static int HEIGHT;
@@ -66,20 +66,30 @@ public class Wall extends Structure {
 	public Map<BlockCoord, WallBlock> wallBlocks = new HashMap<BlockCoord, WallBlock>();
 	public HashSet<ChunkCoord> wallChunks = new HashSet<ChunkCoord>();
 
-	/* This is used to chain together the wall chunks built by the last operation. this allows us to undo all of the walls built in a single pass. */
+	/* This is used to chain together the wall chunks built by the last operation. this allows us to undo all of the walls built in a single
+	 * pass. */
 	private Wall nextWallBuilt = null;
 
-//	private int verticalsegments = 0;
+	// private int verticalsegments = 0;
 
-//	private HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
+	// private HashMap<String, SimpleBlock> simpleBlocks = new HashMap<String, SimpleBlock>();
 
-	public Wall(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Wall(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Wall(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		this.setHitpoints(this.getMaxHitPoints());
+	}
+
+	public static Wall newWall(Player player, String id, Town town) throws CivException {
+		Wall wall = new Wall(id, town);
+		if (!wall.getTown().hasTechnology(wall.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("wall_missingTech"));
+
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("wall_noBuildInWar"));
+
+		MarkerPlacementManager.addToPlacementMode(player, wall, CivSettings.localize.localizedString("wall_marketHeading"));
+		return wall;
 	}
 
 	@Override
@@ -94,30 +104,21 @@ public class Wall extends Structure {
 		for (WallBlock wb : wallBlocks.values()) {
 
 			if (CivSettings.restrictedUndoBlocks.contains(ItemManager.getMaterial(wb.getOld_id()))) {
-//				continue;
+				// continue;
 				ItemManager.setTypeIdAndData(wb.getCoord().getBlock(), 0, 0, false);
 			} else {
 				ItemManager.setTypeId(wb.getCoord().getBlock(), wb.getOld_id());
 				ItemManager.setData(wb.getCoord().getBlock(), wb.getOld_data());
 			}
 			refund += COST_PER_SEGMENT;
-			try {
-				wb.delete();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			wb.delete();
 		}
 
 		refund /= HEIGHT;
 		refund = Math.round(refund);
 		this.getTown().getTreasury().deposit(refund);
-		CivMessage.sendTown(this.getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("wall_undoRefund") + " " + refund + " " + CivSettings.CURRENCY_NAME);
-		try {
-			this.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		CivMessage.sendTown(this.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("wall_undoRefund") + " " + refund + " " + CivSettings.CURRENCY_NAME);
+		this.delete();
 	}
 
 	@Override
@@ -131,7 +132,7 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		if (this.wallBlocks != null) {
 			for (WallBlock wb : this.wallBlocks.values()) {
 				wb.delete();
@@ -147,7 +148,11 @@ public class Wall extends Structure {
 		this.getTown().removeStructure(this);
 		this.unbindConstructBlocks();
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -158,11 +163,7 @@ public class Wall extends Structure {
 				WallBlock wb = wallBlocks.get(coord);
 				ItemManager.setTypeId(coord.getBlock(), wb.getOld_id());
 				ItemManager.setData(coord.getBlock(), wb.getOld_data());
-				try {
-					wb.delete();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				wb.delete();
 			}
 
 			// Remove this wall chunk.
@@ -181,28 +182,13 @@ public class Wall extends Structure {
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 	}
 
-	@Override
-	public void newBiuldSetTemplate(Player player, Location centerLoc) throws CivException, IOException {
-		// Set the player into "place mode" which allows them to place down
-		// markers.
-		if (!this.getTown().hasTechnology(this.getRequiredTechnology())) {
-			throw new CivException(CivSettings.localize.localizedString("wall_missingTech"));
-		}
-
-		if (War.isWarTime()) {
-			throw new CivException(CivSettings.localize.localizedString("wall_noBuildInWar"));
-		}
-
-		MarkerPlacementManager.addToPlacementMode(player, this, CivSettings.localize.localizedString("wall_marketHeading"));
-	}
-
-//	@Override
-//	public void build(Player player) throws Exception {
-////		// Set the player into "place mode" which allows them to place down
-////		// markers.
-////		//XXX never called anymore??
-////		MarkerPlacementManager.addToPlacementMode(player, this, "Wall Marker");		
-//	}
+	// @Override
+	// public void build(Player player) throws Exception {
+	//// // Set the player into "place mode" which allows them to place down
+	//// // markers.
+	//// //XXX never called anymore??
+	//// MarkerPlacementManager.addToPlacementMode(player, this, "Wall Marker");
+	// }
 
 	private boolean isValidWall() {
 		for (WallBlock block : this.wallBlocks.values()) {
@@ -254,7 +240,7 @@ public class Wall extends Structure {
 
 		Location secondLoc = second.getLocation();
 		// Setting to a new block coord so we can increment in buildWallSegment without changing the corner.
-		this.setCorner(new BlockCoord(secondLoc));
+		this.setCorner(secondLoc);
 		this.setComplete(true);
 		this.save();
 
@@ -267,11 +253,7 @@ public class Wall extends Structure {
 		if (!this.getTown().getTreasury().hasEnough(cost)) {
 
 			for (WallBlock wb : this.wallBlocks.values()) {
-				try {
-					wb.delete();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				wb.delete();
 			}
 			this.wallBlocks.clear();
 
@@ -280,8 +262,7 @@ public class Wall extends Structure {
 
 		this.getTown().getTreasury().withdraw(cost);
 
-		CivMessage.sendTown(this.getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("var_wall_buildSuccess", cost, CivSettings.CURRENCY_NAME, verticalSegments));
+		CivMessage.sendTown(this.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_wall_buildSuccess", cost, CivSettings.CURRENCY_NAME, verticalSegments));
 
 		// build the blocks
 		for (SimpleBlock sb : simpleBlocks.values()) {
@@ -312,7 +293,7 @@ public class Wall extends Structure {
 		}
 
 		BlockCoord coord = new BlockCoord(b);
-		//not building a trade outpost, prevent protected blocks from being destroyed.
+		// not building a trade outpost, prevent protected blocks from being destroyed.
 		if (CivGlobal.getProtectedBlock(coord) != null) {
 			throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
 		}
@@ -365,19 +346,18 @@ public class Wall extends Structure {
 		}
 	}
 
-//	private boolean inSameChunk(Location loc1, Location loc2) {
-//		
-//		if (loc1.getChunk().getX() == loc2.getChunk().getX()) {
-//			if (loc1.getChunk().getZ() == loc2.getChunk().getZ()) {
-//				return true;
-//			}
-//		}
-//		
-//		return false;
-//	}
+	// private boolean inSameChunk(Location loc1, Location loc2) {
+	//
+	// if (loc1.getChunk().getX() == loc2.getChunk().getX()) {
+	// if (loc1.getChunk().getZ() == loc2.getChunk().getZ()) {
+	// return true;
+	// }
+	// }
+	//
+	// return false;
+	// }
 
-	private int buildWallSegment(Player player, BlockCoord first, BlockCoord second, int blockCount, HashMap<String, SimpleBlock> simpleBlocks,
-			int verticalSegments) throws CivException {
+	private int buildWallSegment(Player player, BlockCoord first, BlockCoord second, int blockCount, HashMap<String, SimpleBlock> simpleBlocks, int verticalSegments) throws CivException {
 		Location locFirst = first.getLocation();
 		Location locSecond = second.getLocation();
 
@@ -416,8 +396,8 @@ public class Wall extends Structure {
 			simpleBlocks.putAll(thisWallBlocks);
 			verticalSegments++;
 
-			//Distance should always be going down, as a failsave
-			//check that it is. Abort if our distance goes up.
+			// Distance should always be going down, as a failsave
+			// check that it is. Abort if our distance goes up.
 			double tmpDist = locSecond.distance(locFirst);
 			if (tmpDist > distance) {
 				break;
@@ -469,7 +449,7 @@ public class Wall extends Structure {
 
 			if (location.getBlockX() == blockLocation.getBlockX() && location.getBlockZ() == blockLocation.getBlockZ()) {
 
-				//x and z match, now check that block is 'below' us.
+				// x and z match, now check that block is 'below' us.
 				if (location.getBlockY() < Wall.MAX_HEIGHT) {
 					return true;
 				}
@@ -521,8 +501,7 @@ public class Wall extends Structure {
 
 		save();
 		getTown().getTreasury().withdraw(cost);
-		CivMessage.sendTown(getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("var_wall_repair_success", getDisplayName(), getCorner().toString()));
+		CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_wall_repair_success", getDisplayName(), getCorner().toString()));
 	}
 
 	@Override

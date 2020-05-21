@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.command;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -17,6 +16,7 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.interactive.BuildCallback;
 import com.avrgaming.civcraft.loregui.GuiPage;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -81,7 +81,7 @@ public class BuildCommand extends CommandBase {
 	public void validatenearest_cmd() throws CivException {
 		Player player = getPlayer();
 		Resident resident = getResident();
-		Buildable buildable = CivGlobal.getNearestStructure(player.getLocation());
+		Buildable buildable = CivGlobal.getNearestBuildable(player.getLocation());
 
 		if (buildable.getTown() != resident.getTown()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
@@ -288,51 +288,10 @@ public class BuildCommand extends CommandBase {
 		buildByName(fullArgs);
 	}
 
-	public void preview_cmd() throws CivException {
-		String fullArgs = this.combineArgs(this.stripArgs(args, 1));
-		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
-		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + fullArgs);
-
-		Town town = getSelectedTown();
-
-		Buildable buildable;
-		if (sinfo.isWonder)
-			buildable = Wonder.newWonder(getPlayer().getLocation(), sinfo.id, town);
-		else
-			buildable = Structure.newStructure(getPlayer().getLocation(), sinfo.id, town);
-
-		try {
-			buildable.newBiuldSetTemplate(getPlayer(), getPlayer().getLocation());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
-		}
-		
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_build_showPreviewSuccess"));
-	}
-
 	private void buildByName(String fullArgs) throws CivException {
 		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + fullArgs);
-
-		Town town = getSelectedTown();
-		if (sinfo.id.equals("wonder_stock_exchange") && !town.canBuildStock(this.getPlayer())) {
-			throw new CivException(CivColor.Red
-					+ CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
-		}
-
-		Buildable buildable;
-		if (sinfo.isWonder)
-			buildable = Wonder.newWonder(getPlayer().getLocation(), sinfo.id, town);
-		else
-			buildable = Structure.newStructure(getPlayer().getLocation(), sinfo.id, town);
-
-		try {
-			buildable.newBiuldSetTemplate(getPlayer(), getPlayer().getLocation());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
-		}
+		new BuildCallback(getPlayer(), sinfo, getSelectedTown()); 
 	}
 
 	@Override

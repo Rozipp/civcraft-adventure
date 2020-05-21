@@ -21,7 +21,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -43,8 +42,8 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class GreatLibrary extends Wonder {
 
-	public GreatLibrary(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public GreatLibrary(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public GreatLibrary(ResultSet rs) throws SQLException, CivException {

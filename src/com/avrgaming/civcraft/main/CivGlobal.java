@@ -65,6 +65,7 @@ import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Bank;
+import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.Market;
 import com.avrgaming.civcraft.structure.Road;
@@ -86,7 +87,6 @@ import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.TagManager;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarRegen;
-import com.avrgaming.global.perks.PerkManager;
 
 public class CivGlobal {
 
@@ -189,7 +189,6 @@ public class CivGlobal {
 	public static boolean checkForBooks = true;
 	public static boolean debugDateBypass = false;
 	public static boolean endWorld = false;
-	public static PerkManager perkManager = null;
 	public static boolean installMode = false;
 
 	public static int highestCivEra = 0;
@@ -317,7 +316,7 @@ public class CivGlobal {
 				if (struct.getTown().getMotherCiv() == null) {
 					if (!struct.getTown().isCapitol()) {
 						struct.markInvalid();
-						struct.setInvalidReason(CivSettings.localize.localizedString("cap_CanExistInCapitol"));
+//FIXME						struct.setInvalidReason(CivSettings.localize.localizedString("cap_CanExistInCapitol"));
 					}
 				}
 			}
@@ -1149,8 +1148,8 @@ public class CivGlobal {
 		return count;
 	}
 
-	public static Structure getNearestStructure(Location location) {
-		Structure nearest = null;
+	public static Buildable getNearestBuildable(Location location) {
+		Buildable nearest = null;
 		double lowest_distance = Double.MAX_VALUE;
 		for (Structure struct : structures.values()) {
 			Location loc = new Location(Bukkit.getWorld("world"), struct.getCenterLocation().getX(), struct.getCorner().getLocation().getY(), struct.getCenterLocation().getZ());
@@ -1160,7 +1159,7 @@ public class CivGlobal {
 				nearest = struct;
 			}
 		}
-		for (Structure wonder : wonders.values()) {
+		for (Wonder wonder : wonders.values()) {
 			Location loc = new Location(Bukkit.getWorld("world"), wonder.getCenterLocation().getX(), wonder.getCorner().getLocation().getY(), wonder.getCenterLocation().getZ());
 			double distance = loc.distance(location);
 			if (distance < lowest_distance) {

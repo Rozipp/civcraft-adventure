@@ -1,14 +1,8 @@
 package com.avrgaming.global.perks.components;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 
-import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.global.perks.NotVerifiedException;
 import com.avrgaming.global.perks.Perk;
 
 
@@ -48,15 +42,6 @@ public class PerkComponent {
 		this.getParent().count--;
 		if (this.getParent().count <= 0) {
 			resident.perks.remove(this.getParent().getConfigId());
-		}
-		
-		try {
-			CivGlobal.perkManager.markAsUsed(resident, this.getParent());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NotVerifiedException e) {
-			CivMessage.send(resident, CivColor.Rose+CivSettings.localize.localizedString("PerkComponent_notValidated"));
-			e.printStackTrace();
 		}
 	}
 	

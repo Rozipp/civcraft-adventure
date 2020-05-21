@@ -22,8 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.TreeMap;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Civilization;
@@ -32,9 +30,9 @@ import com.avrgaming.civcraft.object.Town;
 public class TheGreatPyramid extends Wonder {
 
 	
-	public TheGreatPyramid(Location center, String id, Town town)
+	public TheGreatPyramid(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public TheGreatPyramid(ResultSet rs) throws SQLException, CivException {

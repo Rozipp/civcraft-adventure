@@ -65,7 +65,7 @@ public class ChatListener implements Listener {
 		}
 
 		if (resident.isInteractiveMode()) {
-			resident.getInteractiveResponse().respond(event.getMessage(), resident);
+			resident.getInteractiveResponse().respond(event.getMessage(), event.getPlayer());
 			event.setCancelled(true);
 		}
 

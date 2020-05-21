@@ -28,8 +28,8 @@ public class FishingBoat extends TradeOutpost {
 	public static int WATER_LEVEL = 62;
 	public static int TOLERANCE = 10;
 
-	public FishingBoat(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public FishingBoat(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	protected FishingBoat(ResultSet rs) throws SQLException, CivException {

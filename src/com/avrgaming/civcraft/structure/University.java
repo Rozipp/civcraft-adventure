@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -18,8 +17,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class University extends Structure {
 
 	
-	public University(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public University(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public University(ResultSet rs) throws SQLException, CivException {

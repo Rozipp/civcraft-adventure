@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.structure.wonders;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.bukkit.Location;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
@@ -14,8 +13,8 @@ extends Wonder {
         super(rs);
     }
 
-    public GrandCanyon(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public GrandCanyon(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     @Override

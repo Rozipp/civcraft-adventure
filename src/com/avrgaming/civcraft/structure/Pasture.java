@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -41,9 +40,9 @@ public class Pasture extends Structure {
 	
 	private int pendingBreeds = 0;
 	
-	public Pasture(Location center, String id, Town town)
+	public Pasture(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public Pasture(ResultSet rs) throws SQLException, CivException {
@@ -127,7 +126,7 @@ public class Pasture extends Structure {
 	}
 	
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		super.delete();
 		unbindPastureChunks();
 		clearEntities();

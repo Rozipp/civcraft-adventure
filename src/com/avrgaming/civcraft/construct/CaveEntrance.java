@@ -68,7 +68,7 @@ public class CaveEntrance extends Construct {
 	}
 
 	@Override
-	public void build(Player player) throws Exception {
+	public void build(Player player) {
 		this.getTemplate().buildTemplate(getCorner());
 	}
 

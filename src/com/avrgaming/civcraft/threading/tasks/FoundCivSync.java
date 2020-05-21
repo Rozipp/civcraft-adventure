@@ -36,16 +36,16 @@ public class FoundCivSync implements Runnable {
 			return;
 		}
 
-		try {
-			Civilization.newCiv(resident.desiredCivName, resident.desiredCapitolName, resident.desiredTag, resident, player, resident.desiredTownLocation);
+//		try {
+//			Civilization.newCiv(resident.desiredCivName, resident.desiredCapitolName, resident.desiredTag, resident, player, resident.desiredTownLocation);
 			//TODO import from furnex
 			CivMessage.send(player, CivSettings.localize.localizedString("foundation_of_civilization_1", player.getName()));
 			CivMessage.send(player, CivSettings.localize.localizedString("foundation_of_civilization_2"));
 			CivMessage.send(player, CivSettings.localize.localizedString("foundation_of_civilization_3"));
 
-		} catch (CivException e) {
-			CivMessage.send(player, CivColor.Rose + e.getMessage());
-		}
+//		} catch (CivException e) {
+//			CivMessage.send(player, CivColor.Rose + e.getMessage());
+//		}
 
 	}
 

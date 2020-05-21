@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.structure.wonders;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.bukkit.Location;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
@@ -17,8 +16,8 @@ extends Wonder {
         super(rs);
     }
 
-    public StockExchange(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public StockExchange(String id, Town town) throws CivException {
+        super(id, town);
         this.setLevel(town.saved_stock_exchange_level);
     }
 

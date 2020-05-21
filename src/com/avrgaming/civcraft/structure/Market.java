@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -51,8 +50,8 @@ public class Market extends Structure {
 	
 	public static int BULK_AMOUNT = 64;
 		
-	public Market(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Market(String id, Town town) throws CivException {
+		super(id, town);
 		CivGlobal.addMarket(this);
 	}
 
@@ -62,7 +61,7 @@ public class Market extends Structure {
 	}
 	
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		super.delete();
 		CivGlobal.removeMarket(this);
 	}

@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -40,8 +39,8 @@ public class Battledome extends Wonder {
 		super(rs);
 	}
 
-	public Battledome(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Battledome(String id, Town town) throws CivException {
+		super(id, town);
 	}
 	
 	public int getMobCount() {
@@ -169,7 +168,7 @@ public class Battledome extends Wonder {
 	}
 	
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		super.delete();
 		unbindBattledomeChunks();
 		clearEntities();

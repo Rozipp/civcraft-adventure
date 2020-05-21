@@ -3,16 +3,14 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class Stadium extends Structure {
 
-	public Stadium(Location center, String id, Town town)
+	public Stadium(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public Stadium(ResultSet rs) throws SQLException, CivException {

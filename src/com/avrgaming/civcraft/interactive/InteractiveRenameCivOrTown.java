@@ -1,5 +1,7 @@
 package com.avrgaming.civcraft.interactive;
 
+import org.bukkit.entity.Player;
+
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -33,9 +35,8 @@ public class InteractiveRenameCivOrTown implements InteractiveResponse {
 	}
 	
 	@Override
-	public void respond(String message, Resident resident) {
-		
-		
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 		CivMessage.sendHeading(resident, "Rename Civilization or Town");
 		
 		try {

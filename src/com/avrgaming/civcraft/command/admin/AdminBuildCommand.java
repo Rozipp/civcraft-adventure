@@ -42,10 +42,10 @@ public class AdminBuildCommand extends CommandBase {
 		cs.add("destroywonder", CivSettings.localize.localizedString("adcmd_build_destroyWonderDesc"));
 		cs.add("destroynearest", CivSettings.localize.localizedString("adcmd_build_destroyNearestDesc"));
 		cs.add("validatenearest", CivSettings.localize.localizedString("adcmd_build_valideateNearestDesc"));
-//		cs.add("changenearest", CivSettings.localize.localizedString("adcmd_build_changeNearestDesc"));
+		// cs.add("changenearest", CivSettings.localize.localizedString("adcmd_build_changeNearestDesc"));
 		cs.add("validateall", CivSettings.localize.localizedString("adcmd_build_validateAllDesc"));
 
-		//cs.add("repairwonder", "Fixes the nearest wonder, requires confirmation.");		
+		// cs.add("repairwonder", "Fixes the nearest wonder, requires confirmation.");
 	}
 
 	public void validateall_cmd() throws CivException {
@@ -67,30 +67,30 @@ public class AdminBuildCommand extends CommandBase {
 		Town town = getNamedTown(1);
 		Buildable buildable = town.getNearestBuildable(player.getLocation());
 		if (args.length < 3 || !args[2].equalsIgnoreCase("yes")) {
-			CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD
-					+ CivSettings.localize.localizedString("var_adcmd_build_wouldValidate", buildable.getDisplayName(), buildable.getCorner()));
+			CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_adcmd_build_wouldValidate", buildable.getDisplayName(), buildable.getCorner()));
 			return;
 		}
 		buildable.validateAsyncTask(player);
 	}
 
-//	public void changenearest_cmd() throws CivException {
-//		Player player = getPlayer();
-//		Town town = getNamedTown(1);
-//		Buildable buildable = town.getNearestBuildable(player.getLocation());
-//		
-//		if (args.length < 3)
-//		{
-//			CivMessage.send(player, CivColor.Red+ChatColor.BOLD+CivSettings.localize.localizedString("adcmd_build_wouldChangeTheme_NoTheme"));
-//
-//			return;
-//		}
-//		
-//		if (args.length < 4 || !args[3].equalsIgnoreCase("yes")) {
-//			CivMessage.send(player, CivColor.Yellow+ChatColor.BOLD+CivSettings.localize.localizedString("var_adcmd_build_wouldChangeTheme",buildable.getDisplayName(),buildable.getCorner()));
-//			return;
-//		}
-//	}
+	// public void changenearest_cmd() throws CivException {
+	// Player player = getPlayer();
+	// Town town = getNamedTown(1);
+	// Buildable buildable = town.getNearestBuildable(player.getLocation());
+	//
+	// if (args.length < 3)
+	// {
+	// CivMessage.send(player, CivColor.Red+ChatColor.BOLD+CivSettings.localize.localizedString("adcmd_build_wouldChangeTheme_NoTheme"));
+	//
+	// return;
+	// }
+	//
+	// if (args.length < 4 || !args[3].equalsIgnoreCase("yes")) {
+	// CivMessage.send(player,
+	// CivColor.Yellow+ChatColor.BOLD+CivSettings.localize.localizedString("var_adcmd_build_wouldChangeTheme",buildable.getDisplayName(),buildable.getCorner()));
+	// return;
+	// }
+	// }
 
 	public void destroynearest_cmd() throws CivException {
 
@@ -100,8 +100,7 @@ public class AdminBuildCommand extends CommandBase {
 		Buildable struct = town.getNearestStrucutreOrWonderInprogress(player.getLocation());
 
 		if (args.length < 3 || !args[2].equalsIgnoreCase("yes")) {
-			CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD
-					+ CivSettings.localize.localizedString("var_adcmd_build_wouldDestroy", struct.getDisplayName(), struct.getCorner()));
+			CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_adcmd_build_wouldDestroy", struct.getDisplayName(), struct.getCorner()));
 			return;
 		}
 
@@ -129,29 +128,24 @@ public class AdminBuildCommand extends CommandBase {
 		}
 
 		wonder.fancyDestroyConstructBlocks();
-		try {
-			wonder.getTown().removeWonder(wonder);
-			wonder.fancyDestroyConstructBlocks();
-			wonder.unbindConstructBlocks();
-			wonder.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		wonder.getTown().removeWonder(wonder);
+		wonder.fancyDestroyConstructBlocks();
+		wonder.unbindConstructBlocks();
+		wonder.delete();
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_build_destroyed"));
 	}
 
 	public void repair_cmd() throws CivException {
 		Player player = getPlayer();
 
-		Buildable nearest = CivGlobal.getNearestStructure(player.getLocation());
+		Buildable nearest = CivGlobal.getNearestBuildable(player.getLocation());
 
 		if (nearest == null) {
 			throw new CivException(CivSettings.localize.localizedString("adcmd_build_StructNotFound"));
 		}
 
 		if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
-			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_adcmd_build_repairConfirmPrompt",
-					CivColor.Yellow + nearest.getDisplayName(), nearest.getCorner()));
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_adcmd_build_repairConfirmPrompt", CivColor.Yellow + nearest.getDisplayName(), nearest.getCorner()));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("adcmd_build_toConfirm"));
 			return;
 		}
@@ -177,8 +171,7 @@ public class AdminBuildCommand extends CommandBase {
 		if (args.length < 3) {
 			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_build_unbuildHeading"));
 			for (Structure struct : town.getStructures()) {
-				CivMessage.send(sender, struct.getDisplayName() + ": " + CivColor.Yellow + struct.getId() + CivColor.White + " - "
-						+ CivSettings.localize.localizedString("Location") + " " + CivColor.Yellow + struct.getCorner().toString());
+				CivMessage.send(sender, struct.getDisplayName() + ": " + CivColor.Yellow + struct.getId() + CivColor.White + " - " + CivSettings.localize.localizedString("Location") + " " + CivColor.Yellow + struct.getCorner().toString());
 			}
 			return;
 		}
@@ -229,8 +222,7 @@ public class AdminBuildCommand extends CommandBase {
 		if (args.length < 3) {
 			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_build_unbuildHeading"));
 			for (Structure struct : town.getStructures()) {
-				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_build_demolish", struct.getDisplayName(),
-						CivColor.Yellow + struct.getCorner().toString() + CivColor.White));
+				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_build_demolish", struct.getDisplayName(), CivColor.Yellow + struct.getCorner().toString() + CivColor.White));
 			}
 			return;
 		}

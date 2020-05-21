@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.bukkit.Location;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.object.Town;
@@ -18,8 +17,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class Neuschwanstein extends Wonder implements RespawnLocationHolder {
 	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
 
-    protected Neuschwanstein(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    protected Neuschwanstein(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     public Neuschwanstein(ResultSet rs) throws SQLException, CivException {

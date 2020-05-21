@@ -24,8 +24,8 @@ public class Portal
 extends Structure {
     public Location spawnLocation;
 
-    public Portal(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public Portal(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     public Portal(ResultSet rs) throws SQLException, CivException {

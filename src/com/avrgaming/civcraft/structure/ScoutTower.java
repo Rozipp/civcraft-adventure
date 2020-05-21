@@ -39,9 +39,8 @@ public class ScoutTower extends Structure {
 		super(rs);
 	}
 
-	public ScoutTower(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
-		this.setHitpoints(this.getMaxHitPoints());
+	public ScoutTower(String id, Town town) throws CivException {
+		super(id, town);		
 	}
 
 	@Override

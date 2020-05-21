@@ -32,15 +32,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveConfirmCivCreation implements InteractiveResponse {
 
 	@Override
-	public void respond(String message, Resident resident) {
-		
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(resident);
-		} catch (CivException e) {
-			return;
-		}
-
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 		resident.clearInteractiveMode();
 
 		if (!message.equalsIgnoreCase("yes")) {
@@ -48,10 +41,10 @@ public class InteractiveConfirmCivCreation implements InteractiveResponse {
 			return;
 		}
 		
-		if (resident.desiredCapitolName == null || resident.desiredCivName == null) {
-			CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("interactive_civ_createError"));
-			return;
-		}
+//		if (resident.desiredCapitolName == null || resident.desiredCivName == null) {
+//			CivMessage.send(player, CivColor.Rose+CivSettings.localize.localizedString("interactive_civ_createError"));
+//			return;
+//		}
 		
 		TaskMaster.syncTask(new FoundCivSync(resident));
 

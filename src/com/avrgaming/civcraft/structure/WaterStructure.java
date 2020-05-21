@@ -28,8 +28,8 @@ public class WaterStructure extends Structure {
 		super(rs);
 	}
 
-	public WaterStructure(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public WaterStructure(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	@Override

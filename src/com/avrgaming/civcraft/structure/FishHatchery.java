@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -47,8 +46,8 @@ public class FishHatchery extends Structure {
 	public int skippedCounter = 0;
 	public ReentrantLock lock = new ReentrantLock();
 
-	public FishHatchery(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public FishHatchery(String id, Town town) throws CivException {
+		super(id, town);
 		setLevel(town.saved_fish_hatchery_level);
 	}
 

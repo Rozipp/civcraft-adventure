@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.structure.wonders;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.bukkit.Location;
 import com.avrgaming.civcraft.components.ProjectileLightningComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -22,8 +21,8 @@ extends Wonder {
         super(rs);
     }
 
-    public StatueOfZeus(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public StatueOfZeus(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     @Override

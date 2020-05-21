@@ -56,8 +56,7 @@ public class Template {
 	private String filepath;
 	public int totalBlocks;
 
-	/* Save the command block locations when we init the template, so we dont have
-	 * to search for them later. */
+	/* Save the command block locations when we init the template, so we dont have to search for them later. */
 	public ArrayList<SimpleBlock> commandBlockRelativeLocations = new ArrayList<SimpleBlock>();
 	public LinkedList<SimpleBlock> doorRelativeLocations = new LinkedList<SimpleBlock>();
 	public LinkedList<SimpleBlock> attachableLocations = new LinkedList<SimpleBlock>();
@@ -105,8 +104,7 @@ public class Template {
 			blockId = Integer.valueOf(typeSplit[0]);
 			blockData = Integer.valueOf(typeSplit[1]);
 
-			if (blockId != 0)
-				this.totalBlocks++;
+			if (blockId != 0) this.totalBlocks++;
 			SimpleBlock sblock = new SimpleBlock("", blockX, blockY, blockZ, blockId, blockData);
 
 			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR || blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
@@ -127,8 +125,7 @@ public class Template {
 						// Save any key values we find.
 						if (locTypeSplit.length > 3) {
 							for (int i = 3; i < locTypeSplit.length; i++) {
-								if (locTypeSplit[i] == null || locTypeSplit[i].equals(""))
-									continue;
+								if (locTypeSplit[i] == null || locTypeSplit[i].equals("")) continue;
 
 								String[] keyvalue = locTypeSplit[i].split(":");
 								if (keyvalue.length < 2) {
@@ -154,8 +151,8 @@ public class Template {
 						this.attachableLocations.add(sblock);
 					}
 				}
-			} else if (Template.isAttachable(blockId))
-				this.attachableLocations.add(sblock);
+			} else
+				if (Template.isAttachable(blockId)) this.attachableLocations.add(sblock);
 			blocks[blockX][blockY][blockZ] = sblock;
 		}
 
@@ -173,7 +170,7 @@ public class Template {
 		return ret;
 	}
 
-	public void buildPreviewScaffolding(Location center, Player player) {
+	public void buildPreviewScaffolding(BlockCoord bcoord, Player player) {
 		Resident resident = CivGlobal.getResident(player);
 		Template tpl = this;
 		TaskMaster.asyncTask(new Runnable() {
@@ -185,24 +182,18 @@ public class Template {
 					for (int x = 0; x < tpl.size_x; x++) {
 						for (int z = 0; z < tpl.size_z; z++) {
 							boolean bb = false;
-							Block b = center.getBlock().getRelative(x, y, z);
-							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(y, 2) == 0)
-								bb = true;
-							if (y == 0 && (Math.floorMod(x + z, 3) == 1))
-								bb = true;
-							if ((y == tpl.size_y - 1) && (x == 0 || x == tpl.size_x - 1) && Math.floorMod(z, 3) == 0)
-								bb = true;
-							if ((y == tpl.size_y - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(x, 3) == 0)
-								bb = true;
-							if (!bb)
-								continue;
+							Block b = bcoord.getBlockRelative(x, y, z);
+							if ((x == 0 || x == tpl.size_x - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(y, 2) == 0) bb = true;
+							if (y == 0 && (Math.floorMod(x + z, 3) == 1)) bb = true;
+							if ((y == tpl.size_y - 1) && (x == 0 || x == tpl.size_x - 1) && Math.floorMod(z, 3) == 0) bb = true;
+							if ((y == tpl.size_y - 1) && (z == 0 || z == tpl.size_z - 1) && Math.floorMod(x, 3) == 0) bb = true;
+							if (!bb) continue;
 
 							count++;
 							ItemManager.sendBlockChange(player, b.getLocation(), 85, 0);
 							resident.previewUndo.put(new BlockCoord(b.getLocation()), new SimpleBlock(ItemManager.getTypeId(b), ItemManager.getData(b)));
 
-							if (count < 1000)
-								continue;
+							if (count < 1000) continue;
 							count = 0;
 							try {
 								Thread.sleep(1000);
@@ -213,7 +204,7 @@ public class Template {
 					}
 				}
 			}
-		}, 10);
+		}, 0);
 	}
 
 	public void buildScaffolding(BlockCoord corner) {
@@ -255,8 +246,7 @@ public class Template {
 						SyncBuildUpdateTask.queueSimpleBlock(sbs);
 						sbs.clear();
 					}
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) {}
 			}
 		}, 10);
 	}
@@ -276,21 +266,16 @@ public class Template {
 								// attachables.
 								Block b = center.getBlock().getRelative(x, y, z);
 								boolean bb = false;
-								if (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
-									bb = true;
-								if (y == 0)
-									bb = true;
-								if (y == tpl.size_y - 1)
-									bb = true;// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
-								if (!bb)
-									continue;
+								if (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1) bb = true;
+								if (y == 0) bb = true;
+								if (y == tpl.size_y - 1) bb = true;// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
+								if (!bb) continue;
 
 								if (ItemManager.getTypeId(b) == CivSettings.scaffoldingType)//
 									ItemManager.setTypeIdAndData(b, CivData.AIR, 0, true);
 								count++;
 
-								if (count < 10000)
-									continue;
+								if (count < 10000) continue;
 
 								SyncBuildUpdateTask.queueSimpleBlock(sbs);
 								sbs.clear();
@@ -303,72 +288,71 @@ public class Template {
 						SyncBuildUpdateTask.queueSimpleBlock(sbs);
 						sbs.clear();
 					}
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) {}
 			}
 		}, 0);
 		//
-		//		for (int y = 0; y < this.size_y; y++) {
-		//			Block b = center.getBlock().getRelative(0, y, 0);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// for (int y = 0; y < this.size_y; y++) {
+		// Block b = center.getBlock().getRelative(0, y, 0);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//			b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// b = center.getBlock().getRelative(this.size_x - 1, y, this.size_z - 1);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//			b = center.getBlock().getRelative(this.size_x - 1, y, 0);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
+		// b = center.getBlock().getRelative(this.size_x - 1, y, 0);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
 		//
-		//			}
+		// }
 		//
-		//			b = center.getBlock().getRelative(0, y, this.size_z - 1);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
+		// b = center.getBlock().getRelative(0, y, this.size_z - 1);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
 		//
-		//			}
-		//		}
+		// }
+		// }
 		//
-		//		for (int x = 0; x < this.size_x; x++) {
-		//			Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// for (int x = 0; x < this.size_x; x++) {
+		// Block b = center.getBlock().getRelative(x, this.size_y - 1, 0);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//			b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// b = center.getBlock().getRelative(x, this.size_y - 1, this.size_z - 1);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//		}
+		// }
 		//
-		//		for (int z = 0; z < this.size_z; z++) {
-		//			Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// for (int z = 0; z < this.size_z; z++) {
+		// Block b = center.getBlock().getRelative(0, this.size_y - 1, z);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//			b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
-		//			if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
-		//				ItemManager.setTypeId(b, CivData.AIR);
-		//				ItemManager.setData(b, 0, true);
-		//			}
+		// b = center.getBlock().getRelative(this.size_x - 1, this.size_y - 1, z);
+		// if (ItemManager.getTypeId(b) == CivData.BEDROCK) {
+		// ItemManager.setTypeId(b, CivData.AIR);
+		// ItemManager.setData(b, 0, true);
+		// }
 		//
-		//		}
+		// }
 
 	}
 
-	public void saveUndoTemplate(String string, BlockCoord corner) throws CivException, IOException {
+	public void saveUndoTemplate(String string, BlockCoord corner) throws IOException {
 		FileWriter writer = new FileWriter(Template.getUndoFilePath(string));
 
 		// TODO Extend this to save paintings?
@@ -402,8 +386,7 @@ public class Template {
 			for (int x = 0; x < this.size_x; ++x) {
 				for (int z = 0; z < this.size_z; ++z) {
 					SimpleBlock sb = this.blocks[x][y][z];
-					if (Template.isAttachable(sb.getMaterial()))
-						continue;
+					if (Template.isAttachable(sb.getMaterial())) continue;
 					sbs.add(new SimpleBlock(corner, sb));
 				}
 			}
@@ -415,8 +398,7 @@ public class Template {
 			for (int x = 0; x < this.size_x; ++x) {
 				for (int z = 0; z < this.size_z; ++z) {
 					SimpleBlock sb = this.blocks[x][y][z];
-					if (!Template.isAttachable(sb.getMaterial()))
-						continue;
+					if (!Template.isAttachable(sb.getMaterial())) continue;
 					sbs.add(new SimpleBlock(corner, sb));
 				}
 			}
@@ -430,21 +412,18 @@ public class Template {
 		for (int x = 0; x < this.size_x; ++x) {
 			for (int z = 0; z < this.size_z; ++z) {
 				SimpleBlock sb = blocks[x][y][z];
-				if (Template.isAttachable(sb.getMaterial()))
-					continue;
+				if (Template.isAttachable(sb.getMaterial())) continue;
 				sbs.add(new SimpleBlock(corner, sb));
 			}
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
 		// Attachable blocks
-		if (!attachable)
-			return;
+		if (!attachable) return;
 		for (int x = 0; x < this.size_x; ++x) {
 			for (int z = 0; z < this.size_z; ++z) {
 				SimpleBlock sb = blocks[x][y][z];
-				if (!Template.isAttachable(sb.getMaterial()))
-					continue;
+				if (!Template.isAttachable(sb.getMaterial())) continue;
 				sbs.add(new SimpleBlock(corner, sb));
 			}
 		}
@@ -488,14 +467,13 @@ public class Template {
 					}
 
 					SimpleBlock sb = tpl.blocks[x][y][z];
-					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial()))
-						sb.setType(CivData.AIR);
+					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) sb.setType(CivData.AIR);
 					// Convert relative x,y,z to real x,y,z in world.
 					sb.x = x + cornerBlock.getX();
 					sb.y = y + cornerBlock.getY();
 					sb.z = z + cornerBlock.getZ();
 					sb.worldname = cornerBlock.getWorld().getName();
-					//					sb.buildable = buildable;
+					// sb.buildable = buildable;
 					sbs.add(sb);
 				}
 			}
@@ -504,8 +482,7 @@ public class Template {
 		sbs.clear();
 	}
 
-	/* Handles the processing of CivTemplates which store cubiods of blocks for
-	 * later use. */
+	/* Handles the processing of CivTemplates which store cubiods of blocks for later use. */
 	public static HashMap<String, Template> templateCache = new HashMap<String, Template>();
 	// -------------- Attachable Types
 	public static HashSet<Material> attachableTypes = Sets.newHashSet(Material.SAPLING, Material.BED, Material.BED_BLOCK, Material.POWERED_RAIL, Material.DETECTOR_RAIL, Material.LONG_GRASS, Material.DEAD_BUSH, Material.YELLOW_FLOWER,
@@ -525,21 +502,17 @@ public class Template {
 	}
 
 	// -------------- get filePath
-	public static String getTemplateFilePath(Location loc, ConfigBuildableInfo info, String theme) {
-		if (info.isWonder)
-			theme = "wonders";
+	public static String getTemplateFilePath(Location loc, ConfigBuildableInfo info, String theme) throws CivException {
+		if (info.isWonder) theme = "wonders";
 		return Template.getTemplateFilePath(info.template_name, Template.getDirection(loc), theme);
 	}
 
-	public static String getTemplateFilePath(String template_name, String direction, String theme) {
-		if (template_name == null)
-			return null;
-		if (theme == null)
-			theme = "default";
+	public static String getTemplateFilePath(String template_name, String direction, String theme) throws CivException {
+		if (template_name == null) throw new CivException("Попытка искать шаблон без имени");
+		if (theme == null) theme = "default";
 		template_name = template_name.replaceAll(" ", "_");
 		String ss = "templates/themes/" + theme + "/" + template_name + "/" + template_name;
-		if (!direction.equals(""))
-			ss = ss + "_" + direction;
+		if (direction != null && !direction.equals("")) ss = ss + "_" + direction;
 		return (ss + ".def").toLowerCase();
 	}
 
@@ -561,11 +534,9 @@ public class Template {
 		templateFile.delete();
 	}
 
-	/* This function will save a copy of the template currently building into the
-	 * town's temp directory. It does this so that we: 1) Dont have to remember the
-	 * template's direction when we resume 2) Can change the master template without
-	 * messing up any builds in progress 3) So we can pick a random template and
-	 * "resume" the correct one. (e.g. cottages) */
+	/* This function will save a copy of the template currently building into the town's temp directory. It does this so that we: 1) Dont have
+	 * to remember the template's direction when we resume 2) Can change the master template without messing up any builds in progress 3) So we
+	 * can pick a random template and "resume" the correct one. (e.g. cottages) */
 	public static void copyFilePath(String masterTemplatePath, String copyTemplatePath) {
 		// Copy File...
 		File master_tpl_file = new File(masterTemplatePath);
@@ -591,55 +562,54 @@ public class Template {
 		}
 		if (0 <= rotation && rotation < 22.5) {
 			return "east"; // S > E
-		} else if (22.5 <= rotation && rotation < 67.5) {
-			return "east"; // SW > SE
-		} else if (67.5 <= rotation && rotation < 112.5) {
-			return "south"; // W > E
-		} else if (112.5 <= rotation && rotation < 157.5) {
-			return "west"; // NW > SW
-		} else if (157.5 <= rotation && rotation < 202.5) {
-			return "west"; // N > W
-		} else if (202.5 <= rotation && rotation < 247.5) {
-			return "west"; // NE > NW
-		} else if (247.5 <= rotation && rotation < 292.5) {
-			return "north"; // E > N
-		} else if (292.5 <= rotation && rotation < 337.5) {
-			return "east"; // SE > NE
-		} else if (337.5 <= rotation && rotation < 360.0) {
-			return "east"; // S > E
-		} else {
-			return "east";
-		}
+		} else
+			if (22.5 <= rotation && rotation < 67.5) {
+				return "east"; // SW > SE
+			} else
+				if (67.5 <= rotation && rotation < 112.5) {
+					return "south"; // W > E
+				} else
+					if (112.5 <= rotation && rotation < 157.5) {
+						return "west"; // NW > SW
+					} else
+						if (157.5 <= rotation && rotation < 202.5) {
+							return "west"; // N > W
+						} else
+							if (202.5 <= rotation && rotation < 247.5) {
+								return "west"; // NE > NW
+							} else
+								if (247.5 <= rotation && rotation < 292.5) {
+									return "north"; // E > N
+								} else
+									if (292.5 <= rotation && rotation < 337.5) {
+										return "east"; // SE > NE
+									} else
+										if (337.5 <= rotation && rotation < 360.0) {
+											return "east"; // S > E
+										} else {
+											return "east";
+										}
 	}
 
 	public static String invertDirection(String dir) {
-		if (dir.equalsIgnoreCase("east"))
-			return "west";
-		if (dir.equalsIgnoreCase("west"))
-			return "east";
-		if (dir.equalsIgnoreCase("north"))
-			return "south";
-		if (dir.equalsIgnoreCase("south"))
-			return "north";
+		if (dir.equalsIgnoreCase("east")) return "west";
+		if (dir.equalsIgnoreCase("west")) return "east";
+		if (dir.equalsIgnoreCase("north")) return "south";
+		if (dir.equalsIgnoreCase("south")) return "north";
 		return null;
 	}
 
 	public static String getDirection(String filepath) {
-		if (filepath.contains("_east"))
-			return "east";
-		if (filepath.contains("_south"))
-			return "south";
-		if (filepath.contains("_west"))
-			return "west";
-		if (filepath.contains("_north"))
-			return "north";
+		if (filepath.contains("_east")) return "east";
+		if (filepath.contains("_south")) return "south";
+		if (filepath.contains("_west")) return "west";
+		if (filepath.contains("_north")) return "north";
 		return "";
 	}
 
 	public static Template getTemplate(String filepath) {
 		/* Attempt to get template statically. */
-		if (filepath == null)
-			return null;
+		if (filepath == null) return null;
 		Template tpl = templateCache.get(filepath);
 		if (tpl == null) {
 			/* No template found in cache. Load it. */

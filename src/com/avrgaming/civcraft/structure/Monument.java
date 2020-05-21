@@ -21,16 +21,14 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class Monument extends Structure {
 
-	public Monument(Location center, String id, Town town)
+	public Monument(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public Monument(ResultSet rs) throws SQLException, CivException {

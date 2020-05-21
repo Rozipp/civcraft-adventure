@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
@@ -39,8 +38,8 @@ public class Cottage extends Structure {
 
 	private ConsumeLevelComponent consumeComp = null;
 
-	public Cottage(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Cottage(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Cottage(ResultSet rs) throws SQLException, CivException {
@@ -309,7 +308,7 @@ public class Cottage extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();
 		}

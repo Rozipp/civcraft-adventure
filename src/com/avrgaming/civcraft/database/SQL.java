@@ -13,12 +13,10 @@ import java.util.Iterator;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMarketItem;
 import com.avrgaming.civcraft.construct.Cave;
-import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.BonusGoodie;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Coalition;
@@ -42,7 +40,6 @@ import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.util.BiomeCache;
-import com.avrgaming.global.perks.PerkManager;
 import com.avrgaming.global.scores.ScoreManager;
 
 public class SQL {
@@ -57,9 +54,6 @@ public class SQL {
 //		globalDatabase = SQL.createConnectionPool("global_database", "GLOBAL");
 		
 		tb_prefix = CivSettings.getStringBase("mysql.table_prefix");
-
-		CivGlobal.perkManager = new PerkManager();
-		CivGlobal.perkManager.init();
 
 		CivLog.heading("Initializing SQL Finished");
 	}
@@ -110,7 +104,6 @@ public class SQL {
 		Camp.init();
 		ConfigMarketItem.init();
 		RandomEvent.init();
-		ConstructSign.init();
 		Report.init();
 
 		CivLog.heading("Building Global Tables!!");
@@ -529,7 +522,6 @@ public class SQL {
 		SQL.deleteTable(Relation.TABLE_NAME);
 		SQL.deleteTable(Report.TABLE_NAME);
 		SQL.deleteTable(Resident.TABLE_NAME);
-		SQL.deleteTable(ConstructSign.TABLE_NAME);
 		SQL.deleteTable(Town.TABLE_NAME);
 		SQL.deleteTable(TownChunk.TABLE_NAME);
 		SQL.deleteTable(TradeGood.TABLE_NAME);

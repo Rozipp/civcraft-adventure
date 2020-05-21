@@ -135,11 +135,15 @@ public class WallBlock extends SQLObject {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		if (this.coord != null) {
 			CivGlobal.removeConstructBlock(this.coord);
 		}
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setStruct(Structure struct) {

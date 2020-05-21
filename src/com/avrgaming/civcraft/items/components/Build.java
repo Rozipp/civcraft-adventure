@@ -9,44 +9,30 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.siege.Cannon;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.war.War;
 
 public class Build extends ItemComponent {
 
+	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		String building = this.getString("building");
 		Player player = event.getPlayer();
-		switch (building) {
-			case "Cannon" :
-				buildCannon(player);
-				break;
-			default :
-				break;
-		}
-		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-	}
-
-	private void buildCannon(Player player) {
 		try {
-
-			if (!War.isWarTime()) {
-				throw new CivException(CivSettings.localize.localizedString("buildCannon_NotWar"));
+			switch (building) {
+			case "Cannon":
+				Cannon.newCannon(player);
+				break;
+			default:
+				break;
 			}
-
-			Resident resident = CivGlobal.getResident(player);
-			Cannon.newCannon(player);
-
-			CivMessage.sendCiv(resident.getCiv(), CivSettings.localize.localizedString("var_buildCannon_Success", (player.getLocation().getBlockX()
-					+ "," + player.getLocation().getBlockY() + "," + player.getLocation().getBlockZ())));
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
+			return;
 		}
+		player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 	}
 
 	@Override

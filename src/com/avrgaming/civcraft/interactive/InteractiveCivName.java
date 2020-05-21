@@ -32,13 +32,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveCivName implements InteractiveResponse {
 
 	@Override
-	public void respond(String message, Resident resident) {
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(resident);
-		} catch (CivException e) {
-			return;
-		}
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 
 //		if (message.equalsIgnoreCase("cancel")) {
 //			CivMessage.send(player, CivSettings.localize.localizedString("interactive_civ_cancel"));
@@ -77,7 +72,7 @@ public class InteractiveCivName implements InteractiveResponse {
 	            message = message.replace(" ", "_");
 	            message = message.replace("\"", "");
 	            message = message.replace("'", "");
-	            resident.desiredCivName = message;
+//	            resident.desiredCivName = message;
 	            CivMessage.send((Object)player, (String)("§a" + CivSettings.localize.localizedString("var_interactive_civ_success1", "§e" + message + "§a")));
 	            CivMessage.send((Object)player, (String)" ");
 	            CivMessage.send((Object)player, (String)(CivColor.LightGreenBold + CivSettings.localize.localizedString("interactive_civ_success3")));

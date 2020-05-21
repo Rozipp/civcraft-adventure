@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -46,8 +45,8 @@ public class Store extends Structure {
 	
 	ArrayList<StoreMaterial> materials = new ArrayList<StoreMaterial>();
 	
-	public Store(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Store(String id, Town town) throws CivException {
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 		setLevel(town.saved_store_level);

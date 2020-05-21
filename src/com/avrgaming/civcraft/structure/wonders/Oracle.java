@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -22,9 +21,9 @@ import com.avrgaming.civcraft.object.Town;
 
 public class Oracle extends Wonder {
 
-	public Oracle(Location center, String id, Town town)
+	public Oracle(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	public Oracle(ResultSet rs) throws SQLException, CivException {

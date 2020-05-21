@@ -3,8 +3,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
@@ -18,8 +16,8 @@ public class Quarry extends Structure {
 	public int level;
 	public Transmuter transmuter = new Transmuter(this);
 
-	public Quarry(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Quarry(String id, Town town) throws CivException {
+		super(id, town);
 		this.level = town.saved_quarry_level;
 	}
 
@@ -28,7 +26,7 @@ public class Quarry extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		transmuter.stop();
 		super.delete();
 	}

@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
@@ -35,8 +34,8 @@ public class Mine extends Structure {
 
 	private ConsumeLevelComponent consumeComp = null;
 
-	public Mine(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Mine(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Mine(ResultSet rs) throws SQLException, CivException {

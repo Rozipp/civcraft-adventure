@@ -251,15 +251,15 @@ materials:
               - ingred_id: '41:0'
                 count: 9
                 
-        - id: 'mat_industrial_diamond'
-          item_id: '264:0'
-          name: 'T2 Industrial Diamond'
-          category: '<lightblue>Tier 2 Materials'
-          components:
-              - name: 'NoRightClick'
-          ingredients:
-              - ingred_id: '57:0'
-                count: 3
+#         - id: 'mat_industrial_diamond'
+#           item_id: '264:0'
+#           name: 'T2 Industrial Diamond'
+#           category: '<lightblue>Tier 2 Materials'
+#           components:
+#               - name: 'NoRightClick'
+#           ingredients:
+#               - ingred_id: '57:0'
+#                 count: 3
                 
         - id: 'mat_milled_lumber'
           item_id: '53:0'

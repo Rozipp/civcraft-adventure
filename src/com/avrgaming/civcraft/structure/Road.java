@@ -1,6 +1,5 @@
 package com.avrgaming.civcraft.structure;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -56,12 +55,11 @@ public class Road extends Structure {
 	private static final int ROAD_MATERIAL = CivData.COBBLESTONE;
 	private static int DEBUG_DATA = 0;
 
-	/* A road is a special type of structure that is built like a Wall but is layered on the ground. The road allows faster movement speeds. Road blocks are
-	 * attackable for a 2 hour window based on when they are built. */
+	/* A road is a special type of structure that is built like a Wall but is layered on the ground. The road allows faster movement speeds.
+	 * Road blocks are attackable for a 2 hour window based on when they are built. */
 
-	public Road(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
-
+	public Road(String id, Town town) throws CivException {
+		super(id, town);
 		/* Set next Raid date 24 hours from now. */
 		nextRaidDate = new Date();
 		nextRaidDate.setTime(nextRaidDate.getTime() + 24 * 60 * 60 * 1000);
@@ -70,6 +68,17 @@ public class Road extends Structure {
 	public Road(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 		this.loadSessionData();
+	}
+
+	public static Road newRoad(Player player, String id, Town town) throws CivException {
+		Road road = new Road(id, town);
+		if (!road.getTown().hasTechnology(road.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("road_missingTech"));
+
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("road_warTime"));
+
+		/* Put the player into a "place mode" which allows them to place down markers */
+		MarkerPlacementManager.addToPlacementMode(player, road, CivSettings.localize.localizedString("road_startPlacement"));
+		return road;
 	}
 
 	@Override
@@ -97,17 +106,13 @@ public class Road extends Structure {
 	@Override
 	public void processUndo() throws CivException {
 
-		if (!this.hasOldBlockData) {
-			throw new CivException(CivSettings.localize.localizedString("road_mustDemolish"));
-		}
+		if (!this.hasOldBlockData) throw new CivException(CivSettings.localize.localizedString("road_mustDemolish"));
 
 		for (BlockCoord bcoord : oldBlockData.keySet()) {
 			SimpleBlock sb = oldBlockData.get(bcoord);
 
 			Material material = ItemManager.getMaterial(sb.getType());
-			if (CivSettings.restrictedUndoBlocks.contains(material)) {
-				continue;
-			}
+			if (CivSettings.restrictedUndoBlocks.contains(material)) continue;
 
 			Block block = bcoord.getBlock();
 			ItemManager.setTypeId(block, sb.getType());
@@ -120,24 +125,14 @@ public class Road extends Structure {
 		}
 
 		for (RoadBlock rb : removed) {
-			try {
-				rb.delete();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			rb.delete();
 		}
 
 		double totalCost = this.getTotalCost();
 		this.getTown().getTreasury().deposit(totalCost);
-		CivMessage.sendTown(this.getTown(),
-				CivColor.Yellow + CivSettings.localize.localizedString("var_road_undoComplete", totalCost, CivSettings.CURRENCY_NAME));
+		CivMessage.sendTown(this.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_road_undoComplete", totalCost, CivSettings.CURRENCY_NAME));
 
-		try {
-			this.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		this.delete();
 	}
 
 	@Override
@@ -154,7 +149,7 @@ public class Road extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		CivGlobal.getSessionDatabase().delete_all(this.getSessionKey());
 
 		LinkedList<RoadBlock> remove = new LinkedList<RoadBlock>();
@@ -163,18 +158,18 @@ public class Road extends Structure {
 		}
 
 		for (RoadBlock rb : remove) {
-			try {
-				rb.delete();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			rb.delete();
 		}
 
 		CivGlobal.removeStructure(this);
 		this.getTown().removeStructure(this);
 		this.unbindConstructBlocks();
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -186,28 +181,14 @@ public class Road extends Structure {
 		}
 	}
 
-	@Override
-	public void newBiuldSetTemplate(Player player, Location centerLoc) throws CivException, IOException {
-		if (!this.getTown().hasTechnology(this.getRequiredTechnology())) {
-			throw new CivException(CivSettings.localize.localizedString("road_missingTech"));
-		}
-
-		if (War.isWarTime()) {
-			throw new CivException(CivSettings.localize.localizedString("road_warTime"));
-		}
-
-		/* Put the player into a "place mode" which allows them to place down markers */
-		MarkerPlacementManager.addToPlacementMode(player, this, CivSettings.localize.localizedString("road_startPlacement"));
-	}
-
-//	@Override
-//	public void build(Player player) throws Exception {
-////		/* 
-////		 * Put the player into a "place mode" which allows them to place down
-////		 * markers
-////		 */
-////		MarkerPlacementManager.addToPlacementMode(player, this, "Road Marker");
-//	}
+	// @Override
+	// public void build(Player player) throws Exception {
+	//// /*
+	//// * Put the player into a "place mode" which allows them to place down
+	//// * markers
+	//// */
+	//// MarkerPlacementManager.addToPlacementMode(player, this, "Road Marker");
+	// }
 
 	@Override
 	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
@@ -278,7 +259,7 @@ public class Road extends Structure {
 			BlockCoord bcoord = new BlockCoord(sb);
 
 			/* Save old block data. */
-			//	this.oldBlockData.put(new BlockCoord(bcoord), new SimpleBlock(bcoord.getBlock()));
+			// this.oldBlockData.put(new BlockCoord(bcoord), new SimpleBlock(bcoord.getBlock()));
 			addRoadBlock(bcoord);
 
 			/* Set new block data. */
@@ -298,13 +279,12 @@ public class Road extends Structure {
 
 		/* Register structure in global tables. */
 		this.getTown().getTreasury().withdraw(totalCost);
-		CivMessage.sendTown(this.getTown(), CivColor.LightGreen
-				+ CivSettings.localize.localizedString("var_road_success", CivColor.Yellow + totalCost + CivColor.LightGreen, CivSettings.CURRENCY_NAME));
+		CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_road_success", CivColor.Yellow + totalCost + CivColor.LightGreen, CivSettings.CURRENCY_NAME));
 		this.getTown().addStructure(this);
 		CivGlobal.addStructure(this);
 		this.getTown().lastBuildableBuilt = this;
 		this.setComplete(true);
-		this.setCorner(new BlockCoord(locs.get(0)));
+		this.setCorner(locs.get(0));
 		locs.clear();
 		this.save();
 		this.saveSaveSessionData();
@@ -316,13 +296,12 @@ public class Road extends Structure {
 		return total;
 	}
 
-	/* We're going to try something tricky here. In order to make building roads not annoying we can't have our own structures getting in the way. However if we
-	 * dont "halt" for structures then an enemy can easily use the road to "slice" through our structures and grief us.
-	 * 
-	 * So instead what we'll do is we'll return false if this block is "not allowed" to be built here, but will not halt the entire road construction.
-	 * 
-	 * If we hit a structure that doesn't belong to our town, then we know this is a potential griefing situation and we'll cancel the entire road. If it's one
-	 * of our structure blocks, we'll assume the player knows what they are doing and allow the constructio to continue, minus the offending blocks. */
+	/* We're going to try something tricky here. In order to make building roads not annoying we can't have our own structures getting in the
+	 * way. However if we dont "halt" for structures then an enemy can easily use the road to "slice" through our structures and grief us. So
+	 * instead what we'll do is we'll return false if this block is "not allowed" to be built here, but will not halt the entire road
+	 * construction. If we hit a structure that doesn't belong to our town, then we know this is a potential griefing situation and we'll cancel
+	 * the entire road. If it's one of our structure blocks, we'll assume the player knows what they are doing and allow the constructio to
+	 * continue, minus the offending blocks. */
 
 	private boolean validateBlockLocation(BlockCoord startCoord) throws CivException {
 
@@ -348,8 +327,7 @@ public class Road extends Structure {
 			if (structBlock != null) {
 				allowedToPlaceHere = false;
 				if (structBlock.getCiv() != this.getCiv()) {
-					throw new CivException(CivSettings.localize.localizedString("var_road_validate_structure", structBlock.getCiv().getName(),
-							(structBlock.getX() + ", " + structBlock.getY() + ", " + structBlock.getZ())));
+					throw new CivException(CivSettings.localize.localizedString("var_road_validate_structure", structBlock.getCiv().getName(), (structBlock.getX() + ", " + structBlock.getY() + ", " + structBlock.getZ())));
 				}
 			}
 
@@ -357,8 +335,7 @@ public class Road extends Structure {
 			if (rb != null) {
 				allowedToPlaceHere = false;
 				if (rb.getRoad().getCiv() != this.getCiv()) {
-					throw new CivException(CivSettings.localize.localizedString("var_road_validate_roadInWay", rb.getRoad().getCiv().getName(),
-							(rb.getCoord().getX() + ", " + rb.getCoord().getY() + ", " + rb.getCoord().getZ())));
+					throw new CivException(CivSettings.localize.localizedString("var_road_validate_roadInWay", rb.getRoad().getCiv().getName(), (rb.getCoord().getX() + ", " + rb.getCoord().getY() + ", " + rb.getCoord().getZ())));
 				}
 			}
 		}
@@ -369,8 +346,7 @@ public class Road extends Structure {
 		return "Road:" + this.getCorner().toString();
 	}
 
-	private int buildRoadSegment(Player player, Location locFirst, Location locSecond, int blockCount, HashMap<String, SimpleBlock> simpleBlocks, int segments)
-			throws CivException {
+	private int buildRoadSegment(Player player, Location locFirst, Location locSecond, int blockCount, HashMap<String, SimpleBlock> simpleBlocks, int segments) throws CivException {
 
 		Vector dir = new Vector(locFirst.getX() - locSecond.getX(), //
 				locFirst.getY() - locSecond.getY(), //
@@ -406,14 +382,14 @@ public class Road extends Structure {
 
 			getHorizontalSegment(player, locSecond, simpleBlocks);
 
-//			Road.DEBUG_DATA++;
-//			if (Road.DEBUG_DATA > 15) {
-//				Road.DEBUG_DATA = 0;
-//			}
+			// Road.DEBUG_DATA++;
+			// if (Road.DEBUG_DATA > 15) {
+			// Road.DEBUG_DATA = 0;
+			// }
 			segments++;
 
-			//Distance should always be going down, as a failsave
-			//check that it is. Abort if our distance goes up.
+			// Distance should always be going down, as a failsave
+			// check that it is. Abort if our distance goes up.
 			double tmpDist = locSecond.distance(locFirst);
 			if (tmpDist > distance) break;
 		}
@@ -467,10 +443,10 @@ public class Road extends Structure {
 	private static void plotFourPoints(int cx, int cz, int x, int z, int baseY, String world, HashMap<String, SimpleBlock> simpleBlocks) {
 
 		/* This bit of code does the outline only. */
-//		setPixel(cx + x, baseY, cz + z, world, simpleBlocks);
-//		setPixel(cx - x, baseY, cz + z, world, simpleBlocks);
-//		setPixel(cx + x, baseY, cz - z, world, simpleBlocks);
-//		setPixel(cx - x, baseY, cz - z, world, simpleBlocks);
+		// setPixel(cx + x, baseY, cz + z, world, simpleBlocks);
+		// setPixel(cx - x, baseY, cz + z, world, simpleBlocks);
+		// setPixel(cx + x, baseY, cz - z, world, simpleBlocks);
+		// setPixel(cx - x, baseY, cz - z, world, simpleBlocks);
 
 		horizontalLine(cx - x, baseY, cz + z, cx + x, world, simpleBlocks);
 		if (x != 0 && z != 0) {
@@ -506,8 +482,8 @@ public class Road extends Structure {
 
 	public void addBlocksAbove(RoadBlock rb) {
 
-		/* Add blocks above the road, but do not save them in the Road structure. This prevents them from being saved but still allows us to look them up via
-		 * the bcoord hash so that we can prevent non-owners from placing blocks on the road. */
+		/* Add blocks above the road, but do not save them in the Road structure. This prevents them from being saved but still allows us to look
+		 * them up via the bcoord hash so that we can prevent non-owners from placing blocks on the road. */
 		for (int i = 1; i < Road.HEIGHT; i++) {
 			BlockCoord bcoord = new BlockCoord(rb.getCoord());
 			bcoord.setY(rb.getCoord().getY() + i);
@@ -539,16 +515,12 @@ public class Road extends Structure {
 	}
 
 	public void deleteRoadBlock(RoadBlock roadBlock) {
-		try {
-			roadBlock.delete();
+		roadBlock.delete();
 
-			if (this.roadBlocks.size() == 0) {
-				/* We're out of road blocks. This road is no more! */
-				CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_road_destroyed", this.getCorner()));
-				this.delete();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (this.roadBlocks.size() == 0) {
+			/* We're out of road blocks. This road is no more! */
+			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_road_destroyed", this.getCorner()));
+			this.delete();
 		}
 	}
 
@@ -621,15 +593,11 @@ public class Road extends Structure {
 
 	@Override
 	public void onDestroy() {
-		//can be overriden in subclasses.
+		// can be overriden in subclasses.
 		CivMessage.global(CivSettings.localize.localizedString("var_road_destroySuccess", this.getDisplayName(), this.getTown().getName()));
 		this.setHitpoints(0);
 		this.fancyDestroyConstructBlocks();
-		try {
-			this.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		this.delete();
 	}
 
 	public void fancyDestroyConstructBlocks() {
@@ -683,8 +651,7 @@ public class Road extends Structure {
 
 			// Each block has a 1% chance of launching an explosion effect
 			if (rand.nextInt(100) <= 1) {
-				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED)
-						.withTrail().withFlicker().build();
+				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
 				FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
 				for (int i = 0; i < 3; i++) {
 					try {

@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.threading.tasks;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
@@ -109,10 +108,11 @@ public class BuildAsyncTask extends CivAsyncTask {
 					extra_blocks--;
 					skipToNext = true;
 				}
-			} else if (count < this.blocks_per_tick) {
-				count++;
-				skipToNext = true;
-			}
+			} else
+				if (count < this.blocks_per_tick) {
+					count++;
+					skipToNext = true;
+				}
 
 			SimpleBlock sb = getSBlockRandom(buildable.getBlocksCompleted());
 
@@ -125,7 +125,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 					buildable.addConstructBlock(coord, sb.y != 0);
 				}
 			}
-			
+
 			if (skipToNext) continue;
 
 			Date now = new Date();
@@ -140,7 +140,8 @@ public class BuildAsyncTask extends CivAsyncTask {
 				if (!this.aborted) {
 					SyncBuildUpdateTask.queueSimpleBlock(sbs);
 					sbs.clear();
-				} else return aborted;
+				} else
+					return aborted;
 			}
 
 			try {
@@ -148,9 +149,11 @@ public class BuildAsyncTask extends CivAsyncTask {
 				if (nextPercentComplete > this.percent_complete) {
 					this.percent_complete = nextPercentComplete;
 					if ((this.percent_complete % 10 == 0)) {
-						if (this.buildable instanceof Wonder) CivMessage
-								.global(CivSettings.localize.localizedString("var_buildAsync_progressWonder", this.buildable.getDisplayName(), this.buildable.getTown().getName(), nextPercentComplete, this.buildable.getCiv().getName()));
-						else CivMessage.sendTown(buildable.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_progressOther", buildable.getDisplayName(), nextPercentComplete));
+						if (this.buildable instanceof Wonder)
+							CivMessage
+									.global(CivSettings.localize.localizedString("var_buildAsync_progressWonder", this.buildable.getDisplayName(), this.buildable.getTown().getName(), nextPercentComplete, this.buildable.getCiv().getName()));
+						else
+							CivMessage.sendTown(buildable.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_progressOther", buildable.getDisplayName(), nextPercentComplete));
 					}
 				}
 
@@ -206,8 +209,10 @@ public class BuildAsyncTask extends CivAsyncTask {
 		}
 
 		buildable.setComplete(true);
-		if (buildable instanceof Wonder) buildable.getTown().setCurrentWonderInProgress(null);
-		else buildable.getTown().setCurrentStructureInProgress(null);
+		if (buildable instanceof Wonder)
+			buildable.getTown().setCurrentWonderInProgress(null);
+		else
+			buildable.getTown().setCurrentStructureInProgress(null);
 		buildable.savedBlockCount = buildable.blocksCompleted;
 		buildable.updateBuildProgess();
 		buildable.save();
@@ -217,40 +222,39 @@ public class BuildAsyncTask extends CivAsyncTask {
 		buildable.postBuildSyncTask();
 		if (this.buildable instanceof Structure) {
 			CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completed", this.buildable.getTown().getName(), "§2" + this.buildable.getDisplayName() + CivColor.RESET));
-		} else if (this.buildable instanceof Wonder) {
-			CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completedWonder", CivColor.Red + this.buildable.getCiv().getName() + CivColor.RESET, "§6" + this.buildable.getTown().getName() + CivColor.RESET,
-					"§a" + this.buildable.getDisplayName() + CivColor.RESET));
-		}
+		} else
+			if (this.buildable instanceof Wonder) {
+				CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completedWonder", CivColor.Red + this.buildable.getCiv().getName() + CivColor.RESET, "§6" + this.buildable.getTown().getName() + CivColor.RESET,
+						"§a" + this.buildable.getDisplayName() + CivColor.RESET));
+			}
 		buildable.onComplete();
 		return false;
 	}
 
 	// -------------- getSimpleBlock__()------------
-//	private SimpleBlock getSBlockSpiral(int blockCount) {
-//		// посрока по спирали. на неквадратные постройки не работает
-//		int n = buildable.blocksCompleted % (tpl.size_x * tpl.size_z);
-//		int p = (int) Math.floor(Math.sqrt(n));
-//		int q = n - p * p;
-//		int k = (p % 2) * 2 - 1; // p парне, то -1, непарне, то 1
-//		int x = Math.floorDiv(p + 1, 2) * k;
-//		int z = -Math.floorDiv(p + 1, 2) * k + (p % 2);
-//		int y = (buildable.blocksCompleted / (tpl.size_x * tpl.size_z)); // bottom to top.
-//		if (q < p) {
-//			z = z + k * q;
-//		} else {
-//			x = x - k * (q - p);
-//			z = z + k * p;
-//		} // перенос координат из центра на угол
-//		x = x + (tpl.size_x + 1) / 2 - 1;
-//		z = z + (tpl.size_z + 1) / 2 - 1;
-//		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
-//		sb.buildable = buildable;
-//		return sb;
-//	}
+	// private SimpleBlock getSBlockSpiral(int blockCount) {
+	// // посрока по спирали. на неквадратные постройки не работает
+	// int n = buildable.blocksCompleted % (tpl.size_x * tpl.size_z);
+	// int p = (int) Math.floor(Math.sqrt(n));
+	// int q = n - p * p;
+	// int k = (p % 2) * 2 - 1; // p парне, то -1, непарне, то 1
+	// int x = Math.floorDiv(p + 1, 2) * k;
+	// int z = -Math.floorDiv(p + 1, 2) * k + (p % 2);
+	// int y = (buildable.blocksCompleted / (tpl.size_x * tpl.size_z)); // bottom to top.
+	// if (q < p) {
+	// z = z + k * q;
+	// } else {
+	// x = x - k * (q - p);
+	// z = z + k * p;
+	// } // перенос координат из центра на угол
+	// x = x + (tpl.size_x + 1) / 2 - 1;
+	// z = z + (tpl.size_z + 1) / 2 - 1;
+	// SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
+	// sb.buildable = buildable;
+	// return sb;
+	// }
 
-	/**
-	 * Возвращает ii-тое псевдо случайное число при максимальном max
-	 */
+	/** Возвращает ii-тое псевдо случайное число при максимальном max */
 	private static int getR(int ii, int max) {
 		int i = (ii < max) ? ii : (ii % max);
 		List<Integer> rm = Arrays.asList(85, 79, 44, 2, 342, 373, 496, 48, 321, 340, 330, 57, 213, 311, 201, 114, 403, 300, 182, 431, 488, 93, 358, 501, 16, 179, 362, 348, 30, 170, 457, 183, 426, 475, 132, 291, 80, 450, 499, 423, 464, 385,
@@ -289,18 +293,18 @@ public class BuildAsyncTask extends CivAsyncTask {
 		return sb;
 	}
 
-//	private SimpleBlock getSBlockOrig(int blockCount) {
-//		// 3D mailman algorithm...
-//		int y = (blockCount / (tpl.size_x * tpl.size_z)); // bottom to top.
-//		// int y = (tpl.size_y - (blockCount / (tpl.size_x*tpl.size_z))) - 1; //Top to
-//		// bottom
-//		int z = (blockCount / tpl.size_x) % tpl.size_z;
-//		int x = blockCount % tpl.size_x;
-//
-//		SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
-//		sb.buildable = buildable;
-//		return sb;
-//	}
+	// private SimpleBlock getSBlockOrig(int blockCount) {
+	// // 3D mailman algorithm...
+	// int y = (blockCount / (tpl.size_x * tpl.size_z)); // bottom to top.
+	// // int y = (tpl.size_y - (blockCount / (tpl.size_x*tpl.size_z))) - 1; //Top to
+	// // bottom
+	// int z = (blockCount / tpl.size_x) % tpl.size_z;
+	// int x = blockCount % tpl.size_x;
+	//
+	// SimpleBlock sb = new SimpleBlock(centerBlock, tpl.blocks[x][y][z]);
+	// sb.buildable = buildable;
+	// return sb;
+	// }
 
 	private boolean checkOtherWonderAlreadyBuilt() {
 		if (buildable.isComplete()) return false; // We are completed, other wonders are not already built.
@@ -331,11 +335,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 		}
 		// Remove the scaffolding..
 		tpl.removeScaffolding(buildable.getCorner().getLocation());
-		try {
-			((Wonder) buildable).delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		buildable.delete();
 		// }
 		// }
 		// TaskMaster.syncTask(new SyncTask());
@@ -347,7 +347,9 @@ public class BuildAsyncTask extends CivAsyncTask {
 		synchronized (this) {
 			this.extra_blocks = (int) (buildable.getBlocksPerHammer() * extra_hammers);
 			int blocks_left = buildable.getTotalBlock() - buildable.getBlocksCompleted();
-			if (this.extra_blocks > blocks_left) { leftover_hammers = (this.extra_blocks - blocks_left) / buildable.getBlocksPerHammer(); }
+			if (this.extra_blocks > blocks_left) {
+				leftover_hammers = (this.extra_blocks - blocks_left) / buildable.getBlocksPerHammer();
+			}
 		}
 		return leftover_hammers;
 	}

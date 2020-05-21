@@ -21,7 +21,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.exception.CivException;
@@ -36,9 +35,9 @@ public class TheHangingGardens extends Wonder {
 		super(rs);
 	}
 
-	public TheHangingGardens(Location center, String id, Town town)
+	public TheHangingGardens(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 
 	@Override

@@ -11,8 +11,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -23,8 +21,8 @@ public class Trommel extends Structure {
 	private int level = 1;
 	public Transmuter transmuter = new Transmuter(this);
 
-	public Trommel(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Trommel(String id, Town town) throws CivException {
+		super(id, town);
 		level = town.saved_trommel_level;
 	}
 
@@ -33,7 +31,7 @@ public class Trommel extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		transmuter.stop();
 		super.delete();
 	}

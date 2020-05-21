@@ -25,14 +25,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveConfirmScroll
 implements InteractiveResponse {
     @Override
-    public void respond(String message, Resident resident) {
-        Player player;
-        try {
-            player = CivGlobal.getPlayer(resident);
-        }
-        catch (CivException e) {
-            return;
-        }
+    public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
         if (!message.equalsIgnoreCase("yes")) {
             CivMessage.send((Object)player, CivSettings.localize.localizedString("interactive_scroll_cancel"));
             resident.clearInteractiveMode();

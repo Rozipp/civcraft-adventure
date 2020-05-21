@@ -21,16 +21,14 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class Granary extends Structure {
 
-	public Granary(Location center, String id, Town town)
+	public Granary(String id, Town town)
 			throws CivException {
-		super(center, id, town);
+		super(id, town);
 	}
 	
 	public Granary(ResultSet rs) throws SQLException, CivException {

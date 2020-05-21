@@ -32,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.config.ConfigTech;
+import com.avrgaming.civcraft.construct.CannonProjectile;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.construct.ConstructSign;
@@ -49,7 +50,6 @@ import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.siege.CannonProjectile;
 import com.avrgaming.civcraft.threading.tasks.UpdateTechBar;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -82,8 +82,8 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 	public ArrayList<BlockCoord> nextGoodieFramePoint = new ArrayList<BlockCoord>();
 	public ArrayList<Integer> nextGoodieFrameDirection = new ArrayList<Integer>();
 
-	public Townhall(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Townhall(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Townhall(ResultSet rs) throws SQLException, CivException {
@@ -91,7 +91,7 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		if (this.getTown() != null) {
 			/* Remove any protected item frames. */
 			for (ItemFrameStorage framestore : goodieFrames) {
@@ -678,7 +678,7 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		return this.controlPoints;
 	}
 
-	public void onCannonDamage(int damage, CannonProjectile projectile) throws CivException {
+	public void onCannonDamage(int damage, CannonProjectile projectile) {
 		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
 			return;
 		}

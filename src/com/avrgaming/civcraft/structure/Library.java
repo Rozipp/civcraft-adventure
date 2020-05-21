@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -140,8 +139,8 @@ public class Library extends Structure {
 		return "Fee: " + ((int) (getNonResidentFee() * 100) + "%").toString();
 	}
 
-	public Library(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Library(String id, Town town) throws CivException {
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 		setLevel(town.saved_library_level);

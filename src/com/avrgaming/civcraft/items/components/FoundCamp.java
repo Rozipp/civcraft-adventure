@@ -24,85 +24,90 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.ChoiseTemplate;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.interactive.InteractiveCampName;
+import com.avrgaming.civcraft.interactive.InteractiveGetName;
+import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
-
 import gpl.AttributeUtil;
 
 public class FoundCamp extends ItemComponent implements CallbackInterface {
 
+	private Player player;
+	private Resident resident;
+	private Camp camp;
+
 	@Override
 	public void onPrepareCreate(AttributeUtil attrUtil) {
-		attrUtil.addLore(ChatColor.RESET+CivColor.Gold+CivSettings.localize.localizedString("buildcamp_lore1"));
-		attrUtil.addLore(ChatColor.RESET+CivColor.Rose+CivSettings.localize.localizedString("itemLore_RightClickToUse"));		
-//TODO вернуть		attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
-		attrUtil.addLore(CivColor.Gold+CivSettings.localize.localizedString("itemLore_Soulbound"));
-	}
-	
-	public void foundCamp(Player player) throws CivException {
-		Resident resident = CivGlobal.getResident(player);
-		
-		if (resident.hasTown()) {
-			throw new CivException(CivSettings.localize.localizedString("buildcamp_hasTown"));
-		}
-		
-		if (resident.hasCamp()) {
-			throw new CivException(CivSettings.localize.localizedString("buildcamp_hascamp"));
-		}
-			
-		/*
-		 * Build a preview for the Capitol structure.
-		 */
-		CivMessage.send(player, CivColor.LightGreen+CivColor.BOLD+CivSettings.localize.localizedString("build_checking_position"));
-		ConfigBuildableInfo info = new ConfigBuildableInfo();
-		info.id = "camp";
-		info.displayName = "Camp";
-		info.ignore_floating = false;
-		info.template_name = "camp";
-		info.tile_improvement = false;
-		info.templateYShift = -1;
-		
-		BuildableStatic.buildVerifyStatic(player, info, player.getLocation(), this);
-	}
-	
-	public void onInteract(PlayerInteractEvent event) {
-		event.setCancelled(true);
-		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
-				!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-			return;
-		}
-		
-		try {
-			foundCamp(event.getPlayer());
-		} catch (CivException e) {
-			CivMessage.sendError(event.getPlayer(), e.getMessage());
-		}
-		return;
+		attrUtil.addLore(ChatColor.RESET + CivColor.Gold + CivSettings.localize.localizedString("buildcamp_lore1"));
+		attrUtil.addLore(ChatColor.RESET + CivColor.Rose + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
+		// TODO вернуть attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
+		attrUtil.addLore(CivColor.Gold + CivSettings.localize.localizedString("itemLore_Soulbound"));
 	}
 
 	@Override
-	public void execute(String playerName) {
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(playerName);
-		} catch (CivException e) {
+	public void onInteract(PlayerInteractEvent event) {
+		campName = null;
+		templateTheme = null;
+		event.setCancelled(true);
+		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			return;
 		}
-		Resident resident = CivGlobal.getResident(playerName);
-		
-		CivMessage.sendHeading(player, CivSettings.localize.localizedString("buildcamp_Heading"));
-		CivMessage.send(player, CivColor.LightGreen+CivSettings.localize.localizedString("buildcamp_prompt1"));
-		CivMessage.send(player, " ");
-		CivMessage.send(player, CivColor.LightGreen+ChatColor.BOLD+CivSettings.localize.localizedString("buildcamp_prompt2"));
-		CivMessage.send(player, CivColor.LightGray+CivSettings.localize.localizedString("build_cancel_prompt"));
-		
-		resident.setInteractiveMode(new InteractiveCampName());
+		player = event.getPlayer();
+		resident = CivGlobal.getResident(player);
+		try {
+			camp = Camp.newCamp(player, player.getLocation());
+			new ChoiseTemplate(player, camp, this);
+		} catch (CivException e) {
+			CivMessage.sendError(player, e.getMessage());
+		}
+	}
+
+	private String templateTheme = null;
+	private String campName = null;
+
+	@Override
+	public void execute(String... strings) {
+		if (templateTheme == null) {
+			templateTheme = strings[0];
+			CivMessage.sendHeading(player, CivSettings.localize.localizedString("buildcamp_Heading"));
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("buildcamp_prompt1"));
+			CivMessage.send(player, " ");
+			CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("buildcamp_prompt2"));
+			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
+
+			resident.setInteractiveMode(new InteractiveGetName());
+			return;
+		}
+
+		if (campName == null) {
+			campName = strings[0];
+			if (CivGlobal.getCamp(campName) != null) {
+				CivMessage.sendError(player, "(" + campName + ") " + CivSettings.localize.localizedString("camp_nameTaken"));
+				campName = null;
+				return;
+			}
+			CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
+			if (craftMat == null || !craftMat.hasComponent("FoundCamp")) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString("camp_missingItem"));
+				resident.clearInteractiveMode();
+				resident.undoPreview();
+				return;
+			}
+			resident.clearInteractiveMode();
+			resident.undoPreview();
+			this.setName(campName);
+			try {
+				camp.createCamp(player);
+			} catch (CivException e) {
+				CivMessage.sendError(player, e.getMessage());
+			}
+			return;
+		}
 	}
 }

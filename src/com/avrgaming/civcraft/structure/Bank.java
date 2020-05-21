@@ -48,7 +48,7 @@ public class Bank extends Structure {
 	private static final int EMERALD_BLOCK_SIGN = 7;
 
 	public Bank(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 		setLevel(town.saved_bank_level);

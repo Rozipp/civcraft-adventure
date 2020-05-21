@@ -37,8 +37,8 @@ extends Structure {
         super(rs);
     }
 
-    public Stable2(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+    public Stable2(String id, Town town) throws CivException {
+        super(id, town);
     }
 
     @Override

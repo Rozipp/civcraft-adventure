@@ -4,7 +4,6 @@ package com.avrgaming.civcraft.structure.wonders;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -15,8 +14,8 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class MoscowStateUni extends Wonder {
-	public MoscowStateUni(final Location center, final String id, final Town town) throws CivException {
-		super(center, id, town);
+	public MoscowStateUni(final String id, final Town town) throws CivException {
+		super(id, town);
 	}
 
 	public MoscowStateUni(final ResultSet rs) throws SQLException, CivException {

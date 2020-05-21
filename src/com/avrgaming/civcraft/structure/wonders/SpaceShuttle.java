@@ -41,14 +41,12 @@ import java.sql.ResultSet;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 
-import org.bukkit.Location;
-
 public class SpaceShuttle extends Wonder {
-	protected SpaceShuttle(final Location center, final String id, final Town town) throws CivException {
-		super(center, id, town);
+	protected SpaceShuttle(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
-	public SpaceShuttle(final ResultSet rs) throws SQLException, CivException {
+	public SpaceShuttle(ResultSet rs) throws SQLException, CivException {
 		super(rs);
 	}
 

@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
@@ -33,8 +32,8 @@ public class Temple extends Structure {
 
 	private ConsumeLevelComponent consumeComp = null;
 
-	public Temple(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Temple(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Temple(ResultSet rs) throws SQLException, CivException {
@@ -204,7 +203,7 @@ public class Temple extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		super.delete();
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();

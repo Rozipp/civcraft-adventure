@@ -26,22 +26,22 @@ import lombok.Getter;
 
 @Getter
 public class BlockCoord {
-	
+
 	private String worldname;
 	private int x;
 	private int y;
 	private int z;
-	
+
 	private Location location = null;
 	private boolean dirty = false;
-	
+
 	public BlockCoord(String worldname, int x, int y, int z) {
 		this.setWorldname(worldname);
 		this.setX(x);
 		this.setY(y);
 		this.setZ(z);
 	}
-	
+
 	public BlockCoord(Location location) {
 		this.setFromLocation(location);
 	}
@@ -80,9 +80,9 @@ public class BlockCoord {
 
 	public BlockCoord(ChunkCoord nextChunk) {
 		this.setWorldname(nextChunk.getWorldname());
-		this.setX((nextChunk.getX() * 16)+8);
+		this.setX((nextChunk.getX() * 16) + 8);
 		this.setY(64);
-		this.setZ((nextChunk.getZ() * 16)+8);
+		this.setZ((nextChunk.getZ() * 16) + 8);
 	}
 
 	public void setFromLocation(Location location) {
@@ -113,31 +113,34 @@ public class BlockCoord {
 		dirty = true;
 		this.z = z;
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.worldname+","+this.x+","+this.y+","+this.z;
+		return this.worldname + "," + this.x + "," + this.y + "," + this.z;
+	}
+	
+	public String toStringNotWorld() {
+		return this.x + "," + this.y + "," + this.z;
 	}
 
 	@Override
 	public int hashCode() {
 		return this.toString().hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof BlockCoord) {
-			BlockCoord otherCoord = (BlockCoord)other;
+			BlockCoord otherCoord = (BlockCoord) other;
 			if (otherCoord.worldname.equals(worldname)) {
-				if ((otherCoord.getX()) == x && (otherCoord.getY() == y) && 
-						(otherCoord.getZ() == z)) {
+				if ((otherCoord.getX()) == x && (otherCoord.getY() == y) && (otherCoord.getZ() == z)) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	public Location getLocation() {
 		if (location == null || dirty) {
 			location = new Location(Bukkit.getWorld(this.worldname), x, y, z);
@@ -150,51 +153,54 @@ public class BlockCoord {
 		return Bukkit.getWorld(this.worldname).getBlockAt(this.x, this.y, this.z);
 	}
 
+	public Block getBlockRelative(int x, int y, int z) {
+		return Bukkit.getWorld(this.worldname).getBlockAt(this.x + x, this.y + y, this.z + z);
+	}
+
+	public BlockCoord getRelative(int x, int y, int z) {
+		return new BlockCoord(getWorldname(), getX() + x, getY() + y, getZ() + z);
+	}
+
 	public ChunkCoord getChunkCoord() {
 		return new ChunkCoord(this);
 	}
+
 	public double distance(BlockCoord corner) {
 		return Math.sqrt(distanceSquared(corner));
 	}
-	
+
 	public double distanceXZ(BlockCoord corner) {
 		return Math.sqrt(distanceXZSquared(corner));
 	}
-	
+
 	public double distanceXZSquared(BlockCoord corner) {
 		double distance = Double.MAX_VALUE;
-		
+
 		if (!corner.getWorldname().equals(this.worldname)) {
 			return distance;
 		}
-		
-		distance = Math.pow(corner.getX() - this.getX(), 2) + 
-				   Math.pow(corner.getZ() - this.getZ(), 2);
+
+		distance = Math.pow(corner.getX() - this.getX(), 2) + Math.pow(corner.getZ() - this.getZ(), 2);
 		return distance;
 	}
-	
+
 	public double distanceSquared(BlockCoord corner) {
 		double distance = Double.MAX_VALUE;
-		
+
 		if (!corner.getWorldname().equals(this.worldname)) {
 			return distance;
 		}
-		
-		distance = Math.pow(corner.getX() - this.getX(), 2) + 
-				   Math.pow(corner.getY() - this.getY(), 2) +
-				   Math.pow(corner.getZ() - this.getZ(), 2);
-		
+
+		distance = Math.pow(corner.getX() - this.getX(), 2) + Math.pow(corner.getY() - this.getY(), 2) + Math.pow(corner.getZ() - this.getZ(), 2);
+
 		return distance;
 	}
 
 	public Location getCenteredLocation() {
-		/* 
-		 * Get a specialized location that is exactly centered in a single block.
-		 * This prevents the respawn algorithm from detecting the location as "in a wall" 
-		 * and searching upwards for a spawn point.
-		 */
-		Location loc = new Location(Bukkit.getWorld(this.worldname), (x+0.5), (y+0.5), (z+0.5));
+		/* Get a specialized location that is exactly centered in a single block. This prevents the respawn algorithm from detecting the location as
+		 * "in a wall" and searching upwards for a spawn point. */
+		Location loc = new Location(Bukkit.getWorld(this.worldname), (x + 0.5), (y + 0.5), (z + 0.5));
 		return loc;
 	}
-	
+
 }

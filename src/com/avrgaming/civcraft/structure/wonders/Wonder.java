@@ -27,38 +27,25 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Structure;
+import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
-public class Wonder extends Structure {
+public class Wonder extends Buildable {
 
 	public static String TABLE_NAME = "WONDERS";
 	private ConfigWonderBuff wonderBuffs = null;
 
 	public Wonder(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 		this.load(rs);
-
-		if (this.getHitpoints() == 0) {
-			this.delete();
-		}
+		if (this.getHitpoints() == 0) this.delete();
 	}
 
-	public Wonder(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Wonder(String id, Town town) throws CivException {
 		this.setInfo(CivSettings.wonders.get(id));
 		this.setSQLOwner(town);
-		this.setCorner(new BlockCoord(center));
-		this.setHitpoints(getInfo().max_hitpoints);
-
-		// Disallow duplicate structures with the same hash.
-		Wonder wonder = CivGlobal.getWonder(this.getCorner());
-		if (wonder != null) {
-			throw new CivException(CivSettings.localize.localizedString("wonder_alreadyExistsHere"));
-		}
 	}
 
 	public void loadSettings() {
@@ -93,7 +80,7 @@ public class Wonder extends Structure {
 			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for wonder " + this.getDisplayName() + " ID:" + this.getId());
 		}
 
-		this.setCorner(new BlockCoord(rs.getString("cornerBlockHash")));
+		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
 		this.setHitpoints(rs.getInt("hitpoints"));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 		this.setComplete(rs.getBoolean("complete"));
@@ -127,7 +114,7 @@ public class Wonder extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		super.delete();
 
 		if (this.wonderBuffs != null) {
@@ -136,7 +123,11 @@ public class Wonder extends Structure {
 			}
 		}
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		CivGlobal.removeWonder(this);
 	}
 
@@ -189,13 +180,8 @@ public class Wonder extends Structure {
 
 		this.unbindConstructBlocks();
 
-		try {
-			delete();
-			getTown().removeWonder(this);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
-		}
+		delete();
+		getTown().removeWonder(this);
 	}
 
 	@Override
@@ -245,25 +231,26 @@ public class Wonder extends Structure {
 		if (!CivGlobal.isCasualMode()) {
 			// can be overriden in subclasses.
 			CivMessage.global(CivSettings.localize.localizedString("var_wonder_destroyed", this.getDisplayName(), this.getTown().getName()));
-			try {
-				this.getTown().removeWonder(this);
-				this.fancyDestroyConstructBlocks();
-				this.unbindConstructBlocks();
-				this.delete();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			this.getTown().removeWonder(this);
+			this.fancyDestroyConstructBlocks();
+			this.unbindConstructBlocks();
+			this.delete();
 		}
 	}
 
-	public static Wonder newWonder(Location center, String id, Town town) throws CivException {
+	public static Wonder newWonder(Player player, Location location, String id, Town town) throws CivException {
+		Wonder wonder;
 		try {
-			return _newWonder(center, id, town, null);
+			wonder = _newWonder(location, id, town, null);
 		} catch (SQLException e) {
 			// should never happen
 			e.printStackTrace();
 			return null;
 		}
+		wonder.initDefaultTemplate(location);
+		town.checkIsTownCanBuildStructure(wonder);
+		wonder.checkBlockPermissionsAndRestrictions(player);
+		return wonder;
 	}
 
 	public static Wonder _newWonder(Location center, String id, Town town, ResultSet rs) throws CivException, SQLException {
@@ -271,147 +258,147 @@ public class Wonder extends Structure {
 		switch (id) {
 		case "w_pyramid":
 			if (rs == null) {
-				wonder = new TheGreatPyramid(center, id, town);
+				wonder = new TheGreatPyramid(id, town);
 			} else {
 				wonder = new TheGreatPyramid(rs);
 			}
 			break;
 		case "w_greatlibrary":
 			if (rs == null) {
-				wonder = new GreatLibrary(center, id, town);
+				wonder = new GreatLibrary(id, town);
 			} else {
 				wonder = new GreatLibrary(rs);
 			}
 			break;
 		case "w_oracle":
 			if (rs == null) {
-				wonder = new Oracle(center, id, town);
+				wonder = new Oracle(id, town);
 			} else {
 				wonder = new Oracle(rs);
 			}
 			break;
 		case "w_hanginggardens":
 			if (rs == null) {
-				wonder = new TheHangingGardens(center, id, town);
+				wonder = new TheHangingGardens(id, town);
 			} else {
 				wonder = new TheHangingGardens(rs);
 			}
 			break;
 		case "w_colossus":
 			if (rs == null) {
-				wonder = new TheColossus(center, id, town);
+				wonder = new TheColossus(id, town);
 			} else {
 				wonder = new TheColossus(rs);
 			}
 			break;
 		case "w_notre_dame":
 			if (rs == null) {
-				wonder = new NotreDame(center, id, town);
+				wonder = new NotreDame(id, town);
 			} else {
 				wonder = new NotreDame(rs);
 			}
 			break;
 		case "w_chichen_itza":
 			if (rs == null) {
-				wonder = new ChichenItza(center, id, town);
+				wonder = new ChichenItza(id, town);
 			} else {
 				wonder = new ChichenItza(rs);
 			}
 			break;
 		case "w_council_of_eight":
 			if (rs == null) {
-				wonder = new CouncilOfEight(center, id, town);
+				wonder = new CouncilOfEight(id, town);
 			} else {
 				wonder = new CouncilOfEight(rs);
 			}
 			break;
 		case "w_colosseum":
 			if (rs == null) {
-				wonder = new Colosseum(center, id, town);
+				wonder = new Colosseum(id, town);
 			} else {
 				wonder = new Colosseum(rs);
 			}
 			break;
 		case "w_globe_theatre":
 			if (rs == null) {
-				wonder = new GlobeTheatre(center, id, town);
+				wonder = new GlobeTheatre(id, town);
 			} else {
 				wonder = new GlobeTheatre(rs);
 			}
 			break;
 		case "w_great_lighthouse":
 			if (rs == null) {
-				wonder = new GreatLighthouse(center, id, town);
+				wonder = new GreatLighthouse(id, town);
 			} else {
 				wonder = new GreatLighthouse(rs);
 			}
 			break;
 		case "w_mother_tree":
 			if (rs == null) {
-				wonder = new MotherTree(center, id, town);
+				wonder = new MotherTree(id, town);
 			} else {
 				wonder = new MotherTree(rs);
 			}
 			break;
 		case "w_grand_ship_ingermanland":
 			if (rs == null) {
-				wonder = new GrandShipIngermanland(center, id, town);
+				wonder = new GrandShipIngermanland(id, town);
 			} else {
 				wonder = new GrandShipIngermanland(rs);
 			}
 			break;
 		case "w_battledome":
 			if (rs == null) {
-				wonder = new Battledome(center, id, town);
+				wonder = new Battledome(id, town);
 			} else {
 				wonder = new Battledome(rs);
 			}
 			break;
 		case "w_stock_exchange":
 			if (rs == null) {
-				wonder = new StockExchange(center, id, town);
+				wonder = new StockExchange(id, town);
 				break;
 			}
 			wonder = new StockExchange(rs);
 			break;
 		case "w_burj":
 			if (rs == null) {
-				wonder = new Burj(center, id, town);
+				wonder = new Burj(id, town);
 				break;
 			}
 			wonder = new Burj(rs);
 			break;
 		case "w_grandcanyon":
 			if (rs == null) {
-				wonder = new GrandCanyon(center, id, town);
+				wonder = new GrandCanyon(id, town);
 				break;
 			}
 			wonder = new GrandCanyon(rs);
 			break;
 		case "w_statue_of_zeus":
 			if (rs == null) {
-				wonder = new StatueOfZeus(center, id, town);
+				wonder = new StatueOfZeus(id, town);
 				break;
 			}
 			wonder = new StatueOfZeus(rs);
 			break;
 		case "w_space_shuttle":
 			if (rs == null) {
-				wonder = new SpaceShuttle(center, id, town);
+				wonder = new SpaceShuttle(id, town);
 				break;
 			}
 			wonder = new SpaceShuttle(rs);
 			break;
 		case "w_moscow_state_uni":
 			if (rs == null) {
-				wonder = new MoscowStateUni(center, id, town);
+				wonder = new MoscowStateUni(id, town);
 				break;
 			}
 			wonder = new MoscowStateUni(rs);
 			break;
 		case "w_neuschwanstein":
 			if (rs == null) {
-				wonder = new Neuschwanstein(center, id, town);
+				wonder = new Neuschwanstein(id, town);
 				break;
 			}
 			wonder = new Neuschwanstein(rs);

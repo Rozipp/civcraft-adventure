@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.components.ProjectileLightningComponent;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -24,9 +25,8 @@ public class TeslaTower extends Structure {
 
 	ProjectileLightningComponent teslaComponent;
 
-	public TeslaTower(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
-		this.setHitpoints(this.getMaxHitPoints());
+	public TeslaTower(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public TeslaTower(ResultSet rs) throws SQLException, CivException {
@@ -87,7 +87,8 @@ public class TeslaTower extends Structure {
 //	}
 
 	@Override
-	public void onCheckBlockPAR() throws CivException {
+	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
+		super.checkBlockPermissionsAndRestrictions(player);
 		try {
 			double build_distanceSqr = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.build_distance");
 			for (Town town : this.getTown().getCiv().getTowns()) {
@@ -99,13 +100,6 @@ public class TeslaTower extends Structure {
 							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToTeslaTower",
 									"" + center.getX() + "," + center.getY() + "," + center.getZ()));
 					}
-//					if (struct instanceof TeslaShip) {
-//						Location center = struct.getCenterLocation();
-//						double distanceSqr = center.distanceSquared(this.getCenterLocation());
-//						if (distanceSqr <= build_distanceSqr)
-//							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToTeslaShip",
-//									"" + center.getX() + "," + center.getY() + "," + center.getZ()));
-//					}
 				}
 			}
 		} catch (InvalidConfiguration e) {

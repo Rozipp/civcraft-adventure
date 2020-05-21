@@ -50,8 +50,8 @@ public class Capitol extends Townhall {
 		super(rs);
 	}
 
-	public Capitol(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Capitol(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	private RespawnLocationHolder getSelectedHolder() {

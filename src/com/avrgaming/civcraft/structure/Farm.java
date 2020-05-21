@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -40,8 +39,8 @@ public class Farm extends Structure {
 	private FarmChunk fc = null;
 	private double lastEffectiveGrowthRate = 0;
 
-	public Farm(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public Farm(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public Farm(ResultSet rs) throws SQLException, CivException {
@@ -50,7 +49,7 @@ public class Farm extends Structure {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		if (this.getCorner() != null) {
 			ChunkCoord coord = new ChunkCoord(this.getCorner().getLocation());
 			CivGlobal.removeFarmChunk(coord);
@@ -68,7 +67,11 @@ public class Farm extends Structure {
 		this.getTown().removeStructure(this);
 		this.unbindConstructBlocks();
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

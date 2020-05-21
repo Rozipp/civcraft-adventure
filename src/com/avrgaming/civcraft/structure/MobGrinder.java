@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Location;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -42,8 +41,8 @@ public class MobGrinder extends Structure {
 		T1, T2, T3, T4, PACK, BIGPACK, HUGEPACK
 	}
 
-	public MobGrinder(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+	public MobGrinder(String id, Town town) throws CivException {
+		super(id, town);
 	}
 
 	public MobGrinder(ResultSet rs) throws SQLException, CivException {

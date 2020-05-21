@@ -1,89 +1,47 @@
 package com.avrgaming.civcraft.loregui;
 
-import java.util.ArrayList;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.interactive.BuildCallback;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
-import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.tutorial.Book;
+import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.global.perks.Perk;
 
 public class BuildChooseTemplate implements GuiAction {
 
 	@Override
 	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player)event.getWhoClicked();
+		Player player = (Player) event.getWhoClicked();
+		player.closeInventory();
 		Resident resident = CivGlobal.getResident(player);
-		ConfigBuildableInfo sinfo = CivSettings.structures.get(LoreGuiItem.getActionData(stack, "info"));
-		Structure struct;
+		Town town = resident.getTown();
+		if (resident != null && resident.getTown() != null) {
+			if (resident.getSelectedTown() != null) {
+				try {
+					resident.getSelectedTown().validateResidentSelect(resident);
+				} catch (CivException e) {
+					CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_townDeselectedInvalid", resident.getSelectedTown().getName(), resident.getTown().getName()));
+					resident.setSelectedTown(resident.getTown());
+					town = resident.getTown();
+				}
+				town = resident.getSelectedTown();
+			}
+		}
 		try {
-			struct = Structure.newStructure(player.getLocation(), sinfo.id, resident.getTown());
+			String buildName = LoreGuiItem.getActionData(stack, "info");
+			ConfigBuildableInfo sinfo = CivSettings.structures.get(buildName);
+			if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildName);
+			new BuildCallback(player, sinfo, town);
 		} catch (CivException e) {
-			e.printStackTrace();
-			return;
+			CivMessage.sendError(player, e.getMessage());
 		}
-		
-		/* Look for any custom template perks and ask the player if they want to use them. */
-		ArrayList<Perk> perkList = struct.getTown().getTemplatePerks(struct, resident, struct.getInfo());		
-		ArrayList<Perk> personalUnboundPerks = resident.getUnboundTemplatePerks(perkList, struct.getInfo());
-		//if (perkList.size() != 0 || personalUnboundPerks.size() != 0) {
-			/* Store the pending buildable. */
-		resident.pendingBuildable = struct;
-		
-		/* Build an inventory full of templates to select. */
-		Inventory inv = Bukkit.getServer().createInventory(player, Book.MAX_CHEST_SIZE*9);
-		ItemStack infoRec = LoreGuiItem.build("Default "+struct.getDisplayName(), 
-				ItemManager.getMaterialId(Material.WRITTEN_BOOK), 
-				0, CivColor.Gold+CivSettings.localize.localizedString("loreGui_template_clickToBuild"));
-		infoRec = LoreGuiItem.setAction(infoRec, "BuildWithTemplate");
-		inv.addItem(infoRec);
-		
-		for (Perk perk : perkList) {
-			if (!perk.getConfigId().contains("template"))
-			{
-			infoRec = LoreGuiItem.build(perk.getDisplayName(), 
-					perk.configPerk.type_id, 
-					perk.configPerk.data, CivColor.Gold+CivSettings.localize.localizedString("loreGui_template_clickToBuild"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_providedBy")+" "+CivColor.LightBlue+perk.provider);
-			infoRec = LoreGuiItem.setAction(infoRec, "BuildWithTemplate");
-			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getConfigId());
-			inv.addItem(infoRec);
-			}
-		}
-		
-		for (Perk perk : personalUnboundPerks) {
-			if (!perk.getConfigId().contains("template"))
-			{
-			infoRec = LoreGuiItem.build(perk.getDisplayName(), 
-					CivData.BEDROCK, 
-					perk.configPerk.data, CivColor.Gold+CivSettings.localize.localizedString("loreGui_template_clickToBuild"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound2"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound3"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound4"),
-					CivColor.Gray+CivSettings.localize.localizedString("loreGui_template_unbound5"));				
-			infoRec = LoreGuiItem.setAction(infoRec, "ActivatePerk");
-			infoRec = LoreGuiItem.setActionData(infoRec, "perk", perk.getConfigId());
-			inv.addItem(infoRec);
-			}
-		}
-		
-		TaskMaster.syncTask(new OpenInventoryTask(player, inv));
-		return;		
 	}
 }

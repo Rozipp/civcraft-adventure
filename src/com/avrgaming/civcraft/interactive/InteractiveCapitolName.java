@@ -34,14 +34,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveCapitolName implements InteractiveResponse {
 
 	@Override
-	public void respond(String message, Resident resident) {
-		
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(resident);
-		} catch (CivException e) {
-			return;
-		}
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 
 		if (message.equalsIgnoreCase("cancel")) {
 			CivMessage.send(player, CivSettings.localize.localizedString("interactive_capitol_cancel"));
@@ -58,8 +52,8 @@ public class InteractiveCapitolName implements InteractiveResponse {
 		message = message.replace("\"", "");
 		message = message.replace("\'", "");
 		
-		resident.desiredCapitolName = message;
-		CivMessage.send(player, CivColor.LightGreen+CivSettings.localize.localizedString("var_interactive_capitol_confirm1",CivColor.Yellow+resident.desiredCivName+CivColor.LightGreen,CivColor.Yellow+resident.desiredCapitolName+CivColor.LightGreen));
+//		resident.desiredCapitolName = message;
+//		CivMessage.send(player, CivColor.LightGreen+CivSettings.localize.localizedString("var_interactive_capitol_confirm1",CivColor.Yellow+resident.desiredCivName+CivColor.LightGreen,CivColor.Yellow+resident.desiredCapitolName+CivColor.LightGreen));
 		CivMessage.sendHeading(player, CivSettings.localize.localizedString("interactive_capitol_confirmSurvey"));
 		
 		class SyncTask implements Runnable {
