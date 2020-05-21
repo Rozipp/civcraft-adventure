@@ -36,6 +36,8 @@ public class InteractiveGetName implements InteractiveResponse {
 
 		if (message.equalsIgnoreCase("cancel") || message.equalsIgnoreCase("сфтсуд") || message.startsWith("/")) {
 			//FIXME Оставить чтото одно
+			CivMessage.send(player, CivSettings.localize.localizedString("interactive_capitol_cancel"));
+			CivMessage.send(player, CivSettings.localize.localizedString("interactive_civ_cancel"));
 			CivMessage.send(player, CivSettings.localize.localizedString("interactive_town_cancelled"));
 			CivMessage.send(player, "§c" + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_camp_invalid"));
 			resident.clearInteractiveMode();
@@ -44,6 +46,8 @@ public class InteractiveGetName implements InteractiveResponse {
 
 		if (!StringUtils.isAlpha(message) || !StringUtils.isAsciiPrintable(message)) {
 			//FIXME Оставить чтото одно
+			CivMessage.send(player, CivColor.Rose+ChatColor.BOLD+CivSettings.localize.localizedString("interactive_capitol_invalidname"));
+			CivMessage.send(player, CivColor.RoseBold + CivSettings.localize.localizedString("interactive_civ_invalid"));
 			CivMessage.send(player, CivColor.Rose + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_town_nameInvalid"));
 			CivMessage.send(player, CivSettings.localize.localizedString("interactive_camp_cancel"));
 			return;

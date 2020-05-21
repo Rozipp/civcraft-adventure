@@ -337,8 +337,7 @@ public class UnitObject extends SQLObject {
 		return UnitStatic.getUnit(this.configUnitId);
 	}
 
-	public boolean validateUnitUse(Player player, ItemStack stack) {
-		if (stack == null) return false;
+	public boolean validateUnitUse(Player player) {
 		Resident resident = CivGlobal.getResident(player);
 		if (this.townOwner == null) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorInvalidOwner"));

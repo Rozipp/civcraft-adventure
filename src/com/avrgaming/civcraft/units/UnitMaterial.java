@@ -109,7 +109,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 			event.setCancelled(true);
 			return;
 		}
-
+		
 		if (resident.isUnitActive()) {
 			// Деактивация юнита
 			resident.setUnitObjectId(0);
@@ -117,9 +117,11 @@ public abstract class UnitMaterial extends CustomMaterial {
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
 			if (!uo.validLastHashCode(event.getItem())) {
 				event.getPlayer().getInventory().remove(event.getItem());
-			} else uo.used(resident, event.getItem());
+			} else
+				uo.used(resident, event.getItem());
 		} else {
 			// Активация юнита
+			uo.validateUnitUse(player);
 			if (!uo.validLastHashCode(event.getItem())) {
 				UnitStatic.removeUnit(player, uo.getConfigUnitId());
 				CivMessage.send(player, "Вы уже давно не использовали этого юнита, потому он вернулся в бараки");
@@ -222,13 +224,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 				player.updateInventory();
 				return;
 			}
-			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок этого юнита
-				CivMessage.sendError(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
-				event.setCancelled(true);
-				event.setResult(Result.DENY);
-				player.updateInventory();
-				return;
-			}
 			// if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
 			uo.used(CivGlobal.getResident(player), stack);
 			onItemToPlayer(player, stack);
@@ -253,13 +248,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 			UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
 			if (uo == null) {
 				CivMessage.sendErrorNoRepeat(player, "Юнит нерабочий");
-				event.setCancelled(true);
-				event.setResult(Result.DENY);
-				player.updateInventory();
-				return;
-			}
-			if (!uo.validateUnitUse(player, stack)) { // если ложим игроку то проверяем, может ли носить этот игрок этого юнита
-				CivMessage.sendError(player, CivSettings.localize.localizedString("unitMaterial_errorWrongCiv"));
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				player.updateInventory();

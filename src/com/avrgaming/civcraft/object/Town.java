@@ -352,63 +352,66 @@ public class Town extends SQLObject {
 	}
 
 	@Override
-	public void delete() throws SQLException {
-
-		/* Remove all our Groups */
-		for (PermissionGroup grp : this.groups.values()) {
-			grp.delete();
-		}
-
-		/* Remove all of our residents from town. */
-		for (Resident resident : this.residents.values()) {
-			resident.setTown(null);
-			/* Also forgive their debt, nobody to pay it to. */
-			resident.getTreasury().setDebt(0);
-			resident.saveNow();
-		}
-
-		TagManager.editNameTag(this);
-		/* Remove all structures in the town. */
-		if (this.structures != null) {
-			for (Structure struct : this.structures.values()) {
-				struct.delete();
+	public void delete() {
+		try {
+			/* Remove all our Groups */
+			for (PermissionGroup grp : this.groups.values()) {
+				grp.delete();
 			}
-		}
 
-		/* Remove all town chunks. */
-		if (this.getTownChunks() != null) {
-			for (TownChunk tc : this.getTownChunks()) {
-				tc.delete();
+			/* Remove all of our residents from town. */
+			for (Resident resident : this.residents.values()) {
+				resident.setTown(null);
+				/* Also forgive their debt, nobody to pay it to. */
+				resident.getTreasury().setDebt(0);
+				resident.saveNow();
 			}
-		}
 
-		if (this.wonders != null) {
-			for (Wonder wonder : wonders.values()) {
-				wonder.unbindConstructBlocks();
-				try {
-					wonder.undoFromTemplate();
-				} catch (IOException | CivException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					wonder.fancyDestroyConstructBlocks();
+			TagManager.editNameTag(this);
+			/* Remove all structures in the town. */
+			if (this.structures != null) {
+				for (Structure struct : this.structures.values()) {
+					struct.delete();
 				}
-				wonder.delete();
 			}
-		}
 
-		if (this.cultureChunks != null) {
-			for (CultureChunk cc : this.cultureChunks.values()) {
-				CivGlobal.removeCultureChunk(cc);
+			/* Remove all town chunks. */
+			if (this.getTownChunks() != null) {
+				for (TownChunk tc : this.getTownChunks()) {
+					tc.delete();
+				}
 			}
+
+			if (this.wonders != null) {
+				for (Wonder wonder : wonders.values()) {
+					wonder.unbindConstructBlocks();
+					try {
+						wonder.undoFromTemplate();
+					} catch (IOException | CivException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						wonder.fancyDestroyConstructBlocks();
+					}
+					wonder.delete();
+				}
+			}
+
+			if (this.cultureChunks != null) {
+				for (CultureChunk cc : this.cultureChunks.values()) {
+					CivGlobal.removeCultureChunk(cc);
+				}
+			}
+			this.cultureChunks = null;
+
+			/* Remove any related SessionDB entries */
+			CivGlobal.getSessionDatabase().deleteAllForTown(this);
+
+			getCiv().removeTown(this);
+			CivGlobal.removeTown(this);
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		this.cultureChunks = null;
-
-		/* Remove any related SessionDB entries */
-		CivGlobal.getSessionDatabase().deleteAllForTown(this);
-
-		civ.addTown(this);
-		CivGlobal.removeTown(this);
-		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	public Town(Civilization civ) {
@@ -857,16 +860,18 @@ public class Town extends SQLObject {
 		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("town_found_errorIncamp"));
 		if (resident.getTown() != null && resident.getTown().isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("var_town_found_errorIsMayor", resident.getTown().getName()));
 
-		if (getCiv() == null) throw new CivException(CivSettings.localize.localizedString("town_found_errorNotInCiv"));
-		if (War.isWarTime() && getCiv().getDiplomacyManager().isAtWar()) throw new CivException(CivSettings.localize.localizedString("town_found_errorAtWar"));
-		Double costTown = 10000.0 * (getCiv().getTownCount()); // TODO для основания города в казне цивилизации должно быть
-		if (!getCiv().getTreasury().hasEnough(costTown)) throw new CivException("TODO для основания города в казне цивилизации должно быть " + costTown + " коинов");
-
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("town_found_errorAtWar"));
+		if (getCiv() != null) {
+			Double costTown = 10000.0 * (getCiv().getTownCount()); // TODO для основания города в казне цивилизации должно быть
+			if (!getCiv().getTreasury().hasEnough(costTown)) throw new CivException("TODO для основания города в казне цивилизации должно быть " + costTown + " коинов");
+		}
 		double minDistanceFriendSqr;
 		double minDistanceEnemySqr;
+		double min_distanceSqr;
 		try {
 			minDistanceFriendSqr = Math.pow(CivSettings.getDouble(CivSettings.townConfig, "town.min_town_distance"), 2);
 			minDistanceEnemySqr = Math.pow(CivSettings.getDouble(CivSettings.townConfig, "town.min_town_distance_enemy"), 2);
+			min_distanceSqr = Math.pow(CivSettings.getInteger(CivSettings.civConfig, "civ.min_distance"), 2);
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalException"));
@@ -878,14 +883,19 @@ public class Town extends SQLObject {
 
 			double distSqr = loc2.distanceSquared(structure.getCenterLocation());
 			double minDistanceSqr;
-			if (town.getCiv().getDiplomacyManager().atWarWith(civ)) {
-				minDistanceSqr = minDistanceEnemySqr;
-			} else
+			if (town.getCiv().equals(getCiv())) {
 				minDistanceSqr = minDistanceFriendSqr;
+			} else
+				minDistanceSqr = minDistanceEnemySqr;
 
 			if (distSqr < minDistanceSqr) {
 				DecimalFormat df = new DecimalFormat("###.##");
-				throw new CivException(CivSettings.localize.localizedString("var_town_found_errorTooClose", town.getName(), df.format(Math.sqrt(distSqr)), minDistanceSqr));
+				throw new CivException(CivSettings.localize.localizedString("var_town_found_errorTooClose", town.getName(), df.format(Math.sqrt(distSqr)), Math.sqrt(minDistanceSqr)));
+			}
+			// TODO не придумал как зделать и города, и столици в одной проверке
+			if (distSqr <= min_distanceSqr) {
+				DecimalFormat df = new DecimalFormat();
+				throw new CivException(CivSettings.localize.localizedString("var_civ_found_errorTooClose1", town.getCiv().getName(), df.format(Math.sqrt(distSqr)), Math.sqrt(min_distanceSqr)));
 			}
 		}
 	}
@@ -2581,16 +2591,6 @@ public class Town extends SQLObject {
 		}
 	}
 
-	public void disband() {
-		getCiv().removeTown(this);
-		TagManager.editNameTag(this);
-		try {
-			delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public boolean touchesCapitolCulture(HashSet<Town> closedSet) {
 		if (this.isCapitol()) {
 			return true;
@@ -2625,7 +2625,7 @@ public class Town extends SQLObject {
 
 		if (daysInDebt >= CivSettings.TOWN_DEBT_GRACE_DAYS) {
 			if (daysInDebt >= CivSettings.TOWN_DEBT_SELL_DAYS) {
-				this.disband();
+				this.delete();
 				CivMessage.global(CivSettings.localize.localizedString("var_town_ruin1", this.getName()));
 				return;
 			}

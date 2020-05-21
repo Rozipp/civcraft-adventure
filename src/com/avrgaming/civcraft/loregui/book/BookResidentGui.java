@@ -13,13 +13,11 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
@@ -57,7 +55,7 @@ implements GuiAction {
         backButton = LoreGuiItem.setActionData(backButton, "invName", Book.guiInventory.getName());
         guiInventory.setItem(8, backButton);
         LoreGuiItemListener.guiInventories.put(guiInventory.getName(), guiInventory);
-        TaskMaster.syncTask(new OpenInventoryTask(player, guiInventory));
+        player.openInventory(guiInventory);
     }
 }
 

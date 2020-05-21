@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.interactive.FoundTownCallback;
+import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 
 import gpl.AttributeUtil;
@@ -49,6 +50,9 @@ public class Settler extends UnitMaterial {
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		event.setCancelled(true);
+		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(event.getItem()));
+		uo.validateUnitUse(event.getPlayer());
+		
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
 		try {

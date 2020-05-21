@@ -20,7 +20,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
@@ -81,7 +80,7 @@ implements GuiAction {
         backButton = LoreGuiItem.setActionData(backButton, "invName", inv.getName());
         inv.setItem(53, backButton);
         LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-        TaskMaster.syncTask(new OpenInventoryTask(player, inv));
+        player.openInventory(inv);
     }
 }
 

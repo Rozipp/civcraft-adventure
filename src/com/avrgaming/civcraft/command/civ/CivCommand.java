@@ -350,7 +350,7 @@ public class CivCommand extends CommandBase {
 		if (town.leaderWantsToDisband && town.mayorWantsToDisband) {
 			CivMessage.sendCiv(town.getCiv(),
 					CivSettings.localize.localizedString("var_cmd_civ_disbandtownSuccess", town.getName()));
-			town.disband();
+			town.delete();
 		}
 
 		CivMessage.send(sender, CivColor.Yellow + CivSettings.localize.localizedString("cmd_civ_disbandtownPrompt"));

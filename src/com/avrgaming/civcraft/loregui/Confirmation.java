@@ -13,7 +13,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.loregui.GuiAction;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class Confirmation
@@ -34,7 +33,7 @@ implements GuiAction {
         cancel = LoreGuiItem.setAction(cancel, "CloseInventory");
         inv.setItem(15, cancel);
         LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-        TaskMaster.syncTask(new OpenInventoryTask((Player)event.getWhoClicked(), inv));
+        ((Player)event.getWhoClicked()).openInventory(inv);
     }
 }
 

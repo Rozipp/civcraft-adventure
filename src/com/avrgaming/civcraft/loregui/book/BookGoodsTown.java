@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -20,7 +19,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
@@ -61,7 +59,7 @@ implements GuiAction {
         backButton = LoreGuiItem.setActionData(backButton, "invName", BookGoodsGui.guiInventory.getName());
         listInventory.setItem(8, backButton);
         LoreGuiItemListener.guiInventories.put(listInventory.getName(), listInventory);
-        TaskMaster.syncTask(new OpenInventoryTask(player, listInventory));
+        player.openInventory(listInventory);
     }
 }
 

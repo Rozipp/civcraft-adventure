@@ -21,8 +21,6 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.bukkit.Location;
-
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;

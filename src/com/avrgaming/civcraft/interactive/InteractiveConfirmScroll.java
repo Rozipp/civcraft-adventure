@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.interactive.InteractiveResponse;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;

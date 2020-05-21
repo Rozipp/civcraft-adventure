@@ -22,7 +22,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -182,7 +181,7 @@ public class GuiPage {
 		is = LoreGuiItem.setAction(is, "WondersGui");
 		inv.setItem(53, is);
 		LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-		TaskMaster.syncTask(new OpenInventoryTask(player, inv));
+		player.openInventory(inv);
 	}
 
 	public static void showUpgradePage(Resident resident) throws CivException {
@@ -361,7 +360,7 @@ public class GuiPage {
 		backButton = LoreGuiItem.setActionData(backButton, "invName", BookShowPerkGui.inv.getName());
 		inv.setItem(53, backButton);
 		LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-		TaskMaster.syncTask(new OpenInventoryTask(player, inv));
+		player.openInventory(inv);
 	}
 	
 }

@@ -12,11 +12,9 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigSpaceRocket;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class CivSpaceComponents
@@ -43,7 +41,7 @@ implements GuiAction {
         backButton = LoreGuiItem.setActionData(backButton, "invName", fromEnded ? BookCivSpaceEnded.guiInventory.getName() : BookCivSpaceFuture.guiInventory.getName());
         guiInventory.setItem(8, backButton);
         LoreGuiItemListener.guiInventories.put(guiInventory.getName(), guiInventory);
-        TaskMaster.syncTask(new OpenInventoryTask(player, guiInventory));
+        player.openInventory(guiInventory);
     }
 }
 

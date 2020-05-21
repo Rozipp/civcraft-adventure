@@ -144,23 +144,14 @@ public class Civilization extends SQLObject {
 	private Set<Cave> disputedCave = new HashSet<Cave>();
 	private Set<Cave> takedCave = new HashSet<Cave>();
 
-	public Civilization(String name, String capitolName, String tag, Resident leader) throws InvalidNameException {
-		this.setName(name);
+	public Civilization(Resident leader) {
 		this.leaderName = leader.getUid().toString();
-		this.setCapitolName(capitolName);
-		this.setTag(tag);
 		this.government = CivSettings.governments.get("gov_tribalism");
 		this.color = this.pickCivColor();
 		this.setTreasury(CivGlobal.createEconObject(this));
 		this.getTreasury().setBalance(0, false);
-		this.created_date = new Date();
 		this.ownerName = leader.getUid().toString();
 		this.loadSettings();
-		try {
-			this.saveNow();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public Civilization(ResultSet rs) throws SQLException, InvalidNameException {
@@ -547,9 +538,9 @@ public class Civilization extends SQLObject {
 	public void addTown(Town town) {
 		towns.put(town.getName().toLowerCase(), town);
 	}
-	
+
 	public void removeTown(Town town) {
-		towns.put(town.getName().toLowerCase(), town);
+		towns.remove(town.getName().toLowerCase());
 	}
 
 	public int getTownCount() {
@@ -560,94 +551,61 @@ public class Civilization extends SQLObject {
 		return (this.incomeTaxRate * 100) + "%";
 	}
 
-	public static void newCiv(String name, String capitolName, String tag, Resident resident, Player player, Location loc) throws CivException {
-		ItemStack stack = player.getInventory().getItemInMainHand();
-		/* Verify we have the correct item somewhere in our inventory. */
-		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) {
-			throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
-		}
-		if (CivGlobal.getCiv(name) != null || CivGlobal.getConqueredCiv(name) != null) {
-			throw new CivException(CivSettings.localize.localizedString("var_civ_found_civExists", name));
-		}
-		if (CivGlobal.getTown(capitolName) != null) {
-			throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", capitolName));
-		}
-		if (CivGlobal.anybodyHasTag(tag)) {
-			throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
-		}
-		if (resident.hasCamp()) {
-			throw new CivException(CivSettings.localize.localizedString("civ_found_mustleavecamp"));
-		}
-
-		// Test that we are not too close to another civ
+	public void createCiv(Player player, Town town, Structure structure) throws CivException {
+		Resident resident = CivGlobal.getResident(player);
+		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
+		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
 		try {
-			int min_distance = CivSettings.getInteger(CivSettings.civConfig, "civ.min_distance");
-			double min_distanceSqr = Math.pow(min_distance, 2);
-			ChunkCoord foundLocation = new ChunkCoord(loc);
-
-			for (CultureChunk cc : CivGlobal.getCultureChunks()) {
-				double distSqr = foundLocation.distanceSqr(cc.getChunkCoord());
-				if (distSqr <= min_distanceSqr) {
-					DecimalFormat df = new DecimalFormat();
-					throw new CivException(CivSettings.localize.localizedString("var_civ_found_errorTooClose1", cc.getCiv().getName(), df.format(Math.sqrt(distSqr)), min_distance));
-				}
-			}
-		} catch (InvalidConfiguration e1) {
-			e1.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalException"));
-		}
-
-		try {
-			Civilization civ = new Civilization(name, capitolName, tag, resident);
 			try {
-				civ.saveNow();
+				this.saveNow();
 			} catch (SQLException e) {
 				CivLog.error("Caught exception:" + e.getMessage() + " error code:" + e.getErrorCode());
 				if (e.getMessage().contains("Duplicate entry")) {
-					SQL.deleteByName(name, TABLE_NAME);
+					SQL.deleteByName(getName(), TABLE_NAME);
 					throw new CivException(CivSettings.localize.localizedString("civ_found_databaseException"));
 				}
 			}
 
 			// Create permission groups for civs.
-			PermissionGroup leadersGroup = new PermissionGroup(civ, "leaders");
-			leadersGroup.addMember(resident);
-			leadersGroup.saveNow();
-			civ.setLeaderGroup(leadersGroup);
+			try {
+				PermissionGroup leadersGroup;
+				leadersGroup = new PermissionGroup(this, "leaders");
+				leadersGroup.addMember(resident);
+				leadersGroup.saveNow();
+				this.setLeaderGroup(leadersGroup);
 
-			PermissionGroup adviserGroup = new PermissionGroup(civ, "advisers");
-			adviserGroup.saveNow();
-			civ.setAdviserGroup(adviserGroup);
+				PermissionGroup adviserGroup = new PermissionGroup(this, "advisers");
+				adviserGroup.saveNow();
+				this.setAdviserGroup(adviserGroup);
 
-			PermissionGroup ownerGroup = new PermissionGroup(civ, "owner");
-			ownerGroup.addMember(resident);
-			ownerGroup.saveNow();
-			civ.setOwnerGroup(ownerGroup);
+				PermissionGroup ownerGroup = new PermissionGroup(this, "owner");
+				ownerGroup.addMember(resident);
+				ownerGroup.saveNow();
+				this.setOwnerGroup(ownerGroup);
 
-			/* Save this civ in the db and hashtable. */
-//			try {
-//				Town.newTown(resident, capitolName, civ, true, loc);
-//			} catch (CivException | SQLException e) {
-//				civ.delete();
-//				leadersGroup.delete();
-//				adviserGroup.delete();
-//				CivLog.error("Caught exception:" + e.getMessage());
-//				if (e.getMessage().contains("Duplicate entry")) {
-//					SQL.deleteByName(name, TABLE_NAME);
-//					throw new CivException(CivSettings.localize.localizedString("town_found_databaseException"));
-//				}
-//				throw new CivException(e.getMessage());
-//			}
-
-			CivGlobal.addCiv(civ);
-			ItemStack newStack = new ItemStack(Material.AIR);
-			player.getInventory().setItemInMainHand(newStack);
-			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", civ.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", civ.getCapitolName(), player.getName()));
-			civ.saveNow();
+				/* Save this civ in the db and hashtable. */
+				try {
+					town.setCiv(this);
+					town.createTown(resident, structure);
+				} catch (CivException e) {
+					this.delete();
+					leadersGroup.delete();
+					adviserGroup.delete();
+					CivLog.error("Caught exception:" + e.getMessage());
+					if (e.getMessage().contains("Duplicate entry")) {
+						SQL.deleteByName(getName(), TABLE_NAME);
+						throw new CivException(CivSettings.localize.localizedString("town_found_databaseException"));
+					}
+					throw new CivException(e.getMessage());
+				}
+			} catch (InvalidNameException e) {
+				e.printStackTrace();
+			}
+			CivGlobal.addCiv(this);
+			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", this.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", this.getCapitolName(), player.getName()));
+			this.saveNow();
+			player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 			TagManager.editNameTag(player);
-		} catch (InvalidNameException e) {
-			throw new CivException(CivSettings.localize.localizedString("var_civ_found_invalidName", name));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
@@ -2226,6 +2184,15 @@ public class Civilization extends SQLObject {
 		}
 		this.caveStatuses.put(cave.getId(), cs);
 		this.save();
+	}
+
+	public void checkCanCreatedCiv(Player player) throws CivException {
+		ItemStack stack = player.getInventory().getItemInMainHand();
+		/* Verify we have the correct item somewhere in our inventory. */
+		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
+		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
+		if (CivGlobal.getTown(capitolName) != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", capitolName));
+		if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
 	}
 
 }

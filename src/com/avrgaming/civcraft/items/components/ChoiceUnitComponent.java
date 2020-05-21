@@ -13,14 +13,12 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.ConfigUnitComponent;
 import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.units.UnitStatic;
@@ -130,7 +128,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 		}
 
 		LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-		TaskMaster.syncTask(new OpenInventoryTask(player, inv));
+		player.openInventory(inv);
 	}
 
 	public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {

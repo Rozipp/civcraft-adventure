@@ -263,19 +263,6 @@ public class Capitol extends Townhall {
 	}
 
 	@Override
-	public boolean isValid() {
-		if (this.isPartOfAdminCiv()) return true;
-
-		/* Validate that all of the towns in our civ have town halls. If not, then we need to punish by increasing respawn times. */
-		for (Town town : this.getCiv().getTowns()) {
-			Townhall townhall = town.getTownHall();
-			if (townhall == null) return false;
-		}
-
-		return super.isValid();
-	}
-
-	@Override
 	public String getRespawnName() {
 		return "Capitol\n" + this.getTown().getName();
 	}

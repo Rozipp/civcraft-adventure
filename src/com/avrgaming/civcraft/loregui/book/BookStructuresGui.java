@@ -14,7 +14,6 @@ import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -22,7 +21,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
@@ -98,7 +96,7 @@ implements GuiAction {
         wonderButton = LoreGuiItem.setAction(wonderButton, "BookWondersGui");
         inv.setItem(52, wonderButton);
         LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-        TaskMaster.syncTask(new OpenInventoryTask(player, inv));
+        player.openInventory(inv);
     }
 }
 

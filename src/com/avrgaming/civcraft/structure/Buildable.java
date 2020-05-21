@@ -23,7 +23,6 @@ import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
@@ -390,6 +389,7 @@ public abstract class Buildable extends Construct {
 		this.valid = this.isPartOfAdminCiv() || b;
 	}
 
+	@Override
 	public boolean isValid() {
 		return isPartOfAdminCiv() || valid;
 	}

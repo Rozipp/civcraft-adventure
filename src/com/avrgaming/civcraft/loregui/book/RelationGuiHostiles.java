@@ -12,14 +12,12 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.loregui.OpenInventoryTask;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Relation;
-import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class RelationGuiHostiles
@@ -43,7 +41,7 @@ implements GuiAction {
         backButton = LoreGuiItem.setActionData(backButton, "invName", BookRelationsGui.inventory.getName());
         inventory.setItem(53, backButton);
         LoreGuiItemListener.guiInventories.put(inventory.getName(), inventory);
-        TaskMaster.syncTask(new OpenInventoryTask((Player)event.getWhoClicked(), inventory));
+       ((Player)event.getWhoClicked()).openInventory(inventory);
     }
 }
 

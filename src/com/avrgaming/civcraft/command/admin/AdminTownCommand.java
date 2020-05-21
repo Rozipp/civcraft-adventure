@@ -441,7 +441,7 @@ public class AdminTownCommand extends CommandBase {
 		}
 
 		CivMessage.sendTown(town, CivSettings.localize.localizedString("adcmd_town_disbandBroadcast"));
-		town.disband();
+		town.delete();
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_disbandSuccess"));
 	}
