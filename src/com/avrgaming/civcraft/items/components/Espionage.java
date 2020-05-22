@@ -3,6 +3,7 @@ package com.avrgaming.civcraft.items.components;
 import java.util.Date;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMission;
 import com.avrgaming.civcraft.exception.CivException;
@@ -23,7 +24,7 @@ import gpl.AttributeUtil;
 public class Espionage extends ItemComponent {
 
 	@Override
-	public void onPrepareCreate(AttributeUtil attrs) {
+	public void onPrepareCreate(AttributeUtil attrUtil) {
 	}
 
 	public void onInteract(PlayerInteractEvent event) {

@@ -9,11 +9,11 @@ public class EnchantmentDefense extends CustomEnchantment {
 	public static Double defensePerLevel = 1.0;
 
 	public EnchantmentDefense(int i) {
-		super(i, "Defense", ItemSet.ARMOR, 100, null);
+		super(i, "defense", CivSettings.localize.localizedString("itemLore_Defense"), ItemSet.ARMOR, 100, null);
 	}
 
 	public String getDisplayName(int level) {
-		return ChatColor.RED + CivSettings.localize.localizedString("newItemLore_Defense") + " +" + defensePerLevel * level;
+		return ChatColor.RED + this.displayName+ " +" + defensePerLevel * level;
 	}
 
 }

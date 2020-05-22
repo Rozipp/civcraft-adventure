@@ -129,6 +129,13 @@ public class SimpleBlock {
 		this.data = (byte) data;
 	}
 
+	public void setBlockCoord(BlockCoord bc) {
+		this.worldname = bc.getWorldname();
+		this.x = bc.getX();
+		this.y = bc.getY();
+		this.z = bc.getZ();
+	}
+	
 	/** Returns true if it's air.
 	 *
 	 * @return if air */

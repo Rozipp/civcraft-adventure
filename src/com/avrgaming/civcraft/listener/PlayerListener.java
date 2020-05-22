@@ -166,8 +166,8 @@ public class PlayerListener implements Listener {
 					}
 				}
 				
-				Camp tocamp = (Camp) CivGlobal.getConstructAt(new ChunkCoord(event.getTo()));
-				if (tocamp != null && tocamp != resident.getCamp() && !player.hasPermission(CivSettings.TPCAMP)) {
+				Camp tocamp = CivGlobal.getCampAt(new ChunkCoord(event.getTo()));
+				if (tocamp != null && !tocamp.equals(resident.getCamp()) && !player.hasPermission(CivSettings.TPCAMP)) {
 					/* Deny telportation into Civ if not allied. */
 					event.setTo(event.getFrom());
 					if (!event.isCancelled()) {

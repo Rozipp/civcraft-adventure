@@ -11,12 +11,13 @@ import java.util.Arrays;
 /** EnchantmentAPI © 2017 com.sucy.enchant.vanilla.VanillaEnchantment */
 public class EnchantmentVanilla extends CustomEnchantment {
 
-	public EnchantmentVanilla(Enchantment ench, ItemSet itemSet, int maxLevel) {
-		this(ench, itemSet, maxLevel, "Default");
+	public EnchantmentVanilla(Enchantment ench, String displayName, ItemSet itemSet, int maxLevel) {
+		this(ench, displayName, itemSet, maxLevel, "Default");
 	}
 
-	public EnchantmentVanilla(Enchantment ench, ItemSet itemSet, int maxLevel, String group) {
+	public EnchantmentVanilla(Enchantment ench, String displayName, ItemSet itemSet, int maxLevel, String group) {
 		super(ench);
+		this.displayName = displayName;
 		enchantment = ench;
 		this.naturalItems.addAll(Arrays.asList(itemSet.getItems()));
 		this.maxLevel = maxLevel;
@@ -51,6 +52,6 @@ public class EnchantmentVanilla extends CustomEnchantment {
 
 	@Override
 	public String getDisplayName(int level) {
-		return ChatColor.GRAY + enchantment.getName().toLowerCase().trim() + (enchantment.getMaxLevel() > 1 ? " " + RomanNumerals.toNumerals(level) : "");
+		return ChatColor.GRAY + displayName + (enchantment.getMaxLevel() > 1 ? " " + RomanNumerals.toNumerals(level) : "");
 	}
 }

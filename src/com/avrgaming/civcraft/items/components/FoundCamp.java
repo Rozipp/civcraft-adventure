@@ -26,7 +26,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.construct.ChoiseTemplate;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.interactive.InteractiveGetName;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -46,7 +49,7 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 	public void onPrepareCreate(AttributeUtil attrUtil) {
 		attrUtil.addLore(ChatColor.RESET + CivColor.Gold + CivSettings.localize.localizedString("buildcamp_lore1"));
 		attrUtil.addLore(ChatColor.RESET + CivColor.Rose + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
-		// TODO вернуть attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
+		attrUtil = Enchantments.addEnchantment(attrUtil, CustomEnchantment.SoulBound, 1);
 		attrUtil.addLore(CivColor.Gold + CivSettings.localize.localizedString("itemLore_Soulbound"));
 	}
 
@@ -81,17 +84,24 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("buildcamp_prompt2"));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 
-			resident.setInteractiveMode(new InteractiveGetName());
+			InteractiveGetName interactive = new InteractiveGetName();
+			interactive.canselMessage = CivSettings.localize.localizedString("interactive_camp_cancel");
+			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_camp_invalid");
+			resident.setInteractiveMode(interactive);
 			return;
 		}
 
 		if (campName == null) {
 			campName = strings[0];
-			if (CivGlobal.getCamp(campName) != null) {
-				CivMessage.sendError(player, "(" + campName + ") " + CivSettings.localize.localizedString("camp_nameTaken"));
+			try {
+				if (CivGlobal.getCamp(campName) != null) throw new InvalidNameException("(" + campName + ") " + CivSettings.localize.localizedString("camp_nameTaken"));
+				camp.setName(campName);
+			} catch (InvalidNameException e) {
+				CivMessage.sendError(player, e.getMessage());
 				campName = null;
 				return;
 			}
+
 			CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
 			if (craftMat == null || !craftMat.hasComponent("FoundCamp")) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("camp_missingItem"));
@@ -101,7 +111,6 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 			}
 			resident.clearInteractiveMode();
 			resident.undoPreview();
-			this.setName(campName);
 			try {
 				camp.createCamp(player);
 			} catch (CivException e) {

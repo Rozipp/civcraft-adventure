@@ -10,7 +10,7 @@ public class EnchantmentCritical extends CustomEnchantment {
 	static double procentPerLevel = 0.05; 
 	
 	public EnchantmentCritical(int i) {
-		super(i, "Critical", ItemSet.SWORDS, 100, null);
+		super(i, "Critical", "Криты", ItemSet.SWORDS, 100, null);
 	}
 
 	public static boolean randomCriticalAttack(ItemStack item) {

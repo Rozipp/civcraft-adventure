@@ -101,16 +101,6 @@ public class ResidentToggleCommand extends CommandBase {
 			resident.setCombatInfo(!resident.isCombatInfo());
 			result = resident.isCombatInfo();
 			break;
-		case "titles":
-			resident.setTitleAPI(!resident.isTitleAPI());
-			result = resident.isTitleAPI();
-			break;
-//        case "preview": {
-//        	//TODO не используеться
-//            resident.setPreview(!resident.isPreview());
-//            result = resident.isPreview();
-//            break;
-//        }
 		case "itemdrops":
 			resident.toggleItemMode();
 			return;

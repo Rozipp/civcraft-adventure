@@ -387,7 +387,7 @@ public class UnitObject extends SQLObject {
 			CivLog.warning("Компонент " + key + " у юнита id=" + this.getId() + " был удален, так как не найдена его обработка");
 		}
 		if (getLevelUp() > 0) {
-			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7)); // ItemManager.createItemStack("u_choiceunitcomponent", getLevelUp()
+			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7));
 		}
 
 		//раскладываем созданные предметы по слотам, сохраненных в this.ammunitions или в стандартные из um.getSlot() 
@@ -403,7 +403,9 @@ public class UnitObject extends SQLObject {
 					if (slot > 36) slot = 0;
 				}
 			}
-			newSlots.put(slot, ItemManager.createItemStack(mid, 1));
+			int count = 1;
+			if (mid.equalsIgnoreCase("u_choiceunitcomponent")) count = getLevelUp();
+			newSlots.put(slot, ItemManager.createItemStack(mid, count));
 		}
 
 		ArrayList<ItemStack> removes = new ArrayList<>(); // список предметов которые занимают нужные слоты

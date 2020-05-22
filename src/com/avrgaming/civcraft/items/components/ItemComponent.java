@@ -19,6 +19,7 @@
 package com.avrgaming.civcraft.items.components;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -31,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
@@ -116,4 +118,11 @@ public abstract class ItemComponent {
 	public void onHold(PlayerItemHeldEvent event) {
 	}
 
+	public ItemMeta addLore(ItemMeta meta, String string) {
+		List<String> lore = meta.getLore();
+		lore.add(string);
+		meta.setLore(lore);
+		return meta;
+	}
+	
 }

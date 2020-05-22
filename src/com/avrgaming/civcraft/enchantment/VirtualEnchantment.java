@@ -39,6 +39,7 @@ public class VirtualEnchantment extends Enchantment {
 
 		@SuppressWarnings("deprecation")
 		CustomEnchantment ce = Enchantments.enchantmentList.get(this.getId());
+		if (ce.naturalItems.isEmpty()) return true;
 		return ce.naturalItems.contains(material);
 	}
 
@@ -46,12 +47,12 @@ public class VirtualEnchantment extends Enchantment {
 	@Override
 	public boolean conflictsWith(Enchantment other) {
 		Objects.requireNonNull(other, "Cannot check against a null item");
-		
+
 		CustomEnchantment cethis = Enchantments.enchantmentList.get(this.getId());
 		if (other == this) return true;
-		
+
 		if (cethis.group.equals("Default")) return false;
-		
+
 		CustomEnchantment ceother = Enchantments.enchantmentList.get(other.getId());
 		return cethis.group.equals(ceother.group);
 	}
@@ -89,5 +90,5 @@ public class VirtualEnchantment extends Enchantment {
 	public boolean isTreasure() {
 		return false;
 	}
-	
+
 }

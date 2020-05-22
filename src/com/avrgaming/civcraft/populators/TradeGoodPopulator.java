@@ -35,8 +35,6 @@ import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -79,19 +77,6 @@ public class TradeGoodPopulator extends BlockPopulator {
     	for (int y = coord.getY(); y < coord.getY() + FLAG_HEIGHT; y++) {
     		top = world.getBlockAt(coord.getX(), y, coord.getZ());
     		top.setType(Material.BEDROCK);
-
-    		ProtectedBlock pb = new ProtectedBlock(new BlockCoord(top), ProtectedBlock.Type.TRADE_MARKER);
-    		CivGlobal.addProtectedBlock(pb);
-    		if (sync) {
-    		try {
-				pb.saveNow();
-			} catch (SQLException e) {
-				CivLog.warning("Unable to Protect Goodie Sign");
-				e.printStackTrace();
-			}    
-    		} else {
-    			pb.save();
-    		}
     	}
 
 //XXX HoloDisp Выключен    	
@@ -139,17 +124,6 @@ public class TradeGoodPopulator extends BlockPopulator {
     		structSign.setText(sign.getLines());
     		structSign.setDirection(ItemManager.getData(sign.getData()));
     		CivGlobal.addConstructSign(structSign);
-            ProtectedBlock pbsign = new ProtectedBlock(new BlockCoord(signBlock), ProtectedBlock.Type.TRADE_MARKER);
-            CivGlobal.addProtectedBlock(pbsign);
-            if (sync) {
-                try {
-                	pbsign.saveNow();
-                } catch (SQLException e) {
-                	e.printStackTrace();
-                }
-            } else {
-            	pbsign.save();
-            }
     	}
         
     	if (sync) {

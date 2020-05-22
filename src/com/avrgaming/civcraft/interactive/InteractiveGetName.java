@@ -19,10 +19,8 @@
 package com.avrgaming.civcraft.interactive;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -30,30 +28,25 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class InteractiveGetName implements InteractiveResponse {
 
+	public String invalidMessage = "Invalid name";
+	public String canselMessage = "Get Name Canseled";
+
 	@Override
 	public void respond(String message, Player player) {
 		Resident resident = CivGlobal.getResident(player);
 
 		if (message.equalsIgnoreCase("cancel") || message.equalsIgnoreCase("сфтсуд") || message.startsWith("/")) {
-			//FIXME Оставить чтото одно
-			CivMessage.send(player, CivSettings.localize.localizedString("interactive_capitol_cancel"));
-			CivMessage.send(player, CivSettings.localize.localizedString("interactive_civ_cancel"));
-			CivMessage.send(player, CivSettings.localize.localizedString("interactive_town_cancelled"));
-			CivMessage.send(player, "§c" + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_camp_invalid"));
+			CivMessage.send(player, canselMessage);
 			resident.clearInteractiveMode();
 			return;
 		}
 
 		if (!StringUtils.isAlpha(message) || !StringUtils.isAsciiPrintable(message)) {
-			//FIXME Оставить чтото одно
-			CivMessage.send(player, CivColor.Rose+ChatColor.BOLD+CivSettings.localize.localizedString("interactive_capitol_invalidname"));
-			CivMessage.send(player, CivColor.RoseBold + CivSettings.localize.localizedString("interactive_civ_invalid"));
-			CivMessage.send(player, CivColor.Rose + ChatColor.BOLD + CivSettings.localize.localizedString("interactive_town_nameInvalid"));
-			CivMessage.send(player, CivSettings.localize.localizedString("interactive_camp_cancel"));
+			CivMessage.send(player, CivColor.RoseBold + invalidMessage);
 			return;
 		}
 
-		message = message.replace(" ", "_").replace("\"", "").replace("\'", "");
+		message = message.replace(" ", "_").replace("\"", "").replace("\'", "").replace("\\", "");
 
 		resident.pendingCallback.execute(message);
 	}

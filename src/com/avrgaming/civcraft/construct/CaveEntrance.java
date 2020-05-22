@@ -92,19 +92,14 @@ public class CaveEntrance extends Construct {
 
 	@Override
 	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 
 	@Override
 	public void onDamageNotification(Player player, ConstructDamageBlock hit) {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 
 	@Override
 	protected List<HashMap<String, String>> getComponentInfoList() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

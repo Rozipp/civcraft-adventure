@@ -7,7 +7,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 
-
 public class EndGameCheckTask implements Runnable {
 
 	@Override

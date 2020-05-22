@@ -1,8 +1,8 @@
 package gpl;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
@@ -12,7 +12,9 @@ import javax.annotation.Nullable;
 
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -323,15 +325,15 @@ public class AttributeUtil {
 		nmsStack.getTag().set("display", displayCompound);
 	}
 
-	public String[] getLore() {
+	public List<String> getLore() {
 		NBTTagCompound displayCompound = nmsStack.getTag().getCompound("display");
 		if (displayCompound == null) return null;
 		NBTTagList loreList = displayCompound.getList("Lore", NBTStaticHelper.TAG_STRING);
-		if (loreList == null) return null;
-		if (loreList.size() < 1) return null;
-		String[] lore = new String[loreList.size()];
+		if (loreList == null || loreList.size() < 1) return null;
+
+		List<String> lore = new ArrayList<>();
 		for (int i = 0; i < loreList.size(); i++) {
-			lore[i] = loreList.getString(i).replace("\"", "");
+			lore.add(loreList.getString(i).replace("\"", ""));
 		}
 		return lore;
 	}
@@ -354,59 +356,38 @@ public class AttributeUtil {
 		nmsStack.getTag().set("display", displayCompound);
 	}
 
-//	/** Добавляем тег с именем enhancementName. Добавляем в него параметр с именем key и значением value Если такой компонент уже существует, то
-//	 * изменяем или добваляем новый параметр */
-//	public void addEnhancement(String enhancementName, String key, String value) {
-//		if (enhancementName.equalsIgnoreCase("name")) throw new IllegalArgumentException();
-//		NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
-//		if (compound == null) compound = new NBTTagCompound();
-//
-//		NBTTagCompound enhCompound = compound.getCompound(enhancementName);
-//		if (enhCompound == null) enhCompound = new NBTTagCompound();
-//		if (key != null) {
-//			if (key.equalsIgnoreCase("name")) throw new IllegalArgumentException();
-//			enhCompound.set(key, new NBTTagString(value));
-//		}
-//		enhCompound.set("name", new NBTTagString(enhancementName));
-//
-//		compound.set(enhancementName, enhCompound);
-//		nmsStack.getTag().set("item_enhancements", compound);
-//	}
-//
-//	public void removeEnhancement(String enhName) {
-//		NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
-//		if (compound == null) return;
-//
-//		NBTTagCompound enhCompound = compound.getCompound(enhName);
-//		if (enhCompound == null) return;
-//
-//		compound.remove(enhName);
-//		nmsStack.getTag().set("item_enhancements", compound);
-//	}
-//
-//	public void setEnhancementData(String enhancementName, String key, String value) {
-//		addEnhancement(enhancementName, key, value);
-//	}
-//
-//	public String getEnhancementData(String enhName, String key) {
-//		NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
-//		NBTTagCompound enhCompound = compound.getCompound(enhName);
-//		if (enhCompound == null) return null;
-//		if (!enhCompound.hasKey(key)) return null;
-//		return enhCompound.getString(key);
-//	}
-//	
-//	public boolean hasEnhancement(String enhName) {
-//		NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
-//		if (compound == null) return false;
-//		return compound.hasKey(enhName);
-//	}
-//
-//	public boolean hasEnhancements() {
-//		if (nmsStack == null) return false;
-//		if (nmsStack.getTag() == null) return false;
-//		return nmsStack.getTag().hasKey("item_enhancements");
-//	}
+	/** Добавляем тег с именем enhancementName. Добавляем в него параметр с именем key и значением value Если такой компонент уже существует, то
+	 * изменяем или добваляем новый параметр */
+	public void addEnchantment(Enchantment enchant, int level) {
+		ItemMeta meta = CraftItemStack.getItemMeta(nmsStack);
+		meta.addEnchant(enchant, level, true);
+		CraftItemStack.setItemMeta(nmsStack, meta);
+	}
+
+	public int getEnchantLevel(Enchantment enchant) {
+		ItemMeta meta = CraftItemStack.getItemMeta(nmsStack);
+		return meta.getEnchantLevel(enchant);
+	}
+	
+	// public void removeEnhancement(String enhName) {
+	// NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
+	// if (compound == null) return;
+	// NBTTagCompound enhCompound = compound.getCompound(enhName);
+	// if (enhCompound == null) return;
+	// compound.remove(enhName);
+	// nmsStack.getTag().set("item_enhancements", compound);
+	// }
+	// public boolean hasEnhancement(String enhName) {
+	// NBTTagCompound compound = nmsStack.getTag().getCompound("item_enhancements");
+	// if (compound == null) return false;
+	// return compound.hasKey(enhName);
+	// }
+	//
+	// public boolean hasEnhancements() {
+	// if (nmsStack == null) return false;
+	// if (nmsStack.getTag() == null) return false;
+	// return nmsStack.getTag().hasKey("item_enhancements");
+	// }
 
 	public void setCivCraftProperty(String key, String value) {
 		if (nmsStack == null) return;
@@ -448,14 +429,14 @@ public class AttributeUtil {
 		if (displayCompound == null) displayCompound = new NBTTagCompound();
 		return displayCompound.getString("Name").toString().replace("\"", "");
 	}
-	
+
 	public void setNBT(String key, String value) {
 		nmsStack.getTag().set(key, new NBTTagString(value));
 	}
+
 	public String getNBT(String key) {
 		return nmsStack.getTag().getString(key);
 	}
-	
 
 	public void setColor(Long long1) {
 		NBTTagCompound displayCompound = nmsStack.getTag().getCompound("display");
@@ -493,7 +474,7 @@ public class AttributeUtil {
 		return displayCompound.hasKey("color");
 	}
 
-	public void setLore(LinkedList<String> lore) {
+	public void setLore(List<String> lore) {
 		String[] strs = new String[lore.size()];
 		for (int i = 0; i < lore.size(); i++) {
 			strs[i] = lore.get(i);

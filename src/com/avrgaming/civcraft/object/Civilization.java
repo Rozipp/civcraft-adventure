@@ -551,6 +551,10 @@ public class Civilization extends SQLObject {
 		return (this.incomeTaxRate * 100) + "%";
 	}
 
+	public int getNextTownCost() {
+		return 10000 * (this.getTownCount()); // TODO пересчитать сколько надо для построй следующего города
+	}
+
 	public void createCiv(Player player, Town town, Structure structure) throws CivException {
 		Resident resident = CivGlobal.getResident(player);
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
@@ -1367,13 +1371,8 @@ public class Civilization extends SQLObject {
 	}
 
 	public boolean isForSale() {
-		if (this.getTownCount() == 0) {
-			return false;
-		}
-
-		if (daysInDebt >= CivSettings.CIV_DEBT_GRACE_DAYS) {
-			return true;
-		}
+		if (this.getTownCount() == 0) return false;
+		if (daysInDebt >= CivSettings.CIV_DEBT_GRACE_DAYS) return true;
 		return false;
 	}
 

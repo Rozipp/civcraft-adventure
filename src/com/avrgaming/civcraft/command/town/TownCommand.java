@@ -28,6 +28,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigCultureBiomeInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
@@ -42,6 +43,7 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.questions.ChangeTownRequest;
 import com.avrgaming.civcraft.questions.JoinTownResponse;
 import com.avrgaming.civcraft.questions.Question;
+import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask2;
@@ -93,45 +95,25 @@ public class TownCommand extends CommandBase {
 		cs.add("changetown", CivSettings.localize.localizedString("cmd_town_switchtown"));
 		cs.add("teleport", "tp", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
 		cs.add("getunit", "unit", "gu", "Открыть сундук с юнитами");
-		// cs.add("build","b", "[название города] Построить новый город если ви являетесь поселенцем");
 	}
 
 	public void getunit_cmd() throws CivException {
 		this.getResident().getTown().unitInventory.showUnits(getPlayer());
 	}
 
-	// public void build_cmd() throws CivException {
-	// String townName = this.getNamedString(1, "Введите название города");
-	// Player player = this.getPlayer();
-	// Resident resident = this.getResident();
-	// if (resident.isUnitActive() && CivGlobal.getUnitObject(resident.getUnitObjectId()).getConfigUnit().id.equalsIgnoreCase("u_settler")) {
-	// ((Settler) UnitStatic.getUnit("u_settler")).onBuildTown(player, townName);
-	// } else //TODO
-	// throw new CivException("§c" + "TODO Для постройки нового города возьмите поселена и активируйте его");
-	// }
-
 	public void teleport_cmd() throws CivException {
 		final Resident resident = this.getResident();
 		final Town town = this.getNamedTown(1);
 		final Player player = this.getPlayer();
-		if (War.isWarTime()) {
-			throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
-		}
-		if (resident.getTown().getMotherCiv() != town.getMotherCiv()) {
-			throw new CivException(CivSettings.localize.localizedString("var_teleport_motherCivNotNull"));
-		}
-		if (town.getCiv() != resident.getCiv()) {
-			throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
-		}
-		if (!resident.getTreasury().hasEnough(5000.0)) {
+		if (War.isWarTime()) throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
+		if (resident.getTown().getMotherCiv() != town.getMotherCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_motherCivNotNull"));
+		if (town.getCiv() != resident.getCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
+		if (!resident.getTreasury().hasEnough(5000.0))
 			throw new CivException(CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
 					"§c" + Resident.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
-		}
 		final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", player);
 		final long timeNow = Calendar.getInstance().getTimeInMillis();
-		if (nextUse > timeNow) {
-			throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
-		}
+		if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
 		final TeleportPlayerTask2 teleportPlayerTask = new TeleportPlayerTask2(resident, this.getPlayer(), town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
 		teleportPlayerTask.run(true);
 	}
@@ -552,7 +534,6 @@ public class TownCommand extends CommandBase {
 				}
 			}
 		}
-
 	}
 
 	public void list_cmd() {
@@ -576,26 +557,13 @@ public class TownCommand extends CommandBase {
 
 		Resident residentToKick = getNamedResident(1);
 
-		if (residentToKick.getTown() != town) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_evictNotInTown", args[1]));
-		}
-
-		if (!town.isInGroup("mayors", resident) && !town.isInGroup("assistants", resident)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_evictNoPerms"));
-		}
-
-		if (town.isInGroup("mayors", residentToKick) || town.isInGroup("assistants", residentToKick)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_evictDemoteFirst"));
-		}
+		if (residentToKick.getTown() != town) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_evictNotInTown", args[1]));
+		if (!town.isInGroup("mayors", resident) && !town.isInGroup("assistants", resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictNoPerms"));
+		if (town.isInGroup("mayors", residentToKick) || town.isInGroup("assistants", residentToKick)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictDemoteFirst"));
 
 		if (!residentToKick.isLandOwner()) {
 			town.removeResident(residentToKick);
-
-			try {
-				CivMessage.send(CivGlobal.getPlayer(residentToKick), CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_evictAlert"));
-			} catch (CivException e) {
-				// Player not online.
-			}
+			CivMessage.send(residentToKick, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_evictAlert"));
 			CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_evictSuccess1", residentToKick.getName(), resident.getName()));
 			return;
 		}
@@ -847,7 +815,7 @@ public class TownCommand extends CommandBase {
 		// CivMessage.send(player, "Claiming an outpost!");
 		// }
 
-		TownChunk.claim(town, player, false);
+		TownChunk.claim(town, player);
 	}
 
 	public void unclaim_cmd() throws CivException {
@@ -861,33 +829,16 @@ public class TownCommand extends CommandBase {
 			}
 		}
 
-		if (!town.playerIsInGroupName("mayors", player) && !town.playerIsInGroupName("assistants", player)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
-		}
+		if (!town.playerIsInGroupName("mayors", player) && !town.playerIsInGroupName("assistants", player)) throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
+		if (town.getTownChunks().size() <= 1) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimError"));
+		if (tc.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimNotInTown"));
+		if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));
 
-		if (town.getTownChunks().size() <= 1) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimError"));
+		for (Construct construct : CivGlobal.getConstructFromChunk(tc.getChunkCoord())) {
+			if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
 		}
-
-		if (!tc.isCanUnclaim()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorTownHall"));
-		}
-
-		if (tc.getTown() != resident.getTown()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimNotInTown"));
-		}
-
-		if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));
-		}
-
 		TownChunk.unclaim(tc);
-		if (tc.isOutpost()) {
-			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimOutpostSuccess", tc.getCenterString()));
-		} else {
-			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCenterString()));
-		}
-
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCenterString()));
 	}
 
 	public void group_cmd() throws CivException {

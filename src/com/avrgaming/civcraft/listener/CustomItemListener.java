@@ -121,7 +121,8 @@ public class CustomItemListener implements Listener {
 		ItemStack stack = null;
 		if (event.getHand() == EquipmentSlot.OFF_HAND)
 			stack = event.getPlayer().getInventory().getItemInOffHand();
-		else stack = event.getPlayer().getInventory().getItemInMainHand();
+		else
+			stack = event.getPlayer().getInventory().getItemInMainHand();
 		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
 		if (material != null) material.onInteract(event);
@@ -259,20 +260,21 @@ public class CustomItemListener implements Listener {
 					return;
 				}
 			}
-		} else if (event.getDamager() instanceof Player) {
-			ItemStack inHand = ((Player) event.getDamager()).getInventory().getItemInMainHand();
-			CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(inHand);
-			if (craftMat != null) {
-				craftMat.onAttack(event, inHand);
+		} else
+			if (event.getDamager() instanceof Player) {
+				ItemStack inHand = ((Player) event.getDamager()).getInventory().getItemInMainHand();
+				CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(inHand);
+				if (craftMat != null) {
+					craftMat.onAttack(event, inHand);
+				} else {
+					/* Non-civcraft items only do 0.5 damage. */
+					event.setDamage(0.5);
+				}
 			} else {
-				/* Non-civcraft items only do 0.5 damage. */
-				event.setDamage(0.5);
+				if (MobStatic.isMithicMobEntity(event.getDamager())) {
+					event.setDamage(MobStatic.getMithicMob(event.getDamager()).getDamage());
+				}
 			}
-		} else {
-			if (MobStatic.isMithicMobEntity(event.getDamager())) {
-				event.setDamage(MobStatic.getMithicMob(event.getDamager()).getDamage());
-			}
-		}
 
 		if (event.getEntity() instanceof Horse) {
 			if (HorseModifier.isCivCraftHorse((LivingEntity) event.getEntity())) {
@@ -556,7 +558,8 @@ public class CustomItemListener implements Listener {
 		if (!view.getType().equals(InventoryType.CRAFTING)) {
 			if (event.getRawSlot() == event.getSlot())
 				otherInv = view.getBottomInventory();
-			else otherInv = view.getTopInventory();
+			else
+				otherInv = view.getTopInventory();
 		}
 
 		CustomMaterial current = CustomMaterial.getCustomMaterial(currentStack);
@@ -662,7 +665,8 @@ public class CustomItemListener implements Listener {
 			if (!view.getType().equals(InventoryType.CRAFTING)) {
 				if (rSlots[j] == iSlots[j]) // Clicked in the top holder
 					inv = view.getTopInventory();
-				else inv = view.getBottomInventory();
+				else
+					inv = view.getBottomInventory();
 			}
 
 			CustomMaterial custMat = CustomMaterial.getCustomMaterial(stack);
@@ -705,25 +709,7 @@ public class CustomItemListener implements Listener {
 		if (craftMat != null) return false;
 		if (LoreGuiItem.isGUIItem(stack)) return false;
 
-		// TODO Пустой текст зачарования
-		if (!CivSettings.removedRecipies.contains(stack.getType()) && !stack.getType().equals(Material.ENCHANTED_BOOK)) {
-			/* Check for badly enchanted tools */
-			if (stack.containsEnchantment(Enchantment.DAMAGE_ALL) || stack.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS) || stack.containsEnchantment(Enchantment.KNOCKBACK) || stack.containsEnchantment(Enchantment.DAMAGE_UNDEAD)
-					|| stack.containsEnchantment(Enchantment.DURABILITY)) {} else
-				if (stack.containsEnchantment(Enchantment.FIRE_ASPECT) && stack.getEnchantmentLevel(Enchantment.FIRE_ASPECT) > 2) {
-					// Remove any fire aspect above this amount
-				} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) && stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS) > 1) {
-					// Only allow looting 1
-				} else if (stack.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS) && stack.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) > 1) {
-					// Only allow fortune 1
-				} else if (stack.containsEnchantment(Enchantment.DIG_SPEED) && stack.getEnchantmentLevel(Enchantment.DIG_SPEED) > 5) {
-					// only allow effiencey 5
-				} else {
-					/* Not in removed list, so allow it. */
-					return false;
-				}
-		}
-		return true;
+		return CivSettings.removedRecipies.contains(stack.getType()) || stack.getType().equals(Material.ENCHANTED_BOOK); 
 	}
 
 	public static void removeUnwantedVanillaItems(Player player, Inventory inv) {

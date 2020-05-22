@@ -8,7 +8,7 @@ import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 public class EnchantmentPunchout extends CustomEnchantment {
 
 	public EnchantmentPunchout(int i) {
-		super(i, CivSettings.localize.localizedString("itemLore_Punchout"), ItemSet.TOOLS, 1, null);
+		super(i, "punchout", CivSettings.localize.localizedString("itemLore_Punchout"), ItemSet.TOOLS, 1, null);
 	}
 
 	public static int onStructureBlockBreak(ConstructDamageBlock sb, int damage) {

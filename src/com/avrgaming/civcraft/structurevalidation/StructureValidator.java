@@ -18,11 +18,13 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structure.WaterStructure;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class StructureValidator implements Runnable {
@@ -31,18 +33,16 @@ public class StructureValidator implements Runnable {
 	private static boolean enable = false;
 
 	private Player player;
-	private Construct сonstruct = null;
+	private Construct construct = null;
 	private BlockCoord corner = null;
 	private CallbackInterface callback = null;
 	private Template tpl = null;
 	private HashMap<ChunkCoord, ChunkSnapshot> chunks = new HashMap<ChunkCoord, ChunkSnapshot>();
-	
+
 	/** Only validate a single structure at a time. */
 	private static ReentrantLock validationLock = new ReentrantLock();
 	/** Private tasks we'll reuse. */
 	private static SyncLoadSnapshotsFromLayer layerLoadTask = new SyncLoadSnapshotsFromLayer();
-
-	
 
 	private static class SyncLoadSnapshotsFromLayer implements Runnable {
 		public List<SimpleBlock> bottomLayer;
@@ -89,12 +89,31 @@ public class StructureValidator implements Runnable {
 
 	public StructureValidator(Player player, Construct bld, CallbackInterface callback) {
 		this.player = player;
-		this.сonstruct = bld;
-		this.corner = this.сonstruct.getCorner();
-		this.tpl = this.сonstruct.getTemplate();
+		this.construct = bld;
+		this.corner = this.construct.getCorner();
+		this.tpl = this.construct.getTemplate();
 		this.callback = callback;
 	}
+	
+	public int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, String worldName) throws CivException {
 
+		int chunkX = ChunkCoord.castToChunk(absX);
+		int chunkZ = ChunkCoord.castToChunk(absZ);
+
+		int blockChunkX = absX % 16;
+		int blockChunkZ = absZ % 16;
+
+		if (blockChunkX < 0) blockChunkX += 16;
+		if (blockChunkZ < 0) blockChunkZ += 16;
+
+		ChunkCoord coord = new ChunkCoord(worldName, chunkX, chunkZ);
+
+		ChunkSnapshot snapshot = snapshots.get(coord);
+		if (snapshot == null) throw new CivException("Snapshot for chunk " + chunkX + ", " + chunkZ + " in " + worldName + " not found for abs:" + absX + "," + absZ);
+
+		return ItemManager.getBlockTypeId(snapshot, blockChunkX, absY, blockChunkZ);
+	}
+	
 	public void validate(HashMap<ChunkCoord, ChunkSnapshot> chunks, List<SimpleBlock> bottomLayer) {
 		int checkedLevelCount = 0;
 		boolean valid = true;
@@ -107,17 +126,13 @@ public class StructureValidator implements Runnable {
 
 			for (SimpleBlock sb : bottomLayer) {
 				/* We only want the bottom layer of a template to be checked. */
-				if (sb.getType() == CivData.AIR) {
-					continue;
-				}
+				if (sb.getType() == CivData.AIR) continue;
 
 				try {
-					int absX;
-					int absZ;
-					absX = corner.getX() + sb.x;
-					absZ = corner.getZ() + sb.z;
+					int absX = corner.getX() + sb.x;
+					int absZ = corner.getZ() + sb.z;
 
-					int type = BuildableStatic.getBlockIDFromSnapshotMap(chunks, absX, y, absZ, corner.getWorldname());
+					int type = getBlockIDFromSnapshotMap(chunks, absX, y, absZ, corner.getWorldname());
 					totalBlocks++;
 					reinforcementValue += BuildableStatic.getReinforcementValue(type);
 				} catch (CivException e) {
@@ -127,7 +142,7 @@ public class StructureValidator implements Runnable {
 			}
 
 			double percentValid = reinforcementValue / totalBlocks;
-			сonstruct.layerValidPercentages.put(y, new ConstructLayer((int) reinforcementValue, (int) totalBlocks));
+			construct.layerValidPercentages.put(y, new ConstructLayer((int) reinforcementValue, (int) totalBlocks));
 
 			if (valid) {
 				if (percentValid < getReinforcementRequirementForLevel(checkedLevelCount)) {
@@ -139,16 +154,24 @@ public class StructureValidator implements Runnable {
 			}
 		}
 
-		сonstruct.validated = true;
-		сonstruct.invalidLayerMessage = message;
-		сonstruct.valid = valid;
+		construct.validated = true;
+		construct.invalidLayerMessage = message;
+		construct.valid = valid;
 	}
 
 	@Override
 	public void run() {
 		if (!isEnabled()) {
-			сonstruct.validated = true;
-			сonstruct.setValid(true);
+			construct.validated = true;
+			construct.setValid(true);
+			if (callback != null) callback.execute(player.getName());
+			return;
+		}
+
+		if (construct instanceof WaterStructure) {
+			construct.validated = true;
+			construct.setValid(true);
+			if (callback != null) callback.execute(player.getName());
 			return;
 		}
 
@@ -157,9 +180,9 @@ public class StructureValidator implements Runnable {
 
 		try {
 			/* Copy over instance variables to static variables. */
-			if (сonstruct.isIgnoreFloating()) {
-				сonstruct.validated = true;
-				сonstruct.setValid(true);
+			if (construct.isIgnoreFloating()) {
+				construct.validated = true;
+				construct.setValid(true);
 				return;
 			}
 
@@ -178,14 +201,14 @@ public class StructureValidator implements Runnable {
 			this.validate(chunks, bottomLayer);
 
 			if (player != null) {
-				CivMessage.sendError(player, сonstruct.invalidLayerMessage);
+				CivMessage.sendError(player, construct.invalidLayerMessage);
 				if (player.isOp()) {
 					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("structureValidator_isOP"));
-					сonstruct.valid = true;
+					construct.valid = true;
 				}
-				if (сonstruct.valid) {
+				if (construct.valid) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("structureValidator_isValid"));
-					сonstruct.invalidLayerMessage = "";
+					construct.invalidLayerMessage = "";
 				}
 			}
 			if (callback != null) callback.execute(player.getName());

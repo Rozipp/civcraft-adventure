@@ -66,7 +66,6 @@ import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.Market;
 import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.RoadBlock;
@@ -96,7 +95,7 @@ public class CivGlobal {
 	public static double LIGHTHOUSE_WATER_BOAT_SPEED = 1.1;
 
 	private static boolean useEconomy;
-	//XXX economy 	public static Economy econ;
+	// XXX economy public static Economy econ;
 
 	public static SimpleDateFormat dateFormat;
 
@@ -119,7 +118,6 @@ public class CivGlobal {
 	private static Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
 	private static Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
 	private static Map<BlockCoord, TradeGood> tradeGoods = new ConcurrentHashMap<BlockCoord, TradeGood>();
-	private static Map<BlockCoord, ProtectedBlock> protectedBlocks = new ConcurrentHashMap<BlockCoord, ProtectedBlock>();
 	private static Map<ChunkCoord, FarmChunk> farmChunks = new ConcurrentHashMap<ChunkCoord, FarmChunk>();
 	private static Queue<FarmChunk> farmChunkUpdateQueue = new LinkedList<FarmChunk>();
 	private static Map<UUID, ItemFrameStorage> protectedItemFrames = new ConcurrentHashMap<UUID, ItemFrameStorage>();
@@ -193,7 +191,6 @@ public class CivGlobal {
 
 	public static int highestCivEra = 0;
 
-	// TODO Помоему это нигде не используеться
 	public static TradeGoodPreGenerate preGenerator;
 
 	public static int ruinsGenerated = 0;
@@ -265,8 +262,6 @@ public class CivGlobal {
 		loadCaves();
 		loadTradeGoodies();
 		loadRandomEvents();
-		loadProtectedBlocks();
-		// loadStructureSign();
 		loadUnitObjects();
 		loadReports();
 		EventTimer.loadGlobalEvents();
@@ -284,8 +279,6 @@ public class CivGlobal {
 			Town capitol = civ.getTown(civ.getCapitolName());
 			if (capitol == null) orphanCivs.add(civ);
 		}
-
-		checkForInvalidStructures();
 
 		try {
 			minBuildHeight = CivSettings.getInteger(CivSettings.civConfig, "global.min_build_height");
@@ -305,22 +298,6 @@ public class CivGlobal {
 		cantDemolishUntil = getNextRepoTime().getTime() + 14400000L;
 
 		loadCompleted = true;
-	}
-
-	public static void checkForInvalidStructures() {
-		// TODO Убрать
-		Iterator<Entry<BlockCoord, Structure>> iter = CivGlobal.getStructureIterator();
-		while (iter.hasNext()) {
-			Structure struct = iter.next().getValue();
-			if (struct instanceof Capitol) {
-				if (struct.getTown().getMotherCiv() == null) {
-					if (!struct.getTown().isCapitol()) {
-						struct.markInvalid();
-//FIXME						struct.setInvalidReason(CivSettings.localize.localizedString("cap_CanExistInCapitol"));
-					}
-				}
-			}
-		}
 	}
 
 	private static void processUpgrades() throws CivException {
@@ -756,58 +733,6 @@ public class CivGlobal {
 		}
 	}
 
-	public static void loadProtectedBlocks() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + ProtectedBlock.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			int count = 0;
-			while (rs.next()) {
-				try {
-					ProtectedBlock pb = new ProtectedBlock(rs);
-					CivGlobal.addProtectedBlock(pb);
-					count++;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + count + " Protected Blocks");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
-
-	// private static void loadStructureSign() throws SQLException {
-	// Connection context = null;
-	// ResultSet rs = null;
-	// PreparedStatement ps = null;
-	//
-	// try {
-	// context = SQL.getGameConnection();
-	// ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + BuildableSign.TABLE_NAME);
-	// rs = ps.executeQuery();
-	//
-	// while (rs.next()) {
-	// BuildableSign strSign;
-	// try {
-	// strSign = new BuildableSign(rs);
-	// buildableSigns.put(strSign.getCoord(), strSign);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	//
-	// CivLog.info("Loaded " + buildableSigns.size() + " Structure Sign");
-	// } finally {
-	// SQL.close(rs, ps, context);
-	// }
-	// }
 	public static void loadUnitObjects() throws SQLException {
 		Connection context = null;
 		ResultSet rs = null;
@@ -821,7 +746,8 @@ public class CivGlobal {
 					UnitObject uo = new UnitObject(rs);
 					if (uo.getTownOwner() == null)
 						uo.delete();
-					else CivGlobal.addUnitObject(uo);
+					else
+						CivGlobal.addUnitObject(uo);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -873,10 +799,7 @@ public class CivGlobal {
 		return residentsViaUUID.get(uuid);
 	}
 
-	/**
-	 * make lookup via ID faster(use hashtable)
-	 * 
-	 */
+	/** make lookup via ID faster(use hashtable) */
 	public static Resident getResidentFromId(int id) {
 		for (Resident resident : residents.values()) {
 			if (resident.getId() == id) return resident;
@@ -1197,7 +1120,8 @@ public class CivGlobal {
 			constructs.remove(bb.getOwner());
 			if (constructs.size() > 0)
 				constructsInChunk.put(cc, constructs);
-			else constructsInChunk.remove(cc);
+			else
+				constructsInChunk.remove(cc);
 		}
 	}
 
@@ -1205,25 +1129,25 @@ public class CivGlobal {
 		return constructBlocks.get(coord);
 	}
 
-	public static HashSet<Construct> getConstructFromChunk(BlockCoord coord) {
-		return constructsInChunk.get(new ChunkCoord(coord));
-	}
-
 	public static HashSet<Construct> getConstructFromChunk(ChunkCoord cc) {
 		return constructsInChunk.get(cc);
 	}
 
-	public static Construct getConstructAt(ChunkCoord cc) {
+	public static HashSet<Construct> getConstructFromChunk(BlockCoord coord) {
+		return getConstructFromChunk(new ChunkCoord(coord));
+	}
+
+	public static Camp getCampAt(ChunkCoord cc) {
 		if (getConstructFromChunk(cc) == null) return null;
-		for (Construct b : getConstructFromChunk(cc))
-			return b;
+		for (Construct constr : getConstructFromChunk(cc))
+			if (constr instanceof Camp) return (Camp) constr;
 		return null;
 	}
 
-	public static Construct getConstructAt(BlockCoord bc) {
-		if (getConstructFromChunk(bc) == null) return null;
-		for (Construct b : getConstructFromChunk(bc))
-			return b;
+	public static Buildable getBuildableAt(ChunkCoord cc) {
+		if (getConstructFromChunk(cc) == null) return null;
+		for (Construct constr : getConstructFromChunk(cc))
+			if (constr instanceof Buildable) return (Buildable) constr;
 		return null;
 	}
 
@@ -1262,7 +1186,8 @@ public class CivGlobal {
 		HashSet<Wall> walls = wallChunks.get(coord);
 		if (walls != null && walls.size() > 0)
 			return walls;
-		else return null;
+		else
+			return null;
 	}
 
 	public static void addWallChunk(Wall wall, ChunkCoord coord) {
@@ -1288,15 +1213,6 @@ public class CivGlobal {
 
 	public static RoadBlock getRoadBlock(BlockCoord coord) {
 		return roadBlocks.get(coord);
-	}
-
-	// ----------------- ProtectedBlock
-	public static void addProtectedBlock(ProtectedBlock pb) {
-		protectedBlocks.put(pb.getCoord(), pb);
-	}
-
-	public static ProtectedBlock getProtectedBlock(BlockCoord coord) {
-		return protectedBlocks.get(coord);
 	}
 
 	// ----------- TradeGood
@@ -1432,7 +1348,8 @@ public class CivGlobal {
 				// "+goodie.getOutpost().getCorner().toString()+
 				// ". Item was reset back to outpost.");
 				fs.clearItem();
-			} else outpostsInFrames.put(goodie.getOutpost().getCorner().toString(), true);
+			} else
+				outpostsInFrames.put(goodie.getOutpost().getCorner().toString(), true);
 		}
 	}
 
@@ -2031,14 +1948,14 @@ public class CivGlobal {
 	}
 
 	// --------------- Economy
-	//XXX economy 
-//	public static Economy getEconomy() {
-//		return econ == null ? (econ = Bukkit.getServicesManager().getRegistration(Economy.class).getProvider()) : econ;
-//	}
+	// XXX economy
+	// public static Economy getEconomy() {
+	// return econ == null ? (econ = Bukkit.getServicesManager().getRegistration(Economy.class).getProvider()) : econ;
+	// }
 
 	public static EconObject createEconObject(SQLObject holder) {
 		if (useEconomy && holder instanceof Resident) {
-			//XXX economy 			return new VaultEconObject(holder, ((Resident) holder).getUid());
+			// XXX economy return new VaultEconObject(holder, ((Resident) holder).getUid());
 			return new EconObject(holder);
 		}
 		return new EconObject(holder);

@@ -363,7 +363,6 @@ public class TradeShip extends WaterStructure {
 				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("tradeship_successSpecail"));
 			}
 		} catch (InterruptedException e1) {
-			// TODO Автоматически созданный блок catch
 			e1.printStackTrace();
 		}
 	}

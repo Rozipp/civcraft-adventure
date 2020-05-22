@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Buff;
@@ -670,9 +669,6 @@ public class MobGrinder extends Structure {
 				try {
 					try {
 						processMobGrinderUpdate();
-						if (CivData.randChance(this.mobGrinder.getTown().getReturnChance())) {
-							processMobGrinderUpdate();
-						} // TODO зачем второй запуск здесь???
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

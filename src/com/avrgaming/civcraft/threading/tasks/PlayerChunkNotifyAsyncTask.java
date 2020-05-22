@@ -16,7 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -37,7 +36,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 	Location to;
 	String playerName;
 
-	public static int BORDER_SPAM_TIMEOUT = 30000; //30 second border spam protection.
+	public static int BORDER_SPAM_TIMEOUT = 30000; // 30 second border spam protection.
 	public static HashMap<String, Date> cultureEnterTimes = new HashMap<String, Date>();
 
 	public PlayerChunkNotifyAsyncTask(Location from, Location to, String playerName) {
@@ -50,22 +49,22 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 
 		String color = CivColor.White;
 		switch (status) {
-			case NEUTRAL :
-				if (toCc.getTown().isOutlaw(player.getName())) color = CivColor.Yellow;
-				break;
-			case HOSTILE :
-				color = CivColor.Yellow;
-				break;
-			case WAR :
-				color = CivColor.Rose;
-				break;
-			case PEACE :
-				color = CivColor.LightBlue;
-				break;
-			case ALLY :
-				color = CivColor.Green;
-			default :
-				break;
+		case NEUTRAL:
+			if (toCc.getTown().isOutlaw(player.getName())) color = CivColor.Yellow;
+			break;
+		case HOSTILE:
+			color = CivColor.Yellow;
+			break;
+		case WAR:
+			color = CivColor.Rose;
+			break;
+		case PEACE:
+			color = CivColor.LightBlue;
+			break;
+		case ALLY:
+			color = CivColor.Green;
+		default:
+			break;
 		}
 
 		return color;
@@ -82,21 +81,13 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		} catch (CivException e) {
 			return "";
 		}
-
 		if (town.getBuffManager().hasBuff("buff_hanging_gardens_regen")) {
 			Resident resident = CivGlobal.getResident(player);
 			if (resident != null && resident.getTown() == town) {
 				CivMessage.send(player, CivColor.Green + ChatColor.ITALIC + "You feel invigorated by the glorious hanging gardens.");
 			}
 		}
-
-		if (!tc.isOutpost()) {
-			return CivColor.LightGray
-					+ CivSettings.localize.localizedString("var_playerChunkNotify_EnterTown", CivColor.White + town.getName(), town.getPvpString());
-		} else {
-			return CivColor.LightGray
-					+ CivSettings.localize.localizedString("var_playerChunkNotify_EnterOutpost", CivColor.White + town.getName(), town.getPvpString());
-		}
+		return CivColor.LightGray + CivSettings.localize.localizedString("var_playerChunkNotify_EnterTown", CivColor.White + town.getName(), town.getPvpString());
 	}
 
 	private void showPlotMoveMessage() {
@@ -105,9 +96,8 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		TownChunk toTc = CivGlobal.getTownChunk(to);
 		CultureChunk fromCc = CivGlobal.getCultureChunk(from);
 		CultureChunk toCc = CivGlobal.getCultureChunk(to);
-		Construct tConstr;
-		Camp tocamp = (tConstr = CivGlobal.getConstructAt(new ChunkCoord(to))) instanceof Camp ? (Camp) tConstr : null;
-		Camp fromcamp = (tConstr = CivGlobal.getConstructAt(new ChunkCoord(from))) instanceof Camp ? (Camp) tConstr : null;
+		Camp tocamp = CivGlobal.getCampAt(new ChunkCoord(to));
+		Camp fromcamp = CivGlobal.getCampAt(new ChunkCoord(from));
 
 		Player player;
 		Resident resident;
@@ -123,10 +113,9 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		String title = "";
 		String subTitle = "";
 
-		//We've entered a camp.
+		// We've entered a camp.
 		if (tocamp != null && tocamp != fromcamp) {
-			title += CivColor.Gold + CivSettings.localize.localizedString("var_playerChunkNotify_entercamp", tocamp.getName()) + " " + CivColor.Rose
-					+ "[PvP]";
+			title += CivColor.Gold + CivSettings.localize.localizedString("var_playerChunkNotify_entercamp", tocamp.getName()) + " " + CivColor.Rose + "[PvP]";
 		} else
 			if (tocamp == null && fromcamp != null) {
 				title += getToWildMessage();
@@ -149,14 +138,14 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 
 		}
 
-		//		// To another town(should never happen with culture...)
-		//		if (fromTc != null && toTc != null && fromTc.getTown() != toTc.getTown()) {
-		//			title += getToTownMessage(toTc.getTown(), toTc);
-		//		}
+		// // To another town(should never happen with culture...)
+		// if (fromTc != null && toTc != null && fromTc.getTown() != toTc.getTown()) {
+		// title += getToTownMessage(toTc.getTown(), toTc);
+		// }
 
-		//		if (toTc != null) {
-		//			subTitle += toTc.getOnEnterString(player, fromTc);
-		//		}
+		// if (toTc != null) {
+		// subTitle += toTc.getOnEnterString(player, fromTc);
+		// }
 
 		// Leaving culture to the wild.
 		if (fromCc != null && toCc == null) {
@@ -177,7 +166,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 				onCultureEnter(toCc);
 			} else
 				if (fromCc != null && toCc != null && fromCc.getCiv() != toCc.getCiv()) {
-					//Leaving one civ's culture, into another. 
+					// Leaving one civ's culture, into another.
 
 					title += fromCc.getOnLeaveString() + " | " + toCc.getOnEnterString();
 					onCultureEnter(toCc);
@@ -194,10 +183,10 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 				}
 
 		if (!title.equals("")) {
-			//ItemMessage im = new ItemMessage(CivCraft.getPlugin());
-			//im.sendMessage(player, CivColor.BOLD+out, 3);
+			// ItemMessage im = new ItemMessage(CivCraft.getPlugin());
+			// im.sendMessage(player, CivColor.BOLD+out, 3);
 			CivMessage.sendTitle(player, title, subTitle);
-			//			CivMessage.send(player, title);
+			// CivMessage.send(player, title);
 		}
 
 		if (resident.isShowInfo()) {
@@ -238,8 +227,7 @@ public class PlayerChunkNotifyAsyncTask implements Runnable {
 		lastMessageTime = now;
 
 		cultureEnterTimes.put(borderSpamKey, lastMessageTime);
-		CivMessage.sendCiv(toCc.getCiv(),
-				CivSettings.localize.localizedString("var_playerChunkNotify_enteredBorderAlert", (color + player.getDisplayName() + "(" + relationName + ")")));
+		CivMessage.sendCiv(toCc.getCiv(), CivSettings.localize.localizedString("var_playerChunkNotify_enteredBorderAlert", (color + player.getDisplayName() + "(" + relationName + ")")));
 	}
 
 	@Override

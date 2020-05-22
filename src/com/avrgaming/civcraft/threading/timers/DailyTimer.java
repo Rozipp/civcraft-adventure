@@ -256,7 +256,6 @@ public class DailyTimer implements Runnable {
 			try {
 				auto_capitulate_days = CivSettings.getInteger(CivSettings.civConfig, "civ.auto_capitulate_days");
 			} catch (InvalidConfiguration e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 

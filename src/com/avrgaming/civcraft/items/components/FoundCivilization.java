@@ -16,6 +16,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.interactive.FoundCivCallback;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -27,8 +29,7 @@ public class FoundCivilization extends ItemComponent  {
 	public void onPrepareCreate(AttributeUtil attrUtil) {
 		attrUtil.addLore(ChatColor.RESET + CivColor.Gold + CivSettings.localize.localizedString("foundCiv_lore1"));
 		attrUtil.addLore(ChatColor.RESET + CivColor.Rose + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
-		// TODO вернуть attrUtil.addEnhancement("LoreEnhancementSoulBound", null, null);
-		attrUtil.addLore(CivColor.Gold + CivSettings.localize.localizedString("Soulbound"));
+		attrUtil = Enchantments.addEnchantment(attrUtil, CustomEnchantment.SoulBound, 1);
 	}
 
 	@Override

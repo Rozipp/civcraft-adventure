@@ -81,20 +81,17 @@ public class FoundTownCallback implements CallbackInterface {
 			CivMessage.send(player, " ");
 			CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("settler_prompt2"));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
-
-			resident.setInteractiveMode(new InteractiveGetName());
+			
+			InteractiveGetName interactive = new InteractiveGetName();
+			interactive.canselMessage = CivSettings.localize.localizedString("interactive_town_cancelled");
+			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_town_nameInvalid");
+			resident.setInteractiveMode(interactive);
 			return;
 		}
 
 		/* getInteractiveConfirmTownCreation */
 		if (townName == null) {
 			townName = strings[0];
-			if (townName.equalsIgnoreCase("cansel")) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_cancel"));
-				resident.clearInteractiveMode();
-				resident.undoPreview();
-				return;
-			}
 
 			if (!structure.validated) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalid"));

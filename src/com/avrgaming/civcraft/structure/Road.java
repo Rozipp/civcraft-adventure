@@ -22,7 +22,6 @@ import org.bukkit.util.Vector;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -311,17 +310,8 @@ public class Road extends Structure {
 			ChunkCoord coord = new ChunkCoord(bcoord);
 			bcoord.setY(startCoord.getY() + i);
 
-			if (ItemManager.getTypeId(bcoord.getBlock()) == CivData.CHEST) {
-				throw new CivException(CivSettings.localize.localizedString("var_road_validate_wouldDestroyChest", bcoord.toString()));
-			}
-
-			if (CivGlobal.getProtectedBlock(bcoord) != null) {
-				throw new CivException(CivSettings.localize.localizedString("var_road_validate_protectedBlock", bcoord.toString()));
-			}
-
-			if ((Camp) CivGlobal.getConstructAt(coord) != null) {
-				throw new CivException(CivSettings.localize.localizedString("road_validate_camp"));
-			}
+			if (ItemManager.getTypeId(bcoord.getBlock()) == CivData.CHEST) throw new CivException(CivSettings.localize.localizedString("var_road_validate_wouldDestroyChest", bcoord.toString()));
+			if (CivGlobal.getCampAt(coord) != null) throw new CivException(CivSettings.localize.localizedString("road_validate_camp"));
 
 			ConstructBlock structBlock = CivGlobal.getConstructBlock(bcoord);
 			if (structBlock != null) {

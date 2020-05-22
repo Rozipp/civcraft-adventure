@@ -294,25 +294,11 @@ public class Wall extends Structure {
 
 		BlockCoord coord = new BlockCoord(b);
 		// not building a trade outpost, prevent protected blocks from being destroyed.
-		if (CivGlobal.getProtectedBlock(coord) != null) {
-			throw new CivException(CivSettings.localize.localizedString("cannotBuild_protectedInWay"));
-		}
 
-		if (CivGlobal.getConstructBlock(coord) != null) {
-			throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay") + " " + coord);
-		}
-
-		if (CivGlobal.getFarmChunk(new ChunkCoord(coord.getLocation())) != null) {
-			throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
-		}
-
-		if (loc.getBlockY() >= Wall.MAX_HEIGHT) {
-			throw new CivException(CivSettings.localize.localizedString("wall_build_tooHigh"));
-		}
-
-		if (loc.getBlockY() < CivGlobal.minBuildHeight) {
-			throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
-		}
+		if (CivGlobal.getConstructBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay") + " " + coord);
+		if (CivGlobal.getFarmChunk(new ChunkCoord(coord.getLocation())) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
+		if (loc.getBlockY() >= Wall.MAX_HEIGHT) throw new CivException(CivSettings.localize.localizedString("wall_build_tooHigh"));
+		if (loc.getBlockY() < CivGlobal.minBuildHeight) throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
 
 		BlockCoord bcoord = new BlockCoord(loc);
 		for (int y = 0; y < 256; y++) {

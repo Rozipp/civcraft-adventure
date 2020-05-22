@@ -61,7 +61,9 @@ public class CivMessage {
 			Player player = (Player) sender;
 
 			Integer hashcode = lastMessageHashCode.get(player.getName());
-			if (hashcode != null && hashcode == line.hashCode()) { return; }
+			if (hashcode != null && hashcode == line.hashCode()) {
+				return;
+			}
 
 			lastMessageHashCode.put(player.getName(), line.hashCode());
 		}
@@ -78,32 +80,15 @@ public class CivMessage {
 		try {
 			Player player = CivGlobal.getPlayer(playerName);
 			send(player, line);
-		} catch (CivException e) {
-		}
+		} catch (CivException e) {}
 		CivLog.info(line);
 	}
 
 	public static void sendTitle(Object sender, int fadeIn, int show, int fadeOut, String title, String subTitle) {
-		if (CivSettings.hasTitleAPI) {
-			Player player = null;
-			Resident resident = null;
-			if ((sender instanceof Player)) {
-				player = (Player) sender;
-				resident = CivGlobal.getResident(player);
-			} else if (sender instanceof Resident) {
-				try {
-					resident = (Resident) sender;
-					player = CivGlobal.getPlayer(resident);
-				} catch (CivException e) {
-					// No player online
-				}
-			}
-			if (player != null && resident != null && resident.isTitleAPI()) {
-				// TitleAPI.se(player, fadeIn, show, fadeOut, title);
-			}
-		}
 		send(sender, title);
-		if (subTitle != "") { send(sender, subTitle); }
+		if (subTitle != "") {
+			send(sender, subTitle);
+		}
 	}
 
 	public static void sendTitle(Object sender, String title, String subTitle) {
@@ -113,15 +98,17 @@ public class CivMessage {
 	public static void send(Object sender, String line) {
 		if ((sender instanceof Player)) {
 			((Player) sender).sendMessage(line);
-		} else if (sender instanceof CommandSender) {
-			((CommandSender) sender).sendMessage(line);
-		} else if (sender instanceof Resident) {
-			try {
-				CivGlobal.getPlayer(((Resident) sender)).sendMessage(line);
-			} catch (CivException e) {
-				// No player online
-			}
-		}
+		} else
+			if (sender instanceof CommandSender) {
+				((CommandSender) sender).sendMessage(line);
+			} else
+				if (sender instanceof Resident) {
+					try {
+						CivGlobal.getPlayer(((Resident) sender)).sendMessage(line);
+					} catch (CivException e) {
+						// No player online
+					}
+				}
 	}
 
 	// public static void send(Object sender, String line, ItemStack item) {
@@ -164,7 +151,9 @@ public class CivMessage {
 		String line = "-------------------------------------------------";
 		String titleBracket = "[ " + CivColor.Yellow + title + CivColor.LightBlue + " ]";
 
-		if (titleBracket.length() > line.length()) { return CivColor.LightBlue + "-" + titleBracket + "-"; }
+		if (titleBracket.length() > line.length()) {
+			return CivColor.LightBlue + "-" + titleBracket + "-";
+		}
 
 		int min = (line.length() / 2) - titleBracket.length() / 2;
 		int max = (line.length() / 2) + titleBracket.length() / 2;
@@ -198,8 +187,7 @@ public class CivMessage {
 		try {
 			player = CivGlobal.getPlayer(resident);
 			sendHeading(player, title);
-		} catch (CivException e) {
-		}
+		} catch (CivException e) {}
 	}
 
 	public static void sendHeading(CommandSender sender, String title) {
@@ -220,13 +208,8 @@ public class CivMessage {
 	public static void globalTitle(String title, String subTitle) {
 		CivLog.info("[GlobalTitle] " + title + " - " + subTitle);
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			Resident resident = CivGlobal.getResident(player);
-			if (CivSettings.hasTitleAPI && resident.isTitleAPI()) {
-				CivMessage.sendTitle(player, 10, 60, 10, title, subTitle);
-			} else {
-				send(player, buildTitle(title));
-				if (!subTitle.equals("")) { send(player, subTitle); }
-			}
+			send(player, buildTitle(title));
+			if (!subTitle.equals("")) send(player, subTitle);
 		}
 	}
 
@@ -241,14 +224,17 @@ public class CivMessage {
 		CivLog.info("[Scout:" + civ.getName() + "] " + string);
 		for (Town t : civ.getTowns()) {
 			for (Resident resident : t.getResidents()) {
-				if (!resident.isShowScout()) { continue; }
+				if (!resident.isShowScout()) {
+					continue;
+				}
 
 				Player player;
 				try {
 					player = CivGlobal.getPlayer(resident);
-					if (player != null) { CivMessage.send(player, CivColor.Purple + CivSettings.localize.localizedString("civMsg_ScoutPrefix") + " " + CivColor.White + string); }
-				} catch (CivException e) {
-				}
+					if (player != null) {
+						CivMessage.send(player, CivColor.Purple + CivSettings.localize.localizedString("civMsg_ScoutPrefix") + " " + CivColor.White + string);
+					}
+				} catch (CivException e) {}
 			}
 
 		}
@@ -258,14 +244,17 @@ public class CivMessage {
 		CivLog.info("[Town:" + town.getName() + "] " + string);
 
 		for (Resident resident : town.getResidents()) {
-			if (!resident.isShowTown()) { continue; }
+			if (!resident.isShowTown()) {
+				continue;
+			}
 
 			Player player;
 			try {
 				player = CivGlobal.getPlayer(resident);
-				if (player != null) { CivMessage.send(player, CivColor.Gold + CivSettings.localize.localizedString("civMsg_Townprefix") + " " + CivColor.White + string); }
-			} catch (CivException e) {
-			}
+				if (player != null) {
+					CivMessage.send(player, CivColor.Gold + CivSettings.localize.localizedString("civMsg_Townprefix") + " " + CivColor.White + string);
+				}
+			} catch (CivException e) {}
 		}
 	}
 
@@ -273,14 +262,17 @@ public class CivMessage {
 		CivLog.info("[Civ:" + civ.getName() + "] " + string);
 		for (Town t : civ.getTowns()) {
 			for (Resident resident : t.getResidents()) {
-				if (!resident.isShowCiv()) { continue; }
+				if (!resident.isShowCiv()) {
+					continue;
+				}
 
 				Player player;
 				try {
 					player = CivGlobal.getPlayer(resident);
-					if (player != null) { CivMessage.send(player, CivColor.LightPurple + CivSettings.localize.localizedString("civMsg_Civprefix") + " " + CivColor.White + string); }
-				} catch (CivException e) {
-				}
+					if (player != null) {
+						CivMessage.send(player, CivColor.LightPurple + CivSettings.localize.localizedString("civMsg_Civprefix") + " " + CivColor.White + string);
+					}
+				} catch (CivException e) {}
 			}
 
 		}
@@ -298,8 +290,7 @@ public class CivMessage {
 				Player player = CivGlobal.getPlayer(resident);
 				player.sendMessage(CivColor.Rose + CivSettings.localize.localizedString("civMsg_tcNotInTown"));
 
-			} catch (CivException e) {
-			}
+			} catch (CivException e) {}
 			return;
 		}
 
@@ -332,13 +323,14 @@ public class CivMessage {
 				Player player = CivGlobal.getPlayer(resident);
 				player.sendMessage(CivColor.Rose + CivSettings.localize.localizedString("civMsg_ccNotInCiv"));
 
-			} catch (CivException e) {
-			}
+			} catch (CivException e) {}
 			return;
 		}
 
 		String townName = "";
-		if (resident.getTown() != null) { townName = resident.getTown().getName(); }
+		if (resident.getTown() != null) {
+			townName = resident.getTown().getName();
+		}
 
 		for (Town t : civ.getTowns()) {
 			for (Resident r : t.getResidents()) {
@@ -376,10 +368,14 @@ public class CivMessage {
 	public static void addExtraTownChatListener(Town town, String name) {
 
 		ArrayList<String> names = extraTownChatListeners.get(town.getName().toLowerCase());
-		if (names == null) { names = new ArrayList<String>(); }
+		if (names == null) {
+			names = new ArrayList<String>();
+		}
 
 		for (String str : names) {
-			if (str.equals(name)) { return; }
+			if (str.equals(name)) {
+				return;
+			}
 		}
 
 		names.add(name);
@@ -388,7 +384,9 @@ public class CivMessage {
 
 	public static void removeExtraTownChatListener(Town town, String name) {
 		ArrayList<String> names = extraTownChatListeners.get(town.getName().toLowerCase());
-		if (names == null) { return; }
+		if (names == null) {
+			return;
+		}
 
 		for (String str : names) {
 			if (str.equals(name)) {
@@ -402,17 +400,23 @@ public class CivMessage {
 
 	public static ArrayList<String> getExtraTownChatListeners(Town town) {
 		ArrayList<String> names = extraTownChatListeners.get(town.getName().toLowerCase());
-		if (names == null) { return new ArrayList<String>(); }
+		if (names == null) {
+			return new ArrayList<String>();
+		}
 		return names;
 	}
 
 	public static void addExtraCivChatListener(Civilization civ, String name) {
 
 		ArrayList<String> names = extraCivChatListeners.get(civ.getName().toLowerCase());
-		if (names == null) { names = new ArrayList<String>(); }
+		if (names == null) {
+			names = new ArrayList<String>();
+		}
 
 		for (String str : names) {
-			if (str.equals(name)) { return; }
+			if (str.equals(name)) {
+				return;
+			}
 		}
 
 		names.add(name);
@@ -422,7 +426,9 @@ public class CivMessage {
 
 	public static void removeExtraCivChatListener(Civilization civ, String name) {
 		ArrayList<String> names = extraCivChatListeners.get(civ.getName().toLowerCase());
-		if (names == null) { return; }
+		if (names == null) {
+			return;
+		}
 
 		for (String str : names) {
 			if (str.equals(name)) {
@@ -436,7 +442,9 @@ public class CivMessage {
 
 	public static ArrayList<String> getExtraCivChatListeners(Civilization civ) {
 		ArrayList<String> names = extraCivChatListeners.get(civ.getName().toLowerCase());
-		if (names == null) { return new ArrayList<String>(); }
+		if (names == null) {
+			return new ArrayList<String>();
+		}
 		return names;
 	}
 
@@ -476,14 +484,17 @@ public class CivMessage {
 	public static void sendTownHeading(Town town, String string) {
 		CivLog.info("[Town:" + town.getName() + "] " + string);
 		for (Resident resident : town.getResidents()) {
-			if (!resident.isShowTown()) { continue; }
+			if (!resident.isShowTown()) {
+				continue;
+			}
 
 			Player player;
 			try {
 				player = CivGlobal.getPlayer(resident);
-				if (player != null) { CivMessage.sendHeading(player, string); }
-			} catch (CivException e) {
-			}
+				if (player != null) {
+					CivMessage.sendHeading(player, string);
+				}
+			} catch (CivException e) {}
 		}
 	}
 
@@ -500,13 +511,16 @@ public class CivMessage {
 		CivLog.info("[\u0426\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u044f:" + civ.getName() + "][\u041e\u0448\u0438\u0431\u043a\u0430 \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u044f] " + string);
 		for (final Town t : civ.getTowns()) {
 			for (final Resident resident : t.getResidents()) {
-				if (!resident.isShowCiv()) { continue; }
+				if (!resident.isShowCiv()) {
+					continue;
+				}
 				try {
 					final Player player = CivGlobal.getPlayer(resident);
-					if (player == null) { continue; }
+					if (player == null) {
+						continue;
+					}
 					send(player, "§d[\u0426\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u044f] " + CivColor.RoseItalic + "[\u041e\u0448\u0438\u0431\u043a\u0430 \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u044f] " + "§f" + string);
-				} catch (CivException ex) {
-				}
+				} catch (CivException ex) {}
 			}
 		}
 	}
@@ -516,8 +530,7 @@ public class CivMessage {
 			try {
 				final Player player = CivGlobal.getPlayer(resident);
 				player.sendMessage("§c" + CivSettings.localize.localizedString("campMsg_ccNotIncamp"));
-			} catch (CivException ex) {
-			}
+			} catch (CivException ex) {}
 			return;
 		}
 		for (final Resident resident2 : camp.getMembers()) {
@@ -525,22 +538,22 @@ public class CivMessage {
 				final Player player2 = CivGlobal.getPlayer(resident2);
 				final String msg = "§6" + CivSettings.localize.localizedString("campMsg_ccPrefix1") + " " + resident.getCamp().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
 				player2.sendMessage(msg);
-			} catch (CivException ex2) {
-			}
+			} catch (CivException ex2) {}
 		}
 		for (final String name : getExtraCampChatListeners(camp)) {
 			try {
 				final Player player2 = CivGlobal.getPlayer(name);
 				final String msg = "§6" + CivSettings.localize.localizedString("camMsg_ccPrefix2") + camp.getName() + " " + resident.getCamp().getName() + "]" + "§f" + String.format(format, resident.getName(), message);
 				player2.sendMessage(msg);
-			} catch (CivException ex3) {
-			}
+			} catch (CivException ex3) {}
 		}
 	}
 
 	public static ArrayList<String> getExtraCampChatListeners(final Camp camp) {
 		final ArrayList<String> names = CivMessage.extraCampChatListeners.get(camp.getName().toLowerCase());
-		if (names == null) { return new ArrayList<String>(); }
+		if (names == null) {
+			return new ArrayList<String>();
+		}
 		return names;
 	}
 
@@ -563,7 +576,9 @@ public class CivMessage {
 
 		while (var5.hasNext()) {
 			Player admin = (Player) var5.next();
-			if (admin.isOp()) { send((Object) admin, (String) ("§c" + CivColor.UNDERLINE + "Новый Exception: " + url)); }
+			if (admin.isOp()) {
+				send((Object) admin, (String) ("§c" + CivColor.UNDERLINE + "Новый Exception: " + url));
+			}
 		}
 
 		url = url.replace(".exc", "");
@@ -572,7 +587,9 @@ public class CivMessage {
 
 	public static void sendTownNoRepeat(final Town town, final String line) {
 		final Integer hashcode = CivMessage.lastMessageHashCode.get(town.getName());
-		if (hashcode != null && hashcode == line.hashCode()) { return; }
+		if (hashcode != null && hashcode == line.hashCode()) {
+			return;
+		}
 		CivMessage.lastMessageHashCode.put(town.getName(), line.hashCode());
 		sendTown(town, line);
 	}

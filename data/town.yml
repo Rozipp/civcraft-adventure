@@ -64,68 +64,55 @@ town_levels:
       title: 'Settlement'
       upkeep: 500.0
       plots: 32
-      plot_cost: 500.0
       tile_improvements: 4
 
     - level: 2
       title: 'Hamlet'
       upkeep: 750.0
-      plots: 64
-      plot_cost: 1000.0
+      plots: 48
       tile_improvements: 6
 
     - level: 3
       title: 'Village'
-      upkeep: 1250.0
-      plots: 80
-      plot_cost: 2000.0
+      upkeep: 1200.0
+      plots: 64
       tile_improvements: 8
     
     - level: 4
       title: 'Large Village'
-      upkeep: 2000.0
-      plots: 128
-      plot_cost: 3500.0
-      tile_improvements: 12
+      upkeep: 1800.0
+      plots: 80
+      tile_improvements: 11
 
     - level: 5
       title: 'Town'
-      upkeep: 3500.0
-      plots: 256
-      plot_cost: 5000.0
-      tile_improvements: 15
-
+      upkeep: 3000.0
+      plots: 96
+      tile_improvements: 14
 
     - level: 6
       title: 'Large Town'
-      upkeep: 5500.0
-      plots: 512
-      plot_cost: 7500.0
-      tile_improvements: 17
-
+      upkeep: 4500.0
+      plots: 112
+      tile_improvements: 18
 
     - level: 7
       title: 'City'
       upkeep: 7000.0
-      plots: 1024
-      plot_cost: 15000.0
-      tile_improvements: 20
-
+      plots: 128
+      tile_improvements: 22
 
     - level: 8
       title: 'Large City'
-      upkeep: 8000.0
-      plots: 2048
-      plot_cost: 20000.0
-      tile_improvements: 25
-
+      upkeep: 10000.0
+      plots: 144
+      tile_improvements: 27
 
     - level: 9
       title: 'Metropolis'
-      upkeep: 25000.0
-      plots: 4096
-      plot_cost: 30000.0
-      tile_improvements: 30
+      upkeep: 15000.0
+      plots: 160
+      tile_improvements: 32
 
 
 
@@ -570,7 +557,7 @@ upgrades:
     
     - id: 'research_soulbound'
       name: 'Research SoulBound'
-      action: 'enable_library_enchantment, LoreEnhancementSoulBound, 1, 30000'
+      action: 'enable_library_enchantment, soul_bound, 1, 30000'
       cost: 2500.0
       require_upgrade: 'upgrade_library_level_2'
       require_tech:

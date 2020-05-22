@@ -87,8 +87,6 @@ public class DebugReloadConfCommand extends CommandBase {
 
 	@Override
 	public void permissionCheck() throws CivException {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 
 }

@@ -108,7 +108,7 @@ public class Cannon extends Construct {
 			CivMessage.send(player, "Поскольку вы оп, то можете строить пушки в мирное время");
 		else {
 			if (!War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("buildCannon_NotWar"));
-			if (!resident.getCiv().getDiplomacyManager().isAtWar()) throw new CivException("Ваша цивилизация не участвует в войне FIXME");// FIXME
+			if (!resident.getCiv().getDiplomacyManager().isAtWar()) throw new CivException("Ваша цивилизация не участвует в войне");
 		}
 		Cannon cannon = new Cannon(player);
 		cannon.initDefaultTemplate(player.getLocation());

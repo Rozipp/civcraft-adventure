@@ -1,7 +1,5 @@
 package com.avrgaming.civcraft.items.components;
 
-import gpl.AttributeUtil;
-
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -19,11 +17,13 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.CivColor;
 
+import gpl.AttributeUtil;
+
 public class RangedAttack extends ItemComponent {
 
 	@Override
-	public void onPrepareCreate(AttributeUtil attrs) {
-		attrs.addLore(CivColor.Rose + this.getDouble("value") + " " + CivSettings.localize.localizedString("itemLore_RangedAttack"));
+	public void onPrepareCreate(AttributeUtil attrUtil) {
+		attrUtil.addLore(CivColor.Rose + this.getDouble("value") + " " + CivSettings.localize.localizedString("itemLore_RangedAttack"));
 	}
 
 	private static double ARROW_MAX_VEL = 6.0;
@@ -93,5 +93,4 @@ public class RangedAttack extends ItemComponent {
 
 		event.setDamage(totalDmg);
 	}
-
 }

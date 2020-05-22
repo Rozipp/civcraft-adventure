@@ -97,9 +97,6 @@ public class Resident extends SQLObject {
 	private boolean civChat = false;
 	private boolean adminChat = false;
 	private boolean combatInfo = false;
-	private boolean titleAPI = true;
-	@Deprecated
-	private boolean preview;
 	@Deprecated
 	private int languageCode = 1033;
 
@@ -107,6 +104,7 @@ public class Resident extends SQLObject {
 	private Town townChatOverride = null;
 	/** Civ to chat in besides your own. /ad cc <civ> */
 	private Civilization civChatOverride = null;
+	
 	private boolean permOverride = false;
 	private boolean sbperm = false;
 	private boolean controlBlockInstantBreak = false;
@@ -345,9 +343,6 @@ public class Resident extends SQLObject {
 		if (this.combatInfo) {
 			flagString += "combatinfo,";
 		}
-		if (this.isTitleAPI()) {
-			flagString += "titleapi,";
-		}
 
 		if (this.itemMode.equals("rare")) {
 			flagString += "itemModeRare,";
@@ -385,13 +380,6 @@ public class Resident extends SQLObject {
 				break;
 			case "combatinfo":
 				this.setCombatInfo(true);
-				break;
-			case "titleapi":
-				if (CivSettings.hasTitleAPI) {
-					this.setTitleAPI(true);
-				} else {
-					this.setTitleAPI(false);
-				}
 				break;
 			case "itemmoderare":
 				this.itemMode = "rare";
@@ -915,7 +903,6 @@ public class Resident extends SQLObject {
 				this.perks.put(perk.getConfigId(), perk);
 			}
 		}
-
 	}
 
 	public void giveAllFreePerks() {
@@ -949,7 +936,6 @@ public class Resident extends SQLObject {
 			@Override
 			public void run() {
 				try {
-
 					String perkMessage = "";
 					if (CivSettings.getString(CivSettings.perkConfig, "system.free_perks").equalsIgnoreCase("true")) {
 						resident.giveAllFreePerks();
@@ -978,7 +964,6 @@ public class Resident extends SQLObject {
 				}
 			}
 		}
-
 		TaskMaster.asyncTask(new AsyncTask(this), 0);
 	}
 

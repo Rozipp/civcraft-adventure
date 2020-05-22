@@ -50,11 +50,11 @@ public class Settler extends UnitMaterial {
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		event.setCancelled(true);
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(event.getItem()));
-		uo.validateUnitUse(event.getPlayer());
-		
-		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
+		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(event.getItem()));
+		if (!uo.validateUnitUse(event.getPlayer())) return;
+
+		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		try {
 			new FoundTownCallback(event.getPlayer());
 		} catch (CivException e) {

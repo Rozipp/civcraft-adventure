@@ -216,8 +216,6 @@ public class CivSettings {
 
 	public static Localize localize;
 
-	public static boolean hasTitleAPI = false;
-
 	public static boolean hasCustomMobs = false;
 
 	public static Material previewMaterial = Material.GLASS;
@@ -259,7 +257,9 @@ public class CivSettings {
 		UnitStatic.init();
 
 		for (Object obj : civConfig.getList("global.start_kit")) {
-			if (obj instanceof String) { kitItems.add((String) obj); }
+			if (obj instanceof String) {
+				kitItems.add((String) obj);
+			}
 		}
 
 		CivGlobal.banWords.add("fuck");
@@ -303,13 +303,6 @@ public class CivSettings {
 			CivLog.info("VanishNoPacket hooks enabled");
 		} else {
 			CivLog.warning("VanishNoPacket not found, not registering VanishNoPacket hooks. This is fine if you're not using VanishNoPacket.");
-		}
-
-		if (CivSettings.plugin.hasPlugin("TitleAPI")) {
-			hasTitleAPI = true;
-			CivLog.info("TitleAPI hooks enabled");
-		} else {
-			CivLog.warning("TitleAPI not found, not registering TitleAPI hooks. This is fine if you're not using TitleAPI.");
 		}
 
 		try {
@@ -503,7 +496,7 @@ public class CivSettings {
 		ConfigTownHappinessLevel.loadConfig(happinessConfig, townHappinessLevels);
 		ConfigHappinessState.loadConfig(happinessConfig, happinessStates);
 		ConfigCultureBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
-		
+
 		ConfigCraftableMaterial.removeRecipes(craftableMaterialsConfig, removedRecipies);
 		ConfigCraftableMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
 		ConfigUnitMaterial.loadConfigUnit(unitMaterialsConfig, unitMaterials);
@@ -522,11 +515,12 @@ public class CivSettings {
 		ConfigSpaceCraftMat.loadConfig(missionsConfig, space_crafts);
 
 		SoundManager.loadConfig(soundConfig);
-		
-//		CivGlobal.tradeGoodPreGenerator.preGenerate();
+
+		// CivGlobal.tradeGoodPreGenerator.preGenerate();
 		Wall.init_settings();
 	}
 
+	/** Список блоков, которые можно использовать */
 	private static void initRestrictedItems() {
 		// TODO make this configurable?
 		restrictedItems.put(Material.FLINT_AND_STEEL, 0);
@@ -646,8 +640,7 @@ public class CivSettings {
 			BufferedReader br = new BufferedReader(new FileReader("plugins/CivCraft/genid.data"));
 			genid = br.readLine();
 			br.close();
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 		return genid;
 	}
 
@@ -696,7 +689,9 @@ public class CivSettings {
 	}
 
 	public static Integer getInteger(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) { throw new InvalidConfiguration("Could not get configuration integer " + path); }
+		if (!cfg.contains(path)) {
+			throw new InvalidConfiguration("Could not get configuration integer " + path);
+		}
 
 		int data = cfg.getInt(path);
 		return data;
@@ -704,27 +699,28 @@ public class CivSettings {
 
 	public static String getString(FileConfiguration cfg, String path) throws InvalidConfiguration {
 		String data = cfg.getString(path);
-		if (data == null) { throw new InvalidConfiguration("Could not get configuration string " + path); }
+		if (data == null) {
+			throw new InvalidConfiguration("Could not get configuration string " + path);
+		}
 		return data;
 	}
 
 	public static double getDouble(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) { throw new InvalidConfiguration("Could not get configuration double " + path); }
+		if (!cfg.contains(path)) {
+			throw new InvalidConfiguration("Could not get configuration double " + path);
+		}
 
 		double data = cfg.getDouble(path);
 		return data;
 	}
 
 	public static boolean getBoolean(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) { throw new InvalidConfiguration("Could not get configuration boolean " + path); }
+		if (!cfg.contains(path)) {
+			throw new InvalidConfiguration("Could not get configuration boolean " + path);
+		}
 
 		boolean data = cfg.getBoolean(path);
 		return data;
-	}
-
-	public static int getMaxNameLength() {
-		// TODO make this configurable?
-		return 32;
 	}
 
 	public static String getNameCheckRegex() throws InvalidConfiguration {
@@ -741,21 +737,27 @@ public class CivSettings {
 
 	public static ConfigTownUpgrade getUpgradeByName(String name) {
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (upgrade.name.equalsIgnoreCase(name)) { return upgrade; }
+			if (upgrade.name.equalsIgnoreCase(name)) {
+				return upgrade;
+			}
 		}
 		return null;
 	}
 
 	public static ConfigTownUpgrade getUpgradeById(String id) {
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (upgrade.id.equalsIgnoreCase(id)) { return upgrade; }
+			if (upgrade.id.equalsIgnoreCase(id)) {
+				return upgrade;
+			}
 		}
 		return null;
 	}
 
 	public static ConfigTech getTechById(final String id) {
 		for (final ConfigTech tech : CivSettings.techs.values()) {
-			if (tech.id.equalsIgnoreCase(id)) { return tech; }
+			if (tech.id.equalsIgnoreCase(id)) {
+				return tech;
+			}
 		}
 		return null;
 	}
@@ -766,7 +768,9 @@ public class CivSettings {
 		for (int i = 0; i < happinessStates.size(); i++) {
 			ConfigHappinessState state = happinessStates.get(i);
 			amount = (double) Math.round(amount * 100) / 100;
-			if (amount >= state.amount) { closestState = state; }
+			if (amount >= state.amount) {
+				closestState = state;
+			}
 		}
 
 		return closestState;
@@ -775,9 +779,13 @@ public class CivSettings {
 	public static ConfigTownUpgrade getUpgradeByNameRegex(Town town, String name) throws CivException {
 		ConfigTownUpgrade returnUpgrade = null;
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (!upgrade.isAvailable(town)) { continue; }
+			if (!upgrade.isAvailable(town)) {
+				continue;
+			}
 
-			if (name.equalsIgnoreCase(upgrade.name)) { return upgrade; }
+			if (name.equalsIgnoreCase(upgrade.name)) {
+				return upgrade;
+			}
 
 			String loweredUpgradeName = upgrade.name.toLowerCase();
 			String loweredName = name.toLowerCase();
@@ -796,9 +804,13 @@ public class CivSettings {
 	public static ConfigCampUpgrade getCampUpgradeByNameRegex(Camp camp, String name) throws CivException {
 		ConfigCampUpgrade returnUpgrade = null;
 		for (ConfigCampUpgrade upgrade : campUpgrades.values()) {
-			if (!upgrade.isAvailable(camp)) { continue; }
+			if (!upgrade.isAvailable(camp)) {
+				continue;
+			}
 
-			if (name.equalsIgnoreCase(upgrade.name)) { return upgrade; }
+			if (name.equalsIgnoreCase(upgrade.name)) {
+				return upgrade;
+			}
 
 			String loweredUpgradeName = upgrade.name.toLowerCase();
 			String loweredName = name.toLowerCase();
@@ -816,11 +828,15 @@ public class CivSettings {
 
 	public static ConfigBuildableInfo getBuildableInfoByName(String fullArgs) {
 		for (ConfigBuildableInfo sinfo : structures.values()) {
-			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) { return sinfo; }
+			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) {
+				return sinfo;
+			}
 		}
 
 		for (ConfigBuildableInfo sinfo : wonders.values()) {
-			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) { return sinfo; }
+			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) {
+				return sinfo;
+			}
 		}
 
 		return null;
@@ -828,7 +844,9 @@ public class CivSettings {
 
 	public static ConfigTech getTechByName(String techname) {
 		for (ConfigTech tech : techs.values()) {
-			if (tech.name.equalsIgnoreCase(techname)) { return tech; }
+			if (tech.name.equalsIgnoreCase(techname)) {
+				return tech;
+			}
 		}
 		return null;
 	}
@@ -836,7 +854,9 @@ public class CivSettings {
 	public static int getCottageMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : cottageLevels.keySet()) {
-			if (returnLevel < level) { returnLevel = level; }
+			if (returnLevel < level) {
+				returnLevel = level;
+			}
 		}
 
 		return returnLevel;
@@ -845,7 +865,9 @@ public class CivSettings {
 	public static int getTempleMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : templeLevels.keySet()) {
-			if (returnLevel < level) { returnLevel = level; }
+			if (returnLevel < level) {
+				returnLevel = level;
+			}
 		}
 		return returnLevel;
 	}
@@ -853,7 +875,9 @@ public class CivSettings {
 	public static int getMineMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : mineLevels.keySet()) {
-			if (returnLevel < level) { returnLevel = level; }
+			if (returnLevel < level) {
+				returnLevel = level;
+			}
 		}
 
 		return returnLevel;
@@ -862,7 +886,9 @@ public class CivSettings {
 	public static int getMaxCultureLevel() {
 		int returnLevel = 0;
 		for (Integer level : cultureLevels.keySet()) {
-			if (returnLevel < level) { returnLevel = level; }
+			if (returnLevel < level) {
+				returnLevel = level;
+			}
 		}
 
 		return returnLevel;
@@ -871,7 +897,9 @@ public class CivSettings {
 
 	public static ConfigCultureBiomeInfo getCultureBiome(String name) {
 		ConfigCultureBiomeInfo biomeInfo = cultureBiomes.get(name);
-		if (biomeInfo == null) { biomeInfo = cultureBiomes.get("UNKNOWN"); }
+		if (biomeInfo == null) {
+			biomeInfo = cultureBiomes.get("UNKNOWN");
+		}
 
 		return biomeInfo;
 	}

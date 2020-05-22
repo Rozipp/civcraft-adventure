@@ -245,8 +245,6 @@ public abstract class Construct extends SQLObject {
 		int regionY = this.getTemplate().getSize_y();
 		int regionZ = this.getTemplate().getSize_z();
 
-		if (CivGlobal.getConstructAt(this.getCorner()) != null) throw new CivException(CivSettings.localize.localizedString("buildable_structureExistsHere"));
-
 		if (!player.isOp()) BuildableStatic.validateDistanceFromSpawn(this.getCenterLocation());
 		if (getCorner().getY() >= 255) throw new CivException(CivSettings.localize.localizedString("buildable_errorTooHigh"));
 		if (getCorner().getY() <= 7) throw new CivException(CivSettings.localize.localizedString("buildable_errorTooLow"));
@@ -259,6 +257,7 @@ public abstract class Construct extends SQLObject {
 				// Make sure we have permission to destroy any block in this area.
 				throw new CivException(CivSettings.localize.localizedString("cannotBuild_needPermissions"));
 			}
+			if (CivGlobal.getBuildableAt(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("buildable_structureExistsHere"));
 			if (CivGlobal.getFarmChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
 			if (CivGlobal.getWallChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_wallInWay"));
 			if (CivGlobal.getConstructFromChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
@@ -283,6 +282,7 @@ public abstract class Construct extends SQLObject {
 
 					BlockCoord coord = new BlockCoord(block);
 					if (CivGlobal.getConstructBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
+					
 					RoadBlock rb = CivGlobal.getRoadBlock(coord);
 					if (rb != null) deletedRoadBlocks.add(rb);
 				}
@@ -459,7 +459,7 @@ public abstract class Construct extends SQLObject {
 
 	public void processCommandSigns() {
 		Template tpl = this.getTemplate();
-		if (!this.isPartOfAdminCiv()) {// TODO если цива админская не ставим двери
+		if (!this.isPartOfAdminCiv()) {// если цива админская не ставим двери
 			for (SimpleBlock sb : tpl.doorRelativeLocations) {
 				Block block = this.getCorner().getBlock().getRelative(sb.getX(), sb.getY(), sb.getZ());
 				if (ItemManager.getTypeId(block) != sb.getType()) {

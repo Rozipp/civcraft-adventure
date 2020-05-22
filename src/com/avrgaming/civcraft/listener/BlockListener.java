@@ -25,7 +25,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.ControlPoint;
-import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
@@ -280,7 +279,6 @@ public class BlockListener implements Listener {
 			try {
 				event.setDamage(CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.damage"));
 			} catch (InvalidConfiguration e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -420,23 +418,6 @@ public class BlockListener implements Listener {
 		if (tc == null) {
 			return;
 		}
-		// TODO from furnex Даже не понял о чем текст
-		// if (tc.perms.isMobs() == false) {
-		// if (event.getSpawnReason().equals(SpawnReason.CUSTOM)) {
-		// return;
-		// }
-		// ChunkCoord coord = new ChunkCoord(event.getEntity().getLocation());
-		// Battledome battledome = Battledome.battledomeChunks.get(coord);
-		//
-		// if (battledome != null) {
-		// return;
-		// }
-		//
-		// if (CivSettings.restrictedSpawns.containsKey(event.getEntityType())) {
-		// event.setCancelled(true);
-		// return;
-		// }
-		// }
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -722,9 +703,6 @@ public class BlockListener implements Listener {
 		BlockCoord bcoord = new BlockCoord(event.getToBlock().getLocation());
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) event.setCancelled(true);
-
-		ProtectedBlock pb = CivGlobal.getProtectedBlock(bcoord);
-		if (pb != null) event.setCancelled(true);
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -774,13 +752,6 @@ public class BlockListener implements Listener {
 				rb.onHit(event.getPlayer());
 				return;
 			}
-		}
-
-		ProtectedBlock pb = CivGlobal.getProtectedBlock(bcoord);
-		if (pb != null) {
-			event.setCancelled(true);
-			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorProtected"));
-			return;
 		}
 
 		ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
@@ -1049,11 +1020,9 @@ public class BlockListener implements Listener {
 		}
 
 		if (event.hasItem()) {
-			if (event.getItem() == null) {} else {
-				if (CivSettings.restrictedItems.containsKey(event.getItem().getType())) {
-					OnPlayerUseItem(event);
-					if (event.isCancelled()) return;
-				}
+			if (CivSettings.restrictedItems.containsKey(event.getItem().getType())) {
+				OnPlayerUseItem(event);
+				if (event.isCancelled()) return;
 			}
 		}
 
@@ -1069,7 +1038,7 @@ public class BlockListener implements Listener {
 		}
 
 		ChunkCoord coord = new ChunkCoord(event.getPlayer().getLocation());
-		Camp camp = (Camp) CivGlobal.getConstructAt(coord);
+		Camp camp = CivGlobal.getCampAt(coord);
 		if (camp != null) {
 			if (!camp.hasMember(event.getPlayer().getName())) {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("bedUse_errorNotIncamp"));
@@ -1151,9 +1120,8 @@ public class BlockListener implements Listener {
 		ItemStack stack = event.getItem();
 		ChunkCoord coord = new ChunkCoord(event.getPlayer().getLocation());
 
-		Construct construct = CivGlobal.getConstructAt(coord);
-		if (construct instanceof Camp) {
-			Camp camp = (Camp) construct;
+		Camp camp = CivGlobal.getCampAt(coord);
+		if (camp != null) {
 			if (!camp.hasMember(event.getPlayer().getName())) {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("itemUse_errorcamp") + " " + stack.getType().toString());
 				event.setCancelled(true);

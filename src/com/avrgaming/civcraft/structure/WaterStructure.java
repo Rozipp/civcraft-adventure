@@ -12,12 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Location;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.util.ChunkCoord;
 
 public class WaterStructure extends Structure {
 
@@ -34,52 +36,32 @@ public class WaterStructure extends Structure {
 
 	@Override
 	public Location repositionCenter(Location center, Template tpl) {
-		Location loc = center.clone();
-		String dir = tpl.getDirection();
-		double x_size = tpl.getSize_x();
-		double z_size = tpl.getSize_z();
-		// Reposition tile improvements
-		if (this.isTileImprovement()) {
-			// just put the center at 0,0 of this chunk?
-			loc = center.getChunk().getBlock(0, center.getBlockY(), 0).getLocation();
-			//loc = center.getChunk().getBlock(arg0, arg1, arg2)
-		} else {
-			if (dir.equalsIgnoreCase("east")) {
-				loc.setZ(loc.getZ() - (z_size / 2));
-				loc.setX(loc.getX());
-			} else
-				if (dir.equalsIgnoreCase("west")) {
-					loc.setZ(loc.getZ() - (z_size / 2));
-					loc.setX(loc.getX() - (x_size));
-
-				} else
-					if (dir.equalsIgnoreCase("north")) {
-						loc.setX(loc.getX() - (x_size / 2));
-						loc.setZ(loc.getZ() - (z_size));
-					} else
-						if (dir.equalsIgnoreCase("south")) {
-							loc.setX(loc.getX() - (x_size / 2));
-							loc.setZ(loc.getZ());
-
-						}
-		}
-
-		if (this.getTemplateYShift() != 0) {
-			// Y-Shift based on the config, this allows templates to be built underground.
-			loc.setY(WATER_LEVEL + this.getTemplateYShift());
-		}
-
+		Location loc = BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl);
+		loc.setY(WATER_LEVEL + this.getTemplateYShift());
 		return loc;
 	}
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
-		super.checkBlockPermissionsAndRestrictions(player);
-
-		if (Math.abs(this.getCorner().getY() - WATER_LEVEL) > TOLERANCE) {
-			throw new CivException(CivSettings.localize.localizedString("buildable_Water_notValidWaterSpot"));
+		for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+			Biome biome = chunkCoord.getChunk().getBlock(7, 64, 7).getBiome();
+			switch (biome) {
+			case OCEAN:
+			case BEACHES:
+			case STONE_BEACH:
+			case COLD_BEACH:
+			case DEEP_OCEAN:
+			case RIVER:
+			case FROZEN_OCEAN:
+			case FROZEN_RIVER:
+				break;
+			default:
+				throw new CivException(CivSettings.localize.localizedString("var_buildable_notEnoughWater", this.getDisplayName()));
+			}
 		}
 
+		if (Math.abs(this.getCorner().getY() - WATER_LEVEL) > TOLERANCE) throw new CivException(CivSettings.localize.localizedString("buildable_Water_notValidWaterSpot"));
+		super.checkBlockPermissionsAndRestrictions(player);
 	}
 
 	@Override

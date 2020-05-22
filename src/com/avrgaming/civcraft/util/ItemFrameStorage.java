@@ -118,13 +118,7 @@ public class ItemFrameStorage {
 		return this.getFrameID();
 	}
 	
-	public void setFacingDirection(BlockFace blockface) {
-	//	ItemFrame frame = getItemFrame();
-	//	frame.setFacingDirection(blockface);
-	}
-	
 	public void setItem(ItemStack stack) {
-
 		ItemFrame frame = getItemFrame();
 		if (frame != null) {
 			ItemStack newStack = new ItemStack(stack.getType(), 1, stack.getDurability());
@@ -134,7 +128,6 @@ public class ItemFrameStorage {
 		} else {
 			CivLog.warning("Frame:"+this.frameID+" was null when trying to set to "+stack.getType().name());
 		}
-		
 	}
 	
 	public void clearItem() {

@@ -2,19 +2,21 @@ package com.avrgaming.civcraft.enchantment;
 
 import org.bukkit.ChatColor;
 
+import com.avrgaming.civcraft.config.CivSettings;
+
 public class EnchantmentSpeed extends CustomEnchantment {
 
 	private static Double percentPerLevel = 0.02;
 
 	protected EnchantmentSpeed(int id) {
-		super(id, "Speed_Bonus", ItemSet.LEGGINGS, 100, null);
+		super(id, "speed", CivSettings.localize.localizedString("itemLore_Speed_Bonus"), ItemSet.LEGGINGS, 100, null);
 	}
 
 	@Override
 	public String getDisplayName(int level) {
-		return ChatColor.BLUE + "Speed " + " +" + percentPerLevel * level * 100 + "%";
+		return ChatColor.BLUE + this.displayName + " +" + percentPerLevel * level * 100 + "%";
 	}
-	
+
 	public static Double getModifitedSpeed(int level) {
 		return percentPerLevel * level;
 	}

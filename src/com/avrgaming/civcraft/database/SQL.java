@@ -22,7 +22,6 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Coalition;
 import com.avrgaming.civcraft.object.MissionLogger;
 import com.avrgaming.civcraft.object.NamedObject;
-import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Report;
 import com.avrgaming.civcraft.object.Resident;
@@ -97,7 +96,6 @@ public class SQL {
 		TradeGood.init();
 		Cave.init();
 		UnitObject.init();
-		ProtectedBlock.init();
 		BonusGoodie.init();
 		MissionLogger.init();
 		EventTimer.init();
@@ -518,7 +516,6 @@ public class SQL {
 		SQL.deleteTable(Civilization.TABLE_NAME);
 		SQL.deleteTable(Coalition.TABLE_NAME);
 		SQL.deleteTable(MissionLogger.TABLE_NAME);
-		SQL.deleteTable(ProtectedBlock.TABLE_NAME);
 		SQL.deleteTable(Relation.TABLE_NAME);
 		SQL.deleteTable(Report.TABLE_NAME);
 		SQL.deleteTable(Resident.TABLE_NAME);

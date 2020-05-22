@@ -7,7 +7,7 @@ materials:
 #============== Primary Materials
 
     - id: 'u_choiceunitcomponent'
-      item_id: '386:0'
+      item_id: '340:0'
       name: 'ChoiceUnitComponent'
       slot: 7
       components:

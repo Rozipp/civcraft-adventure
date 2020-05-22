@@ -1,8 +1,6 @@
 package com.avrgaming.civcraft.structure;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -15,7 +13,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.ItemManager;
 
 public class BuildableStatic {
 	// Number of blocks to shift the structure away from us when built.
@@ -24,12 +21,13 @@ public class BuildableStatic {
 
 	public static final double DEFAULT_HAMMERRATE = 1.0;
 
-	public static Location repositionCenterStatic(Location center, int templateYShift, Template tpl) throws CivException {
+	public static Location repositionCenterStatic(Location center, int templateYShift, Template tpl) {
 		return repositionCenterStatic(center, templateYShift, tpl, false);
 	}
 
-	/* XXX this is called only on structures which do not have towns yet. For Example Capitols, Camps and Town Halls. */
-	public static Location repositionCenterStatic(Location center, int templateYShift, Template tpl, Boolean stepToForvard) throws CivException {
+	/** Перемещает координаты постройки так, что бы человек стоял в приблизительно среднем чанке переднего края. Если stepToForvard = true, то
+	 * смещает постройку на чанк назад, что бы игрок не умер в блоках постройки */
+	public static Location repositionCenterStatic(Location center, int templateYShift, Template tpl, Boolean stepToForvard) {
 		Location loc = center.clone();
 
 		loc = loc.getChunk().getBlock(0, loc.getBlockY(), 0).getLocation();
@@ -64,7 +62,6 @@ public class BuildableStatic {
 		if (templateYShift != 0) {
 			// Y-Shift based on the config, this allows templates to be built underground.
 			loc.setY(loc.getY() + templateYShift);
-			if (loc.getY() < 1) throw new CivException(CivSettings.localize.localizedString("buildable_TooCloseToBedrock"));
 		}
 
 		return loc;
@@ -88,25 +85,6 @@ public class BuildableStatic {
 				throw new CivException(CivSettings.localize.localizedString("var_buildable_toocloseToSpawn1", requiredDistance));
 			}
 		}
-	}
-
-	public static int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, String worldName) throws CivException {
-
-		int chunkX = ChunkCoord.castToChunk(absX);
-		int chunkZ = ChunkCoord.castToChunk(absZ);
-
-		int blockChunkX = absX % 16;
-		int blockChunkZ = absZ % 16;
-
-		if (blockChunkX < 0) blockChunkX += 16;
-		if (blockChunkZ < 0) blockChunkZ += 16;
-
-		ChunkCoord coord = new ChunkCoord(worldName, chunkX, chunkZ);
-
-		ChunkSnapshot snapshot = snapshots.get(coord);
-		if (snapshot == null) throw new CivException("Snapshot for chunk " + chunkX + ", " + chunkZ + " in " + worldName + " not found for abs:" + absX + "," + absZ);
-
-		return ItemManager.getBlockTypeId(snapshot, blockChunkX, absY, blockChunkZ);
 	}
 
 	public static int getReinforcementValue(int typeId) {

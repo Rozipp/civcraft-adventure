@@ -65,14 +65,14 @@ public class DebugCaveCommand extends CommandBase {
 //		}
 
 		CivMessage.send(sender, "Starting Trade Generation task...");
-//TODO		TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
+//		TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
 	}
 
 	public void regencavechunk_cmd() {
 
 //		World world = Bukkit.getWorld("world");
 
-//TODO		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
+//		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
 //
 //			world.regenerateChunk(coord.getX(), coord.getZ());
 //			CivMessage.send(sender, "Regened:" + coord);

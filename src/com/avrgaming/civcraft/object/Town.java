@@ -100,7 +100,6 @@ public class Town extends SQLObject {
 	private ConcurrentHashMap<String, Resident> fakeResidents = new ConcurrentHashMap<String, Resident>();
 
 	private ConcurrentHashMap<ChunkCoord, TownChunk> townChunks = new ConcurrentHashMap<ChunkCoord, TownChunk>();
-	private ConcurrentHashMap<ChunkCoord, TownChunk> outposts = new ConcurrentHashMap<ChunkCoord, TownChunk>();
 	private ConcurrentHashMap<ChunkCoord, CultureChunk> cultureChunks = new ConcurrentHashMap<ChunkCoord, CultureChunk>();
 
 	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<BlockCoord, Wonder>();
@@ -403,9 +402,6 @@ public class Town extends SQLObject {
 			}
 			this.cultureChunks = null;
 
-			/* Remove any related SessionDB entries */
-			CivGlobal.getSessionDatabase().deleteAllForTown(this);
-
 			getCiv().removeTown(this);
 			CivGlobal.removeTown(this);
 			SQL.deleteNamedObject(this, TABLE_NAME);
@@ -501,10 +497,7 @@ public class Town extends SQLObject {
 	public void addResident(Resident res) throws AlreadyRegisteredException {
 		String key = res.getName().toLowerCase();
 
-		if (residents.containsKey(key)) {
-			throw new AlreadyRegisteredException(res.getName() + " already a member of town " + this.getName());
-		}
-
+		if (residents.containsKey(key)) throw new AlreadyRegisteredException(res.getName() + " already a member of town " + this.getName());
 		res.setTown(this);
 
 		residents.put(key, res);
@@ -512,10 +505,6 @@ public class Town extends SQLObject {
 			this.defaultGroup.addMember(res);
 			this.defaultGroup.save();
 		}
-		// TODO
-		// Player player = Bukkit.getPlayer(res.getUid());
-		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () -> //XXX from furnex
-		 * iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers()))); } */
 	}
 
 	public void addTownChunk(TownChunk tc) throws AlreadyRegisteredException {
@@ -555,6 +544,13 @@ public class Town extends SQLObject {
 		// }
 
 		this.level = level;
+	}
+
+	public int getMaxTileImprovements() {
+		ConfigTownLevel level = CivSettings.townLevels.get(this.getLevel());
+		Integer maxTileImprovements = level.tile_improvements;
+		if (this.getBuffManager().hasBuff("buff_mother_tree_tile_improvement_bonus")) maxTileImprovements *= 2;
+		return maxTileImprovements;
 	}
 
 	public double getTaxRate() {
@@ -862,8 +858,7 @@ public class Town extends SQLObject {
 
 		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("town_found_errorAtWar"));
 		if (getCiv() != null) {
-			Double costTown = 10000.0 * (getCiv().getTownCount()); // TODO для основания города в казне цивилизации должно быть
-			if (!getCiv().getTreasury().hasEnough(costTown)) throw new CivException("TODO для основания города в казне цивилизации должно быть " + costTown + " коинов");
+			if (!getCiv().getTreasury().hasEnough(getCiv().getNextTownCost())) throw new CivException("Для основания города в казне цивилизации должно быть " + getCiv().getNextTownCost() + " коинов");
 		}
 		double minDistanceFriendSqr;
 		double minDistanceEnemySqr;
@@ -902,7 +897,9 @@ public class Town extends SQLObject {
 
 	public void createTown(Resident resident, Structure structure) throws CivException {
 		Player player = CivGlobal.getPlayer(resident.getName());
+		this.checkCanCreatedTown(resident, structure);
 		try {
+			int cost = getCiv().getNextTownCost();
 			this.saveNow();
 			CivGlobal.addTown(this);
 			getCiv().addTown(this);
@@ -947,7 +944,7 @@ public class Town extends SQLObject {
 				throw e;
 			}
 
-			getCiv().getTreasury().deposit(10000.0 * (getCiv().getTownCount() - 1)); // TODO
+			getCiv().getTreasury().deposit(cost); 
 
 			CivGlobal.processCulture();
 			this.saveNow();
@@ -1344,10 +1341,6 @@ public class Town extends SQLObject {
 
 		resident.save();
 		this.save();
-		// TODO
-		// Player player = Bukkit.getPlayer(resident.getUid());
-		/* if (player != null && CivSettings.hasITag) { Bukkit.getScheduler().runTask(CivCraft.getPlugin(), () ->
-		 * iTag.getInstance().refreshPlayer(player, new HashSet<>(Bukkit.getOnlinePlayers()))); } */
 	}
 
 	public double collectPlotTax() {
@@ -1426,9 +1419,7 @@ public class Town extends SQLObject {
 			return 0;
 		}
 		upkeep += this.getBaseUpkeep();
-		// upkeep += this.getSpreadUpkeep();
 		upkeep += this.getStructureUpkeep();
-		upkeep += this.getOutpostUpkeep();
 		upkeep *= this.getBonusUpkeep();
 		upkeep *= getGovernment().upkeep_rate;
 
@@ -1504,15 +1495,6 @@ public class Town extends SQLObject {
 		}
 
 		kickResident(resident);
-	}
-
-	public boolean canClaim() {
-
-		if (getMaxPlots() <= townChunks.size()) {
-			return false;
-		}
-
-		return true;
 	}
 
 	public int getMaxPlots() {
@@ -1721,14 +1703,17 @@ public class Town extends SQLObject {
 			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + ". " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
 
 		ArrayList<ChunkCoord> chunks = BuildableStatic.getChunkCoords(buildable);
-		if (getTownChunks().size() + chunks.size() > getMaxPlots())
-			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
-					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
-
+		int needClaim = 0;
 		for (ChunkCoord cc : chunks) {
 			TownChunk tc = CivGlobal.getTownChunk(cc);
-			if (tc != null && tc.getTown() != this) throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown());
+			if (tc == null || tc.getTown() == this)
+				needClaim++;
+			else
+				throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown());
 		}
+		if (getTownChunks().size() + needClaim > getMaxPlots())
+			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
+					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
 	}
 
 	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
@@ -1799,10 +1784,7 @@ public class Town extends SQLObject {
 		struct.checkBlockPermissionsAndRestrictions(player);
 		for (ChunkCoord cc : BuildableStatic.getChunkCoords(struct)) {
 			TownChunk tc = CivGlobal.getTownChunk(cc);
-			if (tc == null) {
-				// XXX These will be added to the array list of objects to save in town.buildStructure();
-				TownChunk.autoClaim(this, cc).save();
-			}
+			if (tc == null) TownChunk.autoClaim(this, cc).save();
 		}
 		this.startBuildStructure(player, struct);
 	}
@@ -1839,18 +1821,10 @@ public class Town extends SQLObject {
 		int count = this.getStructureTypeCount(struct.getConfigId());
 
 		if (struct.isTileImprovement()) {
-			ConfigTownLevel level = CivSettings.townLevels.get(this.getLevel());
-			Integer maxTileImprovements = level.tile_improvements;
-			if (this.getBuffManager().hasBuff("buff_mother_tree_tile_improvement_bonus")) {
-				maxTileImprovements *= 2;
-			}
-			if (this.getTileImprovementCount() > maxTileImprovements) {
-				return false;
-			}
+			Integer maxTileImprovements = this.getMaxTileImprovements();
+			if (this.getTileImprovementCount() > maxTileImprovements) return false;
 		} else
-			if ((struct.getLimit() != 0) && (count > struct.getLimit())) {
-				return false;
-			}
+			if ((struct.getLimit() != 0) && (count > struct.getLimit())) return false;
 
 		return true;
 	}
@@ -2126,42 +2100,8 @@ public class Town extends SQLObject {
 		return rate;
 	}
 
-	public double getSpreadUpkeep() throws InvalidConfiguration {
-		double total = 0.0;
-		double grace_distance = CivSettings.getDoubleTown("town.upkeep_town_block_grace_distance");
-		double base = CivSettings.getDoubleTown("town.upkeep_town_block_base");
-		double falloff = CivSettings.getDoubleTown("town.upkeep_town_block_falloff");
-
-		Structure townHall = this.getTownHall();
-		if (townHall == null) {
-			CivLog.error("No town hall for " + getName() + " while getting spread upkeep.");
-			return 0.0;
-		}
-
-		ChunkCoord townHallChunk = new ChunkCoord(townHall.getCorner().getLocation());
-
-		for (TownChunk tc : this.getTownChunks()) {
-			if (tc.isOutpost()) {
-				continue;
-			}
-
-			if (tc.getChunkCoord().equals(townHallChunk)) continue;
-
-			double distance = tc.getChunkCoord().distance(townHallChunk);
-			if (distance > grace_distance) {
-				distance -= grace_distance;
-				double upkeep = base * Math.pow(distance, falloff);
-
-				total += upkeep;
-			}
-
-		}
-
-		return Math.floor(total);
-	}
-
 	public double getTotalUpkeep() throws InvalidConfiguration {
-		return this.getBaseUpkeep() + this.getStructureUpkeep() + this.getSpreadUpkeep() + this.getOutpostUpkeep();
+		return this.getBaseUpkeep() + this.getStructureUpkeep();
 	}
 
 	public double getTradeRate() {
@@ -2201,11 +2141,7 @@ public class Town extends SQLObject {
 	}
 
 	public void removeTownChunk(TownChunk tc) {
-		if (tc.isOutpost()) {
-			this.outposts.remove(tc.getChunkCoord());
-		} else {
-			this.townChunks.remove(tc.getChunkCoord());
-		}
+		this.townChunks.remove(tc.getChunkCoord());
 	}
 
 	public Double getHammersFromCulture() {
@@ -2502,29 +2438,6 @@ public class Town extends SQLObject {
 		}
 
 		return points;
-	}
-
-	public void addOutpostChunk(TownChunk tc) throws AlreadyRegisteredException {
-		if (outposts.containsKey(tc.getChunkCoord())) {
-			throw new AlreadyRegisteredException(CivSettings.localize.localizedString("var_town_outpost_alreadyRegistered", tc.getChunkCoord(), this.getName()));
-		}
-		outposts.put(tc.getChunkCoord(), tc);
-	}
-
-	public Collection<TownChunk> getOutpostChunks() {
-		return outposts.values();
-	}
-
-	public double getOutpostUpkeep() {
-		// double outpost_upkeep;
-		// try {
-		// outpost_upkeep = CivSettings.getDouble(CivSettings.townConfig, "town.outpost_upkeep");
-		// } catch (InvalidConfiguration e) {
-		// e.printStackTrace();
-		// return 0.0;
-		// }
-		// return outpost_upkeep*outposts.size();
-		return 0;
 	}
 
 	public boolean isOutlaw(Resident res) {

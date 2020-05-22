@@ -9,6 +9,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.util.ItemManager;
 
+import gpl.AttributeUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,7 @@ public class Enchantments {
 		if (item.getType() == Material.BOOK) {
 			item.setType(Material.ENCHANTED_BOOK);
 		}
-		
+
 		final ItemMeta meta = item.getItemMeta();
 		final List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
 		final int lvl = Enchantments.getLevelEnchantment(item, enchantment);
@@ -39,7 +41,23 @@ public class Enchantments {
 		item.setItemMeta(meta);
 		return item;
 	}
-	
+
+	public static AttributeUtil addEnchantment(AttributeUtil attrUtil, CustomEnchantment enchantment, Integer level) {
+		Objects.requireNonNull(attrUtil, "Item cannot be null");
+		Validate.isTrue(level > 0, "Level must be at least 1");
+
+		final List<String> lore = attrUtil.getLore();
+		if (lore == null) new ArrayList<>();
+		int lvl = attrUtil.getEnchantLevel(enchantment.enchantment);
+		if (lvl > 0) {
+			lore.remove(enchantment.getDisplayName(lvl));
+		}
+		lore.add(0, enchantment.getDisplayName(level));
+		attrUtil.setLore(lore);
+		attrUtil.addEnchantment(enchantment.enchantment, level);
+		return attrUtil;
+	}
+
 	public static ItemStack removeEnchantment(final ItemStack item, CustomEnchantment enchantment) {
 		Objects.requireNonNull(item, "Item cannot be null");
 		final int lvl = Enchantments.getLevelEnchantment(item, enchantment);
@@ -53,11 +71,11 @@ public class Enchantments {
 		}
 		return item;
 	}
-	
+
 	public static Integer getLevelEnchantment(final ItemStack item, CustomEnchantment enchantment) {
 		return item.getItemMeta().getEnchantLevel(enchantment.enchantment);
 	}
-	
+
 	public static CustomEnchantment getCustomEnchantment(int id) {
 		return enchantmentList.get(id);
 	}
@@ -97,5 +115,5 @@ public class Enchantments {
 		item.getEnchantments().forEach((enchant, level) -> item.removeEnchantment(enchant));
 		return item;
 	}
-	
+
 }

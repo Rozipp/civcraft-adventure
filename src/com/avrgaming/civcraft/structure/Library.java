@@ -122,6 +122,10 @@ public class Library extends Structure {
 		if (name.equalsIgnoreCase("infinity")) {
 			return CustomEnchantment.ARROW_INFINITE;
 		}
+		
+		if (name.equalsIgnoreCase("soul_bound")) {
+			return CustomEnchantment.SoulBound;
+		}
 
 		return null;
 

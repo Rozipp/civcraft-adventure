@@ -190,7 +190,7 @@ public class GreatLibrary extends Wonder {
 					return;
 				}
 
-				if (Enchantments.hasEnchantment(hand, CustomEnchantment.getByName(configEnchant.enchant_id))) {
+				if (Enchantments.hasEnchantment(hand, CustomEnchantment.Punchout)) {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("library_enchant_hasEnchantment"));
 					return;
 				}
@@ -201,7 +201,7 @@ public class GreatLibrary extends Wonder {
 				}
 
 				resident.getTreasury().withdraw(configEnchant.cost);
-				Enchantments.addEnchantment(hand, CustomEnchantment.getByName(configEnchant.enchant_id), 1);
+				Enchantments.addEnchantment(hand, CustomEnchantment.Punchout, 1);
 				player.getInventory().setItemInMainHand(hand);
 				break;
 			default:

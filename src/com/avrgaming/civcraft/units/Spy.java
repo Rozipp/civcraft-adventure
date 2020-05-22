@@ -512,7 +512,6 @@ public class Spy extends UnitMaterial {
 
 			out = ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_civ_info_upkeepHeading") + "\n\n" + ChatColor.RESET;
 			try {
-				out += CivSettings.localize.localizedString("cmd_town_info_spreadUpkeep") + " " + tc.getTown().getSpreadUpkeep() + "\n";
 				out += CivSettings.localize.localizedString("cmd_town_info_structuresUpkeep") + " " + tc.getTown().getStructureUpkeep() + "\n";
 				out += CivSettings.localize.localizedString("Total") + " " + tc.getTown().getTotalUpkeep();
 				BookUtil.paginate(meta, out);

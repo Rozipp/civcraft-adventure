@@ -50,7 +50,7 @@ public class FoundCivCallback implements CallbackInterface {
 
 	@Override
 	public void execute(String... strings) {
-		/* getTownName */
+		InteractiveGetName interactive;
 		if (templateTheme == null) {
 			templateTheme = strings[0];
 
@@ -63,7 +63,10 @@ public class FoundCivCallback implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("foundCiv_Prompt5"));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 
-			resident.setInteractiveMode(new InteractiveGetName());
+			interactive = new InteractiveGetName();
+			interactive.canselMessage = CivSettings.localize.localizedString("interactive_civ_cancel");
+			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_civ_invalid");
+			resident.setInteractiveMode(interactive);
 			return;
 		}
 
@@ -72,6 +75,9 @@ public class FoundCivCallback implements CallbackInterface {
 			try {
 				if (CivGlobal.getCiv(civName) != null || CivGlobal.getConqueredCiv(civName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_civ_found_civExists", civName));
 				civ.setName(civName);
+				if (!player.isOp() && (tagName.length() < 2 || tagName.length() > 5)) throw new InvalidNameException("§c" + CivSettings.localize.localizedString("cmd_prefix_illegalArgument"));
+				if (CivGlobal.anybodyHasTag(tagName)) throw new InvalidNameException(CivColor.RoseBold + CivSettings.localize.localizedString("interactive_civtag_arleadyExists"));
+				civ.setTag(civName);
 			} catch (InvalidNameException e) {
 				civName = null;
 				CivMessage.sendError(player, e.getMessage());
@@ -79,32 +85,36 @@ public class FoundCivCallback implements CallbackInterface {
 			}
 
 			CivMessage.send((Object) player, (String) ("§a" + CivSettings.localize.localizedString("var_interactive_civ_success1", "§e" + civName + "§a")));
-			CivMessage.send((Object) player, (String) " ");
-			CivMessage.send((Object) player, (String) (CivColor.LightGreenBold + CivSettings.localize.localizedString("interactive_civ_success3")));
-			CivMessage.send((Object) player, (String) ("§a" + CivSettings.localize.localizedString("cmd_rename_help2", "§c" + CivSettings.localize.localizedString("cmd_rename_help5"))));
-			CivMessage.send((Object) player, (String) ("§6" + CivSettings.localize.localizedString("cmd_rename_help3") + "§c" + CivSettings.localize.localizedString("cmd_rename_help4")));
-			CivMessage.send((Object) player, (String) ("§7" + CivSettings.localize.localizedString("interactive_civ_tocancel")));
-			resident.setInteractiveMode(new InteractiveGetName());
-			return;
-		}
-
-		if (tagName == null) {
-			tagName = strings[0];
-			try {
-				if (!player.isOp() && (tagName.length() < 2 || tagName.length() > 5)) throw new CivException("§c" + CivSettings.localize.localizedString("cmd_prefix_illegalArgument"));
-				if (CivGlobal.anybodyHasTag(tagName)) throw new CivException(CivColor.RoseBold + CivSettings.localize.localizedString("interactive_civtag_arleadyExists"));
-				civ.setTag(tagName);
-			} catch (Exception e) {
-				CivMessage.send(player, e.getMessage());
-				tagName = null;
-				return;
-			}
-
-			CivMessage.send(player, "§a" + CivSettings.localize.localizedString("var_interactive_civtag_success1", new Object[] { "§e" + tagName + "§a" }));
+//			CivMessage.send((Object) player, (String) " ");
+//			CivMessage.send((Object) player, (String) (CivColor.LightGreenBold + CivSettings.localize.localizedString("interactive_civ_success3")));
+//			CivMessage.send((Object) player, (String) ("§a" + CivSettings.localize.localizedString("cmd_rename_help2", "§c" + CivSettings.localize.localizedString("cmd_rename_help5"))));
+//			CivMessage.send((Object) player, (String) ("§6" + CivSettings.localize.localizedString("cmd_rename_help3") + "§c" + CivSettings.localize.localizedString("cmd_rename_help4")));
+//			CivMessage.send((Object) player, (String) ("§7" + CivSettings.localize.localizedString("interactive_civ_tocancel")));
+//			resident.setInteractiveMode(new InteractiveGetName());
+//			return;
+//		}
+//
+//		if (tagName == null) {
+//			tagName = strings[0];
+//			try {
+//				if (!player.isOp() && (tagName.length() < 2 || tagName.length() > 5)) throw new CivException("§c" + CivSettings.localize.localizedString("cmd_prefix_illegalArgument"));
+//				if (CivGlobal.anybodyHasTag(tagName)) throw new CivException(CivColor.RoseBold + CivSettings.localize.localizedString("interactive_civtag_arleadyExists"));
+//				civ.setTag(tagName);
+//			} catch (Exception e) {
+//				CivMessage.send(player, e.getMessage());
+//				tagName = null;
+//				return;
+//			}
+//
+//			CivMessage.send(player, "§a" + CivSettings.localize.localizedString("var_interactive_civtag_success1", "§e" + tagName + "§a" ));
 			CivMessage.send(player, " ");
 			CivMessage.send(player, CivColor.LightGreenBold + CivSettings.localize.localizedString("interactive_civ_success4"));
 			CivMessage.send(player, "§7" + CivSettings.localize.localizedString("interactive_civ_tocancel"));
-			resident.setInteractiveMode(new InteractiveGetName());
+			
+			interactive = new InteractiveGetName();
+			interactive.canselMessage = CivSettings.localize.localizedString("interactive_capitol_cancel");
+			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_capitol_invalidname");
+			resident.setInteractiveMode(interactive);
 			return;
 		}
 

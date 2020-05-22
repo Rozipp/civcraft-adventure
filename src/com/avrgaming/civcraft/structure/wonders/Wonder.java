@@ -212,7 +212,6 @@ public class Wonder extends Buildable {
 			CivGlobal.addWonder(this);
 			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName()));
 		} catch (CivException | IOException e) {
-			// TODO Автоматически созданный блок catch
 			e.printStackTrace();
 		}
 	}
@@ -541,7 +540,5 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 }

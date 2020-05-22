@@ -98,65 +98,66 @@ public class CraftableCustomMaterialListener implements Listener {
 				// CivSettings.platinumRewards.get("buildCamp").name,
 				// CivSettings.platinumRewards.get("buildCamp").amount,
 				// "Achievement! You've founded your first camp and earned %d");
-			} else if (craftMat.getId().equals("mat_found_civ")) {
-				// PlatinumManager.givePlatinumOnce(resident,
-				// CivSettings.platinumRewards.get("buildCiv").name,
-				// CivSettings.platinumRewards.get("buildCiv").amount,
-				// "Achievement! You've founded your first Civilization and earned %d");
-			} else {
-				class AsyncTask implements Runnable {
-					Resident resident;
-					int craftAmount;
+			} else
+				if (craftMat.getId().equals("mat_found_civ")) {
+					// PlatinumManager.givePlatinumOnce(resident,
+					// CivSettings.platinumRewards.get("buildCiv").name,
+					// CivSettings.platinumRewards.get("buildCiv").amount,
+					// "Achievement! You've founded your first Civilization and earned %d");
+				} else {
+					class AsyncTask implements Runnable {
+						Resident resident;
+						int craftAmount;
 
-					public AsyncTask(Resident resident, int craftAmount) {
-						this.resident = resident;
-						this.craftAmount = craftAmount;
+						public AsyncTask(Resident resident, int craftAmount) {
+							this.resident = resident;
+							this.craftAmount = craftAmount;
+						}
+
+						@Override
+						public void run() {
+							String key = resident.getName() + ":platinumCrafted";
+							ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
+							Integer amount = 0;
+
+							if (entries.size() == 0) {
+								amount = craftAmount;
+								CivGlobal.getSessionDatabase().add(key, "" + amount, 0, 0, 0);
+
+							} else {
+								amount = Integer.valueOf(entries.get(0).value);
+								amount += craftAmount;
+								if (amount >= 100) {
+									// PlatinumManager.givePlatinum(resident,
+									// CivSettings.platinumRewards.get("craft100Items").amount,
+									// "Expert crafting earns you %d");
+									amount -= 100;
+								}
+
+								CivGlobal.getSessionDatabase().update(entries.get(0).request_id, key, "" + amount);
+							}
+						}
 					}
 
-					@Override
-					public void run() {
-						String key = resident.getName() + ":platinumCrafted";
-						ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
-						Integer amount = 0;
-
-						if (entries.size() == 0) {
-							amount = craftAmount;
-							CivGlobal.getSessionDatabase().add(key, "" + amount, 0, 0, 0);
-
-						} else {
-							amount = Integer.valueOf(entries.get(0).value);
-							amount += craftAmount;
-							if (amount >= 100) {
-								// PlatinumManager.givePlatinum(resident,
-								// CivSettings.platinumRewards.get("craft100Items").amount,
-								// "Expert crafting earns you %d");
-								amount -= 100;
+					/* if shift clicked, the amount crafted is always min. */
+					int amount;
+					if (event.isShiftClick()) {
+						amount = 64; // cant craft more than 64.
+						for (ItemStack stack : event.getInventory().getMatrix()) {
+							if (stack == null) {
+								continue;
 							}
 
-							CivGlobal.getSessionDatabase().update(entries.get(0).request_id, key, "" + amount);
+							if (stack.getAmount() < amount) {
+								amount = stack.getAmount();
+							}
 						}
+					} else {
+						amount = 1;
 					}
+
+					TaskMaster.asyncTask(new AsyncTask(resident, amount), 0);
 				}
-
-				/* if shift clicked, the amount crafted is always min. */
-				int amount;
-				if (event.isShiftClick()) {
-					amount = 64; // cant craft more than 64.
-					for (ItemStack stack : event.getInventory().getMatrix()) {
-						if (stack == null) {
-							continue;
-						}
-
-						if (stack.getAmount() < amount) {
-							amount = stack.getAmount();
-						}
-					}
-				} else {
-					amount = 1;
-				}
-
-				TaskMaster.asyncTask(new AsyncTask(resident, amount), 0);
-			}
 		}
 	}
 
@@ -174,51 +175,6 @@ public class CraftableCustomMaterialListener implements Listener {
 		if (event.getRecipe() instanceof ShapedRecipe) {
 			String key = CraftableCustomMaterial.getShapedRecipeKey(event.getInventory().getMatrix());
 			CraftableCustomMaterial loreMat = CraftableCustomMaterial.shapedKeys.get(key);
-
-			if (loreMat == null) {
-				if (CustomMaterial.isCustomMaterial(event.getRecipe().getResult())) {
-					/* Result is custom, but we have found no custom recipie. Set to blank. */
-					event.getInventory().setResult(new ItemStack(Material.AIR));
-				}
-				if (matrixContainsCustom(event.getInventory().getMatrix())) {
-					event.getInventory().setResult(new ItemStack(Material.AIR));
-				}
-				return;
-			} else {
-				if (!CustomMaterial.isCustomMaterial(event.getRecipe().getResult())) {
-					/* Result is not custom, but recipie is. Set to blank. */
-					if (!loreMat.isVanilla()) {
-//						/* XXX A Minecraft 1.12 Fix */
-//						if (!LoreEnhancement.isTool(event.getRecipe().getResult())) {
-							event.getInventory().setResult(new ItemStack(Material.AIR));
-							return;
-//						}
-//						return;
-					}
-				}
-			}
-
-			String matName = loreMat.getId();
-			if (matName.contains("_alt")) {
-				String id = matName.replaceAll("_alt(.*)", "");
-				loreMat = CraftableCustomMaterial.getCraftableCustomMaterial(id);
-			}
-
-			ItemStack newStack;
-			if (!loreMat.isVanilla()) {
-				newStack = CustomMaterial.spawn(loreMat);
-				AttributeUtil attrs = new AttributeUtil(newStack);
-				loreMat.applyAttributes(attrs);
-				newStack.setAmount(loreMat.getCraftAmount());
-			} else {
-				newStack = ItemManager.createItemStack(loreMat.getTypeID(), loreMat.getCraftAmount());
-			}
-
-			event.getInventory().setResult(newStack);
-
-		} else if (event.getRecipe() instanceof ShapelessRecipe) {
-			String key = CraftableCustomMaterial.getShapelessRecipeKey(event.getInventory().getMatrix());
-			CraftableCustomMaterial loreMat = CraftableCustomMaterial.shapelessKeys.get(key);
 
 			if (loreMat == null) {
 				if (CustomMaterial.isCustomMaterial(event.getRecipe().getResult())) {
@@ -254,8 +210,50 @@ public class CraftableCustomMaterialListener implements Listener {
 			} else {
 				newStack = ItemManager.createItemStack(loreMat.getTypeID(), loreMat.getCraftAmount());
 			}
+
 			event.getInventory().setResult(newStack);
-		}
+
+		} else
+			if (event.getRecipe() instanceof ShapelessRecipe) {
+				String key = CraftableCustomMaterial.getShapelessRecipeKey(event.getInventory().getMatrix());
+				CraftableCustomMaterial loreMat = CraftableCustomMaterial.shapelessKeys.get(key);
+
+				if (loreMat == null) {
+					if (CustomMaterial.isCustomMaterial(event.getRecipe().getResult())) {
+						/* Result is custom, but we have found no custom recipie. Set to blank. */
+						event.getInventory().setResult(new ItemStack(Material.AIR));
+					}
+					if (matrixContainsCustom(event.getInventory().getMatrix())) {
+						event.getInventory().setResult(new ItemStack(Material.AIR));
+					}
+					return;
+				} else {
+					if (!CustomMaterial.isCustomMaterial(event.getRecipe().getResult())) {
+						/* Result is not custom, but recipie is. Set to blank. */
+						if (!loreMat.isVanilla()) {
+							event.getInventory().setResult(new ItemStack(Material.AIR));
+							return;
+						}
+					}
+				}
+
+				String matName = loreMat.getId();
+				if (matName.contains("_alt")) {
+					String id = matName.replaceAll("_alt(.*)", "");
+					loreMat = CraftableCustomMaterial.getCraftableCustomMaterial(id);
+				}
+
+				ItemStack newStack;
+				if (!loreMat.isVanilla()) {
+					newStack = CustomMaterial.spawn(loreMat);
+					AttributeUtil attrs = new AttributeUtil(newStack);
+					loreMat.applyAttributes(attrs);
+					newStack.setAmount(loreMat.getCraftAmount());
+				} else {
+					newStack = ItemManager.createItemStack(loreMat.getTypeID(), loreMat.getCraftAmount());
+				}
+				event.getInventory().setResult(newStack);
+			}
 
 		ItemStack result = event.getInventory().getResult();
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(result);
