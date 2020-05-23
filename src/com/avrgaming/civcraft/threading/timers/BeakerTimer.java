@@ -42,14 +42,14 @@ public class BeakerTimer extends CivAsyncTask {
 		
 		for (Civilization civ : CivGlobal.getCivs()) {
 			
-			if (civ.getCapitolName() == null) {
+			if (civ.getCapitol() == null) {
 				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("beaker_ErrorNoCapitol"));
 				continue;
 			}
 			
-			Town town = CivGlobal.getTown(civ.getCapitolName());
+			Town town = civ.getCapitol();
 			if (town == null) {
-				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_beaker_noCapitol",civ.getCapitolName()));
+				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_beaker_noCapitol",civ.getName()));
 				continue;
 			}
 			

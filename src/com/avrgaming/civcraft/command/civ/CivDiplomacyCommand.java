@@ -77,7 +77,7 @@ public class CivDiplomacyCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_capitulateErrorNotLeader"));
 		}
 		
-		if (town.getMotherCiv().getCapitolName().equals(town.getName())) {
+		if (town.getMotherCiv().getCapitolId() == town.getId()) {
 			entireCiv = true;
 		}
 		
@@ -129,7 +129,7 @@ public class CivDiplomacyCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_liberateNotCaptured"));
 		}
 		
-		if (town.getName().equals(motherCiv.getCapitolName())) {
+		if (town.getId() == motherCiv.getCapitolId()) {
 			Civilization capitolOwnerCiv = town.getCiv();
 			
 			/* Liberate the civ. */

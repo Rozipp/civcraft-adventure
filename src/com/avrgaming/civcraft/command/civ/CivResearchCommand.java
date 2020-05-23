@@ -55,8 +55,7 @@ public class CivResearchCommand extends CommandBase {
 	
 	public void queueadd_cmd() throws CivException {
         Civilization civ = this.getSenderCiv();
-        Town capitol = CivGlobal.getTown(civ.getCapitolName());
-        Townhall townhall = capitol.getTownHall();
+        Townhall townhall = civ.getCapitolStructure();
         if (this.args.length < 2) {
             throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_queueEnterName"));
         }
@@ -183,9 +182,9 @@ public class CivResearchCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_onPrompt"));
 		}
 		
-		Town capitol = CivGlobal.getTown(civ.getCapitolName());
+		Town capitol = civ.getCapitol();
 		if (capitol == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_missingCapitol",civ.getCapitolName())+" "+CivSettings.localize.localizedString("internalCommandException"));
+			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_missingCapitol",civ.getName())+" "+CivSettings.localize.localizedString("internalCommandException"));
 		}
 	
 		Townhall townhall = capitol.getTownHall();

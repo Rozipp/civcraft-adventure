@@ -106,7 +106,8 @@ public class UnitObject extends SQLObject {
 				this.delete();
 			}
 			throw new CivException("Not fount town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
-		} else this.townOwner.unitInventory.addUnit(this.getId());
+		} else
+			this.townOwner.unitInventory.addUnit(this.getId());
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
 		this.lastResident = CivGlobal.getResident(rs.getString("lastResident"));
@@ -274,11 +275,12 @@ public class UnitObject extends SQLObject {
 	public boolean validLastActivate() {
 		if (lastHashCode == 0) return false;
 		if (lastActivate == 0) return true;
+		
 		return (System.currentTimeMillis() - lastActivate) < UnitStatic.unitTimeDiactivate * 60000;
 	}
 
-	public boolean validLastHashCode(ItemStack is) {
-		return lastHashCode == is.hashCode();
+	public void validLastHashCode(ItemStack is) throws CivException {
+		if (lastHashCode == is.hashCode()) throw new CivException("Вы уже давно не использовали этого юнита, потому он вернулся в бараки");
 	}
 
 	public void setAmunitionSlot(String mat, Integer slot) {
@@ -321,7 +323,8 @@ public class UnitObject extends SQLObject {
 		int newlevel = totalComponents.get(key);
 		if (newlevel > 1)
 			CivMessage.send(this.lastResident, "Ваш юнит изучил " + key);
-		else CivMessage.send(this.lastResident, "Ваш юнит изучил " + key + " уровень " + newlevel);
+		else
+			CivMessage.send(this.lastResident, "Ваш юнит изучил " + key + " уровень " + newlevel);
 	}
 
 	public Integer getComponentValue(String key) {
@@ -337,21 +340,11 @@ public class UnitObject extends SQLObject {
 		return UnitStatic.getUnit(this.configUnitId);
 	}
 
-	public boolean validateUnitUse(Player player) {
+	public void validateUnitUse(Player player) throws CivException {
 		Resident resident = CivGlobal.getResident(player);
-		if (this.townOwner == null) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorInvalidOwner"));
-			return false;
-		}
-		if (resident.getTown() == null) {
-			CivMessage.sendError(player, "У вас нет города");
-			return false;
-		}
-		if (!resident.getTown().equals(this.townOwner)) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("settler_errorNotOwner"));
-			return false;
-		}
-		return true;
+		if (this.townOwner == null) throw new CivException(CivSettings.localize.localizedString("settler_errorInvalidOwner"));
+		if (resident.getTown() == null) throw new CivException(CivSettings.localize.localizedString("cmd_town_quarry_noTown"));
+		if (!resident.getTown().equals(this.townOwner)) throw new CivException(CivSettings.localize.localizedString("settler_errorNotOwner"));
 	}
 
 	public void dressAmmunitions(Player player) {
@@ -390,7 +383,7 @@ public class UnitObject extends SQLObject {
 			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7));
 		}
 
-		//раскладываем созданные предметы по слотам, сохраненных в this.ammunitions или в стандартные из um.getSlot() 
+		// раскладываем созданные предметы по слотам, сохраненных в this.ammunitions или в стандартные из um.getSlot()
 		HashMap<Integer, ItemStack> newSlots = new HashMap<>();
 		for (Equipments equip : newEquipments.keySet()) {
 			newSlots.put(ammunitionSlots.getOrDefault(equipments.get(equip), equip.getSlot()), newEquipments.get(equip));

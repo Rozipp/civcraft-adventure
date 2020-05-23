@@ -85,8 +85,9 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 
 			InteractiveGetName interactive = new InteractiveGetName();
-			interactive.canselMessage = CivSettings.localize.localizedString("interactive_camp_cancel");
+			interactive.cancelMessage = CivSettings.localize.localizedString("interactive_camp_cancel");
 			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_camp_invalid");
+			interactive.undoPreviewCancel = true;
 			resident.setInteractiveMode(interactive);
 			return;
 		}

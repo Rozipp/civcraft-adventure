@@ -8,6 +8,7 @@ import com.avrgaming.civcraft.construct.ChoiseTemplate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
@@ -33,13 +34,18 @@ public class FoundCivCallback implements CallbackInterface {
 
 		/* Build a preview for the Capitol structure. */
 		structure = Structure.newStructure(player, player.getLocation(), "s_capitol", null);
+		long begin = System.currentTimeMillis();
 		town = new Town((Civilization) null);
+		CivLog.debug("new Town " + (System.currentTimeMillis() - begin));
 		town.checkCanCreatedTown(resident, structure);
-
+		CivLog.debug("checkCanCreatedTown " + (System.currentTimeMillis() - begin));
 		civ = new Civilization(resident);
+		CivLog.debug("new Civilization " + (System.currentTimeMillis() - begin));
 		civ.checkCanCreatedCiv(player);
+		CivLog.debug("checkCanCreatedCiv " + (System.currentTimeMillis() - begin));
 
 		new ChoiseTemplate(player, structure, this);
+		CivLog.debug("new ChoiseTemplate " + (System.currentTimeMillis() - begin));
 	}
 
 	private String templateTheme = null;
@@ -64,8 +70,9 @@ public class FoundCivCallback implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 
 			interactive = new InteractiveGetName();
-			interactive.canselMessage = CivSettings.localize.localizedString("interactive_civ_cancel");
+			interactive.cancelMessage = CivSettings.localize.localizedString("interactive_civ_cancel");
 			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_civ_invalid");
+			interactive.undoPreviewCancel = true;
 			resident.setInteractiveMode(interactive);
 			return;
 		}
@@ -112,8 +119,9 @@ public class FoundCivCallback implements CallbackInterface {
 			CivMessage.send(player, "§7" + CivSettings.localize.localizedString("interactive_civ_tocancel"));
 			
 			interactive = new InteractiveGetName();
-			interactive.canselMessage = CivSettings.localize.localizedString("interactive_capitol_cancel");
+			interactive.cancelMessage = CivSettings.localize.localizedString("interactive_capitol_cancel");
 			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_capitol_invalidname");
+			interactive.undoPreviewCancel= true;
 			resident.setInteractiveMode(interactive);
 			return;
 		}
@@ -135,7 +143,6 @@ public class FoundCivCallback implements CallbackInterface {
 			try {
 				if (CivGlobal.getTown(townName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_town_found_errorNameExists", townName));
 				town.setName(townName);
-				civ.setCapitolName(townName);
 			} catch (InvalidNameException e) {
 				townName = null;
 				CivMessage.sendError(player, e.getMessage());

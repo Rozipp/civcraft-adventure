@@ -381,7 +381,7 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_capitulateErrorNoMother"));
 		}
 
-		if (town.getMotherCiv().getCapitolName().equals(town.getName())) {
+		if (town.getMotherCiv().getCapitolId() == town.getId()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_capitulateCapitol"));
 		}
 

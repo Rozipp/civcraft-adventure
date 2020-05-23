@@ -43,19 +43,14 @@ public class ChatListener implements Listener {
 			if (resident.getTownChatOverride() == null) {
 				CivMessage.sendTownChat(resident.getTown(), resident, event.getFormat(), event.getMessage());
 			} else {
-				CivMessage.sendTownChat(resident.getTownChatOverride(), resident, event.getFormat(),
-						event.getMessage());
+				CivMessage.sendTownChat(resident.getTownChatOverride(), resident, event.getFormat(), event.getMessage());
 			}
 		}
 
 		if (resident.isCivChat()) {
 			Civilization civ;
 			event.setCancelled(true);
-			if (resident.getTown() == null) {
-				civ = null;
-			} else {
-				civ = resident.getTown().getCiv();
-			}
+			civ = resident.getCiv();
 
 			if (resident.getCivChatOverride() == null) {
 				CivMessage.sendCivChat(civ, resident, event.getFormat(), event.getMessage());

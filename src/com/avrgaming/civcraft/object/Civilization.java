@@ -90,7 +90,7 @@ public class Civilization extends SQLObject {
 	private String leaderName;
 	private String leaderGroupName;
 	private String advisersGroupName;
-	private String capitolName;
+	private int capitolId;
 
 	private String ownerName;
 
@@ -175,7 +175,7 @@ public class Civilization extends SQLObject {
 					+ "`id` int(11) unsigned NOT NULL auto_increment," //
 					+ "`name` VARCHAR(64) NOT NULL," //
 					+ "`leaderName` mediumtext," //
-					+ "`capitolName` mediumtext,"//
+					+ "`capitolId` int(11) DEFAULT 0,"//
 					+ "`debt` float NOT NULL DEFAULT '0',"//
 					+ "`coins` double DEFAULT 0,"//
 					+ "`daysInDebt` int NOT NULL DEFAULT '0',"//
@@ -228,7 +228,7 @@ public class Civilization extends SQLObject {
 		leaderName = resUUID;
 		tag = rs.getString("tag");
 
-		capitolName = rs.getString("capitolName");
+		capitolId = rs.getInt("capitolId");
 		setLeaderGroupName(rs.getString("leaderGroupName"));
 		setAdvisersGroupName(rs.getString("advisersGroupName"));
 		daysInDebt = rs.getInt("daysInDebt");
@@ -279,9 +279,7 @@ public class Civilization extends SQLObject {
 		this.setOwnerGroupName();
 
 		for (ConfigTech tech : this.getTechs()) {
-			if (tech.era > this.getCurrentEra()) {
-				this.setCurrentEra(tech.era);
-			}
+			if (tech.era > this.getCurrentEra()) this.setCurrentEra(tech.era);
 		}
 		this.currentMission = rs.getInt("currentMission");
 		this.missionActive = rs.getBoolean("missionActive");
@@ -305,7 +303,7 @@ public class Civilization extends SQLObject {
 		hashmap.put("name", this.getName());
 		hashmap.put("leaderName", this.getLeader().getUid().toString());
 		hashmap.put("tag", this.tag);
-		hashmap.put("capitolName", this.capitolName);
+		hashmap.put("capitolId", this.capitolId);
 		hashmap.put("leaderGroupName", this.getLeaderGroupName());
 		hashmap.put("advisersGroupName", this.getAdvisersGroupName());
 		hashmap.put("debt", this.getTreasury().getDebt());
@@ -488,30 +486,34 @@ public class Civilization extends SQLObject {
 	}
 
 	@Override
-	public void delete() throws SQLException {
+	public void delete() {
 		/* First delete all of our groups. */
-		if (this.leaderGroup != null) {
-			this.leaderGroup.delete();
-		}
+		try {
+			if (this.leaderGroup != null) {
+				this.leaderGroup.delete();
+			}
 
-		if (this.adviserGroup != null) {
-			this.adviserGroup.delete();
-		}
+			if (this.adviserGroup != null) {
+				this.adviserGroup.delete();
+			}
 
-		/* Delete all of our towns. */
-		for (Town t : getTowns()) {
-			t.delete();
-		}
-		if (this.ownerGroup != null) {
-			this.ownerGroup.delete();
-		}
-		/* Delete all relationships with other civs. */
-		this.diplomacyManager.deleteAllRelations();
+			/* Delete all of our towns. */
+			for (Town t : getTowns()) {
+				t.delete();
+			}
+			if (this.ownerGroup != null) {
+				this.ownerGroup.delete();
+			}
+			/* Delete all relationships with other civs. */
+			this.diplomacyManager.deleteAllRelations();
 
-		SQL.deleteNamedObject(this, TABLE_NAME);
-		CivGlobal.removeCiv(this);
-		if (this.isConquered()) {
-			CivGlobal.removeConqueredCiv(this);
+			SQL.deleteNamedObject(this, TABLE_NAME);
+			CivGlobal.removeCiv(this);
+			if (this.isConquered()) {
+				CivGlobal.removeConqueredCiv(this);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -606,7 +608,7 @@ public class Civilization extends SQLObject {
 				e.printStackTrace();
 			}
 			CivGlobal.addCiv(this);
-			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", this.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", this.getCapitolName(), player.getName()));
+			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", this.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", town.getName(), player.getName()));
 			this.saveNow();
 			player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 			TagManager.editNameTag(player);
@@ -803,7 +805,7 @@ public class Civilization extends SQLObject {
 	}
 
 	public Location getCapitolTownHallLocation() {
-		Town capitol = this.getTown(capitolName);
+		Town capitol = CivGlobal.getTownFromId(this.capitolId);
 		if (capitol == null) {
 			return null;
 		}
@@ -818,17 +820,12 @@ public class Civilization extends SQLObject {
 	}
 
 	public Capitol getCapitolStructure() {
-		Town capitol = this.getTown(capitolName);
-		if (capitol == null) {
-			return null;
-		}
+		Town capitol = this.getCapitol();
+		if (capitol == null) return null;
 
 		for (Structure struct : capitol.getStructures()) {
-			if (struct instanceof Capitol) {
-				return (Capitol) struct;
-			}
+			if (struct instanceof Capitol) return (Capitol) struct;
 		}
-
 		return null;
 	}
 
@@ -836,23 +833,16 @@ public class Civilization extends SQLObject {
 		double upkeep = 0;
 		this.lastUpkeepPaidMap.clear();
 
-		if (this.isAdminCiv()) {
-			return 0;
-		}
-		Town capitol = this.getTown(capitolName);
-		if (capitol == null) {
-			throw new CivException("Civilization found with no capitol!");
-		}
+		if (this.isAdminCiv()) return 0;
+		if (this.getCapitol() == null) throw new CivException("Civilization found with no capitol!");
 
 		for (Town t : this.getTowns()) {
-
 			/* Calculate upkeep from extra towns, obviously ignore the capitol itself. */
-			if (!this.getCapitolName().equals(t.getName())) {
+			if (!t.isCapitol()) {
 				try {
 					/* Base upkeep per town. */
 					upkeep += CivSettings.getDoubleCiv("civ.town_upkeep");
 					lastUpkeepPaidMap.put(t.getName() + ",base", upkeep);
-
 				} catch (InvalidConfiguration e) {
 					e.printStackTrace();
 				}
@@ -861,9 +851,7 @@ public class Civilization extends SQLObject {
 
 		upkeep += this.getWarUpkeep();
 
-		if (this.getCapitol() != null) {
-			upkeep += this.getCapitol().getBonusUpkeep();
-		}
+		if (this.getCapitol() != null) upkeep += this.getCapitol().getBonusUpkeep();
 		if (this.getTreasury().hasEnough(upkeep)) {
 			/* Have plenty on our coffers, pay the lot and clear all of these towns' debt. */
 			this.getTreasury().withdraw(upkeep);
@@ -888,12 +876,8 @@ public class Civilization extends SQLObject {
 			if (daysInDebt >= CivSettings.CIV_DEBT_SELL_DAYS) {
 				if (daysInDebt >= CivSettings.CIV_DEBT_TOWN_SELL_DAYS) {
 					CivMessage.global(CivSettings.localize.localizedString("var_civ_fellIntoRuin", this.getName()));
-					try {
-						this.delete();
-						return;
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
+					this.delete();
+					return;
 				}
 			}
 		}
@@ -1459,11 +1443,7 @@ public class Civilization extends SQLObject {
 			this.towns.clear();
 		}
 
-		try {
-			oldciv.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		oldciv.delete();
 
 		CivGlobal.processCulture();
 	}
@@ -1539,11 +1519,7 @@ public class Civilization extends SQLObject {
 			}
 		}
 
-		try {
-			this.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		this.delete();
 
 		CivMessage.global(CivSettings.localize.localizedString("var_civ_capitulate_Success1", this.getName()));
 	}
@@ -1646,16 +1622,13 @@ public class Civilization extends SQLObject {
 		int conqueredCivs = 1; /* Your civ already counts */
 
 		for (Civilization civ : CivGlobal.getConqueredCivs()) {
-			Town capitol = CivGlobal.getTown(civ.getCapitolName());
+			Town capitol = civ.getCapitol();
 			if (capitol == null) {
 				/* Invalid civ? */
 				totalCivs--;
 				continue;
 			}
-
-			if (capitol.getCiv() == this) {
-				conqueredCivs++;
-			}
+			if (capitol.getCiv() == this) conqueredCivs++;
 		}
 
 		double percent = (double) conqueredCivs / (double) totalCivs;
@@ -1742,12 +1715,7 @@ public class Civilization extends SQLObject {
 		for (Town town : this.getTowns()) {
 			Townhall townhall = town.getTownHall();
 			if (townhall != null && townhall.isActive()) {
-				if (!townhall.getTown().isCapitol() && town.defeated) {
-					/* Do not respawn at defeated towns. */
-					continue;
-				}
-
-				respawns.add(townhall);
+				if (!town.defeated) respawns.add(townhall); /* Do not respawn at defeated towns. */
 			}
 			if (town.hasWonder("w_neuschwanstein")) {
 				respawns.add((Neuschwanstein) town.getWonderByType("w_neuschwanstein"));
@@ -1755,13 +1723,9 @@ public class Civilization extends SQLObject {
 		}
 
 		for (WarCamp camp : this.warCamps) {
-			if (camp.isTeleportReal()) {
-				respawns.add(camp);
-			}
+			if (camp.isTeleportReal()) respawns.add(camp);
 		}
-
 		return respawns;
-
 	}
 
 	public void addWarCamp(WarCamp camp) {
@@ -1924,9 +1888,7 @@ public class Civilization extends SQLObject {
 
 	public Town getCapitol() {
 		for (final Town town : this.getTowns()) {
-			if (town.isCapitol()) {
-				return town;
-			}
+			if (town.isCapitol()) return town;
 		}
 		return null;
 	}
@@ -2190,7 +2152,7 @@ public class Civilization extends SQLObject {
 		/* Verify we have the correct item somewhere in our inventory. */
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
-		if (CivGlobal.getTown(capitolName) != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", capitolName));
+		if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", this.getCapitol().getName()));
 		if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
 	}
 

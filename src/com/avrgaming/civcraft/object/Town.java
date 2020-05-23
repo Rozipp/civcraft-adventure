@@ -944,7 +944,7 @@ public class Town extends SQLObject {
 				throw e;
 			}
 
-			getCiv().getTreasury().deposit(cost); 
+			getCiv().getTreasury().deposit(cost);
 
 			CivGlobal.processCulture();
 			this.saveNow();
@@ -2340,7 +2340,6 @@ public class Town extends SQLObject {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			// continue in case some structure/wonder had an error.
 		}
 	}
 
@@ -2368,10 +2367,7 @@ public class Town extends SQLObject {
 	}
 
 	public boolean isCapitol() {
-		if (this.getCiv().getCapitolName().equals(this.getName())) {
-			return true;
-		}
-		return false;
+		return this.getCiv().getCapitolId() == this.getId();
 	}
 
 	public boolean isForSale() {
@@ -2623,11 +2619,9 @@ public class Town extends SQLObject {
 	}
 
 	public void capitulate() {
-		if (this.getMotherCiv() == null) {
-			return;
-		}
+		if (this.getMotherCiv() == null) return;
 
-		if (this.getMotherCiv().getCapitolName().equals(this.getName())) {
+		if (this.getId() == this.getMotherCiv().getCapitolId()) {
 			this.getMotherCiv().capitulate();
 			return;
 		}
@@ -3161,11 +3155,6 @@ public class Town extends SQLObject {
 
 		Town other = CivGlobal.getTown(name);
 		if (other != null) throw new CivException(CivSettings.localize.localizedString("town_rename_errorExists"));
-
-		if (this.isCapitol()) {
-			this.getCiv().setCapitolName(name);
-			this.getCiv().save();
-		}
 
 		String oldName = this.getName();
 		CivGlobal.removeTown(this);

@@ -90,25 +90,15 @@ public class AdminRecoverCommand extends CommandBase {
 	public void listnocapitols_cmd() {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_recover_ListNoCapitolHeading"));
 		for (Civilization civ : CivGlobal.getCivs()) {
-
-			Town town = CivGlobal.getTown(civ.getCapitolName());
-			if (town == null) {
-				CivMessage.send(sender, civ.getName());
-			}
+			if (civ.getCapitol() == null) CivMessage.send(sender, civ.getName());
 		}
 	}
 
 	public void cleannocapitols_cmd() {
 		for (Civilization civ : CivGlobal.getCivs()) {
-
-			Town town = CivGlobal.getTown(civ.getCapitolName());
-			if (town == null) {
+			if (civ.getCapitol() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("Deleting") + " " + civ.getName());
-				try {
-					civ.delete();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				civ.delete();
 			}
 		}
 	}
@@ -126,11 +116,7 @@ public class AdminRecoverCommand extends CommandBase {
 		for (Civilization civ : CivGlobal.getCivs()) {
 			if (civ.getLeaderGroup() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("Deleting") + " " + civ.getName());
-				try {
-					civ.delete();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+				civ.delete();
 			}
 		}
 	}
@@ -176,36 +162,26 @@ public class AdminRecoverCommand extends CommandBase {
 
 	public void listorphanmayors_cmd() {
 		for (Civilization civ : CivGlobal.getCivs()) {
-			Town capitol = civ.getTown(civ.getCapitolName());
-			if (capitol == null) {
-				continue;
-			}
+			Town capitol = civ.getCapitol();
+			if (capitol == null) continue;
 
 			Resident leader = civ.getLeader();
-			if (leader == null) {
-				continue;
-			}
+			if (leader == null) continue;
 
 			CivMessage.send(sender, CivSettings.localize.localizedString("Broken") + " " + leader.getName() + " " + CivSettings.localize.localizedString("inCiv") + " " + civ.getName() + " "
 					+ CivSettings.localize.localizedString("inCapitol") + " " + capitol.getName());
-
 		}
-
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("Finished"));
 	}
 
 	public void fixmayors_cmd() {
 
 		for (Civilization civ : CivGlobal.getCivs()) {
-			Town capitol = civ.getTown(civ.getCapitolName());
-			if (capitol == null) {
-				continue;
-			}
+			Town capitol = civ.getCapitol();
+			if (capitol == null) continue;
 
 			Resident leader = civ.getLeader();
-			if (leader == null) {
-				continue;
-			}
+			if (leader == null) continue;
 
 			if (capitol.getMayorGroup() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("var_adcmd_recover_fixMayorsError", capitol.getName()));
@@ -236,7 +212,7 @@ public class AdminRecoverCommand extends CommandBase {
 			}
 
 			if (!res.hasTown()) {
-				Town capitol = civ.getTown(civ.getCapitolName());
+				Town capitol = civ.getCapitol();
 				if (capitol == null) {
 					CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_recover_fixLeadersNoCap") + " " + civ.getName());
 					continue;
@@ -267,22 +243,16 @@ public class AdminRecoverCommand extends CommandBase {
 
 		for (Civilization civ : CivGlobal.getCivs()) {
 			Resident res = civ.getLeader();
-			if (res == null) {
-				continue;
-			}
+			if (res == null) continue;
 
 			if (!res.hasTown()) {
-				Town capitol = civ.getTown(civ.getCapitolName());
-				if (capitol == null) {
+				if (civ.getCapitol() == null) {
 					CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_recover_fixLeadersNoCap") + " " + civ.getName());
 					continue;
 				}
-
 				CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_recover_listOrphanLeadersBroken") + civ.getName() + " " + CivSettings.localize.localizedString("Leader") + " " + res.getName());
 			}
-
 		}
-
 	}
 
 	public void listorphantowns_cmd() {
@@ -297,7 +267,7 @@ public class AdminRecoverCommand extends CommandBase {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_recover_listOrphanCivsHeading"));
 
 		for (Civilization civ : CivGlobal.orphanCivs) {
-			CivMessage.send(sender, civ.getName() + " capitol:" + civ.getCapitolName());
+			CivMessage.send(sender, civ.getName() + " capitol:" + civ.getCapitol().getName());
 		}
 
 	}

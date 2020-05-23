@@ -347,8 +347,8 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		if (allDestroyed) {
 			Civilization civ = getTown().getCiv();
 
-			if (civ.getCapitolName().equals(this.getTown().getName())) {
-				CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", this.getTown().getCiv().getName()),
+			if (civ.getCapitolId() == this.getTown().getId()) {
+				CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", civ.getName()),
 						CivSettings.localize.localizedString("var_townHall_destroyed_isCap2", attacker.getCiv().getName()));
 				for (Town town : civ.getTowns()) {
 					town.defeated = true;
@@ -422,7 +422,7 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 
 		if (allDestroyed) {
 
-			if (this.getTown().getCiv().getCapitolName().equals(this.getTown().getName())) {
+			if (this.getTown().getCiv().getCapitolId() == this.getTown().getId()) {
 				CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", this.getTown().getCiv().getName()),
 						CivSettings.localize.localizedString("var_townHall_destroyed_isCap2", attacker.getCiv().getName()));
 				for (Town town : this.getTown().getCiv().getTowns()) {

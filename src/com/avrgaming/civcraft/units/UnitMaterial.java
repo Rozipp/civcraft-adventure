@@ -30,10 +30,12 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.threading.tasks.DelayMoveInventoryItem;
 import com.avrgaming.civcraft.util.CivColor;
 import gpl.AttributeUtil;
 
@@ -109,23 +111,29 @@ public abstract class UnitMaterial extends CustomMaterial {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		if (resident.isUnitActive()) {
 			// Деактивация юнита
 			resident.setUnitObjectId(0);
 			UnitStatic.removeChildrenItems(player);
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
-			if (!uo.validLastHashCode(event.getItem())) {
-				event.getPlayer().getInventory().remove(event.getItem());
-			} else
-				uo.used(resident, event.getItem());
+			try {
+				uo.validLastHashCode(event.getItem());
+			} catch (CivException e) {
+				UnitStatic.removeUnit(player, uo.getConfigUnitId());
+				CivMessage.send(player, e.getMessage());
+				event.setCancelled(true);
+				return;
+			}
+			uo.used(resident, event.getItem());
 		} else {
 			// Активация юнита
-			uo.validateUnitUse(player);
-			if (!uo.validLastHashCode(event.getItem())) {
+			try {
+				uo.validateUnitUse(player);
+				uo.validLastHashCode(event.getItem());
+			} catch (CivException e) {
 				UnitStatic.removeUnit(player, uo.getConfigUnitId());
-				CivMessage.send(player, "Вы уже давно не использовали этого юнита, потому он вернулся в бараки");
-				uo.setLastActivate(0);
+				CivMessage.send(player, e.getMessage());
 				event.setCancelled(true);
 				return;
 			}
@@ -224,7 +232,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 				player.updateInventory();
 				return;
 			}
-			// if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
+			if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
 			uo.used(CivGlobal.getResident(player), stack);
 			onItemToPlayer(player, stack);
 		}
@@ -253,7 +261,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 				player.updateInventory();
 				return;
 			}
-			// if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
+			DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
 			uo.used(CivGlobal.getResident(player), stack);
 			onItemToPlayer(player, stack);
 		}

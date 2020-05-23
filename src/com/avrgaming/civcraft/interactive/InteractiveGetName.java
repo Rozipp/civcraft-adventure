@@ -29,15 +29,17 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveGetName implements InteractiveResponse {
 
 	public String invalidMessage = "Invalid name";
-	public String canselMessage = "Get Name Canseled";
+	public String cancelMessage = "Get Name Canseled";
+	public boolean undoPreviewCancel = false;
 
 	@Override
 	public void respond(String message, Player player) {
 		Resident resident = CivGlobal.getResident(player);
 
 		if (message.equalsIgnoreCase("cancel") || message.equalsIgnoreCase("сфтсуд") || message.startsWith("/")) {
-			CivMessage.send(player, canselMessage);
+			CivMessage.send(player, cancelMessage);
 			resident.clearInteractiveMode();
+			if (undoPreviewCancel) resident.undoPreview();
 			return;
 		}
 

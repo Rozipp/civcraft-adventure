@@ -52,7 +52,12 @@ public class Settler extends UnitMaterial {
 		event.setCancelled(true);
 
 		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(event.getItem()));
-		if (!uo.validateUnitUse(event.getPlayer())) return;
+		try {
+			uo.validateUnitUse(event.getPlayer());
+		} catch (CivException e) {
+			CivMessage.sendErrorNoRepeat(event.getPlayer(), e.getMessage());
+			return;
+		}
 
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		try {

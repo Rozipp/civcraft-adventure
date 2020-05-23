@@ -8,8 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.command.admin;
 
-import java.sql.SQLException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -166,8 +164,7 @@ public class AdminCivCommand extends CommandBase {
 		CivGlobal.getSessionDatabase().delete_all(key);
 
 		civ.setGovernment(gov.id);
-		CivMessage.global(
-				CivSettings.localize.localizedString("var_adcmd_civ_setGovSuccessBroadcast", civ.getName(), CivSettings.governments.get(gov.id).displayName));
+		CivMessage.global(CivSettings.localize.localizedString("var_adcmd_civ_setGovSuccessBroadcast", civ.getName(), CivSettings.governments.get(gov.id).displayName));
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_civ_setGovSuccess"));
 
 	}
@@ -192,18 +189,18 @@ public class AdminCivCommand extends CommandBase {
 		cmd.onCommand(sender, null, "info", this.stripArgs(args, 2));
 	}
 
-//	public void setmaster_cmd() throws CivException {
-//		Civilization vassal = getNamedCiv(1);
-//		Civilization master = getNamedCiv(2);
-//		
-//		if (vassal == master) {
-//			throw new CivException("cannot make vassal and master the same");
-//		}
-//		
-//		CivGlobal.setVassalState(master, vassal);
-//		CivMessage.sendSuccess(sender, "Vassaled "+vassal.getName()+" to "+master.getName());
-//		
-//	}
+	// public void setmaster_cmd() throws CivException {
+	// Civilization vassal = getNamedCiv(1);
+	// Civilization master = getNamedCiv(2);
+	//
+	// if (vassal == master) {
+	// throw new CivException("cannot make vassal and master the same");
+	// }
+	//
+	// CivGlobal.setVassalState(master, vassal);
+	// CivMessage.sendSuccess(sender, "Vassaled "+vassal.getName()+" to "+master.getName());
+	//
+	// }
 
 	public void setmaster_cmd() {
 
@@ -224,8 +221,7 @@ public class AdminCivCommand extends CommandBase {
 			CivGlobal.setAggressor(civ, otherCiv, civ);
 			CivGlobal.setAggressor(otherCiv, civ, civ);
 		}
-		CivMessage.sendSuccess(sender,
-				CivSettings.localize.localizedString("var_adcmd_civ_setrelationSuccess", civ.getName(), otherCiv.getName(), status.name()));
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_civ_setrelationSuccess", civ.getName(), otherCiv.getName(), status.name()));
 
 	}
 
@@ -335,15 +331,11 @@ public class AdminCivCommand extends CommandBase {
 		Civilization civ = getNamedCiv(1);
 		Player player = getPlayer();
 		String ss = "";
-		for (int i = 2; i < args.length; i++ ) {
+		for (int i = 2; i < args.length; i++) {
 			ss = ss + args[i] + " ";
 		}
 		CivMessage.sendCiv(civ, CivSettings.localize.localizedString("adcmd_civ_disbandAlert", player.getName(), "\"" + ss + "\""));
-		try {
-			civ.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		civ.delete();
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_civ_disbandSuccess", player.getName(), "\"" + ss + "\""));
 	}
@@ -360,7 +352,7 @@ public class AdminCivCommand extends CommandBase {
 
 	@Override
 	public void permissionCheck() throws CivException {
-		//Admin is checked in parent command
+		// Admin is checked in parent command
 	}
 
 }

@@ -83,8 +83,9 @@ public class FoundTownCallback implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
 			
 			InteractiveGetName interactive = new InteractiveGetName();
-			interactive.canselMessage = CivSettings.localize.localizedString("interactive_town_cancelled");
+			interactive.cancelMessage = CivSettings.localize.localizedString("interactive_town_cancelled");
 			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_town_nameInvalid");
+			interactive.undoPreviewCancel = true;
 			resident.setInteractiveMode(interactive);
 			return;
 		}

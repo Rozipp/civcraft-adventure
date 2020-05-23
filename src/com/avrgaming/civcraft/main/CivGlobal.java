@@ -276,8 +276,7 @@ public class CivGlobal {
 
 		/* Check for orphan civs now */
 		for (Civilization civ : civs.values()) {
-			Town capitol = civ.getTown(civ.getCapitolName());
-			if (capitol == null) orphanCivs.add(civ);
+			if (civ.getCapitol() == null) orphanCivs.add(civ);
 		}
 
 		try {
