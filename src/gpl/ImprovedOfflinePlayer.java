@@ -39,8 +39,6 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryPlayer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
-import com.avrgaming.civcraft.util.NBTStaticHelper;
-
 import net.minecraft.server.v1_12_R1.AttributeMapBase;
 import net.minecraft.server.v1_12_R1.AttributeMapServer;
 import net.minecraft.server.v1_12_R1.GenericAttributes;

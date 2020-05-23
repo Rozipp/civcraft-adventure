@@ -43,6 +43,10 @@ public class Wonder extends Buildable {
 		if (this.getHitpoints() == 0) this.delete();
 	}
 
+	public static Wonder newWonder(ResultSet rs) throws CivException, SQLException {
+		return _newWonder(null, rs.getString("type_id"), null, rs);
+	}
+	
 	public Wonder(String id, Town town) throws CivException {
 		this.setInfo(CivSettings.wonders.get(id));
 		this.setSQLOwner(town);
@@ -247,7 +251,7 @@ public class Wonder extends Buildable {
 			return null;
 		}
 		wonder.initDefaultTemplate(location);
-		town.checkIsTownCanBuildStructure(wonder);
+		town.checkIsTownCanBuildWonder(wonder);
 		wonder.checkBlockPermissionsAndRestrictions(player);
 		return wonder;
 	}
@@ -413,10 +417,7 @@ public class Wonder extends Buildable {
 
 	public void addWonderBuffsToTown() {
 
-		if (this.wonderBuffs == null) {
-			return;
-		}
-
+		if (this.wonderBuffs == null) return;
 		for (ConfigBuff buff : this.wonderBuffs.buffs) {
 			try {
 				this.getTown().getBuffManager().addBuff("wonder:" + this.getDisplayName() + ":" + this.getCorner() + ":" + buff.id, buff.id, this.getDisplayName());
@@ -437,10 +438,6 @@ public class Wonder extends Buildable {
 
 	public void setWonderBuffs(ConfigWonderBuff wonderBuffs) {
 		this.wonderBuffs = wonderBuffs;
-	}
-
-	public static Wonder newWonder(ResultSet rs) throws CivException, SQLException {
-		return _newWonder(null, rs.getString("type_id"), null, rs);
 	}
 
 	@Override

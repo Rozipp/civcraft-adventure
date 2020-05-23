@@ -49,7 +49,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -76,13 +76,13 @@ public class Stable extends Structure {
 	}
 
 	public Stable(Location center, String id, Town town) throws CivException {
-		super(center, id, town);
+		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
 	}
 	
 	public void bindStableChunks() {
-		for (BlockCoord bcoord : this.structureBlocks.keySet()) {
+		for (BlockCoord bcoord : this.constructBlocks.keySet()) {
 			ChunkCoord coord = new ChunkCoord(bcoord);
 			this.chunks.add(coord);
 			stableChunks.put(coord, this);
@@ -107,7 +107,7 @@ public class Stable extends Structure {
 	}
 	
 	@Override
-	public void delete() throws SQLException {
+	public void delete(){
 		super.delete();
 		unbindStableChunks();
 	}
@@ -282,7 +282,7 @@ public class Stable extends Structure {
 	}
 	
 	@Override
-	public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		SignSelectionComponent signSelection = signSelectors.get(Integer.valueOf(sign.getAction()));
 		if (signSelection == null) {
 			CivLog.warning("No sign seletor component for with id:"+sign.getAction());
@@ -310,8 +310,8 @@ public class Stable extends Structure {
 	}
 	
 	@Override
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock sb) {
-		StructureSign structSign;
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		ConstructSign structSign;
 		int selectorIndex;
 		SignSelectionComponent signComp;
 		
@@ -319,28 +319,28 @@ public class Stable extends Structure {
 		case "/prev":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 			ItemManager.setData(absCoord.getBlock(), sb.getData());
-			structSign = new StructureSign(absCoord, this);
+			structSign = new ConstructSign(absCoord, this);
 			structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("stable_sign_previousUnit"));
 			structSign.setDirection(sb.getData());
 			structSign.setAction(sb.keyvalues.get("id"));
 			structSign.setType("prev");
 			structSign.update();
-			this.addStructureSign(structSign);
-			CivGlobal.addStructureSign(structSign);			
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 			break;
 		case "/item":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-			structSign = new StructureSign(absCoord, this);
+			structSign = new ConstructSign(absCoord, this);
 			structSign.setText("");
 			structSign.setDirection(sb.getData());
 			structSign.setAction(sb.keyvalues.get("id"));
 			structSign.setType("item");
 			structSign.update();
 						
-			this.addStructureSign(structSign);
-			CivGlobal.addStructureSign(structSign);
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 						
 			selectorIndex = Integer.valueOf(sb.keyvalues.get("id"));
 			signComp = signSelectors.get(selectorIndex);
@@ -356,14 +356,14 @@ public class Stable extends Structure {
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 			ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-			structSign = new StructureSign(absCoord, this);
+			structSign = new ConstructSign(absCoord, this);
 			structSign.setText("\n"+ChatColor.BOLD+ChatColor.UNDERLINE+CivSettings.localize.localizedString("stable_sign_nextUnit"));
 			structSign.setDirection(sb.getData());
 			structSign.setType("next");
 			structSign.setAction(sb.keyvalues.get("id"));
 			structSign.update();
-			this.addStructureSign(structSign);
-			CivGlobal.addStructureSign(structSign);
+			this.addConstructSign(structSign);
+			CivGlobal.addConstructSign(structSign);
 			
 			break;
 		case "/horsespawn":

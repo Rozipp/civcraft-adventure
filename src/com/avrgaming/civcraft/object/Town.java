@@ -1717,7 +1717,8 @@ public class Town extends SQLObject {
 	}
 
 	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
-
+		checkIsTownCanBuildStructure(buildable);
+		
 	}
 
 	public void rebuildStructure(Player player, Structure struct) throws CivException {

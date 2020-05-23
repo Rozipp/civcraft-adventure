@@ -32,13 +32,13 @@ implements GuiAction {
     public void performAction(InventoryClickEvent event, ItemStack stack) {
         Player player = (Player)event.getWhoClicked();
         Resident whoClicked = CivGlobal.getResident(player);
-        if (whoClicked.getTown() == null) {
+        Town town = whoClicked.getSelectedTown();
+        if (town == null) {
             Book.spawnGuiBook(player);
             CivMessage.send((Object)player, "§c"+CivSettings.localize.localizedString("res_gui_noTown"));
             return;
         }
         Civilization civ = whoClicked.getCiv();
-        Town town = whoClicked.getSelectedTown();
         if (!(town.getMayorGroup().hasMember(whoClicked) || town.getAssistantGroup().hasMember(whoClicked) || civ.getLeaderGroup().hasMember(whoClicked))) {
             Book.spawnGuiBook(player);
             CivMessage.send((Object)player, "§c"+ CivSettings.localize.localizedString("cmd_NeedHigherTownOrCivRank"));
@@ -48,7 +48,7 @@ implements GuiAction {
         rate -= town.getBuffManager().getEffectiveDouble("buff_rush");
         rate -= town.getBuffManager().getEffectiveDouble("buff_grandcanyon_rush");
         rate -= town.getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
-        inv = Bukkit.getServer().createInventory((InventoryHolder)player, 54, CivSettings.localize.localizedString("resident_structuresGuiHeading"));
+        inv = Bukkit.getServer().createInventory((InventoryHolder)player, 54, CivSettings.localize.localizedString("resident_structuresGuiHeading") + " " + town.getName());
         for (ConfigBuildableInfo info : CivSettings.structures.values()) {
             ItemStack itemStack;
             int type = ItemManager.getMaterialId(Material.EMERALD_BLOCK);
@@ -85,7 +85,7 @@ implements GuiAction {
                 }
             }
             if (itemStack == null) continue;
-            inv.addItem(itemStack);
+			inv.addItem(itemStack);
         }
         ItemStack backButton = LoreGuiItem.build("Back", ItemManager.getMaterialId(Material.MAP), 0, CivSettings.localize.localizedString("bookReborn_backToDashBoard"));
         backButton = LoreGuiItem.setAction(backButton, "OpenInventory");

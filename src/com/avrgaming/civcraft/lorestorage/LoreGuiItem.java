@@ -91,7 +91,14 @@ public class LoreGuiItem {
 			GuiAction instance = (GuiAction) constructor.newInstance();
 			instance.performAction(event, stack);
 		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				Class<?> clazz = Class.forName("com.avrgaming.civcraft.loregui.book." + action);
+				Constructor<?> constructor = clazz.getConstructor();
+				GuiAction instance = (GuiAction) constructor.newInstance();
+				instance.performAction(event, stack);
+			} catch (Exception ee) {
+				ee.printStackTrace();
+			}
 		}
 
 	}

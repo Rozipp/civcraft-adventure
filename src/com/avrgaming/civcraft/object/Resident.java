@@ -1384,4 +1384,9 @@ public class Resident extends SQLObject {
 	public boolean isUnitActive() {
 		return this.unitObjectId > 0;
 	}
+	
+	public Town getSelectedTown() {
+		if (this.selectedTown != null) return this.selectedTown;
+		return this.getTown();
+	}
 }
