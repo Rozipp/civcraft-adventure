@@ -17,7 +17,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.StructureSign;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.CivColor;
@@ -28,7 +28,7 @@ extends Structure {
     private NonMemberFeeComponent nonMemberFeeComponent;
 
     public Alch(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+        super(id, town);
         this.nonMemberFeeComponent = new NonMemberFeeComponent(this);
         this.nonMemberFeeComponent.onSave();
         this.setLevel(town.saved_alch_levels);
@@ -75,8 +75,8 @@ extends Structure {
         return "Fee: " + new StringBuilder().append((int)(this.getNonResidentFee() * 100.0)).append("%").toString().toString();
     }
 
-    private StructureSign getSignFromSpecialId(int special_id) {
-        for (StructureSign sign : this.getSigns()) {
+    private ConstructSign getSignFromSpecialId(int special_id) {
+        for (ConstructSign sign : this.getSigns()) {
             int id = Integer.valueOf(sign.getAction());
             if (id != special_id) continue;
             return sign;
@@ -106,7 +106,7 @@ extends Structure {
 
     @Override
     public void updateSignText() {
-        StructureSign sign;
+        ConstructSign sign;
         int count = 0;
         for (count = 0; count < this.level; ++count) {
             sign = this.getSignFromSpecialId(count);
@@ -131,7 +131,7 @@ extends Structure {
     }
 
     @Override
-    public void processSignAction(Player player, StructureSign sign, PlayerInteractEvent event) {
+    public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
         int special_id = Integer.valueOf(sign.getAction());
         if (special_id < this.level) {
             ConfigAlchLevel alchlevel = CivSettings.alchLevels.get(special_id + 1);

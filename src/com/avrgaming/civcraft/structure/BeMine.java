@@ -11,7 +11,7 @@ import com.avrgaming.civcraft.structure.Structure;
 public class BeMine
 extends Structure {
 	public BeMine(Location center, String id, Town town) throws CivException {
-        super(center, id, town);
+        super(id, town);
     }
 
     public BeMine(ResultSet rs) throws SQLException, CivException {
