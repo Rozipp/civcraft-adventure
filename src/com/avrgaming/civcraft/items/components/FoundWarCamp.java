@@ -71,12 +71,14 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("buildWarCamp_prompt6"));
 
 			resident.setInteractiveMode(new InteractiveConfirm());
+			return;
 		}
 		if (creationConfirm == null) {
 			creationConfirm = strings[0];
+			resident.clearInteractiveMode();
+			resident.undoPreview();
 			if (!creationConfirm.equalsIgnoreCase("yes")) {
 				CivMessage.send(resident, CivSettings.localize.localizedString("interactive_warcamp_Cancel"));
-				resident.clearInteractiveMode();
 				return;
 			}
 			try {
@@ -86,7 +88,6 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 				warCamp.createWarCamp(player);
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
-				resident.clearInteractiveMode();
 				e.printStackTrace();
 			}
 		}

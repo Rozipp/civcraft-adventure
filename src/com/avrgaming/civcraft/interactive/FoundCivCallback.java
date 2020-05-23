@@ -8,7 +8,6 @@ import com.avrgaming.civcraft.construct.ChoiseTemplate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
@@ -34,18 +33,12 @@ public class FoundCivCallback implements CallbackInterface {
 
 		/* Build a preview for the Capitol structure. */
 		structure = Structure.newStructure(player, player.getLocation(), "s_capitol", null);
-		long begin = System.currentTimeMillis();
 		town = new Town((Civilization) null);
-		CivLog.debug("new Town " + (System.currentTimeMillis() - begin));
 		town.checkCanCreatedTown(resident, structure);
-		CivLog.debug("checkCanCreatedTown " + (System.currentTimeMillis() - begin));
 		civ = new Civilization(resident);
-		CivLog.debug("new Civilization " + (System.currentTimeMillis() - begin));
 		civ.checkCanCreatedCiv(player);
-		CivLog.debug("checkCanCreatedCiv " + (System.currentTimeMillis() - begin));
 
 		new ChoiseTemplate(player, structure, this);
-		CivLog.debug("new ChoiseTemplate " + (System.currentTimeMillis() - begin));
 	}
 
 	private String templateTheme = null;

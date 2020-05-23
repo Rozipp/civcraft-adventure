@@ -195,7 +195,7 @@ public class Capitol extends Townhall {
 						this.respawnSign = structSign;
 						changeIndex(index);
 					}
-
+		super.commandBlockRelatives(absCoord, sb);
 	}
 
 	@Override
