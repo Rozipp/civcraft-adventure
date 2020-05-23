@@ -41,7 +41,7 @@ public class ItemManager {
 	}
 
 	public static ItemStack createItemStack(Material mat, int amount) {
-		return new ItemStack(mat, (short) 0);
+		return new ItemStack(mat, (short) amount);
 	}
 
 	public static ItemStack createItemStack(String umid, int amount) {

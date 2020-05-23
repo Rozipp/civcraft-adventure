@@ -61,7 +61,6 @@ public class SQL {
 		CivLog.heading("Initializing " + name + " SQL Database");
 		String useSSL = "false";
 
-		useSSL = CivSettings.getStringBase(pref+".useSSL");
 		String hostname = CivSettings.getStringBase(pref+".hostname");
 		String port = CivSettings.getStringBase(pref+".port");
 		String db_name = CivSettings.getStringBase(pref+".database");

@@ -387,7 +387,6 @@ public class Town extends SQLObject {
 					try {
 						wonder.undoFromTemplate();
 					} catch (IOException | CivException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 						wonder.fancyDestroyConstructBlocks();
 					}
@@ -903,6 +902,7 @@ public class Town extends SQLObject {
 			this.saveNow();
 			CivGlobal.addTown(this);
 			getCiv().addTown(this);
+			if (structure instanceof Capitol) getCiv().setCapitolId(this.getId());
 
 			// Create permission groups for town.
 			try {

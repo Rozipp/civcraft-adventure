@@ -1967,7 +1967,7 @@ town_buildwonder_errorOneAtATime: "Можно строить только одн
 town_buildwonder_errorOneWonderAtaTime: "Ваш город может строить только одно чудо одновременно."
 var_town_buildwonder_errorGeneric: "Ошибка строительства: [%0]. Попробуйте позже."
 var_town_buildwonder_success: "[%1] начал постройку чуда [%0] в [%2]!"
-town_structure_errorNotAvaliable: "Это постройка в данный момент недоступна."
+town_structure_errorNotAvaliable: "Эта постройка в данный момент недоступна."
 var_town_structure_errorLimitMet: "Ваш город может иметь всего [%0] [%1]"
 town_undo_cannotFind: "Не могу отменить, не могу найти последнюю постройку."
 town_undo_notRoadOrWall: "Только стены и дороги могут быть отменены /undo."

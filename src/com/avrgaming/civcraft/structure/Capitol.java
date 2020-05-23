@@ -64,89 +64,77 @@ public class Capitol extends Townhall {
 
 		if (this.respawnSign != null) {
 			try {
-				this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD
-						+ respawnables.get(newIndex).getRespawnName());
+				this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(newIndex).getRespawnName());
 				index = newIndex;
 			} catch (IndexOutOfBoundsException e) {
 				if (respawnables.size() > 0) {
-					this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD
-							+ respawnables.get(0).getRespawnName());
+					this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(0).getRespawnName());
 					index = 0;
 				}
-				//this.unitNameSign.setText(getUnitSignText(index));
 			}
 			this.respawnSign.update();
-		} else {
+		} else
 			CivLog.warning("Could not find civ spawn sign:" + this.getId() + " at " + this.getCorner());
-		}
 	}
 
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-		//int special_id = Integer.valueOf(sign.getAction());
+		// int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
+		if (resident == null) return;
+		if (!War.isWarTime()) return;
 
-		if (resident == null) {
-			return;
-		}
-
-		if (!War.isWarTime()) {
-			return;
-		}
 		Boolean hasPermission = false;
-		if ((resident.getTown().isMayor(resident)) || (resident.getTown().getAssistantGroup().hasMember(resident))
-				|| (resident.getCiv().getLeaderGroup().hasMember(resident)) || (resident.getCiv().getAdviserGroup().hasMember(resident))) {
+		if ((resident.getTown().isMayor(resident)) || (resident.getTown().getAssistantGroup().hasMember(resident)) || (resident.getCiv().getLeaderGroup().hasMember(resident)) || (resident.getCiv().getAdviserGroup().hasMember(resident))) {
 			hasPermission = true;
 		}
 
 		switch (sign.getAction()) {
-			case "prev" :
-				if (hasPermission) {
-					changeIndex((index - 1));
-				} else {
-					CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
-				}
-				break;
-			case "next" :
-				if (hasPermission) {
-					changeIndex((index + 1));
-				} else {
-					CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
-				}
-				break;
-			case "respawn" :
-				ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
-				if (index >= respawnables.size()) {
-					index = 0;
-					changeIndex(index);
-					CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_cannotRespawn"));
+		case "prev":
+			if (hasPermission)
+				changeIndex((index - 1));
+			else
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
+			break;
+		case "next":
+			if (hasPermission)
+				changeIndex((index + 1));
+			else
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
+			break;
+		case "respawn":
+			ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+			if (index >= respawnables.size()) {
+				index = 0;
+				changeIndex(index);
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_cannotRespawn"));
+				return;
+			}
+
+			RespawnLocationHolder holder = getSelectedHolder();
+			int respawnTimeSeconds = this.getRespawnTime();
+			Date now = new Date();
+
+			if (resident.getLastKilledTime() != null) {
+				long secondsLeft = (resident.getLastKilledTime().getTime() + (respawnTimeSeconds * 1000)) - now.getTime();
+				if (secondsLeft > 0) {
+					secondsLeft /= 1000;
+					CivMessage.sendError(resident, CivColor.Rose + CivSettings.localize.localizedString("var_capitol_secondsLeftTillRespawn", secondsLeft));
 					return;
 				}
+			}
 
-				RespawnLocationHolder holder = getSelectedHolder();
-				int respawnTimeSeconds = this.getRespawnTime();
-				Date now = new Date();
+			BlockCoord revive = holder.getRandomRevivePoint();
+			Location loc;
+			if (revive == null) {
+				loc = player.getBedSpawnLocation();
+			} else {
+				loc = revive.getLocation();
+			}
 
-				if (resident.getLastKilledTime() != null) {
-					long secondsLeft = (resident.getLastKilledTime().getTime() + (respawnTimeSeconds * 1000)) - now.getTime();
-					if (secondsLeft > 0) {
-						secondsLeft /= 1000;
-						CivMessage.sendError(resident, CivColor.Rose + CivSettings.localize.localizedString("var_capitol_secondsLeftTillRespawn", secondsLeft));
-						return;
-					}
-				}
-
-				BlockCoord revive = holder.getRandomRevivePoint();
-				Location loc;
-				if (revive == null) {
-					loc = player.getBedSpawnLocation();
-				} else {
-					loc = revive.getLocation();
-				}
-
-				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
-				player.teleport(loc);
-				break;
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
+			player.teleport(loc);
+			break;
 		}
 	}
 
@@ -229,8 +217,7 @@ public class Capitol extends Townhall {
 		sb = new ConstructBlock(new BlockCoord(b), this);
 		this.addConstructBlock(sb.getCoord(), true);
 
-		int capitolControlHitpoints = this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")
-				&& this.getTown().getBuffManager().hasBuff("buff_greatlibrary_extra_beakers") ? 150 : 100;
+		int capitolControlHitpoints = this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp") && this.getTown().getBuffManager().hasBuff("buff_greatlibrary_extra_beakers") ? 150 : 100;
 		if (this.getTown().hasStructure("s_castle")) {
 			capitolControlHitpoints += 3;
 		}
@@ -258,8 +245,7 @@ public class Capitol extends Townhall {
 			return;
 		}
 
-		CivMessage.sendTown(this.getTown(), CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("capitol_cannotSupport1") + " "
-				+ CivSettings.localize.localizedString("var_capitol_cannotSupport2", invalid_respawn_penalty));
+		CivMessage.sendTown(this.getTown(), CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("capitol_cannotSupport1") + " " + CivSettings.localize.localizedString("var_capitol_cannotSupport2", invalid_respawn_penalty));
 	}
 
 	@Override

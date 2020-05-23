@@ -12,6 +12,7 @@ import gpl.AttributeUtil;
 
 import java.lang.reflect.Constructor;
 
+import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -24,6 +25,15 @@ public class LoreGuiItem {
 
 	public static ItemStack getGUIItem(String title, String[] messages, int type, int data) {
 		ItemStack stack = ItemManager.createItemStack(type, (short) data, 1);
+		AttributeUtil attrs = new AttributeUtil(stack);
+		attrs.setCivCraftProperty("GUI", title);
+		attrs.setName(title);
+		attrs.setLore(messages);
+		return attrs.getStack();
+	}
+	
+	public static ItemStack getGUIItem(String title, String[] messages, Material material) {
+		ItemStack stack = ItemManager.createItemStack(material, 1);
 		AttributeUtil attrs = new AttributeUtil(stack);
 		attrs.setCivCraftProperty("GUI", title);
 		attrs.setName(title);
@@ -60,6 +70,10 @@ public class LoreGuiItem {
 
 	public static ItemStack build(String title, int type, int data, String... messages) {
 		return getGUIItem(title, messages, type, data);
+	}
+	
+	public static ItemStack build(String title, Material material, String... messages) {
+		return getGUIItem(title, messages, material);
 	}
 
 	public static ItemStack asGuiItem(ItemStack stack) {

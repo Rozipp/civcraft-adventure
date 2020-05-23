@@ -2048,7 +2048,6 @@ public class CivGlobal {
 	}
 
 	public static boolean isChatDisAllowed(Player player) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

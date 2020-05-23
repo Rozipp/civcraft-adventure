@@ -179,6 +179,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public boolean isAvailable() {
+		if (this.getTown() == null || this.getTown().getId() == 0) return true;
 		return info.isAvailable(this.getTown());
 	}
 

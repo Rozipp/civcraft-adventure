@@ -8,7 +8,7 @@
 # Set if you want to use civcraft.net's server listing service (SLS). By setting this to true
 # the civcraft plugin will send your server's information to civcraft.net so players can find
 # your server while looking for civcraft servers to play on.
-use_server_listing_service: 'true'
+use_server_listing_service: 'false'
 
 # IP address or URL of your server. The SLS will use this to inform users how to connect to your server.
 # if left blank, the SLS will attempt to obtain it automatically from packets sent to the SLS.
@@ -25,10 +25,8 @@ server_timezone: 'CST'
 server_description: 'Just another MineTexas CivCraft server.'
 
 # The URL to the homepage of your server
-server_url: 'https://www.minetexas.com/'
+server_url: 'http://www.civilizationcraft.net/'
 server_url_description: 'CivCraft Homepage'
-# The URL to the dynmap of your server (Optional)
-dynmap_url: ''
 
 # Prints a message to the console for every heartbeat packet sent to the server. Useful for debugging.
 debug_heartbeat: 'false'
@@ -40,24 +38,28 @@ debug_heartbeat: 'false'
 localization_file: "default_lang.yml"
 simple_date_format: "dd/MM/yyyy HH:mm:ss z"
 
-# ============================== Database Configuration ====================================
+# ============================== Test Flag Configuration ====================================
 
-clears_table_data: false
+clear_table_data: false
+cleanupDatabase: false
+debag: false
 
 # ============================== Debug information =========================================
 
+#Количество блоков которые можно установить з 1 тик
 update_limit_for_sync_build_task: 10000
+
+#Количество блоков которое добавляеться при установке шаблона постройки, или установки рамки строительства в тик
 max_blocks_per_tick_build_template: 5000
 
 
 # MySQL database to store game data in across reloads. 
 mysql:
-    useSSL: 'false'
-    hostname: localhost
-    port: '3306'
-    database: game
-    username: user
-    password: 'PasswordForDatabaseUser'
-    table_prefix: ''
+   hostname: localhost
+   port: '3306'
+   database: game
+   username: civ
+   password: 'civcraft'
+   table_prefix: ''
    
 server_phase: 'beta8'

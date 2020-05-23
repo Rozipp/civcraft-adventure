@@ -101,7 +101,6 @@ public class Localize {
 		try {
 			CivSettings.streamResourceToDisk("/localization/"+defaultLanguageFile);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
