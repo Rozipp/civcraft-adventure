@@ -323,4 +323,10 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 		if (milisecLeft <= 0) return 0;
 		return (int) (milisecLeft / 60000);
 	}
+
+	@Override
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+		
+	}
 }

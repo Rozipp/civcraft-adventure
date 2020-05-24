@@ -42,7 +42,6 @@ public class PlayerProximityComponentTimer implements Runnable {
 			if (proximityComponents == null) {
 				return;
 			}
-
 			/* 
 			 * Wait for the lock to free up before we continue; 
 			 */

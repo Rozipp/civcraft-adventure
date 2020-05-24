@@ -18,6 +18,7 @@
  */
 package com.avrgaming.civcraft.components;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 import lombok.Getter;
@@ -33,6 +34,7 @@ import com.avrgaming.civcraft.cache.PlayerLocationCache;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.Buildable;
@@ -67,10 +69,9 @@ public abstract class ProjectileComponent extends Component {
 	public void onSave() {
 	}
 
-	/* We're overriding the create component class here so that all child-classes
-	 * will register with this method rather than the default. This is done so that
-	 * the key used in components by type will get all instances of this base class
-	 * rather than having to search for the children in the componentByType list. */
+	/* We're overriding the create component class here so that all child-classes will register with this method rather than the default. This
+	 * is done so that the key used in components by type will get all instances of this base class rather than having to search for the
+	 * children in the componentByType list. */
 	@Override
 	public void createComponent(Construct constr, boolean async) {
 		startRegisterComponentTask(constr, ProjectileComponent.class.getName(), true, async);
@@ -84,7 +85,12 @@ public abstract class ProjectileComponent extends Component {
 	public void setTurretLocation(BlockCoord absCoord) {
 		turrets.add(absCoord);
 	}
-	
+
+	public void setTurretLocation(Collection<? extends BlockCoord> absCoord) {
+		turrets.addAll(absCoord);
+		CivLog.debug("turrets.addAll(absCoord); " + turrets.size());
+	}
+
 	public Location getTurretCenter() {
 		return construct.getCenterLocation();
 	}
@@ -165,15 +171,17 @@ public abstract class ProjectileComponent extends Component {
 		int zdiff = 0;
 		if (playerLoc.getBlockX() > turretLoc.getBlockX()) {
 			xdiff = diff;
-		} else if (playerLoc.getBlockX() < turretLoc.getBlockX()) {
-			xdiff = -diff;
-		}
+		} else
+			if (playerLoc.getBlockX() < turretLoc.getBlockX()) {
+				xdiff = -diff;
+			}
 
 		if (playerLoc.getBlockZ() > turretLoc.getBlockZ()) {
 			zdiff = diff;
-		} else if (playerLoc.getBlockZ() < turretLoc.getBlockZ()) {
-			zdiff = -diff;
-		}
+		} else
+			if (playerLoc.getBlockZ() < turretLoc.getBlockZ()) {
+				zdiff = -diff;
+			}
 
 		return turretLoc.getBlock().getRelative(xdiff, 0, zdiff).getLocation();
 	}
@@ -187,21 +195,15 @@ public abstract class ProjectileComponent extends Component {
 		double nearestDistance = Double.MAX_VALUE;
 
 		Location turretLoc = null;
-		for (PlayerLocationCache pc : proximityComponent.tryGetNearbyPlayers(false)) {
-			if (pc == null || pc.isDead()) {
-				continue;
-			}
+		HashSet<PlayerLocationCache> getpl = proximityComponent.tryGetNearbyPlayers(false);
+		for (PlayerLocationCache pc : getpl) {
+			if (pc == null || pc.isDead()) continue;
 
 			if (!construct.getTown().isOutlaw(pc.getName())) {
 				Resident resident = pc.getResident();
 				// Try to exit early by making sure this resident is at war.
-				if (resident == null || (!resident.hasTown())) {
-					continue;
-				}
-
-				if (!construct.getCiv().getDiplomacyManager().isHostileWith(resident)) {
-					continue;
-				}
+				if (resident == null || (!resident.hasTown())) continue;
+				if (!construct.getCiv().getDiplomacyManager().isHostileWith(resident)) continue;
 			}
 
 			Location playerLoc = pc.getCoord().getLocation();

@@ -15,11 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class Component {
 
 	public static ConcurrentHashMap<String, ArrayList<Component>> componentsByType = new ConcurrentHashMap<String, ArrayList<Component>>();
@@ -109,4 +105,20 @@ public class Component {
 		else TaskMaster.syncTask(new RegisterComponentAsync());
 	}
 
+	public Construct getConstruct() {
+		return construct;
+	}
+	
+	public void setConstruct(Construct construct) {
+		this.construct = construct;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 }

@@ -386,4 +386,10 @@ public class Cave extends Construct {
 		}
 		return true;
 	}
+
+	@Override
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+		
+	}
 }

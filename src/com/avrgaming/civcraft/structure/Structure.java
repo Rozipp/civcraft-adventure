@@ -15,11 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.database.SQL;
@@ -84,7 +82,6 @@ public class Structure extends Buildable {
 			else
 				struct = new Structure(rs);
 		}
-		struct.loadSettings();
 		return struct;
 	}
 
@@ -103,32 +100,6 @@ public class Structure extends Buildable {
 		if (town != null) town.checkIsTownCanBuildStructure(structure);
 		structure.checkBlockPermissionsAndRestrictions(player);
 		return structure;
-	}
-
-	public void loadSettings() {
-		/* Build and register all of the components. */
-		List<HashMap<String, String>> compInfoList = this.getComponentInfoList();
-		if (compInfoList != null) {
-			for (HashMap<String, String> compInfo : compInfoList) {
-				String className = "com.avrgaming.civcraft.components." + compInfo.get("name");
-				Class<?> someClass;
-				try {
-					someClass = Class.forName(className);
-					@SuppressWarnings("deprecation")
-					Component compClass = (Component) someClass.newInstance();
-					compClass.setName(compInfo.get("name"));
-					for (String key : compInfo.keySet()) {
-						compClass.setAttribute(key, compInfo.get(key));
-					}
-					compClass.createComponent(this, false);
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		for (Component comp : this.attachedComponents) {
-			comp.onSave();
-		}
 	}
 
 	// --------------------- SQL DataBase
@@ -270,7 +241,6 @@ public class Structure extends Buildable {
 		this.startBuildTask();
 
 		CivGlobal.addStructure(this);
-		this.getTown().addStructure(this);
 	}
 
 	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
@@ -279,11 +249,7 @@ public class Structure extends Buildable {
 
 	public void repairStructureForFree() throws CivException {
 		setHitpoints(getMaxHitPoints());
-		try {
-			repairFromTemplate();
-		} catch (CivException | IOException e) {
-			throw new CivException(CivSettings.localize.localizedString("internalIOException"));
-		}
+		repairFromTemplate();
 		bindBlocks();
 		save();
 	}
@@ -359,12 +325,13 @@ public class Structure extends Buildable {
 	}
 
 	@Override
-	public void setTurretLocation(BlockCoord absCoord) {
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		/* Override in children */
 	}
 
 	@Override
-	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
-		/* Override in children */
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+
 	}
 }

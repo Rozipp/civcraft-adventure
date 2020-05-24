@@ -29,6 +29,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.config.ConfigTech;
@@ -81,6 +83,8 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 	private ArrayList<BlockCoord> respawnPoints = new ArrayList<BlockCoord>();
 	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
 	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
+	
+	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
 
 	public ArrayList<BlockCoord> nextGoodieFramePoint = new ArrayList<BlockCoord>();
 	public ArrayList<Integer> nextGoodieFrameDirection = new ArrayList<Integer>();
@@ -123,13 +127,13 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 			this.setTechdataSign(absCoord);
 			this.setTechdataSignData((byte) sb.getData());
 			break;
-		case "/itemframe":
-			strvalue = sb.keyvalues.get("id");
-			if (strvalue != null) {
-				this.createGoodieItemFrame(absCoord, Integer.valueOf(strvalue), sb.getData());
-				this.addConstructBlock(absCoord, false);
-			}
-			break;
+//		case "/itemframe":
+//			strvalue = sb.keyvalues.get("id");
+//			if (strvalue != null) {
+//				this.createGoodieItemFrame(absCoord, Integer.valueOf(strvalue), sb.getData());
+//				this.addConstructBlock(absCoord, false);
+//			}
+//			break;
 		case "/respawn":
 			this.addRespawnPoint(absCoord);
 			break;
@@ -140,7 +144,15 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 			this.createControlPoint(absCoord, "");
 			break;
 		case "/towerfire":
-			this.setTurretLocation(absCoord);
+			String id = sb.keyvalues.get("id");
+			Integer towerID = Integer.valueOf(id);
+
+			if (!arrowTowers.containsKey(towerID)) {
+				ProjectileArrowComponent arrowTower = new ProjectileArrowComponent(this);
+				arrowTower.createComponent(this);
+				arrowTower.setTurretLocation(absCoord);
+				arrowTowers.put(towerID, arrowTower);
+			}
 			break;
 		}
 	}

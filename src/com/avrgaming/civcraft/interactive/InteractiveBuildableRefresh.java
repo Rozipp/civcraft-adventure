@@ -1,7 +1,5 @@
 package com.avrgaming.civcraft.interactive;
 
-import java.io.IOException;
-
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -33,8 +31,7 @@ public class InteractiveBuildableRefresh implements InteractiveResponse {
 		}
 
 		CivMessage.sendHeading(player, CivSettings.localize.localizedString("interactive_refresh_Heading"));
-		CivMessage.send(player,
-				CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("var_interactive_refresh_prompt1", buildable.getDisplayName()));
+		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("var_interactive_refresh_prompt1", buildable.getDisplayName()));
 		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("interactive_refresh_prompt2"));
 		CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("interactive_refresh_prompt3"));
 	}
@@ -52,19 +49,9 @@ public class InteractiveBuildableRefresh implements InteractiveResponse {
 		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					try {
-						buildable.repairFromTemplate();
-						buildable.getTown().markLastBuildableRefeshAsNow();
-						CivMessage.sendSuccess(resident, CivSettings.localize.localizedString("var_interactive_refresh_success", buildable.getDisplayName()));
-					} catch (IOException e) {
-						e.printStackTrace();
-						throw new CivException(
-								CivSettings.localize.localizedString("interactive_refresh_exception") + " " + buildable.getTemplate().getFilepath() + " ?");
-					}
-				} catch (CivException e) {
-					CivMessage.sendError(resident, e.getMessage());
-				}
+				buildable.repairFromTemplate();
+				buildable.getTown().markLastBuildableRefeshAsNow();
+				CivMessage.sendSuccess(resident, CivSettings.localize.localizedString("var_interactive_refresh_success", buildable.getDisplayName()));
 			}
 		});
 	}

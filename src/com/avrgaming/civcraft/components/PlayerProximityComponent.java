@@ -107,7 +107,6 @@ public class PlayerProximityComponent extends Component {
 
 		for (PlayerLocationCache pc : collection) {
 			if (pc.isVanished()) { continue; }
-
 			if (pc.getCoord().distanceSquared(this.getCenter()) < radiusSquared) { newSet.add(pc); }
 		}
 

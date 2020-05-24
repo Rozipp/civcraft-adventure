@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -446,12 +445,12 @@ public class Wall extends Structure {
 	}
 
 	@Override
-	public void repairFromTemplate() throws IOException, CivException {
+	public void repairFromTemplate() {
 		this.repairStructureForFree();
 	}
 
 	@Override
-	public void repairStructureForFree() throws CivException {
+	public void repairStructureForFree() {
 		setHitpoints(getMaxHitPoints());
 		bindBlocks();
 

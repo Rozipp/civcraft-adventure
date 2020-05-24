@@ -224,7 +224,7 @@ public class BuildCommand extends CommandBase {
 				if (sinfo.limit == 0) {
 					leftString = CivSettings.localize.localizedString("Unlimited");
 				} else {
-					leftString = "" + (sinfo.limit - town.getStructureTypeCount(sinfo.id));
+					leftString = "" + (sinfo.limit - town.getBuildableTypeCount(sinfo.id));
 				}
 
 				CivMessage.send(sender,
@@ -244,7 +244,7 @@ public class BuildCommand extends CommandBase {
 				if (sinfo.limit == 0) {
 					leftString = CivSettings.localize.localizedString("Unlimited");
 				} else {
-					leftString = "" + (sinfo.limit - town.getStructureTypeCount(sinfo.id));
+					leftString = "" + (sinfo.limit - town.getBuildableTypeCount(sinfo.id));
 				}
 
 				if (Wonder.isWonderAvailable(sinfo.id)) {

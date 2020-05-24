@@ -108,11 +108,6 @@ public class CivSettings {
 	public static Map<Integer, ConfigTechItem> techItems = new HashMap<Integer, ConfigTechItem>();
 	public static Map<String, ConfigTechPotion> techPotions = new HashMap<String, ConfigTechPotion>();
 
-	public static FileConfiguration spawnersConfig; /* spawners.yml */
-	public static Map<String, ConfigMobSpawner> spawners = new HashMap<String, ConfigMobSpawner>();
-	public static Map<String, ConfigMobSpawner> landSpawners = new HashMap<String, ConfigMobSpawner>();
-	public static Map<String, ConfigMobSpawner> waterSpawners = new HashMap<String, ConfigMobSpawner>();
-
 	public static FileConfiguration goodsConfig; /* goods.yml */
 	public static Map<String, ConfigTradeGood> goods = new HashMap<String, ConfigTradeGood>();
 	public static Map<String, ConfigTradeGood> landGoods = new HashMap<String, ConfigTradeGood>();
@@ -431,7 +426,6 @@ public class CivSettings {
 		techsConfig = loadCivConfig("techs.yml");
 		goodsConfig = loadCivConfig("goods.yml");
 		caveConfig = loadCivConfig("cave.yml");
-		spawnersConfig = loadCivConfig("spawners.yml");
 		buffConfig = loadCivConfig("buffs.yml");
 		mobsConfig = loadCivConfig("mobs.yml");
 		governmentConfig = loadCivConfig("governments.yml");
@@ -473,7 +467,6 @@ public class CivSettings {
 		ConfigBuff.loadConfig(buffConfig, buffs);
 		ConfigMobs.loadConfig(mobsConfig, mobs);
 		ConfigWonderBuff.loadConfig(wonderConfig, wonderBuffs);
-		ConfigMobSpawner.loadConfig(spawnersConfig, spawners, landSpawners, waterSpawners);
 		ConfigTradeGood.loadConfig(goodsConfig, goods, landGoods, waterGoods);
 		ConfigCave.loadConfig(caveConfig, caves);
 		ConfigGrocerLevel.loadConfig(structureConfig, grocerLevels);

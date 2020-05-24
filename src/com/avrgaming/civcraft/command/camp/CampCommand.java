@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.command.camp;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -32,7 +31,7 @@ import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CampCommand extends CommandBase {
-	public static final long INVITE_TIMEOUT = 30000; //30 seconds
+	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
 	private Date lastBuildableRefresh = null;
 
 	@Override
@@ -87,8 +86,7 @@ public class CampCommand extends CommandBase {
 
 		if (camp != null) {
 			CivMessage.send(sender, "");
-			CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("cmd_camp_locationSuccess") + " "
-					+ CivColor.LightPurple + camp.getCorner());
+			CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("cmd_camp_locationSuccess") + " " + CivColor.LightPurple + camp.getCorner());
 			CivMessage.send(sender, "");
 		}
 	}
@@ -123,11 +121,7 @@ public class CampCommand extends CommandBase {
 			}
 		}
 
-		try {
-			camp.repairFromTemplate();
-		} catch (IOException e) {} catch (CivException e) {
-			e.printStackTrace();
-		}
+		camp.repairFromTemplate();
 		camp.processCommandSigns();
 		CivMessage.send(sender, CivSettings.localize.localizedString("cmd_camp_refreshSuccess"));
 		resident.setNextRefresh(now.getTime() + (buildable_refresh_cooldown * 60 * 1000));
@@ -151,8 +145,7 @@ public class CampCommand extends CommandBase {
 
 		info.clear();
 		info.put(CivSettings.localize.localizedString("cmd_camp_infoFireLeft"), "" + camp.getFirepoints());
-		info.put(CivSettings.localize.localizedString("cmd_camp_infoLonghouseLevel"),
-				"" + camp.getLonghouseLevel() + "" + camp.getLonghouseCountString());
+		info.put(CivSettings.localize.localizedString("cmd_camp_infoLonghouseLevel"), "" + camp.getLonghouseLevel() + "" + camp.getLonghouseCountString());
 		CivMessage.send(sender, this.makeInfoString(info, CivColor.Green, CivColor.LightGreen));
 
 		info.clear();
@@ -196,8 +189,7 @@ public class CampCommand extends CommandBase {
 		join.resident = resident;
 		join.sender = player;
 
-		Question.questionPlayer(player, CivGlobal.getPlayer(resident),
-				CivSettings.localize.localizedString("var_cmd_camp_addInvite", player.getName(), camp.getName()), INVITE_TIMEOUT, join);
+		Question.questionPlayer(player, CivGlobal.getPlayer(resident), CivSettings.localize.localizedString("var_cmd_camp_addInvite", player.getName(), camp.getName()), INVITE_TIMEOUT, join);
 
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_camp_addSuccess", resident.getName()));
 	}
