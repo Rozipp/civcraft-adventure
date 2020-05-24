@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.command.admin;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -150,12 +149,7 @@ public class AdminBuildCommand extends CommandBase {
 			return;
 		}
 
-		try {
-			nearest.repairFromTemplate();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("interactive_refresh_exception") + nearest.getDisplayName() + " ?");
-		}
+		nearest.repairFromTemplate();
 		CivMessage.sendSuccess(player, nearest.getDisplayName() + " " + CivSettings.localize.localizedString("Repaired"));
 
 	}

@@ -46,7 +46,7 @@ public class Wonder extends Buildable {
 	public static Wonder newWonder(ResultSet rs) throws CivException, SQLException {
 		return _newWonder(null, rs.getString("type_id"), null, rs);
 	}
-	
+
 	public Wonder(String id, Town town) throws CivException {
 		this.setInfo(CivSettings.wonders.get(id));
 		this.setSQLOwner(town);
@@ -63,9 +63,8 @@ public class Wonder extends Buildable {
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
 			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" //
-					+ "`id` int(11) unsigned NOT NULL auto_increment," + "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL,"
-					+ "`complete` bool NOT NULL DEFAULT '0'," + "`builtBlockCount` int(11) DEFAULT NULL, " + "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, " + "`hitpoints` int(11) DEFAULT '100',"
-					+ "PRIMARY KEY (`id`)" + ")";
+					+ "`id` int(11) unsigned NOT NULL auto_increment," + "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL," + "`complete` bool NOT NULL DEFAULT '0'," + "`builtBlockCount` int(11) DEFAULT NULL, "
+					+ "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, " + "`hitpoints` int(11) DEFAULT '100'," + "PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
 			CivLog.info("Created " + TABLE_NAME + " table");
@@ -190,35 +189,33 @@ public class Wonder extends Buildable {
 	}
 
 	@Override
-	public void build(Player player) {
+	public void build(Player player) throws CivException {
+		Template tpl = this.getTemplate();
+		// We take the player's current position and make it the 'center' by moving the center location to the 'corner' of the structure.
+
+		BlockCoord corner = this.getCorner();
+		this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
+		// Save the template x,y,z for later. This lets us know our own dimensions.
+		// this is saved in the db so it remains valid even if the template changes.
+		this.setTemplate(tpl);
+
+		checkBlockPermissionsAndRestrictions(player);
+
+		// Setup undo information
+		getTown().lastBuildableBuilt = this;
 		try {
-			Template tpl = this.getTemplate();
-			// We take the player's current position and make it the 'center' by moving the
-			// center location
-			// to the 'corner' of the structure.
-
-			BlockCoord corner = this.getCorner();
-			this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-			// Save the template x,y,z for later. This lets us know our own dimensions.
-			// this is saved in the db so it remains valid even if the template changes.
-			this.setTemplate(tpl);
-
-			checkBlockPermissionsAndRestrictions(player);
-
-			// Setup undo information
-			getTown().lastBuildableBuilt = this;
 			tpl.saveUndoTemplate(corner.toString(), corner);
-			tpl.buildScaffolding(corner);
-
-			// Player's center was converted to this building's corner, save it as such.
-			this.startBuildTask();
-
-			this.save();
-			CivGlobal.addWonder(this);
-			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName()));
-		} catch (CivException | IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		tpl.buildScaffolding(corner);
+
+		// Player's center was converted to this building's corner, save it as such.
+		this.startBuildTask();
+
+		this.save();
+		CivGlobal.addWonder(this);
+		CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName(), player.getName()));
 	}
 
 	@Override
@@ -538,5 +535,11 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+	}
+
+	@Override
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+
 	}
 }

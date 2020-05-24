@@ -103,4 +103,10 @@ public class CaveEntrance extends Construct {
 		return null;
 	}
 
+	@Override
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+		
+	}
+
 }

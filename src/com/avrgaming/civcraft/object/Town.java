@@ -1563,39 +1563,6 @@ public class Town extends SQLObject {
 		return this.cultureChunks.get(coord);
 	}
 
-	public void removeWonder(Buildable buildable) {
-		if (!buildable.isComplete()) {
-			this.removeBuildTask(buildable);
-		}
-
-		if (currentWonderInProgress == buildable) {
-			currentWonderInProgress = null;
-		}
-
-		this.wonders.remove(buildable.getCorner());
-	}
-
-	public void addWonder(Buildable buildable) {
-		if (buildable instanceof Wonder) {
-			this.wonders.put(buildable.getCorner(), (Wonder) buildable);
-		}
-	}
-
-	public int getStructureTypeCount(String id) {
-		int count = 0;
-		for (Structure struct : this.structures.values()) {
-			if (struct.getConfigId().equalsIgnoreCase(id)) {
-				count++;
-			}
-		}
-		for (Wonder wonder : this.wonders.values()) {
-			if (wonder.getConfigId().equalsIgnoreCase(id)) {
-				count++;
-			}
-		}
-		return count;
-	}
-
 	public void giveExtraHammers(double extra) {
 		if (build_tasks.size() == 0) {
 			// Nothing is building, store the extra hammers for when a structure starts
@@ -1615,77 +1582,73 @@ public class Town extends SQLObject {
 		this.save();
 	}
 
-	public void buildWonder(Player player, Buildable buildable) throws CivException {
-		Location center = buildable.getCorner().getLocation();
-		if (this.wonders.size() >= 2) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit2"));
+	public int getBuildableTypeCount(String id) {
+		int count = 0;
+		for (Structure struct : this.structures.values()) {
+			if (struct.getConfigId().equalsIgnoreCase(id)) count++;
 		}
-
-		if (!center.getWorld().getName().equals("world")) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_NotOverworld"));
+		for (Wonder wonder : this.wonders.values()) {
+			if (wonder.getConfigId().equalsIgnoreCase(id)) count++;
 		}
+		return count;
+	}
 
-		Wonder wonder = (Wonder) buildable;// Wonder.newWonder(center, id, this);
+	// ------------- Structure
+	public void addStructure(Structure struct) {
+		this.structures.put(struct.getCorner(), struct);
 
-		if (!this.hasUpgrade(wonder.getRequiredUpgrade())) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingUpgrade") + " §6" + CivSettings.getUpgradeById(wonder.getRequiredUpgrade()).name);
-		}
-
-		if (!this.hasTechnology(wonder.getRequiredTechnology())) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(wonder.getRequiredTechnology()).name);
-		}
-
-		if (!wonder.isAvailable()) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorNotAvailable"));
-		}
-
-		if (!Wonder.isWonderAvailable(wonder.getConfigId())) {
-			throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorBuiltElsewhere"));
-		}
-
-		if (CivGlobal.isCasualMode()) {
-			/* Check for a wonder already in this civ. */
-			for (Town town : this.getCiv().getTowns()) {
-				for (Wonder w : town.getWonders()) {
-					if (w.getConfigId().equals(wonder.getConfigId())) {
-						throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit1Casual"));
-					}
-				}
-			}
-		}
-
-		double cost = wonder.getCost();
-		if (!this.getTreasury().hasEnough(cost)) {
-			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorTooPoor", wonder.getDisplayName(), cost, CivSettings.CURRENCY_NAME));
-		}
-
-		Buildable inProgress = getCurrentStructureInProgress();
-		if (inProgress != null) {
-			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
+		if (!isStructureAddable(struct)) {
+			this.disabledBuildables.put(struct.getCorner(), struct);
+			struct.setEnabled(false);
 		} else {
-			inProgress = getCurrentWonderInProgress();
-			if (inProgress != null) {
-				throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneWonderAtaTime"));
-			}
+			this.disabledBuildables.remove(struct.getCorner());
+			struct.setEnabled(true);
 		}
+	}
 
-		try {
-			wonder.build(player);
-			if (this.getExtraHammers() > 0) {
-				this.giveExtraHammers(this.getExtraHammers());
-			}
-		} catch (Exception e) {
-			if (CivGlobal.isHaveTestFlag("debug")) {
-				e.printStackTrace();
-			}
-			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorGeneric", e.getMessage()));
+	public boolean isStructureAddable(Structure struct) {
+		int count = this.getBuildableTypeCount(struct.getConfigId());
+
+		if (struct.isTileImprovement()) {
+			Integer maxTileImprovements = this.getMaxTileImprovements();
+			if (this.getTileImprovementCount() > maxTileImprovements) return false;
+		} else
+			if ((struct.getLimit() != 0) && (count > struct.getLimit())) return false;
+
+		return true;
+	}
+
+	public boolean hasStructure(String require_structure) {
+		if (require_structure == null || require_structure.equals("")) return true;
+		Structure struct = this.findStructureByConfigId(require_structure);
+		return struct != null && struct.isActive();
+	}
+
+	public Collection<Structure> getStructures() {
+		return this.structures.values();
+	}
+
+	public Structure getStructureByType(String id) {
+		for (Structure struct : this.structures.values()) {
+			if (id.equalsIgnoreCase(struct.getConfigId())) return struct;
 		}
+		return null;
+	}
 
-		wonders.put(wonder.getCorner(), wonder);
+	public List<Structure> getStructuresByType(String id) {
+		List<Structure> res = new LinkedList<>();
+		for (Structure struct : this.structures.values()) {
+			if (struct.getConfigId().equalsIgnoreCase(id)) res.add(struct);
+		}
+		return res;
+	}
 
-		this.getTreasury().withdraw(cost);
-		CivMessage.sendTown(this, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", wonder.getDisplayName()));
-		this.save();
+	public void removeStructure(Structure structure) {
+		if (!structure.isComplete()) this.removeBuildTask(structure);
+		if (currentStructureInProgress == structure) currentStructureInProgress = null;
+		this.structures.remove(structure.getCorner());
+		this.invalidStructures.remove(structure);
+		this.disabledBuildables.remove(structure.getCorner());
 	}
 
 	public void checkIsTownCanBuildStructure(Buildable buildable) throws CivException {
@@ -1693,7 +1656,7 @@ public class Town extends SQLObject {
 		if (!this.hasTechnology(buildable.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(buildable.getRequiredTechnology()).name);
 		if (!buildable.isAvailable()) throw new CivException(CivSettings.localize.localizedString("town_structure_errorNotAvaliable"));
 		if (buildable.getLimit() != 0)
-			if (getStructureTypeCount(buildable.getConfigId()) >= buildable.getLimit()) throw new CivException(CivSettings.localize.localizedString("var_town_structure_errorLimitMet", buildable.getLimit(), buildable.getDisplayName()));
+			if (getBuildableTypeCount(buildable.getConfigId()) >= buildable.getLimit()) throw new CivException(CivSettings.localize.localizedString("var_town_structure_errorLimitMet", buildable.getLimit(), buildable.getDisplayName()));
 
 		double cost = buildable.getCost();
 		if (!this.getTreasury().hasEnough(cost)) throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorTooPoor", buildable.getDisplayName(), cost, CivSettings.CURRENCY_NAME));
@@ -1716,9 +1679,18 @@ public class Town extends SQLObject {
 					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
 	}
 
-	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
-		checkIsTownCanBuildStructure(buildable);
-		
+	public void buildStructure(Player player, Structure struct) throws CivException {
+		if (struct.getReplaceStructure() != null) {
+			rebuildStructure(player, struct);
+			return;
+		}
+		checkIsTownCanBuildStructure(struct);
+		struct.checkBlockPermissionsAndRestrictions(player);
+		for (ChunkCoord cc : BuildableStatic.getChunkCoords(struct)) {
+			TownChunk tc = CivGlobal.getTownChunk(cc);
+			if (tc == null) TownChunk.autoClaim(this, cc).save();
+		}
+		this.startBuildStructure(player, struct);
 	}
 
 	public void rebuildStructure(Player player, Structure struct) throws CivException {
@@ -1763,11 +1735,7 @@ public class Town extends SQLObject {
 						e1.printStackTrace();
 					}
 
-					try {
-						replaceStruct.getTown().startBuildStructure(player, struct);
-					} catch (CivException e) {
-						e.printStackTrace();
-					}
+					replaceStruct.getTown().startBuildStructure(player, struct);
 				}
 			}, 10);
 		} catch (Exception e) {
@@ -1776,21 +1744,7 @@ public class Town extends SQLObject {
 		}
 	}
 
-	public void buildStructure(Player player, Structure struct) throws CivException {
-		if (struct.getReplaceStructure() != null) {
-			rebuildStructure(player, struct);
-			return;
-		}
-		checkIsTownCanBuildStructure(struct);
-		struct.checkBlockPermissionsAndRestrictions(player);
-		for (ChunkCoord cc : BuildableStatic.getChunkCoords(struct)) {
-			TownChunk tc = CivGlobal.getTownChunk(cc);
-			if (tc == null) TownChunk.autoClaim(this, cc).save();
-		}
-		this.startBuildStructure(player, struct);
-	}
-
-	public void startBuildStructure(Player player, Structure struct) throws CivException {
+	public void startBuildStructure(Player player, Structure struct) {
 		try {
 			struct.build(player);
 		} catch (Exception e) {
@@ -1800,77 +1754,108 @@ public class Town extends SQLObject {
 		struct.save();
 
 		// Go through and add any town chunks that were claimed to this list of saved objects.
-		try {
-			if (this.getExtraHammers() > 0) this.giveExtraHammers(this.getExtraHammers());
+		if (this.getExtraHammers() > 0) this.giveExtraHammers(this.getExtraHammers());
+		this.getTreasury().withdraw(struct.getCost());
+		CivMessage.sendTown(this, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", struct.getDisplayName()));
 
-			this.getTreasury().withdraw(struct.getCost());
-			CivMessage.sendTown(this, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", struct.getDisplayName()));
-
-			if (struct instanceof TradeOutpost) {
-				TradeOutpost outpost = (TradeOutpost) struct;
-				if (outpost.getGood() != null) outpost.getGood().save();
-			}
-			this.save();
-		} catch (Exception e) {
-			e.printStackTrace();
-			CivMessage.sendError(player, e.getMessage());
-			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
+		if (struct instanceof TradeOutpost) {
+			TradeOutpost outpost = (TradeOutpost) struct;
+			if (outpost.getGood() != null) outpost.getGood().save();
 		}
+		this.addStructure(struct);
+		this.save();
 	}
 
-	public boolean isStructureAddable(Structure struct) {
-		int count = this.getStructureTypeCount(struct.getConfigId());
-
-		if (struct.isTileImprovement()) {
-			Integer maxTileImprovements = this.getMaxTileImprovements();
-			if (this.getTileImprovementCount() > maxTileImprovements) return false;
-		} else
-			if ((struct.getLimit() != 0) && (count > struct.getLimit())) return false;
-
-		return true;
+	// --------------- Wonder
+	public void addWonder(Wonder wonder) {
+		this.wonders.put(wonder.getCorner(), wonder);
 	}
 
-	public void addStructure(Structure struct) {
-		this.structures.put(struct.getCorner(), struct);
-
-		if (!isStructureAddable(struct)) {
-			this.disabledBuildables.put(struct.getCorner(), struct);
-			struct.setEnabled(false);
-		} else {
-			this.disabledBuildables.remove(struct.getCorner());
-			struct.setEnabled(true);
-		}
-
+	public boolean hasWonder(final String require_wonder) {
+		if (require_wonder == null || require_wonder.equals("")) return true;
+		Wonder wonder = this.findWonderByConfigId(require_wonder);
+		return wonder != null && wonder.isActive();
 	}
 
-	public Wonder getWonderByType(final String id) {
-		for (final Wonder wonder : this.wonders.values()) {
-			if (wonder.getConfigId().equalsIgnoreCase(id)) {
+	public Wonder findWonderByConfigId(final String require_wonder) {
+		for (Wonder wonder : this.wonders.values()) {
+			if (wonder.getConfigId().equals(require_wonder)) {
 				return wonder;
 			}
 		}
 		return null;
 	}
 
-	public Structure getStructureByType(String id) {
-		for (Structure struct : this.structures.values()) {
-			if (id.equalsIgnoreCase(struct.getConfigId())) {
-				return struct;
+	public void removeWonder(Wonder wonder) {
+		if (!wonder.isComplete()) this.removeBuildTask(wonder);
+		if (currentWonderInProgress == wonder) currentWonderInProgress = null;
+		this.wonders.remove(wonder.getCorner());
+	}
+
+	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
+		checkIsTownCanBuildStructure(buildable);
+		BlockCoord corner = buildable.getCorner();
+		if (this.wonders.size() >= 2) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit2"));
+		if (!corner.getWorldname().equals("world")) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_NotOverworld"));
+
+		if (!this.hasUpgrade(buildable.getRequiredUpgrade())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingUpgrade") + " §6" + CivSettings.getUpgradeById(buildable.getRequiredUpgrade()).name);
+		if (!this.hasTechnology(buildable.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(buildable.getRequiredTechnology()).name);
+		if (!buildable.isAvailable()) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorNotAvailable"));
+		if (!Wonder.isWonderAvailable(buildable.getConfigId())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorBuiltElsewhere"));
+
+		Buildable inProgress = getCurrentStructureInProgress();
+		if (inProgress != null) {
+			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
+		} else {
+			inProgress = getCurrentWonderInProgress();
+			if (inProgress != null)
+				throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneWonderAtaTime"));
+		}
+
+		if (CivGlobal.isCasualMode()) {
+			/* Check for a wonder already in this civ. */
+			for (Town town : this.getCiv().getTowns()) {
+				for (Wonder w : town.getWonders()) {
+					if (w.getConfigId().equals(buildable.getConfigId())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit1Casual"));
+				}
 			}
+		}
+
+		double cost = buildable.getCost();
+		if (!this.getTreasury().hasEnough(cost)) throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorTooPoor", buildable.getDisplayName(), cost, CivSettings.CURRENCY_NAME));
+	}
+
+	public void buildWonder(Player player, Wonder wonder) throws CivException {
+		checkIsTownCanBuildWonder(wonder);
+		wonder.checkBlockPermissionsAndRestrictions(player);
+
+		for (ChunkCoord cc : BuildableStatic.getChunkCoords(wonder)) {
+			TownChunk tc = CivGlobal.getTownChunk(cc);
+			if (tc == null) TownChunk.autoClaim(this, cc).save();
+		}
+
+		try {
+			wonder.build(player);
+		} catch (CivException e) {
+			if (CivGlobal.isHaveTestFlag("debug")) e.printStackTrace();
+			throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorGeneric", e.getMessage()));
+		}
+
+		if (this.getExtraHammers() > 0) this.giveExtraHammers(this.getExtraHammers());
+		this.getTreasury().withdraw(wonder.getCost());
+		CivMessage.sendTown(this, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", wonder.getDisplayName(), player.getName(), this.getName()));
+		this.addWonder(wonder);
+		this.save();
+	}
+
+	public Wonder getWonderByType(final String id) {
+		for (final Wonder wonder : this.wonders.values()) {
+			if (wonder.getConfigId().equalsIgnoreCase(id)) return wonder;
 		}
 		return null;
 	}
 
-	public List<Structure> getStructuresByType(String id) {
-		List<Structure> res = new LinkedList<>();
-		for (Structure struct : this.structures.values()) {
-			if (struct.getConfigId().equalsIgnoreCase(id)) {
-				res.add(struct);
-			}
-		}
-		return res;
-	}
-
+	// --------------------
 	public void loadUpgrades() throws CivException {
 
 		for (ConfigTownUpgrade upgrade : this.upgrades.values()) {
@@ -1882,10 +1867,6 @@ public class Town extends SQLObject {
 			}
 		}
 
-	}
-
-	public Collection<Structure> getStructures() {
-		return this.structures.values();
 	}
 
 	public void processUndoConstruct() throws CivException {
@@ -1927,37 +1908,6 @@ public class Town extends SQLObject {
 
 		struct.onDemolish();
 		struct.delete();
-	}
-
-	public boolean hasStructure(String require_structure) {
-		if (require_structure == null || require_structure.equals("")) {
-			return true;
-		}
-
-		Structure struct = this.findStructureByConfigId(require_structure);
-		if (struct != null && struct.isActive()) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public boolean hasWonder(final String require_wonder) {
-		if (require_wonder == null || require_wonder.equals("")) {
-			return true;
-		}
-
-		Wonder wonder = this.findWonderByConfigId(require_wonder);
-		return wonder != null && wonder.isActive();
-	}
-
-	public Wonder findWonderByConfigId(final String require_wonder) {
-		for (Wonder wonder : this.wonders.values()) {
-			if (wonder.getConfigId().equals(require_wonder)) {
-				return wonder;
-			}
-		}
-		return null;
 	}
 
 	public AttrSource getGrowthRate() {
@@ -2208,14 +2158,6 @@ public class Town extends SQLObject {
 		}
 
 		return nearest;
-	}
-
-	public void removeStructure(Structure structure) {
-		if (!structure.isComplete()) this.removeBuildTask(structure);
-		if (currentStructureInProgress == structure) currentStructureInProgress = null;
-		this.structures.remove(structure.getCorner());
-		this.invalidStructures.remove(structure);
-		this.disabledBuildables.remove(structure.getCorner());
 	}
 
 	public void repairStructure(Structure struct) throws CivException {

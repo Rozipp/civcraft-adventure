@@ -107,6 +107,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 		for (ItemComponent ic : this.components.values()) {
 			if (ic.onBlockPlaced(event)) return;
 		}
+		event.setCancelled(true);
 	}
 
 	@Override

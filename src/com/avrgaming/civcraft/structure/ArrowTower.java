@@ -20,6 +20,8 @@ package com.avrgaming.civcraft.structure;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -27,10 +29,12 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class ArrowTower extends Structure {
 
 	ProjectileArrowComponent arrowComponent;
+	Set<BlockCoord> turretLocation = new HashSet<>();
 
 	public ArrowTower(String id, Town town) throws CivException {
 		super(id, town);
@@ -45,16 +49,7 @@ public class ArrowTower extends Structure {
 		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-		arrowComponent = new ProjectileArrowComponent(this);
-		arrowComponent.createComponent(this);
-	}
-
-	/**
-	 * @return the damage
-	 */
+	/** @return the damage */
 	public int getDamage() {
 		double rate = 1;
 		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
@@ -64,22 +59,29 @@ public class ArrowTower extends Structure {
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) { rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp"); }
-		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) { rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade"); }
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) { rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown"); }
+		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
+		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
-	/**
-	 * @param power the power to set
-	 */
+	/** @param power the power to set */
 	public void setPower(double power) {
 		arrowComponent.setPower(power);
 	}
 
-	@Override
-	public void setTurretLocation(BlockCoord absCoord) {
-		arrowComponent.setTurretLocation(absCoord);
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		switch (sb.command) {
+		case "/towerfire":
+			turretLocation.add(absCoord);
+			break;
+		}
 	}
-
+	
+	@Override
+	public void onPostBuild() {
+		arrowComponent = new ProjectileArrowComponent(this);
+		arrowComponent.createComponent(this);
+		arrowComponent.setTurretLocation(turretLocation);
+	}
 }

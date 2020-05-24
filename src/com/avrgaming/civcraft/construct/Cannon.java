@@ -553,4 +553,10 @@ public class Cannon extends Construct {
 	protected List<HashMap<String, String>> getComponentInfoList() {
 		return null;
 	}
+
+	@Override
+	public void onPostBuild() {
+		// TODO Автоматически созданная заглушка метода
+		
+	}
 }

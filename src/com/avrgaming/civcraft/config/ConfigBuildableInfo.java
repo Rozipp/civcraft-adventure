@@ -65,7 +65,7 @@ public class ConfigBuildableInfo {
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {
 				if (town.hasStructure(require_structure)) {
-					if (limit == 0 || town.getStructureTypeCount(id) < limit) {
+					if (limit == 0 || town.getBuildableTypeCount(id) < limit) {
 						boolean isCapitol = town.isCapitol();
 						if (id.equals("s_townhall") && isCapitol) return false;
 						if (id.equals("s_capitol") && !isCapitol) return false;

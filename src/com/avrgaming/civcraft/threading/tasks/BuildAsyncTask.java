@@ -23,6 +23,7 @@ import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -219,6 +220,12 @@ public class BuildAsyncTask extends CivAsyncTask {
 
 		Template.deleteFilePath(Template.getInprogressFilePath(buildable.getCorner().toString()));
 		buildable.getTown().build_tasks.remove(this);
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				buildable.repairFromTemplate();
+			}
+		});
 		buildable.postBuildSyncTask();
 		if (this.buildable instanceof Structure) {
 			CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completed", this.buildable.getTown().getName(), "§2" + this.buildable.getDisplayName() + CivColor.RESET));
@@ -331,7 +338,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 		buildable.unbindConstructBlocks();
 		// remove wonder from town.
 		synchronized (buildable.getTown()) {
-			buildable.getTown().removeWonder(buildable);
+			buildable.getTown().removeWonder((Wonder)buildable);
 		}
 		// Remove the scaffolding..
 		tpl.removeScaffolding(buildable.getCorner().getLocation());

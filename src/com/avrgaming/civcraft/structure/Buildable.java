@@ -280,7 +280,7 @@ public abstract class Buildable extends Construct {
 
 	@Override
 	public boolean isActive() {
-		return this.isComplete() && (this.isTownHall() || !isDestroyed()) && isEnabled();
+		return this.isComplete() && (this.isTownHall() || super.isActive());
 	}
 
 	public boolean isCanRestoreFromTemplate() {

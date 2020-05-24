@@ -10,6 +10,8 @@ package com.avrgaming.civcraft.structure;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -20,10 +22,12 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.SimpleBlock;
 
 public class TeslaTower extends Structure {
 
 	ProjectileLightningComponent teslaComponent;
+	Set<BlockCoord> turretLocation = new HashSet<>();
 
 	public TeslaTower(String id, Town town) throws CivException {
 		super(id, town);
@@ -38,54 +42,28 @@ public class TeslaTower extends Structure {
 		return (int) (this.getCost() / 2) * (1 - CivSettings.getDoubleStructure("reducing_cost_of_repairing_fortifications"));
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-		teslaComponent = new ProjectileLightningComponent(this);
-		teslaComponent.createComponent(this);
-	}
-
 	public int getDamage() {
 		double rate = 1;
-//		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
 		return (int) (teslaComponent.getDamage() * rate);
 	}
 
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
-		}
-		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
-		}
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
-			rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
-		}
+		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
+		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
-//	public void setDamage(int damage) {
-//		cannonComponent.setDamage(damage);
-//	}
-
-	public void setTurretLocation(BlockCoord absCoord) {
-		teslaComponent.setTurretLocation(absCoord);
+	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		switch (sb.command) {
+		case "/towerfire":
+			turretLocation.add(absCoord);
+			break;
+		}
 	}
-
-//	@Override
-//	public void fire(Location turretLoc, Location playerLoc) {
-//		turretLoc = adjustTurretLocation(turretLoc, playerLoc);
-//		Vector dir = getVectorBetween(playerLoc, turretLoc);
-//		
-//		Fireball fb = turretLoc.getWorld().spawn(turretLoc, Fireball.class);
-//		fb.setDirection(dir);
-//		// NOTE cannon does not like it when the dir is normalized or when velocity is set.
-//		fb.setYield((float)yield);
-//		CivCache.cannonBallsFired.put(fb.getUniqueId(), new CannonFiredCache(this, playerLoc, fb));
-//	}
-
+	
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 		super.checkBlockPermissionsAndRestrictions(player);
@@ -96,9 +74,7 @@ public class TeslaTower extends Structure {
 					if (struct instanceof TeslaTower) {
 						Location center = struct.getCenterLocation();
 						double distanceSqr = center.distanceSquared(this.getCenterLocation());
-						if (distanceSqr <= build_distanceSqr)
-							throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToTeslaTower",
-									"" + center.getX() + "," + center.getY() + "," + center.getZ()));
+						if (distanceSqr <= build_distanceSqr) throw new CivException(CivSettings.localize.localizedString("var_buildable_tooCloseToTeslaTower", "" + center.getX() + "," + center.getY() + "," + center.getZ()));
 					}
 				}
 			}
@@ -106,7 +82,11 @@ public class TeslaTower extends Structure {
 			e.printStackTrace();
 			throw new CivException(e.getMessage());
 		}
-
 	}
-
+	@Override
+	public void onPostBuild() {
+		teslaComponent = new ProjectileLightningComponent(this);
+		teslaComponent.createComponent(this);
+		teslaComponent.setTurretLocation(turretLocation);
+	}
 }

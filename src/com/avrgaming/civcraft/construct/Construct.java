@@ -283,7 +283,7 @@ public abstract class Construct extends SQLObject {
 
 					BlockCoord coord = new BlockCoord(block);
 					if (CivGlobal.getConstructBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
-					
+
 					RoadBlock rb = CivGlobal.getRoadBlock(coord);
 					if (rb != null) deletedRoadBlocks.add(rb);
 				}
@@ -300,7 +300,7 @@ public abstract class Construct extends SQLObject {
 		}
 	}
 
-	public void repairFromTemplate() throws IOException, CivException {
+	public void repairFromTemplate(){
 		Template tpl = this.getTemplate();
 		HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
 		Block centerBlock = this.getCorner().getBlock();
@@ -328,7 +328,6 @@ public abstract class Construct extends SQLObject {
 				}
 			}
 		}
-		this.postBuildSyncTask();
 	}
 
 	// ------------ abstract metods
@@ -385,19 +384,21 @@ public abstract class Construct extends SQLObject {
 	@SuppressWarnings("deprecation")
 	public void loadSettings() {
 		/* Build and register all of the components. */
-		for (HashMap<String, String> compInfo : this.getComponentInfoList()) {
-			String className = "com.avrgaming.civcraft.components." + compInfo.get("name");
-			Class<?> someClass;
-			try {
-				someClass = Class.forName(className);
-				Component compClass = (Component) someClass.newInstance();
-				compClass.setName(compInfo.get("name"));
-				for (String key : compInfo.keySet()) {
-					compClass.setAttribute(key, compInfo.get(key));
+		if (this.getComponentInfoList() != null) {
+			for (HashMap<String, String> compInfo : this.getComponentInfoList()) {
+				String className = "com.avrgaming.civcraft.components." + compInfo.get("name");
+				Class<?> someClass;
+				try {
+					someClass = Class.forName(className);
+					Component compClass = (Component) someClass.newInstance();
+					compClass.setName(compInfo.get("name"));
+					for (String key : compInfo.keySet()) {
+						compClass.setAttribute(key, compInfo.get(key));
+					}
+					compClass.createComponent(this, false);
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
 				}
-				compClass.createComponent(this, false);
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-				e.printStackTrace();
 			}
 		}
 		for (Component comp : this.attachedComponents) {
@@ -455,8 +456,7 @@ public abstract class Construct extends SQLObject {
 		}, 10);
 	}
 
-	public void onPostBuild() {
-	}
+	public abstract void onPostBuild();
 
 	public void processCommandSigns() {
 		Template tpl = this.getTemplate();
@@ -583,56 +583,8 @@ public abstract class Construct extends SQLObject {
 			// cannontower.setCannonLocation(absCoord);
 			// }
 			// break;
-			// case "/sign" :
-			// structSign = CivGlobal.getConstructSign(absCoord);
-			// if (structSign == null) {
-			// structSign = new ConstructSign(absCoord, this);
-			// }
-			// block = absCoord.getBlock();
-			// ItemManager.setTypeId(block, sb.getType());
-			// ItemManager.setData(block, sb.getData());
-			//
-			// structSign.setDirection(ItemManager.getData(block.getState()));
-			// for (String key : sb.keyvalues.keySet()) {
-			// structSign.setType(key);
-			// structSign.setAction(sb.keyvalues.get(key));
-			// break;
-			// }
-			//
-			// structSign.setOwner(this);
-			// this.addBuildableSign(structSign);
-			// CivGlobal.addConstructSign(structSign);
-			//
-			// break;
-			// case "/chest" :
-			// ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
-			// if (structChest == null) {
-			// structChest = new ConstructChest(absCoord, this);
-			// }
-			// structChest.setChestId(sb.keyvalues.get("id"));
-			// this.addConstructChest(structChest);
-			// CivGlobal.addConstructChest(structChest);
-			//
-			// /* Convert sign data to chest data. */
-			// block = absCoord.getBlock();
-			// if (ItemManager.getTypeId(block) != CivData.CHEST) {
-			// byte chestData = CivData.convertSignDataToChestData((byte) sb.getData());
-			// ItemManager.setTypeId(block, CivData.CHEST);
-			// ItemManager.setData(block, chestData, true);
-			// }
-			// //XXX походу фикс фурнекса по фиксу поворота сундуков после перезагрузки
-			// Chest chest = (Chest) block.getState();
-			// MaterialData data = chest.getData();
-			//// ItemManager.setData(data, chestData);
-			// chest.setData(data);
-			// chest.update();
-			//
-			// break;
 			// }
 		}
-	}
-
-	public void setTurretLocation(BlockCoord absCoord) {
 	}
 
 	public void addConstructBlock(BlockCoord coord, boolean damageable) {
