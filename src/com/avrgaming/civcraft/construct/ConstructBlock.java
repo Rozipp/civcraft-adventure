@@ -18,6 +18,7 @@
  */
 package com.avrgaming.civcraft.construct;
 
+import com.avrgaming.civcraft.main.CivLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -48,13 +49,13 @@ public class ConstructBlock implements ConstructDamageBlock {
 	}
 	
 	public Town getTown() {
-		if (this.owner instanceof Buildable) return ((Buildable)this.owner).getTown();
-		return null;
+		return this.owner.getTown();
+
 	}
 	
 	public Civilization getCiv() {
-		if (this.owner instanceof Buildable) return ((Buildable)this.owner).getCiv();
-		return null;
+		return this.owner.getCiv();
+
 	}
 	
 	public int getX() {

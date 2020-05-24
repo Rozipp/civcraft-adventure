@@ -488,85 +488,60 @@ public class Cannon extends Construct {
 
 	@Override
 	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
-		Resident resident = CivGlobal.getResident(player);
-
-		if (!resident.hasTown()) {
-			CivMessage.sendError(resident, CivSettings.localize.localizedString("cannon_onHit_NotAtWar"));
-			return;
-		}
-
-		if (resident.getCiv() == getCiv()) {
-			CivMessage.sendError(resident, CivSettings.localize.localizedString("cannon_onHit_ownCannon"));
-			return;
-		}
-
-		if (!resident.getCiv().getDiplomacyManager().atWarWith(getCiv())) {
-			CivMessage.sendError(resident, CivSettings.localize.localizedString("cannon_onHit_NotWarringCiv") + "(" + getCiv().getName() + ")");
-			return;
-		}
-
-		if (this.getHitpoints() == 0) {
-			CivMessage.sendError(resident, CivSettings.localize.localizedString("cannon_onHit_alreadyDestroyed"));
-			return;
-		}
-
 		this.setHitpoints(this.getHitpoints() - amount);
 
 		if (getHitpoints() <= 0) {
 			destroy();
-			CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("cannon_onHit_Destroyed"));
-			CivMessage.sendCiv(getCiv(), CivColor.Yellow + CivSettings.localize.localizedString("var_cannon_onHit_DestroyAlert", cannonLocation.getBlockX() + "," + cannonLocation.getBlockY() + "," + cannonLocation.getBlockZ()));
 			return;
 		}
 
-		CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("cannon_onHit_doDamage") + " (" + this.getHitpoints() + "/" + maxHitpoints + ")");
-		CivMessage.sendCiv(getCiv(),
-				CivColor.LightGray + CivSettings.localize.localizedString("var_cannon_onHit_doDamageAlert", getHitpoints() + "/" + maxHitpoints, cannonLocation.getBlockX() + "," + cannonLocation.getBlockY() + "," + cannonLocation.getBlockZ()));
-
 	}
+	/*
+	public void onHit(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
+			return;
+		}
+		boolean wasTenPercent = false;
+		if (hit.getOwner().isDestroyed()) {
+			if (player != null) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString(
+						"var_buildable_alreadyDestroyed", hit.getOwner().getDisplayName()));
+			}
+			return;
+		}
 
-//	public void onHit(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
-//		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
-//			return;
-//		}
-//		boolean wasTenPercent = false;
-//		if (hit.getOwner().isDestroyed()) {
-//			if (player != null) {
-//				CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_alreadyDestroyed", hit.getOwner().getDisplayName()));
-//			}
-//			return;
-//		}
-//
-//		Construct constrOwner = hit.getOwner();
-//		if (!((constrOwner instanceof Buildable) && ((Buildable) constrOwner).isComplete() || (hit.getOwner() instanceof Wonder))) {
-//			if (player != null) {
-//				CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_underConstruction", hit.getOwner().getDisplayName()));
-//			}
-//			return;
-//		}
-//		if ((hit.getOwner().getDamagePercentage() % 10) == 0) {
-//			wasTenPercent = true;
-//		}
-//
-//		this.damage(amount);
-//
-//		world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
-//		world.playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
-//
-//		if ((hit.getOwner().getDamagePercentage() % 10) == 0 && !wasTenPercent) {
-//			if (player != null) {
-//				onDamageNotification(player, hit);
-//			}
-//		}
-//
-//		if (player != null) {
-//			Resident resident = CivGlobal.getResident(player);
-//			if (resident.isCombatInfo()) {
-//				CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_buildable_OnDamageSuccess", hit.getOwner().getDisplayName(), (hit.getOwner().getHitpoints() + "/" + hit.getOwner().getMaxHitPoints())));
-//			}
-//		}
-//	}
+		Construct constrOwner = hit.getOwner();
+		if (!((constrOwner instanceof Buildable) && ((Buildable) constrOwner).isComplete() || (hit.getOwner() instanceof Wonder))) {
+			if (player != null) {
+				CivMessage.sendError(player, CivSettings.localize.localizedString(
+						"var_buildable_underConstruction", hit.getOwner().getDisplayName()));
+			}
+			return;
+		}
+		if ((hit.getOwner().getDamagePercentage() % 10) == 0) {
+			wasTenPercent = true;
+		}
 
+		this.damage(amount);
+
+		world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
+		world.playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
+
+		if ((hit.getOwner().getDamagePercentage() % 10) == 0 && !wasTenPercent) {
+			if (player != null) {
+				onDamageNotification(player, hit);
+			}
+		}
+
+		if (player != null) {
+			Resident resident = CivGlobal.getResident(player);
+			if (resident.isCombatInfo()) {
+				CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString(
+						"var_buildable_OnDamageSuccess", hit.getOwner().getDisplayName(), (hit.getOwner().getHitpoints() + "/" + hit.getOwner().getMaxHitPoints())));
+			}
+		}
+	}
+*/
 	@Override
 	public void onDamageNotification(Player player, ConstructDamageBlock hit) {
 		CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_buildable_OnDamageSuccess", hit.getOwner().getDisplayName(), (hit.getOwner().getDamagePercentage() + "%")));

@@ -28,7 +28,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.questions.JoinCampResponse;
 import com.avrgaming.civcraft.questions.Question;
-import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask;
+import com.avrgaming.civcraft.threading.sync.TeleportPlayerTaskCamp;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CampCommand extends CommandBase {
@@ -73,8 +73,8 @@ public class CampCommand extends CommandBase {
 			throw new CivException("§c" + CivSettings.localize.localizedString("cmd_camp_teleport_cooldown", CivGlobal.dateFormat.format(nextTeleport)));
 		}
 		final Location toTeleport = camp.getCenterLocation();
-		final TeleportPlayerTask teleportPlayerTask = new TeleportPlayerTask(resident, this.getPlayer(), toTeleport, resident.getCamp());
-		teleportPlayerTask.run(true);
+		final TeleportPlayerTaskCamp teleportPlayerTaskCamp = new TeleportPlayerTaskCamp(resident, this.getPlayer(), toTeleport, resident.getCamp());
+		teleportPlayerTaskCamp.run(true);
 	}
 
 	public void location_cmd() throws CivException {

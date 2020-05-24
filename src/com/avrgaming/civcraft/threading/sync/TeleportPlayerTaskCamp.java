@@ -16,14 +16,14 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 
-public class TeleportPlayerTask extends BukkitRunnable
+public class TeleportPlayerTaskCamp extends BukkitRunnable
 {
 	public Resident resident;
     public Player player;
     public Location location;
     public Camp camp;
     
-	public TeleportPlayerTask(final Resident resident, final Player player, final Location location, final Camp camp) {
+	public TeleportPlayerTaskCamp(final Resident resident, final Player player, final Location location, final Camp camp) {
         this.resident = resident;
         this.player = player;
         this.location = location;

@@ -18,14 +18,14 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 
-public class TeleportPlayerTask2 extends BukkitRunnable
+public class TeleportPlayerTaskTown extends BukkitRunnable
 {
     public Resident resident;
     public Player player;
     public Location location;
     public Town town;
     
-    public TeleportPlayerTask2(final Resident resident, final Player player, final Location location, final Town town) {
+    public TeleportPlayerTaskTown(final Resident resident, final Player player, final Location location, final Town town) {
         this.resident = resident;
         this.player = player;
         this.location = location;

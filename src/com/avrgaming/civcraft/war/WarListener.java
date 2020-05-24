@@ -3,6 +3,7 @@ package com.avrgaming.civcraft.war;
 import java.util.HashSet;
 import java.util.Random;
 
+import com.avrgaming.civcraft.object.Resident;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
@@ -241,7 +242,10 @@ public class WarListener implements Listener {
 										} else {
 											th.onTNTDamage(structureDamage);
 										}
+									} else if(sb.getOwner().getInfo().template_name.equals("cannon")) {
+										sb.getOwner().onDamage(structureDamage, b.getWorld(), null, sb.getCoord(), sb);
 									} else {
+
 										sb.getOwner().onDamage(structureDamage, b.getWorld(), null, sb.getCoord(), sb);
 										CivMessage.sendCiv(sb.getCiv(),
 												CivColor.Yellow + CivSettings.localize.localizedString("var_war_tntMsg", sb.getOwner().getDisplayName(),

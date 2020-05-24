@@ -46,7 +46,7 @@ import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
-import com.avrgaming.civcraft.threading.sync.TeleportPlayerTask2;
+import com.avrgaming.civcraft.threading.sync.TeleportPlayerTaskTown;
 import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -114,7 +114,7 @@ public class TownCommand extends CommandBase {
 		final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", player);
 		final long timeNow = Calendar.getInstance().getTimeInMillis();
 		if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
-		final TeleportPlayerTask2 teleportPlayerTask = new TeleportPlayerTask2(resident, this.getPlayer(), town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
+		final TeleportPlayerTaskTown teleportPlayerTask = new TeleportPlayerTaskTown(resident, this.getPlayer(), town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
 		teleportPlayerTask.run(true);
 	}
 
