@@ -160,7 +160,7 @@ public class PlayerLoginAsyncTask implements Runnable {
 							CivMessage.send(resident, CivColor.LightGray
 									+ CivSettings.localize.localizedString("PlayerLoginAsync_loginDuringWar"));
 						}
-					} else if (!status.equals(Relation.Status.ALLY) && !status.equals(Relation.Status.PEACE)
+					} else if (status.equals(Relation.Status.HOSTILE) || status.equals(Relation.Status.WAR)
 							&& !cc.getCiv().isAdminCiv()) {
 						resident.teleportHome();
 						CivMessage.send(resident, CivColor.LightGray

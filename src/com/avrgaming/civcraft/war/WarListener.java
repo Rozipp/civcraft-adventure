@@ -217,7 +217,7 @@ public class WarListener implements Listener {
 							ConstructBlock sb = CivGlobal.getConstructBlock(bcoord);
 
 							if (sb == null) {
-								explodeBlock(b);
+								//explodeBlock(b); Разрушение блоков
 								continue;
 							}
 
@@ -236,7 +236,8 @@ public class WarListener implements Listener {
 										Townhall th = (Townhall) sb.getOwner();
 
 										if (th.getHitpoints() == 0) {
-											explodeBlock(b);
+											//explodeBlock(b); Разрушение блоков
+											continue;
 										} else {
 											th.onTNTDamage(structureDamage);
 										}
@@ -250,7 +251,8 @@ public class WarListener implements Listener {
 									}
 								}
 							} else {
-								explodeBlock(b);
+								//explodeBlock(b); Разрушение блоков
+								continue;
 							}
 							continue;
 						}
