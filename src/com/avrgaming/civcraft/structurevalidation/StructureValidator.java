@@ -171,21 +171,23 @@ public class StructureValidator implements Runnable {
 		if (construct instanceof WaterStructure) {
 			construct.validated = true;
 			construct.setValid(true);
+			CivMessage.send(player, CivColor.LightGreen + "Водным зданиям не нужна поддержка основания");
 			if (callback != null) callback.execute(player.getName());
 			return;
 		}
 
+		if (construct.isIgnoreFloating()) {
+			construct.validated = true;
+			construct.setValid(true);
+			CivMessage.send(player, CivColor.LightGreen + "Это здание не требует проверки основания");
+			if (callback != null) callback.execute(player.getName());
+			return;
+		}
+		
 		/* Wait for validation lock to open. */
 		validationLock.lock();
 
 		try {
-			/* Copy over instance variables to static variables. */
-			if (construct.isIgnoreFloating()) {
-				construct.validated = true;
-				construct.setValid(true);
-				return;
-			}
-
 			List<SimpleBlock> bottomLayer = tpl.getBlocksForLayer(0);
 
 			/* Launch sync layer load task. */

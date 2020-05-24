@@ -1672,7 +1672,7 @@ public class Town extends SQLObject {
 			if (tc == null || tc.getTown() == this)
 				needClaim++;
 			else
-				throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown());
+				throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown().getName());
 		}
 		if (getTownChunks().size() + needClaim > getMaxPlots())
 			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()

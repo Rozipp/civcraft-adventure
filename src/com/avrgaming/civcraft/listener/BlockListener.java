@@ -118,6 +118,7 @@ import org.bukkit.util.Vector;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class BlockListener implements Listener {
 
@@ -664,7 +665,7 @@ public class BlockListener implements Listener {
 
 		/* Check if we're going to break too many structure blocks beneath a structure. */
 		// LinkedList<StructureBlock> sbList = CivGlobal.getStructureBlocksAt(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
-		HashSet<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
+		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
 				if (!(construct instanceof Buildable)) continue;
@@ -805,7 +806,7 @@ public class BlockListener implements Listener {
 
 		/* Check if we're going to break too many structure blocks beneath a structure. */
 		// LinkedList<StructureBlock> sbList = CivGlobal.getStructureBlocksAt(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
-		HashSet<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
+		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
 				if (!(construct instanceof Buildable)) continue;

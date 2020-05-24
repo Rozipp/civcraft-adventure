@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.war;
 import java.util.HashSet;
 import java.util.Random;
 
-import com.avrgaming.civcraft.object.Resident;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;

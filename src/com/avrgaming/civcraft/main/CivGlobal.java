@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -1128,11 +1129,11 @@ public class CivGlobal {
 		return constructBlocks.get(coord);
 	}
 
-	public static HashSet<Construct> getConstructFromChunk(ChunkCoord cc) {
+	public static Set<Construct> getConstructFromChunk(ChunkCoord cc) {
 		return constructsInChunk.get(cc);
 	}
 
-	public static HashSet<Construct> getConstructFromChunk(BlockCoord coord) {
+	public static Set<Construct> getConstructFromChunk(BlockCoord coord) {
 		return getConstructFromChunk(new ChunkCoord(coord));
 	}
 

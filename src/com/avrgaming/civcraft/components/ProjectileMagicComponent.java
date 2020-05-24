@@ -12,6 +12,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.util.BlockCoord;
 
 public class ProjectileMagicComponent extends ProjectileComponent {
 	private int fireRate;
@@ -53,6 +54,8 @@ public class ProjectileMagicComponent extends ProjectileComponent {
 			}
 			this.min_range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.min_range");
 			this.fireRate = 20;
+			
+			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
 			this.proximityComponent.setConstruct(this.construct);
 			this.proximityComponent.setRadius(this.range);
 		} catch (InvalidConfiguration e) {

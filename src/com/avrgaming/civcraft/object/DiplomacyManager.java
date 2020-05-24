@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import com.avrgaming.civcraft.main.CivLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;

@@ -51,8 +51,8 @@ public class CannonExplosionProjectile {
 	
 	public CannonExplosionProjectile(Construct constr, Location target) {
 		proximityComponent = new PlayerProximityComponent();
-		proximityComponent.createComponent(constr);
 		proximityComponent.setCenter(new BlockCoord(target));
+		proximityComponent.createComponent(constr);
 	}
 	
 	public Vector getVectorBetween(Location to, Location from) {

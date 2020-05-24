@@ -30,6 +30,7 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.util.BlockCoord;
 
 public class ProjectileCannonComponent extends ProjectileComponent {
 
@@ -135,6 +136,7 @@ public class ProjectileCannonComponent extends ProjectileComponent {
 			splash = CivSettings.getInteger(CivSettings.warConfig, "cannon_tower.splash");
 			fireRate = CivSettings.getInteger(CivSettings.warConfig, "cannon_tower.fire_rate");
 
+			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
 			this.proximityComponent.setConstruct(construct);
 			this.proximityComponent.setRadius(range);
 		} catch (InvalidConfiguration e) {

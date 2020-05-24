@@ -15,6 +15,7 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.wonders.StatueOfZeus;
+import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class ProjectileLightningComponent
@@ -98,6 +99,8 @@ extends ProjectileComponent {
             }
             this.min_range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.min_range");
             this.fireRate = CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.fire_rate");
+            
+            this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
             this.proximityComponent.setConstruct(this.construct);
             this.proximityComponent.setRadius(this.range);
         }

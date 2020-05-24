@@ -25,6 +25,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class ScoutTower extends Structure {
@@ -37,10 +38,12 @@ public class ScoutTower extends Structure {
 
 	public ScoutTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
+		loadSettings();
 	}
 
 	public ScoutTower(String id, Town town) throws CivException {
-		super(id, town);		
+		super(id, town);
+		loadSettings();
 	}
 
 	@Override
@@ -54,10 +57,7 @@ public class ScoutTower extends Structure {
 
 		try {
 			range = CivSettings.getDouble(CivSettings.warConfig, "scout_tower.range");
-			proximityComponent = new PlayerProximityComponent();
-			proximityComponent.createComponent(this);
-
-			proximityComponent.setConstruct(this);
+			
 			int reportrate = (int) CivSettings.getDouble(CivSettings.warConfig, "scout_tower.update");
 			if (this.getTown().getBuffManager().hasBuff("buff_colossus_coins_from_culture")
 					&& this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_tower_range")) {
@@ -71,15 +71,21 @@ public class ScoutTower extends Structure {
 				range += this.getTown().getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraRangeTown");
 			}
 
-			proximityComponent.setRadius(range);
-
 			reportSeconds = reportrate;
 
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
 	}
-
+	
+	@Override
+	public void onPostBuild() {
+		proximityComponent = new PlayerProximityComponent();
+		proximityComponent.setCenter(new BlockCoord(getCenterLocation()));
+		proximityComponent.createComponent(this);
+		proximityComponent.setRadius(range);
+		proximityComponent.setConstruct(this);
+	}
 	private void scoutDebug(String str) {
 		if (this.getCiv().scoutDebug && this.getCiv().scoutDebugPlayer != null) {
 			Player player;

@@ -10,7 +10,6 @@ package com.avrgaming.civcraft.threading.tasks;
 
 import java.util.Random;
 
-import com.avrgaming.civcraft.main.CivLog;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
