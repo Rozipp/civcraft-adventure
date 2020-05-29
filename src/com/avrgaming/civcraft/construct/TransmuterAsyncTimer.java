@@ -69,7 +69,7 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 		synchronized (abort) {
 			abort = true;
 			this.cTranRs.clear();
-			multInvs.clear();
+			multInvs = null;
 		}
 	}
 
@@ -80,7 +80,10 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 	@Override
 	public void run() {
 		abort = false;
-		if (multInvs == null || multInvs.isEmpty()) foundInventory();
+		if (multInvs == null || multInvs.isEmpty()) {
+			foundInventory();
+			if (multInvs == null) return;
+		}
 		while (true) {
 			int delay = 1;
 			synchronized (abort) {

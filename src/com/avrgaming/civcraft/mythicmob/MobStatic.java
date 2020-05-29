@@ -7,16 +7,20 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 
 import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.util.TimeTools;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.api.bukkit.BukkitAPIHelper;
@@ -28,6 +32,7 @@ public class MobStatic {
 	public static HashMap<String, LinkedList<ConfigMobs>> biomes = new HashMap<>();
 	public static HashSet<EntityType> disableMobs = new HashSet<>();
 	public static HashSet<String> disableCustomMobs = new HashSet<>();
+	private static MobAsynckSpawnTimer task;
 
 	static class MobDrop {
 		String uid;
@@ -43,15 +48,8 @@ public class MobStatic {
 		return MythicMobs.inst().getAPIHelper();
 	}
 
-	public static boolean isMithicMobEntity(LivingEntity e) {
-		return API().isMythicMob(e);
-	}
-
 	public static boolean isMithicMobEntity(Entity e) {
-		if (e instanceof LivingEntity)
-			return isMithicMobEntity((LivingEntity) e);
-		else
-			return false;
+		return API().isMythicMob(e);
 	}
 
 	public static ActiveMob getMithicMob(Entity entity) {
@@ -60,26 +58,64 @@ public class MobStatic {
 
 	public static LinkedList<ConfigMobs> getValidMobsForBiome(Biome biome) {
 		LinkedList<ConfigMobs> mobs = biomes.get(biome.name());
-		if (mobs == null)
-			mobs = new LinkedList<ConfigMobs>();
+		if (mobs == null) mobs = new LinkedList<ConfigMobs>();
 		return mobs;
 	}
 
-	public static void despawnAll() {
-//		MythicMobs.inst().getMobManager().despawnAllMobs();
+	public static void startMobSpawnTimer() {
+		if (task == null) task = new MobAsynckSpawnTimer();
+		TaskMaster.asyncTimer("MobAsynckSpawner", task, TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
+	}
+
+	public static void stopMobSpawnTimer() {
+		if (task != null) TaskMaster.cancelTimer("MobAsynckSpawner");
+	}
+
+	public static int despawnAll() {
+		return MythicMobs.inst().getMobManager().despawnAllMobs();
+	}
+
+	public static void despawnMobsFromRadius(Location loc, int radius) {
+		Set<Entity> mobs = getMobsFromRadius(loc, radius);
+		int count = 0;
+		for (Entity e : mobs) {
+			e.remove();
+			count++;
+		}
+		CivLog.debug("kill " + count + "  mobs");
+	}
+
+	public static Set<Entity> getMobsFromRadius(Location loc, int radius) {
+		Set<Entity> mobs = new HashSet<>();
+		if (!loc.getWorld().getName().equals("world")) return mobs;
+		int r = radius / 16;
+		int rSqr = r * (r + 1);
+
+		int cx = loc.getBlockX() / 16;
+		int cz = loc.getBlockZ() / 16;
+		World world = loc.getWorld();
+
+		for (int chX = 0 - r; chX <= r; chX++) {
+			for (int chZ = 0 - r; chZ <= r; chZ++) {
+				if (chX * chX + chZ * chZ > rSqr) continue;
+				Chunk chunk = world.getChunkAt(cx + chX, cz + chZ);
+				for (Entity e : chunk.getEntities()) {
+					if (MobStatic.isMithicMobEntity(e)) mobs.add(e);
+				}
+			}
+		}
+		return mobs;
 	}
 
 	public static Entity spawnCustomMob(String mobId, Location location) {
 		String mmid;
 		if (mobId == null) {
 			LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
-			if (validMobs.isEmpty())
-				return null;
+			if (validMobs.isEmpty()) return null;
 			mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
 		} else
 			mmid = mobId;
-		if (disableCustomMobs.contains(mmid))
-			return null;
+		if (disableCustomMobs.contains(mmid)) return null;
 		try {
 			return API().spawnMythicMob(mmid, location);
 		} catch (InvalidMobTypeException e) {
@@ -104,8 +140,7 @@ public class MobStatic {
 				for (Object obj : ms) {
 					if (obj instanceof String) {
 						ConfigMobs cm = globalMobs.get((String) obj);
-						if (cm != null)
-							mobs.add(cm);
+						if (cm != null) mobs.add(cm);
 					}
 				}
 			}
@@ -147,8 +182,7 @@ public class MobStatic {
 			for (Object obj : disable) {
 				String type = ((String) obj).toUpperCase();
 				EntityType et = EntityType.valueOf(type);
-				if (et != null)
-					disableMobs.add(et);
+				if (et != null) disableMobs.add(et);
 			}
 		}
 	}

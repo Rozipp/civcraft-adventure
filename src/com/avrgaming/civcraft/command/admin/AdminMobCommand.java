@@ -8,8 +8,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 
-import io.lumine.xikage.mythicmobs.MythicMobs;
-
 public class AdminMobCommand extends CommandBase {
     
     @Override
@@ -26,9 +24,8 @@ public class AdminMobCommand extends CommandBase {
     
     public void killall_cmd() throws CivException {
         Player player = getPlayer();
-//        String name = getNamedString(1, "Enter a mob name");
         
-        int count = MythicMobs.inst().getMobManager().removeAllMobs();
+        int count = MobStatic.despawnAll();
         CivMessage.sendSuccess(player, "Removed " + count + " mobs of type ");// + name);
     }
     

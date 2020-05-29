@@ -292,7 +292,7 @@ public class CustomItemListener implements Listener {
 			if (event.getDamager() instanceof LivingEntity) {
 				LivingEntity le = (LivingEntity) event.getDamager();
 				ItemStack chestplate = defendingPlayer.getEquipment().getChestplate();
-				if (Enchantments.hasEnchantment(chestplate, CustomEnchantment.Thorns)) {
+				if (chestplate !=null && Enchantments.hasEnchantment(chestplate, CustomEnchantment.Thorns)) {
 					le.damage(event.getDamage() * Enchantments.getLevelEnchantment(chestplate, CustomEnchantment.Thorns), defendingPlayer);
 				}
 			}

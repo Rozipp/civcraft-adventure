@@ -31,11 +31,15 @@ public class MobAsynckSpawnTimer implements Runnable {
 	private static Set<MobSpawner> updateSpawns = new HashSet<MobSpawner>();
 
 	public static void addSpawnerTask(MobSpawner mSpawn) {
-		updateSpawns.add(mSpawn);
+		synchronized (updateSpawns) {
+			updateSpawns.add(mSpawn);
+		}
 	}
 
 	public static void removeSpawnerTask(MobSpawner mSpawn) {
-		updateSpawns.remove(mSpawn);
+		synchronized (updateSpawns) {
+			updateSpawns.remove(mSpawn);
+		}
 	}
 
 	@Override
@@ -45,30 +49,25 @@ public class MobAsynckSpawnTimer implements Runnable {
 		}
 		for (int j = 0; j < SPAWN_FOR_PLAYER_LIMIT; j++) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				// Сколько возле игрока в радиусе r=3 мобов. Если больше MOB_AREA_LIMIT то не
-				// делаем нового
-				if (!player.getWorld().getName().equals("world"))
-					continue;
-				int r = MAX_SPAWN_DISTANCE / 16;
-				int rSqr = r * (r + 1);
+				if (!player.getWorld().getName().equals("world")) continue;
+				// Сколько возле игрока в радиусе rmax мобов.
+				int rmax = MAX_SPAWN_DISTANCE / 16;
+				int rMaxSqr = rmax * (rmax + 1);
 				boolean isMany = false;
 				int count = 0;
-				for (int chX = 0 - r; chX <= r && !isMany; chX++) {
-					for (int chZ = 0 - r; chZ <= r && !isMany; chZ++) {
-						if (chX * chX + chZ * chZ > rSqr)
-							continue;
-						Chunk chunk = player.getLocation().clone().add(chX * 16, 0, chZ * 16).getChunk();
+				for (int chX = 0 - rmax; chX <= rmax && !isMany; chX++) {
+					for (int chZ = 0 - rmax; chZ <= rmax && !isMany; chZ++) {
+						if (chX * chX + chZ * chZ > rMaxSqr) continue;
+						Chunk chunk = player.getLocation().add(chX * 16, 0, chZ * 16).getChunk();
 						for (Entity e : chunk.getEntities()) {
-							if (MobStatic.isMithicMobEntity(e))
-								if (++count >= MOB_AREA_LIMIT) {
-									isMany = true;
-									break;
-								}
+							if (MobStatic.isMithicMobEntity(e)) if (++count >= MOB_AREA_LIMIT) {
+								isMany = true;
+								break;
+							}
 						}
 					}
 				}
-				if (isMany)
-					continue;
+				if (isMany) continue; // Если больше MOB_AREA_LIMIT то не делаем нового
 
 				// находим новое место для спавна моба
 				double radius = civRandom.nextDouble() * (MAX_SPAWN_DISTANCE - MIN_SPAWN_DISTANCE) + MIN_SPAWN_DISTANCE;
@@ -77,22 +76,22 @@ public class MobAsynckSpawnTimer implements Runnable {
 				int z = (int) Math.round(radius * Math.sin(fi)) + player.getLocation().getBlockZ();
 				World world = player.getWorld();
 				int y = world.getHighestBlockYAt(x, z) + Y_SHIFT;
-				Location loc = new Location(world, x, y, z);
+				Location mobLoc = new Location(world, x, y, z);
 				// две простые проверки
-				if (CivGlobal.getTownChunk(new ChunkCoord(loc)) != null)
-					continue;
-				int blockFace = (ItemManager.getTypeId(loc.getBlock().getRelative(BlockFace.DOWN)));
+				if (CivGlobal.getTownChunk(new ChunkCoord(mobLoc)) != null) continue;
+				int blockFace = (ItemManager.getTypeId(mobLoc.getBlock().getRelative(BlockFace.DOWN)));
 				if (blockFace == CivData.WATER || blockFace == CivData.WATER_RUNNING //
 						|| blockFace == CivData.LAVA || blockFace == CivData.LAVA_RUNNING)
 					continue;
 
-				// ищем игрока в радиусе rp=1. Если нашли, не спавним моба
-				int rp = MIN_SPAWN_DISTANCE / 16;
+				// ищем игрока в радиусе rmin. Если нашли, не спавним моба
+				int rmin = MIN_SPAWN_DISTANCE / 16;
+//				int rMinSqr = rmin * (rmin + 1);
 				boolean isNearbyPlayer = false;
-				for (int chX = 0 - rp; chX <= rp && !isNearbyPlayer; chX++) {
-					for (int chZ = 0 - rp; chZ <= rp && !isNearbyPlayer; chZ++) {
-//						if (chX * chX + chZ * chZ > rSqr) continue;
-						Chunk chunk = loc.clone().add(chX * 16, 0, chZ * 16).getChunk();
+				for (int chX = 0 - rmin; chX <= rmin && !isNearbyPlayer; chX++) {
+					for (int chZ = 0 - rmin; chZ <= rmin && !isNearbyPlayer; chZ++) {
+//						if (chX * chX + chZ * chZ > rMaxSqr) continue;
+						Chunk chunk = mobLoc.add(chX * 16, 0, chZ * 16).getChunk();
 						for (Entity e : chunk.getEntities()) {
 							if (e instanceof Player) {
 								isNearbyPlayer = true;
@@ -101,10 +100,9 @@ public class MobAsynckSpawnTimer implements Runnable {
 						}
 					}
 				}
-				if (isNearbyPlayer)
-					continue;
+				if (isNearbyPlayer) continue;
 
-				MobPoolSpawnTimer.addSpawnMobTask(null, loc, null);
+				MobPoolSpawnTimer.addSpawnMobTask(null, mobLoc, null);
 			}
 		}
 	}

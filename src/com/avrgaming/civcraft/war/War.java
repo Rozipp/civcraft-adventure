@@ -39,6 +39,7 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Relation.Status;
@@ -180,6 +181,8 @@ public class War {
 			CivGlobal.fisheryEnabled = true;
 			Transmuter.resumeAllTransmuter();
 
+			MobStatic.startMobSpawnTimer();
+			
 			/* Delete any wartime file used to prevent reboots. */
 			File file = new File("wartime");
 			file.delete();
@@ -230,6 +233,9 @@ public class War {
 			CivGlobal.fisheryEnabled = false;
 			Transmuter.pauseAllTransmuter();
 
+			MobStatic.stopMobSpawnTimer();
+			MobStatic.despawnAll();
+			
 			Calendar endCal = Calendar.getInstance();
 			endCal.add(Calendar.MINUTE, mins);
 

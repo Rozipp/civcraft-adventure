@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,6 +61,12 @@ public class ChunkCoord{
 		this.worldname = coord.getWorldname();
 		this.x = castToChunk(coord.getX());
 		this.z = castToChunk(coord.getZ());
+	}
+
+	public ChunkCoord(Block block) {
+		this.worldname = block.getWorld().getName();
+		this.x = castToChunk(block.getX());
+		this.z = castToChunk(block.getZ());
 	}
 
 	@Override

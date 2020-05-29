@@ -33,7 +33,6 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.fishing.FishingListener;
 import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
-import com.avrgaming.civcraft.mythicmob.MobAsynckSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobListener;
 import com.avrgaming.civcraft.mythicmob.MobPoolSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
@@ -217,7 +216,7 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("SessionDBAsyncTimer", new SessionDBAsyncTimer(), 10);
 		TaskMaster.asyncTimer("pvptimer", new PvPTimer(), TimeTools.toTicks(30));
 
-		TaskMaster.syncTimer("MobAsynckSpawner", new MobAsynckSpawnTimer(), TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
+		MobStatic.startMobSpawnTimer();
 		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), TimeTools.toTicks(1));
 		// TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));

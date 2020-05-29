@@ -9,17 +9,19 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 public class Transmuter {
 
 	private TransmuterAsyncTimer task;
-	@SuppressWarnings("unused")
+	private Construct construct;
 	private String name = "";
 	public Double modifyChance = 1.0;
 
 	public Transmuter(Construct construct) {
+		this.construct = construct;
 		task = new TransmuterAsyncTimer(construct, this);
 		Transmuter.transmuters.add(this);
 	}
 
 	public Transmuter(Construct construct, String name) {
 		this.name = name;
+		this.construct = construct;
 		task = new TransmuterAsyncTimer(construct, this);
 		Transmuter.transmuters.add(this);
 	}
@@ -52,8 +54,9 @@ public class Transmuter {
 		TaskMaster.asyncTask(new Runnable() {
 			@Override
 			public void run() {
-				if (!task.isFinished()) task.stop();
-				TaskMaster.asyncTask(task, 20);
+				task.stop();
+				TaskMaster.cancelTask(this.toString());
+				TaskMaster.asyncTask(this.toString(), task, 20);
 			}
 		}, 1);
 	}
@@ -91,6 +94,11 @@ public class Transmuter {
 		}
 		Transmuter.transmuters.clear();
 		CivLog.info("Stoped " + count + " transmuters");
+	}
+
+	@Override
+	public String toString() {
+		return "transmuter:" + construct.getCorner().toString() + ":" + name;
 	}
 
 }

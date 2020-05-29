@@ -60,6 +60,7 @@ import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
@@ -99,12 +100,10 @@ public class PlayerListener implements Listener {
 
 			Resident resident = CivGlobal.getResident(player);
 			if (resident.getItemMode().equals("all")) {
-				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup",
-						CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
+				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup", CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
 			} else
 				if (resident.getItemMode().equals("rare") && rare) {
-					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup",
-							CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
+					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_customItem_Pickup", CivColor.LightPurple + event.getItem().getItemStack().getAmount(), name));
 				}
 		}
 	}
@@ -119,8 +118,8 @@ public class PlayerListener implements Listener {
 		PlayerLocationCacheUpdate.playerQueue.add(player.getName());
 
 		if (player.isOp()) {
-			//Bukkit.dispatchCommand(event.getPlayer(), "vanish");
-			//Bukkit.dispatchCommand(event.getPlayer(), "dynmap hide");
+			// Bukkit.dispatchCommand(event.getPlayer(), "vanish");
+			// Bukkit.dispatchCommand(event.getPlayer(), "dynmap hide");
 		}
 		event.getPlayer().setFlying(false);
 		event.getPlayer().setAllowFlight(false);
@@ -139,21 +138,18 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerTeleportEvent(PlayerTeleportEvent event) {
-		//Handle Teleportation Things here!
+		// Handle Teleportation Things here!
 		if (event.getCause().equals(TeleportCause.COMMAND) || event.getCause().equals(TeleportCause.PLUGIN)) {
-			CivLog.info("[TELEPORT]" + " " + event.getPlayer().getName() + " " + "to:" + event.getTo().getBlockX() + "," + event.getTo().getBlockY() + ","
-					+ event.getTo().getBlockZ() + " " + "from:" + event.getFrom().getBlockX() + "," + event.getFrom().getBlockY() + ","
-					+ event.getFrom().getBlockZ());
+			CivLog.info("[TELEPORT]" + " " + event.getPlayer().getName() + " " + "to:" + event.getTo().getBlockX() + "," + event.getTo().getBlockY() + "," + event.getTo().getBlockZ() + " " + "from:" + event.getFrom().getBlockX() + ","
+					+ event.getFrom().getBlockY() + "," + event.getFrom().getBlockZ());
 			Player player = event.getPlayer();
 			if (!player.isOp() && !(player.hasPermission("civ.admin") || player.hasPermission(CivSettings.TPALL))) {
 				CultureChunk cc = CivGlobal.getCultureChunk(new ChunkCoord(event.getTo()));
 				Resident resident = CivGlobal.getResident(player);
 				if (cc != null && cc.getCiv() != resident.getCiv() && !cc.getCiv().isAdminCiv()) {
 					Relation.Status status = cc.getCiv().getDiplomacyManager().getRelationStatus(player);
-					if (!(status.equals(Relation.Status.ALLY) && player.hasPermission(CivSettings.TPALLY))
-							&& !(status.equals(Relation.Status.NEUTRAL) && player.hasPermission(CivSettings.TPNEUTRAL))
-							&& !(status.equals(Relation.Status.HOSTILE) && player.hasPermission(CivSettings.TPHOSTILE))
-							&& !(status.equals(Relation.Status.PEACE) && player.hasPermission(CivSettings.TPWAR))
+					if (!(status.equals(Relation.Status.ALLY) && player.hasPermission(CivSettings.TPALLY)) && !(status.equals(Relation.Status.NEUTRAL) && player.hasPermission(CivSettings.TPNEUTRAL))
+							&& !(status.equals(Relation.Status.HOSTILE) && player.hasPermission(CivSettings.TPHOSTILE)) && !(status.equals(Relation.Status.PEACE) && player.hasPermission(CivSettings.TPWAR))
 							&& !(status.equals(Relation.Status.WAR) && player.hasPermission(CivSettings.TPWAR)) && !player.hasPermission(CivSettings.TPALL)) {
 						/* Deny telportation into Civ if not allied. */
 						event.setTo(event.getFrom());
@@ -165,7 +161,7 @@ public class PlayerListener implements Listener {
 						}
 					}
 				}
-				
+
 				Camp tocamp = CivGlobal.getCampAt(new ChunkCoord(event.getTo()));
 				if (tocamp != null && !tocamp.equals(resident.getCamp()) && !player.hasPermission(CivSettings.TPCAMP)) {
 					/* Deny telportation into Civ if not allied. */
@@ -180,27 +176,27 @@ public class PlayerListener implements Listener {
 
 				}
 
-//				if (War.isWarTime()) {
-//					
-//					if (toCamp != null && toCamp == resident.getCamp()) {
-//						return;
-//					}
-//					if (cc != null && (cc.getCiv() == resident.getCiv() || cc.getCiv().isAdminCiv())) {
-//						return;
-//					}
-//					
-//					event.setTo(event.getFrom());
-//					if (!event.isCancelled())
-//					{
-//					event.setCancelled(true);
-//						CivMessage.send(resident, CivColor.Red+"[Denied] "+CivColor.White+"You're not allowed to Teleport during War unless you are teleporting to your own Civ or Camp");
-//					}
-//				}
+				// if (War.isWarTime()) {
+				//
+				// if (toCamp != null && toCamp == resident.getCamp()) {
+				// return;
+				// }
+				// if (cc != null && (cc.getCiv() == resident.getCiv() || cc.getCiv().isAdminCiv())) {
+				// return;
+				// }
+				//
+				// event.setTo(event.getFrom());
+				// if (!event.isCancelled())
+				// {
+				// event.setCancelled(true);
+				// CivMessage.send(resident, CivColor.Red+"[Denied] "+CivColor.White+"You're not allowed to Teleport during War unless you are teleporting
+				// to your own Civ or Camp");
+				// }
+				// }
 			}
 
 			if (!event.isCancelled()) {
-				TaskMaster.asyncTask(PlayerChunkNotifyAsyncTask.class.getSimpleName(),
-						new PlayerChunkNotifyAsyncTask(event.getFrom(), event.getTo(), event.getPlayer().getName()), 0);
+				TaskMaster.asyncTask(PlayerChunkNotifyAsyncTask.class.getSimpleName(), new PlayerChunkNotifyAsyncTask(event.getFrom(), event.getTo(), event.getPlayer().getName()), 0);
 
 			}
 		}
@@ -209,8 +205,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		/* Abort if we havn't really moved */
-		if (event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
-				&& event.getFrom().getBlockY() == event.getTo().getBlockY()) {
+		if (event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockZ() == event.getTo().getBlockZ() && event.getFrom().getBlockY() == event.getTo().getBlockY()) {
 			return;
 		}
 		if (!CivGlobal.speedChunks) {
@@ -230,8 +225,7 @@ public class PlayerListener implements Listener {
 			UnitStatic.setModifiedMovementSpeed(event.getPlayer());
 		}
 
-		TaskMaster.asyncTask(PlayerChunkNotifyAsyncTask.class.getSimpleName(),
-				new PlayerChunkNotifyAsyncTask(event.getFrom(), event.getTo(), event.getPlayer().getName()), 0);
+		TaskMaster.asyncTask(PlayerChunkNotifyAsyncTask.class.getSimpleName(), new PlayerChunkNotifyAsyncTask(event.getFrom(), event.getTo(), event.getPlayer().getName()), 0);
 
 	}
 
@@ -249,12 +243,12 @@ public class PlayerListener implements Listener {
 				if (capitol != null) {
 					BlockCoord respawn = capitol.getRandomRespawnPoint();
 					if (respawn != null) {
-						//PlayerReviveTask reviveTask = new PlayerReviveTask(player, townhall.getRespawnTime(), townhall, event.getRespawnLocation());
+						// PlayerReviveTask reviveTask = new PlayerReviveTask(player, townhall.getRespawnTime(), townhall, event.getRespawnLocation());
 						resident.setLastKilledTime(new Date());
 						event.setRespawnLocation(respawn.getCenteredLocation());
 						CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnInWarRoom"));
 
-						//TaskMaster.asyncTask("", reviveTask, 0);
+						// TaskMaster.asyncTask("", reviveTask, 0);
 					}
 				}
 			}
@@ -275,8 +269,7 @@ public class PlayerListener implements Listener {
 					BlockCoord respawn = townhall.getRandomRevivePoint();
 					if (respawn != null) {
 						event.setRespawnLocation(respawn.getCenteredLocation());
-						CivMessage.send(player,
-								CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnAtName", resident.getTown().getName()));
+						CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnAtName", resident.getTown().getName()));
 					}
 				}
 			}
@@ -297,30 +290,6 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (event.getEntity() instanceof Player) {
-			Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
-			if (!keepInventory) {
-				ArrayList<ItemStack> stacksToRemove = new ArrayList<ItemStack>();
-				for (ItemStack stack : event.getDrops()) {
-					if (stack != null) {
-						final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-						if (material == null) {
-							continue;
-						}
-						material.onPlayerDeath(event, stack);
-						if (material instanceof UnitMaterial) {
-							stacksToRemove.add(stack);
-						} else {
-							if (material instanceof UnitCustomMaterial) stacksToRemove.add(stack);
-						}
-					}
-				}
-
-				for (ItemStack stack : stacksToRemove) {
-					event.getDrops().remove(stack);
-				}
-			}
-		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -328,6 +297,28 @@ public class PlayerListener implements Listener {
 		if (War.isWarTime() && event.getEntity().getKiller() != null) {
 			WarStats.incrementPlayerKills(event.getEntity().getKiller().getName());
 		}
+		Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
+		if (!keepInventory) {
+			ArrayList<ItemStack> stacksToRemove = new ArrayList<ItemStack>();
+			for (ItemStack stack : event.getDrops()) {
+				if (stack != null) {
+					final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
+					if (material == null) continue;
+					material.onPlayerDeath(event, stack);
+					if (material instanceof UnitMaterial) {
+						stacksToRemove.add(stack);
+					} else {
+						if (material instanceof UnitCustomMaterial) stacksToRemove.add(stack);
+					}
+				}
+			}
+
+			for (ItemStack stack : stacksToRemove) {
+				event.getDrops().remove(stack);
+			}
+		}
+
+		MobStatic.despawnMobsFromRadius(event.getEntity().getLocation(), 80);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -335,35 +326,35 @@ public class PlayerListener implements Listener {
 		event.setCancelled(true);
 	}
 
-//	@EventHandler(priority = EventPriority.NORMAL)
-//	public void OnCraftItemEvent(CraftItemEvent event) {
-//		if (event.getInventory() == null) {
-//			return;
-//		}
-//		
-//		ItemStack resultStack = event.getInventory().getResult();
-//		if (resultStack == null) {
-//			return;
-//		}
-//		
-//		if (CivSettings.techItems == null) {
-//			CivLog.error("tech items null???");
-//			return;
-//		}
-//
-//		//XXX Replaced via materials system.
-////		ConfigTechItem item = CivSettings.techItems.get(resultStack.getTypeId());
-////		if (item != null) {
-////			Resident resident = CivGlobal.getResident(event.getWhoClicked().getName());
-////			if (resident != null && resident.hasTown()) {
-////				if (resident.getCiv().hasTechnology(item.require_tech)) {
-////					return;
-////				}
-////			}	
-////			event.setCancelled(true);
-////			CivMessage.sendError((Player)event.getWhoClicked(), "You do not have the required technology to craft a "+item.name);
-////		}
-//	}
+	// @EventHandler(priority = EventPriority.NORMAL)
+	// public void OnCraftItemEvent(CraftItemEvent event) {
+	// if (event.getInventory() == null) {
+	// return;
+	// }
+	//
+	// ItemStack resultStack = event.getInventory().getResult();
+	// if (resultStack == null) {
+	// return;
+	// }
+	//
+	// if (CivSettings.techItems == null) {
+	// CivLog.error("tech items null???");
+	// return;
+	// }
+	//
+	// //XXX Replaced via materials system.
+	//// ConfigTechItem item = CivSettings.techItems.get(resultStack.getTypeId());
+	//// if (item != null) {
+	//// Resident resident = CivGlobal.getResident(event.getWhoClicked().getName());
+	//// if (resident != null && resident.hasTown()) {
+	//// if (resident.getCiv().hasTechnology(item.require_tech)) {
+	//// return;
+	//// }
+	//// }
+	//// event.setCancelled(true);
+	//// CivMessage.sendError((Player)event.getWhoClicked(), "You do not have the required technology to craft a "+item.name);
+	//// }
+	// }
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerPortalEvent(PlayerPortalEvent event) {
@@ -419,8 +410,7 @@ public class PlayerListener implements Listener {
 			}
 		}
 
-		if (event.getContents().contains(Material.SPIDER_EYE) || event.getContents().contains(Material.GOLDEN_CARROT)
-				|| event.getContents().contains(Material.GHAST_TEAR) || event.getContents().contains(Material.FERMENTED_SPIDER_EYE)
+		if (event.getContents().contains(Material.SPIDER_EYE) || event.getContents().contains(Material.GOLDEN_CARROT) || event.getContents().contains(Material.GHAST_TEAR) || event.getContents().contains(Material.FERMENTED_SPIDER_EYE)
 				|| event.getContents().contains(Material.SULPHUR)) {
 			event.setCancelled(true);
 		}
@@ -428,16 +418,14 @@ public class PlayerListener implements Listener {
 		if (event.getContents().contains(Material.POTION)) {
 			ItemStack potion = event.getContents().getItem(event.getContents().first(Material.POTION));
 
-			if (potion.getDurability() == CivData.MUNDANE_POTION_DATA || potion.getDurability() == CivData.MUNDANE_POTION_EXT_DATA
-					|| potion.getDurability() == CivData.THICK_POTION_DATA) {
+			if (potion.getDurability() == CivData.MUNDANE_POTION_DATA || potion.getDurability() == CivData.MUNDANE_POTION_EXT_DATA || potion.getDurability() == CivData.THICK_POTION_DATA) {
 				event.setCancelled(true);
 			}
 		}
 	}
 
 	private boolean isPotionDisabled(PotionEffect type) {
-		if (type.getType().equals(PotionEffectType.SPEED) || type.getType().equals(PotionEffectType.FIRE_RESISTANCE)
-				|| type.getType().equals(PotionEffectType.HEAL)) {
+		if (type.getType().equals(PotionEffectType.SPEED) || type.getType().equals(PotionEffectType.FIRE_RESISTANCE) || type.getType().equals(PotionEffectType.HEAL)) {
 			return false;
 		}
 
@@ -509,8 +497,7 @@ public class PlayerListener implements Listener {
 			}
 
 			Chest rightChest = (Chest) doubleInv.getHolder().getRightSide();
-			PlayerInteractEvent interactRight = new PlayerInteractEvent((Player) event.getPlayer(), Action.RIGHT_CLICK_BLOCK, null, rightChest.getBlock(),
-					null);
+			PlayerInteractEvent interactRight = new PlayerInteractEvent((Player) event.getPlayer(), Action.RIGHT_CLICK_BLOCK, null, rightChest.getBlock(), null);
 			BlockListener.OnPlayerSwitchEvent(interactRight);
 
 			if (interactRight.isCancelled()) {
@@ -575,10 +562,8 @@ public class PlayerListener implements Listener {
 			}
 			if (defenderResident.isCombatInfo()) {
 				if (attacker != null) {
-					CivMessage.send(defender,
-							CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
-									+ CivSettings.localize.localizedString("var_playerListen_combatDefend",
-											CivColor.Rose + attacker.getName() + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
+					CivMessage.send(defender, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
+							+ CivSettings.localize.localizedString("var_playerListen_combatDefend", CivColor.Rose + attacker.getName() + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
 				} else {
 					String entityName = null;
 
@@ -590,10 +575,8 @@ public class PlayerListener implements Listener {
 						entityName = event.getDamager().getType().toString();
 					}
 
-					CivMessage.send(defender,
-							CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
-									+ CivSettings.localize.localizedString("var_playerListen_combatDefend",
-											CivColor.LightPurple + entityName + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
+					CivMessage.send(defender, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
+							+ CivSettings.localize.localizedString("var_playerListen_combatDefend", CivColor.LightPurple + entityName + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
 				}
 			}
 		}
@@ -602,10 +585,8 @@ public class PlayerListener implements Listener {
 			Resident attackerResident = CivGlobal.getResident(attacker);
 			if (attackerResident.isCombatInfo()) {
 				if (defender != null) {
-					CivMessage.send(attacker,
-							CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
-									+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.Rose + defender.getName() + CivColor.LightGray,
-											CivColor.LightGreen + damage + CivColor.LightGray));
+					CivMessage.send(attacker, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
+							+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.Rose + defender.getName() + CivColor.LightGray, CivColor.LightGreen + damage + CivColor.LightGray));
 				} else {
 					String entityName = null;
 
@@ -617,10 +598,8 @@ public class PlayerListener implements Listener {
 						entityName = event.getEntity().getType().toString();
 					}
 
-					CivMessage.send(attacker,
-							CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
-									+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.LightPurple + entityName + CivColor.LightGray,
-											CivColor.LightGreen + damage + CivColor.LightGray));
+					CivMessage.send(attacker, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
+							+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.LightPurple + entityName + CivColor.LightGray, CivColor.LightGreen + damage + CivColor.LightGray));
 				}
 			}
 		}
