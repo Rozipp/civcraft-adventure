@@ -1026,9 +1026,9 @@ public class Camp extends Construct {
 			if (key.equals("longhouse")) continue;
 			int level = annexLevel.get(key);
 			Transmuter tr = new Transmuter(this, key);
-			tr.addAllRecipeToLevel(key, level);
+			tr.addRecipe(key + level);
 			trasmuters.add(tr);
-			tr.run();
+			tr.start();
 		}
 	}
 }

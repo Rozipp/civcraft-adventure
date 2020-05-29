@@ -69,14 +69,16 @@ public class TaskMaster {
 	}
 
 	public static void asyncTimer(String name, Runnable runnable, long delay, long repeat) {
+		if (getTimer(name) != null) getTimer(name).cancel();
 		addTimer(name, BukkitObjects.scheduleAsyncRepeatingTask(runnable, delay, repeat));
 	}
 
 	public static void asyncTimer(String name, Runnable runnable, long time) {
-		addTimer(name, BukkitObjects.scheduleAsyncRepeatingTask(runnable, time, time));
+		asyncTimer(name, runnable, time, time);
 	}
 
 	public static void asyncTask(String name, Runnable runnable, long delay) {
+		if (getTask(name) != null) getTask(name).cancel();
 		addTask(name, BukkitObjects.scheduleAsyncDelayedTask(runnable, delay));
 	}
 
@@ -99,39 +101,39 @@ public class TaskMaster {
 	}
 
 	public static void stopAllTasks() {
+		int count = 0;
 		for (BukkitTask task : tasks.values()) {
 			task.cancel();
+			count++;
 		}
 		tasks.clear();
+		CivLog.info("Stopes " + count + " tasks");
 	}
 
 	public static void stopAllTimers() {
+		int count = 0;
 		for (BukkitTask timer : timers.values()) {
 			timer.cancel();
+			count++;
 		}
-		// RJ.out("clearing timers");
-
 		timers.clear();
+		CivLog.info("Stopes " + count + " timers");
 	}
 
 	public static void cancelTask(String name) {
 		BukkitTask task = tasks.get(name);
 		if (task != null) {
 			task.cancel();
+			tasks.remove(name);
 		}
-		// RJ.out("clearing tasks");
-
-		tasks.remove(name);
 	}
 
 	public static void cancelTimer(String name) {
 		BukkitTask timer = tasks.get(name);
 		if (timer != null) {
 			timer.cancel();
+			timers.remove(name);
 		}
-		// RJ.out("cancel timer:"+name);
-
-		timers.remove(name);
 	}
 
 	public static BukkitTask getTimer(String name) {

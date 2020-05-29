@@ -48,17 +48,18 @@ public class Quarry extends Structure {
 	}
 
 	@Override
-	public double modifyTransmuterChance(Double chance) {
+	public void onMinuteUpdate() {
+		transmuter.modifyChance = modifyTransmuterChance();
+	}
+
+	public double modifyTransmuterChance() {
+		Double chance = 1.0;
 		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION) + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
 		chance += increase;
 
 		try {
-			if (this.getTown().getGovernment().id.equals("gov_despotism")) {
-				chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
-			} else if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) {
-				chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
-			}
-
+			if (this.getTown().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
+			if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
@@ -68,8 +69,10 @@ public class Quarry extends Structure {
 	@Override
 	public void onPostBuild() {
 		this.level = getTown().saved_quarry_level;
-		this.transmuter.addAllRecipeToLevel(level);
-		if (CivGlobal.quarriesEnabled) this.transmuter.run();
+		this.transmuter.clearRecipe();
+		for (int i = 1; i <= level; i++)
+			this.transmuter.addRecipe("quarry" + i);
+		if (CivGlobal.quarriesEnabled) this.transmuter.start();
 	}
 
 	public int getLevel() {

@@ -1,6 +1,7 @@
 #
 # Класс Transmuter используется в деревне для выдачи специальных предмметов.
 # 'id' - название рецепта
+# 'delay' - Задержка времени между применениями (по умолчанию 1 секунда)
 # 'result_chest' - идентификатор сундука, который написан на табличке и используется на выход + сохранен в стиле структуры.
 # 'source_item' - группа, отвечающая за предметы, которые используются на вход
 # 'result_item' - группа, отвечающая за предметы, которые используются на выход
@@ -8,274 +9,233 @@
 # 'count' - количество предметов, которые будут взяты или выданы в результате работы Transmuter'a
 # 'chest' - идентификатор сундука, который написан на табличке и используется на вход + сохранен в стиле структуры.
 # 'rate' - шанс выпадения предмета после выполнения работы Transmuter'a.
-# 
-
+#
 transmuter:
 #-------Quarry
-    - id: 'quarry1'
-      delay: 0
-      source_item:
-         - item: 'mat_vanilla_stone_pickaxe'
-           chest: '0'
-      result_chest: '1'
-      result_item:
-         - item: 'EMERALD'
-           rate: 1
-         - item: 'DIAMOND'
-           rate: 4
-         - item: 'mat_tungsten_ore'
-           rate: 9
-           #gold
-         - item: '266:0' 
-           rate: 20
-           #REDSTONE_DUST
-         - item: '331:0'
-           rate: 75
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 200
-           #GOLD_INGOT
-         - item: '266:0'
-           rate: 70
-         - item: 'COAL'
-           rate: 500
-           #Andesite
-         - item: '1:5'
-           rate: 125
-           #Diorite
-         - item: '1:3'
-           rate: 375
-           #Granite
-         - item: '1:1'
-           rate: 500
-           #cobelston
-         - item: '4:0'
-           rate: 2000
-         - item: '3:0'
-           rate: 7000
-
-    - id: 'quarry2'
-      delay: 0
-      source_item:
-         - item: 'mat_vanilla_iron_pickaxe'
-           chest: '0'
-      result_chest: '1'
-      result_item:
-         - item: 'EMERALD'
-           rate: 1
-         - item: 'DIAMOND'
-           rate: 4
-         - item: 'mat_tungsten_ore'
-           rate: 9
-           #gold
-         - item: '266:0' 
-           rate: 20
-           #REDSTONE_DUST
-         - item: '331:0'
-           rate: 75
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 200
-           #GOLD_INGOT
-         - item: '266:0'
-           rate: 70
-         - item: 'COAL'
-           rate: 500
-           #Andesite
-         - item: '1:5'
-           rate: 125
-           #Diorite
-         - item: '1:3'
-           rate: 375
-           #Granite
-         - item: '1:1'
-           rate: 500
-           #cobelston
-         - item: '4:0'
-           rate: 2000
-         - item: '3:0'
-           rate: 7000
-
-    - id: 'quarry3'
-      delay: 0
-      source_item:
-         - item: 'mat_vanilla_stone_pickaxe,mat_vanilla_iron_pickaxe'
-           chest: '0'
-      result_chest: '1'
-      result_item:
-         - item: 'EMERALD'
-           rate: 1
-         - item: 'DIAMOND'
-           rate: 4
-         - item: 'mat_tungsten_ore'
-           rate: 9
-           #gold
-         - item: '266:0' 
-           rate: 20
-           #REDSTONE_DUST
-         - item: '331:0'
-           rate: 75
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 200
-           #GOLD_INGOT
-         - item: '266:0'
-           rate: 70
-         - item: 'COAL'
-           rate: 500
-           #Andesite
-         - item: '1:5'
-           rate: 125
-           #Diorite
-         - item: '1:3'
-           rate: 375
-           #Granite
-         - item: '1:1'
-           rate: 500
-           #cobelston
-         - item: '4:0'
-           rate: 2000
-         - item: '3:0'
-           rate: 7000
-
-    - id: 'quarry4'
-      delay: 0
-      source_item:
-         - item: 'mat_vanilla_stone_pickaxe,mat_vanilla_iron_pickaxe'
-           chest: '0'
-      result_chest: '1'
-      result_item:
-         - item: 'EMERALD'
-           rate: 1
-         - item: 'DIAMOND'
-           rate: 4
-         - item: 'mat_tungsten_ore'
-           rate: 9
-           #gold
-         - item: '266:0' 
-           rate: 20
-           #REDSTONE_DUST
-         - item: '331:0'
-           rate: 75
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 200
-           #GOLD_INGOT
-         - item: '266:0'
-           rate: 70
-         - item: 'COAL'
-           rate: 500
-           #Andesite
-         - item: '1:5'
-           rate: 125
-           #Diorite
-         - item: '1:3'
-           rate: 375
-           #Granite
-         - item: '1:1'
-           rate: 500
-           #cobelston
-         - item: '4:0'
-           rate: 2000
-         - item: '3:0'
-           rate: 7000
-
+-  id: quarry1
+   delay: 1
+   source_chest: '0'
+   source_item: mat_vanilla_wod_pickaxe
+   source_count : 1
+   result_chest: '1'
+   result_other: DIRT
+   total_rate: 10000
+   result_item:
+   -  item: mat_tungsten_ore
+      rate: 4
+   -  item: '1:5'
+      rate: 50
+   -  item: '1:3'
+      rate: 100
+   -  item: '1:1'
+      rate: 150
+   -  item: COBBLESTONE
+      rate: 1000
+   -  item: REDSTONE
+      rate: 150
+   -  item: COAL
+      rate: 150
+-  id: quarry2
+   source_chest: '0'
+   source_item: mat_vanilla_stone_pickaxe
+   result_chest: '1'
+   result_other: DIRT
+   total_rate: 10000
+   result_item:
+   -  item: mat_tungsten_ore
+      rate: 6
+   -  item: '1:5'
+      rate: 75
+   -  item: '1:3'
+      rate: 150
+   -  item: '1:1'
+      rate: 225
+   -  item: COBBLESTONE
+      rate: 1500
+   -  item: REDSTONE
+      rate: 225
+   -  item: COAL
+      rate: 225
+-  id: quarry3
+   source_chest: '0'
+   source_item: mat_vanilla_iron_pickaxe
+   result_chest: '1'
+   result_other: DIRT
+   total_rate: 10000
+   result_item:
+   -  item: mat_tungsten_ore
+      rate: 8
+   -  item: '1:5'
+      rate: 100
+   -  item: '1:3'
+      rate: 200
+   -  item: '1:1'
+      rate: 300
+   -  item: COBBLESTONE
+      rate: 2000
+   -  item: REDSTONE
+      rate: 300
+   -  item: COAL
+      rate: 300
+-  id: quarry4
+   source_chest: '0'
+   source_item: mat_vanilla_diamond_pickaxe
+   result_chest: '1'
+   result_other: DIRT
+   total_rate: 10000
+   result_item:
+   -  item: mat_tungsten_ore
+      rate: 12
+   -  item: '1:5'
+      rate: 150
+   -  item: '1:3'
+      rate: 300
+   -  item: '1:1'
+      rate: 450
+   -  item: COBBLESTONE
+      rate: 3000
+   -  item: REDSTONE
+      rate: 450
+   -  item: COAL
+      rate: 450
 #----------Trommel
-    - id: 'trommel1'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: '1'
-      result_chest: '2'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
-
-    - id: 'trommel2'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: '1'
-      result_chest: '2'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
-           
-    - id: 'trommel3'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: '1'
-      result_chest: '2'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
-           
-    - id: 'trommel4'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: '1'
-      result_chest: '2'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
+-  id: trommel_clay
+   source_chest: '1'
+   source_item: '159:-1'
+   result_chest: '2'
+   result_other: GRAVEL
+   total_rate: 10000
+   result_item:
+   -  item: mat_forged_chromium
+      rate: 6
+   -  item: EMERALD
+      rate: 15
+   -  item: DIAMOND
+      rate: 30
+   -  item: GOLD_INGOT
+      rate: 150
+   -  item: IRON_INGOT
+      rate: 450
+   -  item: '45:0'
+      rate: 750
+-  id: trommel_cobblestone
+   source_chest: '1'
+   source_item: 'COBBLESTONE,1:0'
+   result_chest: '2'
+   result_other: GRAVEL
+   total_rate: 10000
+   result_item:
+   -  item: mat_forged_chromium
+      rate: 8
+   -  item: EMERALD
+      rate: 20
+   -  item: DIAMOND
+      rate: 40
+   -  item: GOLD_INGOT
+      rate: 200
+   -  item: IRON_INGOT
+      rate: 600
+   -  item: '98:0'
+      rate: 1000
+-  id: trommel_granit
+   source_chest: '1'
+   source_item: '1:1'
+   result_chest: '2'
+   result_other: GRAVEL
+   total_rate: 10000
+   result_item:
+   -  item: mat_forged_chromium
+      rate: 10
+   -  item: EMERALD
+      rate: 25
+   -  item: DIAMOND
+      rate: 50
+   -  item: GOLD_INGOT
+      rate: 250
+   -  item: IRON_INGOT
+      rate: 750
+   -  item: '1:2'
+      rate: 1000
+-  id: trommel_diorit
+   source_chest: '1'
+   source_item: '1:3'
+   result_chest: '2'
+   result_other: GRAVEL
+   total_rate: 10000
+   result_item:
+   -  item: mat_forged_chromium
+      rate: 12
+   -  item: EMERALD
+      rate: 30
+   -  item: DIAMOND
+      rate: 60
+   -  item: GOLD_INGOT
+      rate: 300
+   -  item: IRON_INGOT
+      rate: 900
+   -  item: '1:4'
+      rate: 1500
+-  id: trommel_andesit
+   source_chest: '1'
+   source_item: '1:5'
+   result_chest: '2'
+   result_other: GRAVEL
+   total_rate: 10000
+   result_item:
+   -  item: mat_forged_chromium
+      rate: 14
+   -  item: EMERALD
+      rate: 35
+   -  item: DIAMOND
+      rate: 70
+   -  item: GOLD_INGOT
+      rate: 350
+   -  item: IRON_INGOT
+      rate: 1050
+   -  item: '1:6'
+      rate: 1750
+#----------- SilkwormFarm
+-  id: silkwormfarm
+   delay: 5
+   source_chest: '0'
+   source_item: '392:0'
+   result_chest: '1'
+   result_other: '30:0'
+   total_rate: 100
+   result_item:
+   -  item: '287:0'
+      rate: 95
+   -  item: '375:0'
+      rate: 1
 #----------- Camp
-           
-    - id: 'sifter1'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: 'siftersource'
-      result_chest: 'sifterresult'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
-           
-    - id: 'sifter2'
-      source_item:
-         - item: '4:0,1:0,1:1,1:3,1:5'
-           chest: 'siftersource'
-      result_chest: 'sifterresult'
-      result_item:
-           #Gravel
-         - item: '13:0'
-           rate: 90
-           #IRON_INGOT
-         - item: '265:0'
-           rate: 8
-           #gold
-         - item: '266:0'
-           rate: 2
-           
-           
+-  id: sifter1
+   source_chest: 'siftersource'
+   source_item: '159:-1,4:0,1:0,1:1,1:3,1:5'
+   result_chest: sifterresult
+   result_other: '13:0'
+   total_rate: 1000
+   result_item:
+   -  item: '265:0'
+      rate: 45
+   -  item: '266:0'
+      rate: 15
+-  id: sifter2
+   source_chest: 'siftersource'
+   source_item: '4:0,1:0,1:1,1:3,1:5'
+   result_chest: sifterresult
+   result_other: '13:0'
+   total_rate: 1000
+   result_item:
+   -  item: '265:0'
+      rate: 6
+   -  item: '266:0'
+      rate: 2
+# ----------------
+# Orphan comments:
+# ----------------
+# Was at begin of line:219 :# ----------------
+# Was at begin of line:220 :# Orphan comments:
+# Was at begin of line:221 :# ----------------
+# Was at begin of line:222 :# Was at begin of line:271 :#Gravel
+# Was at begin of line:223 :# Was at begin of line:274 :#IRON_INGOT
+# Was at begin of line:224 :# Was at begin of line:277 :#gold

@@ -139,6 +139,7 @@ public class WarListener implements Listener {
 		event.setCancelled(true);
 	}
 
+	@SuppressWarnings("unused")
 	private void explodeBlock(Block b) {
 		WarRegen.explodeThisBlock(b, WarListener.RESTORE_NAME);
 		launchExplodeFirework(b.getLocation());

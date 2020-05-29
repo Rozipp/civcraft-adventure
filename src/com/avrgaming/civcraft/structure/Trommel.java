@@ -11,8 +11,10 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
 
@@ -31,10 +33,11 @@ public class Trommel extends Structure {
 	}
 
 	@Override
-	public void delete(){
+	public void delete() {
 		transmuter.stop();
 		super.delete();
 	}
+
 	@Override
 	public String getDynmapDescription() {
 		String out = "<u><b>" + this.getDisplayName() + "</u></b><br/>";
@@ -48,27 +51,48 @@ public class Trommel extends Structure {
 	}
 
 	@Override
-	public double modifyTransmuterChance(Double chance) {
-		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble("buff_extraction") + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
+	public void onMinuteUpdate() {
+		modifyTransmuterChance();
+	}
+	
+	public void modifyTransmuterChance() {
+		Double chance = 1.0 + (0.5 * getTown().saved_trommel_level);
+		double increase = (this.getTown().getBuffManager().getEffectiveDouble("buff_extraction") + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
 		chance += increase;
 
-		// try {
-		// if (this.getTown().getGovernment().id.equals("gov_despotism")) {
-		// chance *= CivSettings.getDouble(CivSettings.structureConfig, "trommel.despotism_rate");
-		// } else if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")){
-		// chance *= CivSettings.getDouble(CivSettings.structureConfig, "trommel.penalty_rate");
-		// }
-		// } catch (InvalidConfiguration e) {
-		// e.printStackTrace();
-		// }
-		return chance;
+		try {
+			if (this.getTown().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "trommel.despotism_rate");
+			if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "trommel.penalty_rate");
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+		}
+		transmuter.modifyChance = chance;
 	}
 
 	@Override
 	public void onPostBuild() {
 		this.level = getTown().saved_trommel_level;
-		this.transmuter.addAllRecipeToLevel(level);
-		if (CivGlobal.trommelsEnabled) this.transmuter.run();
+		this.addTromelRecipe(level);
+		if (CivGlobal.trommelsEnabled) this.transmuter.start();
+	}
+
+	public void addTromelRecipe(Integer level) {
+		switch (level) {
+		case 0:
+			break;
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+			this.transmuter.addRecipe("trommel_clay");
+			this.transmuter.addRecipe("trommel_cobblestone");
+			this.transmuter.addRecipe("trommel_granit");
+			this.transmuter.addRecipe("trommel_diorit");
+			this.transmuter.addRecipe("trommel_andesit");
+			break;
+		default:
+			break;
+		}
 	}
 
 }

@@ -1844,24 +1844,24 @@ materials:
               - "pcp"
               - "lpl"
 # Tools =============================================================
-        # - id: 'mat_vanilla_wod_pickaxe'
-          # item_id: '274:0'
-          # name: 'Stone Pickaxe'
-          # category: '<blue>Tools'
-          # components:
-              # - name: 'Attack'
-                # value: '0.5'
-              # - name: 'RepairCost'
-                # value: '100.0'
-          # ingredients:
-              # - ingred_id: '280:0'
-                # letter: 's'
-              # - ingred_id: '4:0'
-                # letter: 'm' 
-          # shape:
-              # - "mmm"
-              # - " s "
-              # - " s "
+        - id: 'mat_vanilla_wod_pickaxe'
+          item_id: '270:0'
+          name: 'Wooden Pickaxe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '50.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '5:-1'
+                letter: 'm' 
+          shape:
+              - "mmm"
+              - " s "
+              - " s "
               
         - id: 'mat_vanilla_stone_pickaxe'
           item_id: '274:0'
@@ -1901,25 +1901,6 @@ materials:
               - " s "
               - " s "
         
-        - id: 'mat_vanilla_gold_pickaxe'
-          item_id: '285:0'
-          name: 'Gold Pickaxe'
-          category: '<blue>Tools'
-          components:
-              - name: 'Attack'
-                value: '0.5'
-              - name: 'RepairCost'
-                value: '500.0'
-          ingredients:
-              - ingred_id: '280:0'
-                letter: 's'
-              - ingred_id: '266:0'
-                letter: 'm' 
-          shape:
-              - "mmm"
-              - " s "
-              - " s "
-
         - id: 'mat_vanilla_diamond_pickaxe'
           item_id: '278:0'
           name: 'Diamond Pickaxe'
@@ -1938,7 +1919,45 @@ materials:
               - "mmm"
               - " s "
               - " s "
-              
+
+        - id: 'mat_vanilla_wod_shovel'
+          item_id: '269:0'
+          name: 'Wooden Shovel'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '50.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '5:-1'
+                letter: 'm' 
+          shape:
+              - " m "
+              - " s "
+              - " s "
+ 
+        - id: 'mat_vanilla_stone_shovel'
+          item_id: '273:0'
+          name: 'Stone Shovel'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '100.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '4:0'
+                letter: 'm' 
+          shape:
+              - " m "
+              - " s "
+              - " s "
+                           
         - id: 'mat_vanilla_iron_shovel'
           item_id: '256:0'
           name: 'Iron Shovel'
@@ -1958,25 +1977,6 @@ materials:
               - " s "
               - " s "
         
-        - id: 'mat_vanilla_gold_shovel'
-          item_id: '284:0'
-          name: 'Gold Shovel'
-          category: '<blue>Tools'
-          components:
-              - name: 'Attack'
-                value: '0.5'
-              - name: 'RepairCost'
-                value: '100.0'
-          ingredients:
-              - ingred_id: '280:0'
-                letter: 's'
-              - ingred_id: '266:0'
-                letter: 'm' 
-          shape:
-              - " m "
-              - " s "
-              - " s "
-
         - id: 'mat_vanilla_diamond_shovel'
           item_id: '277:0'
           name: 'Diamond Shovel'
@@ -1995,6 +1995,45 @@ materials:
               - " m "
               - " s "
               - " s "
+
+        - id: 'mat_vanilla_wod_axe'
+          item_id: '271:0'
+          name: 'Wooden Axe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '50.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '5:-1'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - "ms "
+              - " s "
+
+        - id: 'mat_vanilla_stone_axe'
+          item_id: '275:0'
+          name: 'Stone Axe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '100.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '4:0'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - "ms "
+              - " s "
+              
         - id: 'mat_vanilla_iron_axe'
           item_id: '258:0'
           name: 'Iron Axe'
@@ -2014,25 +2053,6 @@ materials:
               - "ms "
               - " s "
         
-        - id: 'mat_vanilla_gold_axe'
-          item_id: '286:0'
-          name: 'Gold Axe'
-          category: '<blue>Tools'
-          components:
-              - name: 'Attack'
-                value: '0.5'
-              - name: 'RepairCost'
-                value: '200.0'
-          ingredients:
-              - ingred_id: '280:0'
-                letter: 's'
-              - ingred_id: '266:0'
-                letter: 'm' 
-          shape:
-              - "mm "
-              - "ms "
-              - " s "
-
         - id: 'mat_vanilla_diamond_axe'
           item_id: '279:0'
           name: 'Diamond Axe'
@@ -2051,11 +2071,48 @@ materials:
               - "mm "
               - "ms "
               - " s "
+              
+        - id: 'mat_vanilla_wod_hoe'
+          item_id: '290:0'
+          name: 'Wooden Hoe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '50.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '5:-1'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - " s "
+              - " s "
+              
+        - id: 'mat_vanilla_stone_hoe'
+          item_id: '291:0'
+          name: 'Stone Hoe'
+          category: '<blue>Tools'
+          components:
+              - name: 'Attack'
+                value: '0.5'
+              - name: 'RepairCost'
+                value: '100.0'
+          ingredients:
+              - ingred_id: '280:0'
+                letter: 's'
+              - ingred_id: '4:-1'
+                letter: 'm' 
+          shape:
+              - "mm "
+              - " s "
+              - " s "              
 
         - id: 'mat_vanilla_iron_hoe'
           item_id: '292:0'
           name: 'Iron Hoe'
-          vanilla: true
           category: '<blue>Tools'
           components:
               - name: 'Attack'
@@ -2072,30 +2129,9 @@ materials:
               - " s "
               - " s "
         
-        - id: 'mat_vanilla_gold_hoe'
-          item_id: '294:0'
-          name: 'Gold Hoe'
-          vanilla: true
-          category: '<blue>Tools'
-          components:
-              - name: 'Attack'
-                value: '0.5'
-              - name: 'RepairCost'
-                value: '200.0'
-          ingredients:
-              - ingred_id: '280:0'
-                letter: 's'
-              - ingred_id: '266:0'
-                letter: 'm' 
-          shape:
-              - "mm "
-              - " s "
-              - " s "
-
         - id: 'mat_vanilla_diamond_hoe'
           item_id: '293:0'
           name: 'Diamond Hoe'
-          vanilla: true
           category: '<blue>Tools'
           components:
               - name: 'Attack'
@@ -2304,39 +2340,53 @@ removed_recipes:
     - type_id: 322
       data: 0
 
-    # Pickaxes
-    - type_id: 257
-      data: 0
-    - type_id: 274
-      data: 0
-    - type_id: 278
-      data: 0
-    - type_id: 285
-      data: 0
-    
     # Shovels
-    - type_id: 256
+    - type_id: 269
+      data: 0
+    - type_id: 273
       data: 0
     - type_id: 284
+      data: 0  
+    - type_id: 256
       data: 0
     - type_id: 277
       data: 0
 
+    # Pickaxes
+    - type_id: 270
+      data: 0
+    - type_id: 274
+      data: 0
+    - type_id: 285
+      data: 0  
+    - type_id: 257
+      data: 0
+    - type_id: 278
+      data: 0
+    
     # Axes
-    - type_id: 258
+    - type_id: 271
+      data: 0
+    - type_id: 275
       data: 0
     - type_id: 286
+      data: 0  
+    - type_id: 258
       data: 0
     - type_id: 279
       data: 0
       
     # Hoe
-#    - type_id: 292
-#      data: 0
-#    - type_id: 294
-#      data: 0
-#    - type_id: 293
-#      data: 0
+    - type_id: 290
+      data: 0
+    - type_id: 291
+      data: 0
+    - type_id: 292
+      data: 0  
+    - type_id: 293
+      data: 0
+    - type_id: 294
+      data: 0
         
     # TNT
     - type_id: 46

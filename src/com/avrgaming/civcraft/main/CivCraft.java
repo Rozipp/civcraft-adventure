@@ -23,6 +23,7 @@ import pvptimer.PvPListener;
 import pvptimer.PvPTimer;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.endgame.EndConditionNotificationTask;
@@ -46,9 +47,7 @@ import com.avrgaming.civcraft.structurevalidation.StructureValidationPunisher;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.*;
 import com.avrgaming.civcraft.threading.tasks.ArrowProjectileTask;
-import com.avrgaming.civcraft.threading.tasks.ChangePlayerTime;
 import com.avrgaming.civcraft.threading.tasks.ProjectileComponentTimer;
-import com.avrgaming.civcraft.threading.tasks.ValidateAll;
 import com.avrgaming.civcraft.threading.timers.*;
 import com.avrgaming.civcraft.trade.TradeInventoryListener;
 import com.avrgaming.civcraft.units.UnitInventoryListener;
@@ -120,12 +119,6 @@ public final class CivCraft extends JavaPlugin {
 		initCommands();
 
 		registerEvents();
-		// XXX HoloDisp Выключено
-		// this.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-		// HoloDispListener.clearHolos();
-		// HoloDispListener.tradeGoodHolo();
-		// return;
-		// });
 
 		startTimers();
 	}
@@ -145,7 +138,8 @@ public final class CivCraft extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
+		Transmuter.stopAllTransmuter();
 		TaskMaster.stopAll();
 		MobStatic.despawnAll();
 //		HandlerList.unregisterAll(this);
@@ -227,8 +221,8 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), TimeTools.toTicks(1));
 		// TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
-		TaskMaster.syncTimer("ValidateAll", new ValidateAll(), TimeTools.toTicks(10800L));
-		TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
+		//XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный
+		//TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
 	}
 
 	private void registerEvents() {

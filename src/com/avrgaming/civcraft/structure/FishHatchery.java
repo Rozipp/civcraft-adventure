@@ -77,7 +77,7 @@ public class FishHatchery extends Structure {
 	}
 
 	public double getChance(double chance) {
-		return this.modifyTransmuterChance(chance);
+		return chance;
 	}
 
 	@Override

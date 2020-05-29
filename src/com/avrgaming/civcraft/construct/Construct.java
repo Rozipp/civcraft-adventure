@@ -290,7 +290,8 @@ public abstract class Construct extends SQLObject {
 			}
 		}
 		double highestAverageBlock = (double) yTotal / (double) yCount;
-		if (getCorner().getY() > (highestAverageBlock + 15) || getCorner().getY() < (highestAverageBlock - 15)) {
+		double floorLevel = getCorner().getY() - getTemplateYShift() - highestAverageBlock;
+		if (floorLevel > 15 || floorLevel < -15) {
 			throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
 		}
 
@@ -300,7 +301,7 @@ public abstract class Construct extends SQLObject {
 		}
 	}
 
-	public void repairFromTemplate(){
+	public void repairFromTemplate() {
 		Template tpl = this.getTemplate();
 		HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
 		Block centerBlock = this.getCorner().getBlock();
@@ -841,10 +842,6 @@ public abstract class Construct extends SQLObject {
 
 	public boolean isCanRestoreFromTemplate() {
 		return true;
-	}
-
-	public double modifyTransmuterChance(Double chance) {
-		return chance;
 	}
 
 }

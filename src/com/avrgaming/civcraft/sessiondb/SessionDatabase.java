@@ -107,8 +107,6 @@ public class SessionDatabase {
 		}
 		entries.add(se);
 		
-		//Fire async add to DB.
-		//BukkitObjects.scheduleAsyncDelayedTask(new SessionDBAsyncOperation(Operation.ADD, Database.GAME, tb_prefix, se), 0);
 		SessionAsyncRequest request = new SessionAsyncRequest(Operation.ADD, Database.GAME, tb_prefix, se);
 		request.queue();
 		return true;

@@ -78,7 +78,7 @@ public abstract class CustomMaterial {
 		if (mid == null) return "";
 		return mid.toLowerCase();
 	}
-
+	
 	// ----------CustomMaterial
 	public static CustomMaterial getCustomMaterial(ItemStack stack) {
 		if (stack == null) return null;

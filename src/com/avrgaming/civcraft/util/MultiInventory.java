@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.SourceItem;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
@@ -176,15 +178,13 @@ public class MultiInventory {
 		int count = amount;
 		for (Inventory inv : invs) {
 			for (ItemStack item : inv.getContents()) {
-				if (!ItemManager.isCorrectItemStack(item, mid, type, data)) {
-					continue;
-				}
+				if (!ItemManager.isCorrectItemStack(item, mid, type, data)) continue;
 
-				//Three possibilities, 
-				//     1) This item stack has more than we are looking for. So we add a new item stack to the hashmap, with the size
-				//        for the amount we want to remove. Break, and it will then be removed.
-				//     2) This item stack is exactly equal to the amount we want removed. Add it to the hashmap, and break.
-				//     3) This item is NOT large enough for what we want, update the count, add it to the hashmap and keep looking.
+				// Three possibilities,
+				// 1) This item stack has more than we are looking for. So we add a new item stack to the hashmap, with the size
+				// for the amount we want to remove. Break, and it will then be removed.
+				// 2) This item stack is exactly equal to the amount we want removed. Add it to the hashmap, and break.
+				// 3) This item is NOT large enough for what we want, update the count, add it to the hashmap and keep looking.
 
 				if (item.getAmount() > count) {
 					toBeRemoved.add(new ItemInvPair(inv, mid, type, data, count));
@@ -206,7 +206,7 @@ public class MultiInventory {
 		if (count != 0) return false;
 
 		// We now have a hashmap full of items to remove.
-		//<Integer, ItemStack> leftovers = new HashMap<Integer, ItemStack>();
+		// <Integer, ItemStack> leftovers = new HashMap<Integer, ItemStack>();
 		int totalActuallyRemoved = 0;
 		for (ItemInvPair invPair : toBeRemoved) {
 			Inventory inv = invPair.inv;
@@ -239,42 +239,56 @@ public class MultiInventory {
 		return removeItem(null, typeid, (short) 0, amount, false);
 	}
 
-	public boolean contains(String mid, int type, short data, int amount) {
+	public boolean foundElement(SourceItem si, ArrayList<FoundElement> foundElements) {
+		Integer count = si.count;
+		for (Inventory sInv : this.invs) {
+			FoundElement fElement = new FoundElement();
+			// находим в каком слоте лежит нужный предмет
+			for (int j = 0; j < sInv.getSize(); j++) {
+				ItemStack st = sInv.getItem(j);
+				if (st == null) continue;
+				for (String umid : si.items)
+					if (ItemManager.isCorrectItemStack(st, umid)) {
+						fElement.sInv = sInv;
+						fElement.stack = st;
+						fElement.slot = j;
+						if (st.getAmount() <= count) {
+							fElement.count = st.getAmount();
+							fElement.foolStack = true;
+							count = count - st.getAmount();
+						} else {
+							fElement.count = count;
+							count = 0;
+						}
+						foundElements.add(fElement);
+						if (count == 0) return true;
+					}
+			}
+		}
+		return false;
+	}
 
+	public boolean contains(String mid, int type, short data, int amount) {
 		int count = 0;
 		for (Inventory inv : invs) {
 			for (ItemStack item : inv.getContents()) {
-				if (item == null) {
-					continue;
-				}
-
+				if (item == null) continue;
 				if (mid != null) {
 					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(item);
-					if (craftMat == null) {
-						continue;
-					}
-
-					if (!craftMat.getConfigId().equals(mid)) {
-						continue;
-					}
+					if (craftMat == null) continue;
+					if (!craftMat.getConfigId().equals(mid)) continue;
 				} else {
 					/* Vanilla item. */
-					if (ItemManager.getTypeId(item) != type) {
-						continue;
-					}
+					if (ItemManager.getTypeId(item) != type) continue;
 
 					/* Only check the data if this item doesnt use durability. */
 					if (ItemManager.getMaterial(type).getMaxDurability() == 0) {
-						if (ItemManager.getData(item) != data) {
-							continue;
-						}
+						if (ItemManager.getData(item) != data) continue;
 					}
 				}
 
 				count += item.getAmount();
-				if (count >= amount) {
-					break;
-				}
+				if (count >= amount) break;
 			}
 		}
 
@@ -287,7 +301,7 @@ public class MultiInventory {
 		for (Inventory inv : invs) {
 			size += inv.getContents().length;
 		}
-		
+
 		ItemStack[] array = new ItemStack[size];
 
 		for (Inventory inv : invs) {
@@ -300,24 +314,19 @@ public class MultiInventory {
 		return this.invs.size();
 	}
 
-//	public boolean contains(LoreMaterial loreMaterial) {
-//		
-//		boolean found = false;
-//		for (Inventory inv : this.invs) {
-//			for (ItemStack stack : inv.getContents()) {
-//				if (stack == null) {
-//					continue;
-//				}
-//				
-//				LoreMaterial loreMat = LoreMaterial.getMaterial(stack);
-//				if (loreMat == loreMaterial) {
-//					found = true;
-//					break;
-//				}
-//			}
-//		}
-//		
-//		return found;
-//	}
+	public boolean isFool() {
+		for (Inventory inv : invs)
+			for (ItemStack stack : inv)
+				if (stack == null || stack.getType() == Material.AIR) return false;
+		return true;
+	}
+
+	public int getMaxSize() {
+		int size = 0;
+		for (Inventory i : invs) {
+			size = size + i.getSize();
+		}
+		return size;
+	}
 
 }

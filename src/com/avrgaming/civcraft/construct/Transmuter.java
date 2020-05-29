@@ -1,87 +1,96 @@
 package com.avrgaming.civcraft.construct;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.bukkit.scheduler.BukkitTask;
-
-import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.TaskMaster;
 
 public class Transmuter {
 
-	public ReentrantLock lock = new ReentrantLock();
-	private List<ConfigTransmuterRecipe> cTranRs = new ArrayList<>();
-	long delay = 1000;
-	private Construct construct;
+	private TransmuterAsyncTimer task;
+	@SuppressWarnings("unused")
 	private String name = "";
+	public Double modifyChance = 1.0;
 
 	public Transmuter(Construct construct) {
-		this.construct = construct;
+		task = new TransmuterAsyncTimer(construct, this);
+		Transmuter.transmuters.add(this);
 	}
 
 	public Transmuter(Construct construct, String name) {
-		this.construct = construct;
 		this.name = name;
+		task = new TransmuterAsyncTimer(construct, this);
+		Transmuter.transmuters.add(this);
 	}
 
 	public void addRecipe(String s) {
-		ConfigTransmuterRecipe ctr = CivSettings.transmuterRecipes.get(s);
-		if (ctr != null) {
-			this.cTranRs.add(ctr);
-			calcDelay();
-		}
+		TaskMaster.asyncTask(new Runnable() {
+			@Override
+			public void run() {
+				task.addRecipe(s);
+			}
+		}, 2);
 	}
 
-	public void setRecipe(String[] ss) {
-		this.cTranRs.clear();
+	public void setRecipe(String... ss) {
+		clearRecipe();
 		for (String s : ss)
 			addRecipe(s);
 	}
 
-	public void setRecipe(String s) {
-		this.cTranRs.clear();
-		addRecipe(s);
+	public void clearRecipe() {
+		TaskMaster.asyncTask(new Runnable() {
+			@Override
+			public void run() {
+				task.clearRecipe();
+			}
+		}, 1);
 	}
 
-	public List<ConfigTransmuterRecipe> getTransmuterRecipe() {
-		return cTranRs;
-	}
-
-	public void addAllRecipeToLevel(int level) {
-		addAllRecipeToLevel(construct.getClass().getSimpleName().toLowerCase(), level);
-	}
-
-	public void addAllRecipeToLevel(String name, int level) {
-		this.cTranRs.clear();
-		for (int i = 1; i <= level; i++) {
-			addRecipe(name + i);
-		}
-	}
-
-	public void run() {
-		if (cTranRs.isEmpty()) return;
-		BukkitTask timer = TaskMaster.getTimer(this.toString());
-		if (timer == null || timer.isCancelled()) TaskMaster.asyncTimer(this.toString(), new TransmuterAsyncTimer(construct, this), delay * 20);
+	public void start() {
+		TaskMaster.asyncTask(new Runnable() {
+			@Override
+			public void run() {
+				if (!task.isFinished()) task.stop();
+				TaskMaster.asyncTask(task, 20);
+			}
+		}, 1);
 	}
 
 	public void stop() {
-		BukkitTask timer = TaskMaster.getTimer(this.toString());
-		if (timer != null) timer.cancel();
+		task.stop();
 	}
 
-	private void calcDelay() {
-		int min = Integer.MAX_VALUE;
-		for (ConfigTransmuterRecipe ctr : cTranRs) {
-			if (min > ctr.delay) min = ctr.delay;
+	// --------------- static
+	private static Set<Transmuter> transmuters = new HashSet<>();
+
+	public static void pauseAllTransmuter() {
+		int count = 0;
+		for (Transmuter tr : Transmuter.transmuters) {
+			tr.stop();
+			count++;
 		}
-		this.delay = (min < 1) ? 1 : min;
+		CivLog.info("Paused " + count + " transmuters");
 	}
 
-	@Override
-	public String toString() {
-		return "transmuter:" + construct.getCorner().toString() + name;
+	public static void resumeAllTransmuter() {
+		int count = 0;
+		for (Transmuter tr : Transmuter.transmuters) {
+			tr.start();
+			count++;
+		}
+		CivLog.info("Resume " + count + " transmuters");
 	}
+
+	public static void stopAllTransmuter() {
+		int count = 0;
+		for (Transmuter tr : Transmuter.transmuters) {
+			tr.stop();
+			count++;
+		}
+		Transmuter.transmuters.clear();
+		CivLog.info("Stoped " + count + " transmuters");
+	}
+
 }

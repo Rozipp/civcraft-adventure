@@ -161,7 +161,7 @@ public class ItemManager {
 	public static void sendBlockChange(Player player, Location loc, int type, int data) {
 		player.sendBlockChange(loc, type, (byte) data);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public static void sendBlockChange(Player player, Location loc, Material material, int data) {
 		player.sendBlockChange(loc, material, (byte) data);
@@ -214,9 +214,9 @@ public class ItemManager {
 			NBTTagCompound civcraftCompound = nmsStack.getTag().getCompound("civcraft");
 			if (civcraftCompound != null) {
 				NBTTagString strTag = (NBTTagString) civcraftCompound.get(key);
-				if (strTag != null) return strTag.toString().replace("\"", ""); 
+				if (strTag != null) return strTag.toString().replace("\"", "");
 			}
-		} 
+		}
 		return null;
 	}
 
@@ -241,30 +241,26 @@ public class ItemManager {
 		return CraftItemStack.asCraftMirror(nmsStack);
 	}
 
-	/**
-	 * Сравнивает ItemStack с umid предмета umid может быть: 1) число_тип:число_дата предмета (пример 15:0) 2) mid CustomMaterial 3) Число тип
-	 * 4) название материала (например Material.AIR)
-	 */
+	/** Сравнивает ItemStack с umid предмета umid может быть: 1) число_тип:число_дата предмета (пример 15:0) 2) mid CustomMaterial 3) Число тип
+	 * 4) название материала (например Material.AIR) */
 	public static boolean isCorrectItemStack(ItemStack stack, String umid) {
-		if (umid.contains(":")) {
-			String[] spl = umid.split(":");
-			try {
-				return isCorrectItemStack(stack, null, Integer.parseInt(spl[0]), Short.parseShort(spl[1]));
-			} catch (NumberFormatException e) {
-				CivLog.warning("isCorrectItemStack() \"" + umid + "\" is not material");
-				return false;
-			}
-		}
 		try {
-			Integer typeId = Integer.parseInt(umid);
-			return isCorrectItemStack(stack, null, typeId, (short) 0);
-		} catch (NumberFormatException e) {
-			try {
-				if (CustomMaterial.isCustomMaterial(stack)) return isCorrectItemStack(stack, umid, 0, (short) 0);
-				return stack.getType().equals(Material.valueOf(umid.toUpperCase()));
-			} catch (IllegalArgumentException e1) {
-				return false;
+			Material vanilaMat = Material.valueOf(umid.toUpperCase());
+			return vanilaMat.equals(stack.getType());
+		} catch (IllegalArgumentException e1) {
+			if (umid.contains(":")) {
+				String[] spl = umid.split(":");
+				try {
+					return isCorrectItemStack(stack, Integer.parseInt(spl[0]), Short.parseShort(spl[1]));
+				} catch (NumberFormatException e) {
+					CivLog.warning("isCorrectItemStack() \"" + umid + "\" is not material");
+					return false;
+				}
+			} else {
+				String gMID = CustomMaterial.getMID(stack);
+				if (!gMID.isEmpty()) return gMID.equals(umid.toLowerCase());
 			}
+			return false;
 		}
 	}
 
@@ -278,8 +274,15 @@ public class ItemManager {
 		} else {
 			if (ItemManager.getTypeId(stack) != type) return false;
 			/* Only check item data when max dura == 0. Otherwise item doesnt use data and it's the durability. */
-			return (ItemManager.getMaterial(type).getMaxDurability() == 0) && (ItemManager.getData(stack) == data); /* data didn't match, wrong item. */
+			return (ItemManager.getMaterial(type).getMaxDurability() == 0) && (data == -1 || ItemManager.getData(stack) == data); /* data didn't match, wrong item. */
 		}
+	}
+
+	public static boolean isCorrectItemStack(ItemStack stack, int type, short data) {
+		if (stack == null) return false;
+		if (ItemManager.getTypeId(stack) != type) return false;
+		/* Only check item data when max dura == 0. Otherwise item doesnt use data and it's the durability. */
+		return (ItemManager.getMaterial(type).getMaxDurability() == 0) && (data == -1 || ItemManager.getData(stack) == data); /* data didn't match, wrong item. */
 	}
 
 	public static void removeCustomItemFromInventory(Inventory inv, String mat, Integer amount) {
@@ -303,10 +306,8 @@ public class ItemManager {
 		return getTypeId(stack) + ":" + getData(stack);
 	}
 
-	/**
-	 * Ложит предмет в заданный слот. Если тот не пустой выбрасывает содержимое на пол. Moves an item stack off of this slot by trying to re-add
-	 * it to the inventory, if it fails, then we drop it on the ground.
-	 */
+	/** Ложит предмет в заданный слот. Если тот не пустой выбрасывает содержимое на пол. Moves an item stack off of this slot by trying to
+	 * re-add it to the inventory, if it fails, then we drop it on the ground. */
 	public static void putItemToSlot(Player player, Inventory inv, int slot, ItemStack newItem) {
 		ItemStack stack = inv.getItem(slot);
 		inv.setItem(slot, newItem);
@@ -329,6 +330,6 @@ public class ItemManager {
 	}
 
 	public static boolean isPresent(final ItemStack item) {
-        return item != null && item.getType() != Material.AIR;
-    }
+		return item != null && item.getType() != Material.AIR;
+	}
 }

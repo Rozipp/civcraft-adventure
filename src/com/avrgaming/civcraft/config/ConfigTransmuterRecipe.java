@@ -4,24 +4,24 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivLog;
 
 public class ConfigTransmuterRecipe {
 
 	public String id;
-	public Integer delay = 0;
+	public Integer delay = 1;
 	public String resultChest;
-	public LinkedList<SourceItem> sourceItems = new LinkedList<SourceItem>();
+	public SourceItem sourceItem;
 	public LinkedList<ResultItem> resultItems = new LinkedList<ResultItem>();
-	public ResultItem lastResultItems;
-	private Integer allRate = 0;
+	public LinkedList<ResultItem> resultOther = new LinkedList<>();
+	public Integer totalRate = 0;
 
 	public static class SourceItem {
-		public String[] item;
+		public String[] items;
 		public Integer count;
 		public String chest;
 	}
@@ -32,8 +32,8 @@ public class ConfigTransmuterRecipe {
 		public Integer rate;
 	}
 
-	public int getAllRate() {
-		return allRate;
+	public ResultItem getOther(Random rand) {
+		return resultOther.get(rand.nextInt(resultOther.size()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,53 +44,38 @@ public class ConfigTransmuterRecipe {
 			ConfigTransmuterRecipe ctr = new ConfigTransmuterRecipe();
 			Object obj;
 			ctr.id = (String) b.get("id");
-			ctr.delay = ((obj = b.get("delay")) == null) ? 0 : (Integer) obj;
+			ctr.delay = ((obj = b.get("delay")) == null) ? 1 : (Integer) obj;
+			if (ctr.delay < 1) ctr.delay = 1;
 			ctr.resultChest = (String) b.get("result_chest");
-			List<Map<?, ?>> configSourceItems = (List<Map<?, ?>>) b.get("source_item");
-			try {
-				if (configSourceItems != null) {
-					for (Map<?, ?> ingred : configSourceItems) {
-						SourceItem sourceItem = new SourceItem();
-						String source_item = (String) ingred.get("item");
-						if (source_item == null) throw new CivException("ConfigTransmuterRecipe sourceItem.item = null in recipe " + ctr.id);
-						String[] source_item_split = source_item.split(",");
-						// for (String s : source_item_split)
-						// if (ItemManager.createItemStack(s, 1) == null) {
-						// throw new CivException("ConfigTransmuterRecipe can not create sourceItem " + sourceItem.item + " in recipe " + ctr.id);
-						// }
-						sourceItem.item = source_item_split;
-						sourceItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
-						sourceItem.chest = (String) ingred.get("chest");
-						ctr.sourceItems.add(sourceItem);
-					}
-				}
-			} catch (CivException e) {
-				CivLog.error(e.getMessage());
-				continue;
-			}
+			ctr.totalRate = (Integer) b.get("total_rate");
+
+			ctr.sourceItem = new SourceItem();
+			ctr.sourceItem.chest = (String) b.get("source_chest");
+			String source_item = (String) b.get("source_item");
+			ctr.sourceItem.items = source_item.split(",");
+			ctr.sourceItem.count = ((obj = b.get("source_count")) == null) ? 1 : (Integer) obj;
+
 			List<Map<?, ?>> configResultItems = (List<Map<?, ?>>) b.get("result_item");
-			int max_rate = 0;
-			ResultItem max_rate_item = null;
 			if (configResultItems != null) {
 				for (Map<?, ?> ingred : configResultItems) {
 					ResultItem resultItem = new ResultItem();
 					resultItem.item = (String) ingred.get("item");
 					resultItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
 					resultItem.rate = (Integer) ingred.get("rate");
-					if (max_rate < resultItem.rate) {
-						max_rate = resultItem.rate;
-						max_rate_item = resultItem;
-					}
 					ctr.resultItems.add(resultItem);
 				}
 			}
-			// результат с самым большым шансом нужен для организации повышения шанса других предметов
-			ctr.resultItems.remove(max_rate_item);
-			ctr.lastResultItems = max_rate_item;
-			int allRate = max_rate;
-			for (ResultItem ri : ctr.resultItems)
-				allRate = allRate + ri.rate;
-			ctr.allRate = allRate;
+
+			String result_other_string = (String) b.get("result_other");
+
+			for (String ss : result_other_string.split(",")) {
+				ResultItem resultItem = new ResultItem();
+				resultItem.item = ss.trim();
+				resultItem.count = 1;
+				resultItem.rate = 0;
+				ctr.resultOther.add(resultItem);
+			}
+
 			transmuterRecipes.put(ctr.id, ctr);
 		}
 

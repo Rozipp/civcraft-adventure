@@ -1620,6 +1620,7 @@ structures:
 
   - id: ti_silkworm_farm
     template: silkwormfarm
+    template_y_shift: -1
     displayName: Silkworm Farm
     require_tech: 'tech_monopoly'
     gui_item_id: 340

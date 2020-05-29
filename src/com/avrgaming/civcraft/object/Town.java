@@ -1669,10 +1669,10 @@ public class Town extends SQLObject {
 		int needClaim = 0;
 		for (ChunkCoord cc : chunks) {
 			TownChunk tc = CivGlobal.getTownChunk(cc);
-			if (tc == null || tc.getTown() == this)
+			if (tc == null)
 				needClaim++;
 			else
-				throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown().getName());
+				if (tc.getTown() != this) throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown().getName());
 		}
 		if (getTownChunks().size() + needClaim > getMaxPlots())
 			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
@@ -1793,7 +1793,6 @@ public class Town extends SQLObject {
 	}
 
 	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
-		checkIsTownCanBuildStructure(buildable);
 		BlockCoord corner = buildable.getCorner();
 		if (this.wonders.size() >= 2) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit2"));
 		if (!corner.getWorldname().equals("world")) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_NotOverworld"));
@@ -1812,6 +1811,19 @@ public class Town extends SQLObject {
 				throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneWonderAtaTime"));
 		}
 
+		ArrayList<ChunkCoord> chunks = BuildableStatic.getChunkCoords(buildable);
+		int needClaim = 0;
+		for (ChunkCoord cc : chunks) {
+			TownChunk tc = CivGlobal.getTownChunk(cc);
+			if (tc == null)
+				needClaim++;
+			else
+				if (tc.getTown() != this) throw new CivException("Один из чанков, которые займёт зданием, пренадлежит городу " + tc.getTown().getName());
+		}
+		if (getTownChunks().size() + needClaim > getMaxPlots())
+			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
+					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
+		
 		if (CivGlobal.isCasualMode()) {
 			/* Check for a wonder already in this civ. */
 			for (Town town : this.getCiv().getTowns()) {

@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Cannon;
+import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.WarCamp;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.DisableTeleportEvent;
@@ -48,6 +49,7 @@ import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.PlayerKickBan;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.TimeTools;
 
 public class War {
 
@@ -176,6 +178,7 @@ public class War {
 			CivGlobal.quarriesEnabled = true;
 			CivGlobal.tradeEnabled = true;
 			CivGlobal.fisheryEnabled = true;
+			Transmuter.resumeAllTransmuter();
 
 			/* Delete any wartime file used to prevent reboots. */
 			File file = new File("wartime");
@@ -194,7 +197,7 @@ public class War {
 			for (Civilization civ : CivGlobal.getCivs()) {
 				civ.onWarEnd();
 			}
-
+			TaskMaster.syncTimer("ValidateWarPlayer", new ValidateWarPlayer(), TimeTools.toTicks(10800L));
 		} else {
 			DisableTeleportEvent.disableTeleport();
 
@@ -225,11 +228,13 @@ public class War {
 			CivGlobal.quarriesEnabled = false;
 			CivGlobal.tradeEnabled = false;
 			CivGlobal.fisheryEnabled = false;
+			Transmuter.pauseAllTransmuter();
 
 			Calendar endCal = Calendar.getInstance();
 			endCal.add(Calendar.MINUTE, mins);
 
 			War.setEnd(endCal.getTime());
+			TaskMaster.cancelTimer("ValidateWarPlayer");
 		}
 
 		War.warTime = warTime;
