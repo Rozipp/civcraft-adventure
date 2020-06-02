@@ -161,34 +161,6 @@ tesla_tower:
     # Defined in number of half-seconds to delay. Higher numbers is lower fire rate.
     fire_rate: 6
 
-wall:
-   # Maximum height walls can be built at.
-   maximum_height: 200
-
-   # Height of a basic wall piece
-   height: 6
-
-   # Cost of a vertical segment
-   cost_per_segment: 50.0
-
-   max_segment: 300
-
-   recursion_limit: 350
-
-fortified_wall:
-   # Maximum height walls can be built at.
-   maximum_height: 200
-
-   # Height of a basic wall piece
-   height: 10
-
-   # Cost of a vertical segment
-   cost_per_segment: 100.0
-
-   max_segment: 300
-
-   recursion_limit: 350
-
 warcamp:
     # template for war camps.
     template: warcamp

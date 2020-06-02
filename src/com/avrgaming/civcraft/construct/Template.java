@@ -24,10 +24,10 @@ import java.util.Queue;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
@@ -40,6 +40,7 @@ import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import com.avrgaming.civcraft.util.SimpleBlock.Type;
 import com.google.common.collect.Sets;
 
 import lombok.Getter;
@@ -60,6 +61,9 @@ public class Template {
 	public ArrayList<SimpleBlock> commandBlockRelativeLocations = new ArrayList<SimpleBlock>();
 	public LinkedList<SimpleBlock> doorRelativeLocations = new LinkedList<SimpleBlock>();
 	public LinkedList<SimpleBlock> attachableLocations = new LinkedList<SimpleBlock>();
+
+	public Template() {
+	}
 
 	public Template(String filepath) throws IOException, CivException {
 		this.filepath = filepath;
@@ -85,6 +89,11 @@ public class Template {
 		size_z = Integer.valueOf(split[2]);
 		this.totalBlocks = 0;
 		SimpleBlock blocks[][][] = new SimpleBlock[size_x][size_y][size_z];
+		for (int x = 0; x < size_x; x++)
+			for (int y = 0; y < size_y; y++)
+				for (int z = 0; z < size_z; z++)
+					blocks[x][y][z] = new SimpleBlock("", x, y, z, 0, 0);
+		
 		// Read blocks from file.
 		while ((line = reader.readLine()) != null) {
 			String locTypeSplit[] = line.split(",");
@@ -93,19 +102,19 @@ public class Template {
 
 			// Parse location
 			String locationSplit[] = location.split(":");
-			int blockX, blockY, blockZ;
-			blockX = Integer.valueOf(locationSplit[0]);
-			blockY = Integer.valueOf(locationSplit[1]);
-			blockZ = Integer.valueOf(locationSplit[2]);
+			int blockX = Integer.valueOf(locationSplit[0]);
+			int blockY = Integer.valueOf(locationSplit[1]);
+			int blockZ = Integer.valueOf(locationSplit[2]);
 
 			// Parse type
 			String typeSplit[] = type.split(":");
-			int blockId, blockData;
-			blockId = Integer.valueOf(typeSplit[0]);
-			blockData = Integer.valueOf(typeSplit[1]);
+			int blockId = Integer.valueOf(typeSplit[0]);
+			int blockData = Integer.valueOf(typeSplit[1]);
 
 			if (blockId != 0) this.totalBlocks++;
-			SimpleBlock sblock = new SimpleBlock("", blockX, blockY, blockZ, blockId, blockData);
+			SimpleBlock sblock = blocks[blockX][blockY][blockZ];
+			sblock.setType(blockId);
+			sblock.setData(blockData);
 
 			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR || blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
 					|| blockId == CivData.DARK_OAK_DOOR) {
@@ -132,7 +141,9 @@ public class Template {
 									CivLog.warning("Invalid keyvalue:" + locTypeSplit[i] + " in template:" + this.filepath);
 									continue;
 								}
-								sblock.keyvalues.put(keyvalue[0].trim(), keyvalue[1].trim());
+								String key = keyvalue[0].trim();
+								String keyValue = keyvalue[1].trim();
+								if (!key.isEmpty()) sblock.keyvalues.put(key, keyValue);
 							}
 						}
 
@@ -158,6 +169,94 @@ public class Template {
 
 		this.blocks = blocks;
 		reader.close();
+	}
+
+	public void getBlocksWithWorld(Location loc, int sizeX, int sizeY, int sizeZ, String filepath) {
+		World world = loc.getWorld();
+		size_x = sizeX;
+		size_y = sizeY;
+		size_z = sizeZ;
+		this.filepath = filepath;
+
+		blocks = new SimpleBlock[size_x][size_y][size_z];
+		// Read blocks from file.
+		for (var z = 0; z < size_z; z++) {
+			for (var y = 0; y < size_y; y++) {
+				for (var x = 0; x < size_x; x++) {
+					Block block = world.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
+					int typeId = ItemManager.getTypeId(block);
+					int data = ItemManager.getData(block);
+					SimpleBlock sb = new SimpleBlock(world.getName(), x, y, z, typeId, data);
+
+					if (typeId == CivData.WOOD_DOOR || typeId == CivData.IRON_DOOR || typeId == CivData.SPRUCE_DOOR || typeId == CivData.BIRCH_DOOR || typeId == CivData.JUNGLE_DOOR || typeId == CivData.ACACIA_DOOR
+							|| typeId == CivData.DARK_OAK_DOOR) {
+						this.doorRelativeLocations.add(sb);
+					}
+
+					if (block.getState() instanceof Sign) {
+						Sign sign = (Sign) block.getState();
+						if (sign.getLine(0).charAt(0) == '/') {
+							sb.specialType = Type.COMMAND;
+							sb.command = sign.getLine(0);
+							for (int i = 1; i < 4; i++) {
+								String[] split = sign.getLine(i).split(":");
+								if (split.length < 2) continue;
+								String key = split[0];
+								if (key.isEmpty()) continue;
+								sb.keyvalues.put(key, split[1]);
+							}
+						} else {
+							for (int i = 0; i < 4; i++)
+								sb.message[i] = sign.getLine(i).replace(",", "");
+							sb.specialType = Type.LITERAL;
+						}
+					}
+
+					if (Template.isAttachable(typeId)) this.attachableLocations.add(sb);
+					blocks[x][y][z] = sb;
+				}
+			}
+		}
+
+	}
+
+	public void saveTemplate() throws CivException, IOException {
+		File templateFile = new File(this.filepath);
+		if (templateFile.exists()) throw new CivException("File " + this.filepath + " access deni");
+
+		templateFile.getParentFile().mkdirs();
+		FileWriter writer = new FileWriter(templateFile);
+
+		writer.write(this.size_x + ";" + this.size_y + ";" + this.size_z + "\n");
+
+		for (int x = 0; x < this.size_x; x++) {
+			for (int y = 0; y < this.size_y; y++) {
+				for (int z = 0; z < this.size_z; z++) {
+					SimpleBlock sb = blocks[x][y][z];
+					if (sb.getType() == 0) continue;
+					
+					String ss = x + ":" + y + ":" + z + "," + sb.getType() + ":" + sb.getData();
+					switch (sb.specialType) {
+					case NORMAL:
+						break;
+					case LITERAL:
+						for (String line : sb.message) {
+							ss += "," + line;
+						}
+						break;
+					case COMMANDDBG:
+					case COMMAND:
+						ss = ss + "," + sb.command;
+						for (String key : sb.keyvalues.keySet()) {
+							ss = ss + "," + key + ":" + sb.keyvalues.get(key);
+						}
+						break;
+					}
+					writer.write(ss + "\n");
+				}
+			}
+		}
+		writer.close();
 	}
 
 	public List<SimpleBlock> getBlocksForLayer(int y) {
@@ -407,25 +506,37 @@ public class Template {
 		sbs.clear();
 	}
 
-	public void debugBuildTemplateLayer(BlockCoord corner, int y, boolean attachable) {
+	public void buildTemplateDbg(BlockCoord corner) {
 		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
-		for (int x = 0; x < this.size_x; ++x) {
-			for (int z = 0; z < this.size_z; ++z) {
-				SimpleBlock sb = blocks[x][y][z];
-				if (Template.isAttachable(sb.getMaterial())) continue;
-				sbs.add(new SimpleBlock(corner, sb));
+		// Not Attachable blocks
+		for (int y = 0; y < this.size_y; ++y) {
+			for (int x = 0; x < this.size_x; ++x) {
+				for (int z = 0; z < this.size_z; ++z) {
+					SimpleBlock sb = this.blocks[x][y][z];
+					if (Template.isAttachable(sb.getMaterial())) continue;
+					sbs.add(new SimpleBlock(corner, sb));
+				}
 			}
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
 		// Attachable blocks
-		if (!attachable) return;
-		for (int x = 0; x < this.size_x; ++x) {
-			for (int z = 0; z < this.size_z; ++z) {
-				SimpleBlock sb = blocks[x][y][z];
-				if (!Template.isAttachable(sb.getMaterial())) continue;
-				sbs.add(new SimpleBlock(corner, sb));
+		for (int y = 0; y < this.size_y; ++y) {
+			for (int x = 0; x < this.size_x; ++x) {
+				for (int z = 0; z < this.size_z; ++z) {
+					SimpleBlock sb = this.blocks[x][y][z];
+					if (!Template.isAttachable(sb.getMaterial())) continue;
+					sbs.add(new SimpleBlock(corner, sb));
+				}
 			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
+
+		for (SimpleBlock sb : this.commandBlockRelativeLocations) {
+			SimpleBlock sbt = new SimpleBlock(corner, sb);
+			sbt.specialType = Type.COMMANDDBG;
+			sbs.add(sbt);
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();

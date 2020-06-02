@@ -43,7 +43,6 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
@@ -260,13 +259,11 @@ public abstract class Construct extends SQLObject {
 			}
 			if (CivGlobal.getBuildableAt(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("buildable_structureExistsHere"));
 			if (CivGlobal.getFarmChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
-			if (CivGlobal.getWallChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_wallInWay"));
 			if (CivGlobal.getConstructFromChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
 		}
 
 		int yTotal = 0;
 		int yCount = 0;
-		LinkedList<RoadBlock> deletedRoadBlocks = new LinkedList<RoadBlock>();
 		for (int x = 0; x < regionX; x++) {
 			for (int y = 0; y < regionY; y++) {
 				for (int z = 0; z < regionZ; z++) {
@@ -283,9 +280,6 @@ public abstract class Construct extends SQLObject {
 
 					BlockCoord coord = new BlockCoord(block);
 					if (CivGlobal.getConstructBlock(coord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
-
-					RoadBlock rb = CivGlobal.getRoadBlock(coord);
-					if (rb != null) deletedRoadBlocks.add(rb);
 				}
 			}
 		}
@@ -293,11 +287,6 @@ public abstract class Construct extends SQLObject {
 		double floorLevel = getCorner().getY() - getTemplateYShift() - highestAverageBlock;
 		if (floorLevel > 15 || floorLevel < -15) {
 			throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
-		}
-
-		/* Delete any road blocks we happen to come across. */
-		for (RoadBlock rb : deletedRoadBlocks) {
-			rb.getRoad().deleteRoadBlock(rb);
 		}
 	}
 

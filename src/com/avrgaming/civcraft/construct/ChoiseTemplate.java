@@ -17,7 +17,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -44,7 +43,7 @@ public class ChoiseTemplate implements CallbackInterface {
 		resident.undoPreview();
 		Set<Perk> perkList;
 		if (construct.getTown() != null)
-			perkList = construct.getTown().getTemplatePerks((Buildable) construct, resident, construct.getInfo());
+			perkList = construct.getTown().getTemplatePerks(resident, construct.getInfo());
 		else {
 			perkList = new HashSet<>();
 			for (Perk perk : Perk.staticPerks.values()) {

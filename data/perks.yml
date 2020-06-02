@@ -326,14 +326,6 @@ perks:
             template: 'town_hall'
             id: 's_townhall'
     
-    - id: 'tpl_turkish_fortified_wall'
-      display_name: 'Turkish Foritfied Wall Template'
-      item_id: 179
-      data: 1
-      components:
-          - name: 'CustomTemplate'
-            theme: 'turkish'
-            template: 'fortified_wall'
 ############ DEVELOPMENT THEME
     - id: 'tpl_slavic_bank'
       display_name: 'Slavic Bank Template'
@@ -609,16 +601,6 @@ perks:
             theme: 'arctic'
             template: 'store'
 
-    - id: 'tpl_arctic_fortified_wall'
-      display_name: 'Arctic Fortified Wall Template'
-      item_id: 79
-      data: 0
-      components:
-          - name: 'CustomTemplate'
-            theme: 'arctic'
-            template: 'fortified_wall'
-
-
 ############ AZTEC THEME
 
     - id: 'tpl_aztec_camp'
@@ -812,16 +794,6 @@ perks:
           - name: 'CustomTemplate'
             theme: 'aztec'
             template: 'store'
-
-    - id: 'tpl_aztec_fortified_wall'
-      display_name: 'Aztec Fortified Wall Template'
-      item_id: 98
-      data: 2
-      components:
-          - name: 'CustomTemplate'
-            theme: 'aztec'
-            template: 'fortified_wall'
-
 
 # ===== EGYPTIAN TEMPLATES
 
@@ -1017,15 +989,6 @@ perks:
             theme: 'egyptian'
             template: 'store'
 
-    - id: 'tpl_egyptian_fortified_wall'
-      display_name: 'Egyptian Fortified Wall Template'
-      item_id: 24
-      data: 2
-      components:
-          - name: 'CustomTemplate'
-            theme: 'egyptian'
-            template: 'fortified_wall'
-
 # ===== ROMAN TEMPLATES
 
     - id: 'tpl_roman_camp'
@@ -1219,15 +1182,6 @@ perks:
           - name: 'CustomTemplate'
             theme: 'roman'
             template: 'store'
-
-    - id: 'tpl_roman_fortified_wall'
-      display_name: 'Roman Fortified Wall Template'
-      item_id: 155
-      data: 2
-      components:
-          - name: 'CustomTemplate'
-            theme: 'roman'
-            template: 'fortified_wall'
 
 # ===== HELL TEMPLATES
     - id: 'tpl_hell_camp'
@@ -1449,15 +1403,6 @@ perks:
             theme: 'hell'
             template: 'store'
 
-    - id: 'tpl_hell_fortified_wall'
-      display_name: 'Hell Fortified Wall Template'
-      item_id: 87
-      data: 0
-      components:
-          - name: 'CustomTemplate'
-            theme: 'hell'
-            template: 'fortified_wall'
-
 # ===== Elven TEMPLATES
 
     - id: 'tpl_elven_camp'
@@ -1661,15 +1606,6 @@ perks:
             theme: 'elven'
             template: 'trade_outpost'
 
-    - id: 'tpl_elven_fortified_wall'
-      display_name: 'Elven Fortified Wall Template'
-      item_id: 18
-      data: 3
-      components:
-          - name: 'CustomTemplate'
-            theme: 'elven'
-            template: 'fortified_wall'
-
 # # ===== Cultist TEMPLATES
     - id: 'tpl_cultist_camp'
       display_name: 'Cultist Camp'
@@ -1872,15 +1808,6 @@ perks:
             theme: 'cultist'
             template: 'trade_outpost'
 
-    - id: 'tpl_cultist_fortified_wall'
-      display_name: 'Cultist Fortified Wall Template'
-      item_id: 397
-      data: 1
-      components:
-          - name: 'CustomTemplate'
-            theme: 'cultist'
-            template: 'fortified_wall'
-
 # # ===== Atlantean TEMPLATES
     - id: 'tpl_atlantean_camp'
       display_name: 'Atlantean Camp'
@@ -2082,15 +2009,6 @@ perks:
           - name: 'CustomTemplate'
             theme: 'atlantean'
             template: 'trade_outpost'
-
-    - id: 'tpl_atlantean_fortified_wall'
-      display_name: 'Atlantean Fortified Wall Template'
-      item_id: 169
-      data: 0
-      components:
-          - name: 'CustomTemplate'
-            theme: 'atlantean'
-            template: 'fortified_wall'
 
     - id: 'perk_haunted_camp'
       display_name: 'Haunted Camp'

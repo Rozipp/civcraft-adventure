@@ -8,7 +8,6 @@ public class FoundElement { // найденые в MultiInventory предмет
 	public Integer slot;
 	public ItemStack stack;
 	public Integer count;
-	public boolean foolStack = false;
 
 	public FoundElement() {
 

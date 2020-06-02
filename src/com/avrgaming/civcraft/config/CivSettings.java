@@ -48,7 +48,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.mythicmob.ConfigMobs;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
-import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.units.UnitStatic;
@@ -510,7 +509,6 @@ public class CivSettings {
 		SoundManager.loadConfig(soundConfig);
 
 		// CivGlobal.tradeGoodPreGenerator.preGenerate();
-		Wall.init_settings();
 	}
 
 	/** Список блоков, которые можно использовать */

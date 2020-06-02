@@ -42,7 +42,6 @@ public class BuildCommand extends CommandBase {
 		cs.add("list", "l", CivSettings.localize.localizedString("cmd_build_listDesc"));
 		cs.add("progress", "p", CivSettings.localize.localizedString("cmd_build_progressDesc"));
 		cs.add("repairnearest", CivSettings.localize.localizedString("cmd_build_repairnearestDesc"));
-		cs.add("undo", CivSettings.localize.localizedString("cmd_build_undoDesc"));
 		cs.add("demolish", CivSettings.localize.localizedString("cmd_build_demolishDesc"));
 		cs.add("demolishnearest", CivSettings.localize.localizedString("cmd_build_demolishnearestDesc"));
 		cs.add("refreshnearest", CivSettings.localize.localizedString("cmd_build_refreshnearestDesc"));
@@ -188,11 +187,6 @@ public class BuildCommand extends CommandBase {
 		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_build_demolishFormatError"));
 		}
-	}
-
-	public void undo_cmd() throws CivException {
-		Town town = getSelectedTown();
-		town.processUndoConstruct();
 	}
 
 	public void progress_cmd() throws CivException {

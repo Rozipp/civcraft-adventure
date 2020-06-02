@@ -239,7 +239,8 @@ public class MultiInventory {
 		return removeItem(null, typeid, (short) 0, amount, false);
 	}
 
-	public boolean foundElement(SourceItem si, ArrayList<FoundElement> foundElements) {
+	public ArrayList<FoundElement> foundElement(SourceItem si) {
+		ArrayList<FoundElement> foundElements = new ArrayList<>();
 		Integer count = si.count;
 		for (Inventory sInv : this.invs) {
 			FoundElement fElement = new FoundElement();
@@ -254,18 +255,17 @@ public class MultiInventory {
 						fElement.slot = j;
 						if (st.getAmount() <= count) {
 							fElement.count = st.getAmount();
-							fElement.foolStack = true;
 							count = count - st.getAmount();
 						} else {
 							fElement.count = count;
 							count = 0;
 						}
 						foundElements.add(fElement);
-						if (count == 0) return true;
+						if (count == 0) return foundElements;
 					}
 			}
 		}
-		return false;
+		return foundElements;
 	}
 
 	public boolean contains(String mid, int type, short data, int amount) {

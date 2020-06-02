@@ -862,6 +862,24 @@ materials:
               - "ppp"
               - "ppp"
               - "wpw"
+              
+        - id: 'mat_build_arrowpost'
+          item_id: '154:0'
+          name: 'War Arrowpost'
+          category: 'Special'
+          components:
+              - name: 'Build'
+                building: 'Arrowpost'
+              - name: 'NoRightClick'
+          ingredients:
+              - ingred_id: 'mat_cannon_barrel_part'
+                letter: 'p'
+              - ingred_id: 'mat_cannon_wheel'
+                letter: 'w'
+          shape:
+              - " p "
+              - "ppp"
+              - "wpw"      
 
 # T1 Leather Gear =========================================
         - id: 'mat_leather_helmet'

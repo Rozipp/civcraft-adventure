@@ -14,9 +14,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -31,14 +29,6 @@ public class BuildCallback implements CallbackInterface {
 	public BuildCallback(Player player, ConfigBuildableInfo sinfo, Town town) throws CivException {
 		this.player = player;
 		resident = CivGlobal.getResident(player);
-		if (sinfo.id.equalsIgnoreCase("s_road")) {
-			Road.newRoad(player, sinfo.id, town);
-			return;
-		}
-		if (sinfo.id.equalsIgnoreCase("s_wall")) {
-			Wall.newWall(player, sinfo.id, town);
-			return;
-		}
 
 		if (sinfo.id.equals("wonder_stock_exchange") && !town.canBuildStock(player)) {
 			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
@@ -60,7 +50,7 @@ public class BuildCallback implements CallbackInterface {
 		if (sinfo.isWonder)
 			buildable = Wonder.newWonder(player, location, sinfo.id, town);
 		else
-			buildable = Structure.newStructure(player, location, sinfo.id, town);
+			buildable = Structure.newStructure(player, location, sinfo.id, town,true);
 		buildable.replaceStructure = replaceStructure;
 		new ChoiseTemplate(player, buildable, this);
 	}

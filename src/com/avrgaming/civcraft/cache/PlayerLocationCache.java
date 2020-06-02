@@ -85,11 +85,6 @@ public class PlayerLocationCache {
 		
 		pc.getCoord().setFromLocation(player.getLocation());
 		pc.setDead(player.isDead());
-		
-		Resident resident = CivGlobal.getResident(player);
-		if (resident != null) {
-			resident.onRoadTest(pc.getCoord(), player);
-		}
 	}
 	
 	public static Collection<PlayerLocationCache> getCache() {

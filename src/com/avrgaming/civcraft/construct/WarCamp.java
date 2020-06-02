@@ -91,9 +91,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
-		int regionX = this.getTemplate().getSize_x();
 		int regionY = this.getTemplate().getSize_y();
-		int regionZ = this.getTemplate().getSize_z();
 
 		if (getCorner().getY() >= 200) throw new CivException(CivSettings.localize.localizedString("camp_checkTooHigh"));
 		if ((regionY + getCorner().getY()) >= 255) throw new CivException(CivSettings.localize.localizedString("camp_checkWayTooHigh"));
@@ -101,13 +99,6 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 		int minsLeft = this.isWarCampCooldownLeft();
 		if (minsLeft > 0) throw new CivException(CivSettings.localize.localizedString("var_warcamp_oncooldown", minsLeft));
 
-		for (int x = 0; x < regionX; x++) {
-			for (int y = 0; y < regionY; y++) {
-				for (int z = 0; z < regionZ; z++) {
-					if (CivGlobal.getRoadBlock(getCorner().getRelative(x, y, z)) != null) throw new CivException(CivSettings.localize.localizedString("warcamp_cannotBuildOnRoad"));
-				}
-			}
-		}
 		super.checkBlockPermissionsAndRestrictions(player);
 	}
 

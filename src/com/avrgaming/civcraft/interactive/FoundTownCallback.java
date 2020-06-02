@@ -57,7 +57,7 @@ public class FoundTownCallback implements CallbackInterface {
 
 		/* Build a preview for the Capitol structure. */
 
-		structure = Structure.newStructure(player, player.getLocation(), "s_townhall", null);
+		structure = Structure.newStructure(player, player.getLocation(), "s_townhall", null, true);
 
 		town = new Town(resident.getCiv());
 		town.checkCanCreatedTown(resident, structure);

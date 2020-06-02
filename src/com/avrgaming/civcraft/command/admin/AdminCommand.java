@@ -87,7 +87,6 @@ public class AdminCommand extends CommandBase {
 		cs.add("items", CivSettings.localize.localizedString("adcmd_itemsDesc"));
 		cs.add("item", CivSettings.localize.localizedString("adcmd_itemDesc"));
 		cs.add("timer", CivSettings.localize.localizedString("adcmd_timerDesc"));
-		cs.add("road", CivSettings.localize.localizedString("adcmd_roadDesc"));
 		cs.add("clearendgame", CivSettings.localize.localizedString("adcmd_clearEndGameDesc"));
 		cs.add("endworld", CivSettings.localize.localizedString("adcmd_endworldDesc"));
 		cs.add("perk", CivSettings.localize.localizedString("adcmd_perkDesc"));
@@ -323,11 +322,6 @@ public class AdminCommand extends CommandBase {
 		}
 
 		player.openInventory(spawnInventory);
-	}
-
-	public void road_cmd() {
-		AdminRoadCommand cmd = new AdminRoadCommand();
-		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
 	}
 
 	public void item_cmd() {

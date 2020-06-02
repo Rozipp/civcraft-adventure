@@ -25,21 +25,16 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.util.CivColor;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
-
 import gpl.AttributeUtil;
 import gpl.AttributeUtil.Attribute;
 import gpl.AttributeUtil.AttributeType;
@@ -361,22 +356,8 @@ public class UnitStatic {
 		/* Change move speed based on armor. */
 		double speed = UnitStatic.normal_speed;
 		Resident resident = CivGlobal.getResident(player);
-		Entity vehicleEntity = player.getVehicle();
 		if (resident != null) {
 			speed = resident.getWalkingModifier();
-			if (resident.isOnRoad()) {
-				if (vehicleEntity != null && vehicleEntity.getType().equals(EntityType.HORSE)) {
-					Vector vec = vehicleEntity.getVelocity();
-					double yComp = vec.getY();
-
-					vec.multiply(Road.ROAD_HORSE_SPEED);
-					vec.setY(yComp); /* Do not multiply y velocity. */
-
-					vehicleEntity.setVelocity(vec);
-				} else {
-					speed *= Road.ROAD_PLAYER_SPEED;
-				}
-			}
 		}
 
 		player.setWalkSpeed((float) Math.min(1.0f, speed));

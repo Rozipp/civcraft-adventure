@@ -145,21 +145,12 @@ public class GuiPage {
 				continue;
 			}
 			if (info.isAvailable(town)) {
-				if (!info.id.contains("road") && !info.id.contains("wall")) {
 					itemStack = LoreGuiItem.build(info.displayName, type, 0, "§6" + CivSettings.localize.localizedString("clicktobuild"), money_requ,
 							hammers_requ, upkeep_day);
 					itemStack = LoreGuiItem.setAction(itemStack, "BuildChooseTemplate");
 					itemStack = LoreGuiItem.setActionData(itemStack, "info", info.id);
 					inv.addItem(itemStack);
 					continue;
-				} else {
-					itemStack = LoreGuiItem.build(info.displayName, type, 0, money_requ, hammers_requ, upkeep_day,
-							"§6" + CivSettings.localize.localizedString("clicktobuild"));
-					itemStack = LoreGuiItem.setAction(itemStack, "BuildFromIdCr");
-					itemStack = LoreGuiItem.setActionData(itemStack, "buildableName", info.displayName);
-					inv.addItem(itemStack);
-					continue;
-				}
 			} else {
 				final ConfigBuildableInfo str = CivSettings.structures.get(info.require_structure);
 				if (str != null) {

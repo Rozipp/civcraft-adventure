@@ -68,7 +68,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TeslaTower;
 import com.avrgaming.civcraft.structure.Townhall;
@@ -165,7 +164,6 @@ public class Resident extends SQLObject {
 	private String lastIP = "";
 	private UUID uid;
 	private double walkingModifier = UnitStatic.normal_speed;
-	private boolean onRoad = false;
 	public String debugTown;
 
 	private String savedPrefix;
@@ -876,15 +874,6 @@ public class Resident extends SQLObject {
 			ItemManager.sendBlockChange(player, coord.getLocation(), sb.getType(), sb.getData());
 		}
 		this.previewUndo.clear();
-	}
-
-	public void onRoadTest(BlockCoord coord, Player player) {
-		/* Test the block beneath us for a road, if so, set the road flag. */
-		BlockCoord feet = new BlockCoord(coord);
-		feet.setY(feet.getY() - 1);
-		RoadBlock rb = CivGlobal.getRoadBlock(feet);
-
-		onRoad = rb != null;
 	}
 
 	public void giveTemplate(String name) {

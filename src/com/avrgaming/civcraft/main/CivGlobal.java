@@ -68,11 +68,8 @@ import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Market;
-import com.avrgaming.civcraft.structure.Road;
-import com.avrgaming.civcraft.structure.RoadBlock;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
-import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -124,8 +121,6 @@ public class CivGlobal {
 	private static Map<UUID, ItemFrameStorage> protectedItemFrames = new ConcurrentHashMap<UUID, ItemFrameStorage>();
 	private static Map<BlockCoord, BonusGoodie> bonusGoodies = new ConcurrentHashMap<BlockCoord, BonusGoodie>();
 	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
-	private static Map<ChunkCoord, HashSet<Wall>> wallChunks = new ConcurrentHashMap<ChunkCoord, HashSet<Wall>>();
-	private static Map<BlockCoord, RoadBlock> roadBlocks = new ConcurrentHashMap<BlockCoord, RoadBlock>();
 	private static Map<BlockCoord, CustomMapMarker> customMapMarkers = new ConcurrentHashMap<BlockCoord, CustomMapMarker>();
 	private static Map<String, Camp> camps = new ConcurrentHashMap<String, Camp>();
 	public static HashSet<BlockCoord> vanillaGrowthLocations = new HashSet<BlockCoord>();
@@ -258,8 +253,6 @@ public class CivGlobal {
 		loadTownChunks();
 		loadWonders();
 		loadStructures();
-		loadWallBlocks();
-		loadRoadBlocks();
 		loadCaves();
 		loadTradeGoodies();
 		loadRandomEvents();
@@ -648,60 +641,6 @@ public class CivGlobal {
 			}
 
 			CivLog.info("Loaded " + wonders.size() + " Wonders");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
-
-	private static void loadWallBlocks() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + WallBlock.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			int count = 0;
-			while (rs.next()) {
-				try {
-					new WallBlock(rs);
-					count++;
-				} catch (Exception e) {
-					CivLog.warning(e.getMessage());
-					// e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + count + " Wall Block");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
-
-	private static void loadRoadBlocks() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + RoadBlock.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			int count = 0;
-			while (rs.next()) {
-				try {
-					new RoadBlock(rs);
-					count++;
-				} catch (Exception e) {
-					CivLog.warning(e.getMessage());
-					e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + count + " Road Block");
 		} finally {
 			SQL.close(rs, ps, context);
 		}
@@ -1099,14 +1038,12 @@ public class CivGlobal {
 		sb.setDamageable(damageable);
 		constructBlocks.put(coord, sb);
 
-		if (!(owner instanceof Wall) && !(owner instanceof Road)) {
-			ChunkCoord cc = new ChunkCoord(coord);
-			HashSet<Construct> constructs = constructsInChunk.get(cc);
-			if (constructs == null) constructs = new HashSet<Construct>();
-			if (constructs.contains(owner)) return;
-			constructs.add(owner);
-			constructsInChunk.put(cc, constructs);
-		}
+		ChunkCoord cc = new ChunkCoord(coord);
+		HashSet<Construct> constructs = constructsInChunk.get(cc);
+		if (constructs == null) constructs = new HashSet<Construct>();
+		if (constructs.contains(owner)) return;
+		constructs.add(owner);
+		constructsInChunk.put(cc, constructs);
 	}
 
 	public static void removeConstructBlock(BlockCoord coord) {
@@ -1179,40 +1116,6 @@ public class CivGlobal {
 
 	public static ConstructChest getConstructChest(BlockCoord coord) {
 		return constructChests.get(coord);
-	}
-
-	// --------------- Wall
-	public static HashSet<Wall> getWallChunk(ChunkCoord coord) {
-		HashSet<Wall> walls = wallChunks.get(coord);
-		if (walls != null && walls.size() > 0)
-			return walls;
-		else
-			return null;
-	}
-
-	public static void addWallChunk(Wall wall, ChunkCoord coord) {
-		HashSet<Wall> walls = wallChunks.get(coord);
-		if (walls == null) walls = new HashSet<Wall>();
-		walls.add(wall);
-		wallChunks.put(coord, walls);
-		wall.wallChunks.add(coord);
-	}
-
-	public static void removeWallChunk(Wall wall, ChunkCoord coord) {
-		wallChunks.remove(coord);
-	}
-
-	// --------------- Road
-	public static void addRoadBlock(RoadBlock rb) {
-		roadBlocks.put(rb.getCoord(), rb);
-	}
-
-	public static void removeRoadBlock(RoadBlock rb) {
-		roadBlocks.remove(rb.getCoord());
-	}
-
-	public static RoadBlock getRoadBlock(BlockCoord coord) {
-		return roadBlocks.get(coord);
 	}
 
 	// ----------- TradeGood

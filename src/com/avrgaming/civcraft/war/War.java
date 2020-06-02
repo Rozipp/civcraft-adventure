@@ -29,6 +29,7 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Arrowpost;
 import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.WarCamp;
@@ -383,6 +384,7 @@ public class War {
 		WarRegen.restoreBlocksFor(Cannon.RESTORE_NAME);
 		WarRegen.restoreBlocksFor(WarListener.RESTORE_NAME);
 		Cannon.cleanupAll();
+		Arrowpost.cleanupAll();
 	}
 
 	/** @return the start */

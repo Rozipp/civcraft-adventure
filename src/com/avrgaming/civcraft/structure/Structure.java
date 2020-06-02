@@ -48,7 +48,7 @@ public class Structure extends Buildable {
 		this.load(rs);
 	}
 
-	private static Structure _newStructure(ResultSet rs, String id, Town town) throws CivException, SQLException {
+	public static Structure _newStructure(ResultSet rs, String id, Town town) throws CivException, SQLException {
 		Structure struct;
 		if (rs != null) id = rs.getString("type_id");
 		String[] splitId = id.split("_");
@@ -89,7 +89,7 @@ public class Structure extends Buildable {
 		return _newStructure(rs, null, null);
 	}
 
-	public static Structure newStructure(Player player, Location location, String id, Town town) throws CivException {
+	public static Structure newStructure(Player player, Location location, String id, Town town, boolean checkPerm) throws CivException {
 		Structure structure;
 		try {
 			structure = _newStructure(null, id, town);
@@ -97,8 +97,10 @@ public class Structure extends Buildable {
 			throw new CivException("SQLException");
 		}
 		structure.initDefaultTemplate(location);
-		if (town != null) town.checkIsTownCanBuildStructure(structure);
-		structure.checkBlockPermissionsAndRestrictions(player);
+		if (checkPerm) {
+			if (town != null) town.checkIsTownCanBuildStructure(structure);
+			structure.checkBlockPermissionsAndRestrictions(player);
+		}
 		return structure;
 	}
 

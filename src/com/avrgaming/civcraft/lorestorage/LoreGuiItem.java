@@ -97,6 +97,7 @@ public class LoreGuiItem {
 				GuiAction instance = (GuiAction) constructor.newInstance();
 				instance.performAction(event, stack);
 			} catch (Exception ee) {
+				e.printStackTrace();
 				ee.printStackTrace();
 			}
 		}

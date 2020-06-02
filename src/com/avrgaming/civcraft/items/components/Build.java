@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Arrowpost;
 import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -25,6 +26,9 @@ public class Build extends ItemComponent {
 			case "Cannon":
 				Cannon.newCannon(player);
 				break;
+			case "Arrowpost":
+				Arrowpost.newArrowpost(player);
+				break;	
 			default:
 				break;
 			}

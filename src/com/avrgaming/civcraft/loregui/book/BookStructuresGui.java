@@ -64,15 +64,9 @@ implements GuiAction {
             } else if (!(town.getMayorGroup().hasMember(whoClicked) || town.getAssistantGroup().hasMember(whoClicked) || civ.getLeaderGroup().hasMember(whoClicked))) {
                 itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep), CivColor.Red + CivSettings.localize.localizedString("belongtown"));
             } else if (info.isAvailable(town)) {
-                if (!info.id.contains("road") && !info.id.contains("wall")) {
                     itemStack = LoreGuiItem.build(info.displayName, type, 0, "§6" + CivSettings.localize.localizedString("clicktobuild"), "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep));
                     itemStack = LoreGuiItem.setAction(itemStack, "BuildChooseTemplate");
                     itemStack = LoreGuiItem.setActionData(itemStack, "info", info.id);
-                } else {
-                    itemStack = LoreGuiItem.build(info.displayName, type, 0, "§6" + CivSettings.localize.localizedString("clicktobuild"), "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep));
-                    itemStack = LoreGuiItem.setAction(itemStack, "BuildFromIdCr");
-                    itemStack = LoreGuiItem.setActionData(itemStack, "buildableName", info.displayName);
-                }
             } else {
                 ConfigBuildableInfo str = CivSettings.structures.get(info.require_structure);
                 if (str != null) {

@@ -21,11 +21,10 @@ import com.avrgaming.civcraft.object.Town;
 public class Trommel extends Structure {
 
 	private int level = 1;
-	public Transmuter transmuter = new Transmuter(this);
+	public Transmuter transmuter;
 
 	public Trommel(String id, Town town) throws CivException {
 		super(id, town);
-		level = town.saved_trommel_level;
 	}
 
 	public Trommel(ResultSet rs) throws SQLException, CivException {
@@ -54,11 +53,13 @@ public class Trommel extends Structure {
 	public void onMinuteUpdate() {
 		modifyTransmuterChance();
 	}
-	
+
 	public void modifyTransmuterChance() {
-		Double chance = 1.0 + (0.5 * getTown().saved_trommel_level);
-		double increase = (this.getTown().getBuffManager().getEffectiveDouble("buff_extraction") + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
-		chance += increase;
+		Double chance = 1.0;
+		chance += 0.10 * getTown().saved_trommel_level;
+		double extraction = this.getTown().getBuffManager().getEffectiveDouble("buff_extraction");
+		chance += (extraction > 2) ? 2 : extraction;
+		chance += this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
 
 		try {
 			if (this.getTown().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "trommel.despotism_rate");
@@ -66,32 +67,29 @@ public class Trommel extends Structure {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
-		transmuter.modifyChance = chance;
+		transmuter.setModifyChance(chance);
 	}
 
 	@Override
 	public void onPostBuild() {
+		transmuter = new Transmuter(this);
 		this.level = getTown().saved_trommel_level;
+		modifyTransmuterChance();
 		this.addTromelRecipe(level);
 		if (CivGlobal.trommelsEnabled) this.transmuter.start();
 	}
 
 	public void addTromelRecipe(Integer level) {
 		switch (level) {
-		case 0:
-			break;
-		case 1:
-		case 2:
-		case 3:
 		case 4:
+			this.transmuter.addRecipe("trommel_andesit");
+		case 3:
+			this.transmuter.addRecipe("trommel_diorit");
+		case 2:
+			this.transmuter.addRecipe("trommel_granit");
+		case 1:
 			this.transmuter.addRecipe("trommel_clay");
 			this.transmuter.addRecipe("trommel_cobblestone");
-			this.transmuter.addRecipe("trommel_granit");
-			this.transmuter.addRecipe("trommel_diorit");
-			this.transmuter.addRecipe("trommel_andesit");
-			break;
-		default:
-			break;
 		}
 	}
 

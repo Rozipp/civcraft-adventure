@@ -33,9 +33,6 @@ import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.CannonTower;
 import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.structure.Pasture;
-import com.avrgaming.civcraft.structure.Road;
-import com.avrgaming.civcraft.structure.RoadBlock;
-import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.wonders.Battledome;
 import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
@@ -115,7 +112,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -163,12 +159,6 @@ public class BlockListener implements Listener {
 						return;
 					}
 
-					RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-					if (rb != null) {
-						event.setCancelled(true);
-						return;
-					}
-
 					ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
 					if (structSign != null) {
 						event.setCancelled(true);
@@ -204,12 +194,6 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-		if (rb != null) {
-			event.setCancelled(true);
-			return;
-		}
-
 		return;
 	}
 
@@ -219,12 +203,6 @@ public class BlockListener implements Listener {
 
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) {
-			event.setCancelled(true);
-			return;
-		}
-
-		RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-		if (rb != null) {
 			event.setCancelled(true);
 			return;
 		}
@@ -443,12 +421,6 @@ public class BlockListener implements Listener {
 				return;
 			}
 
-			RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-			if (rb != null) {
-				event.setCancelled(true);
-				return;
-			}
-
 			ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
 			if (structSign != null) {
 				event.setCancelled(true);
@@ -461,17 +433,7 @@ public class BlockListener implements Listener {
 				return;
 			}
 
-			ChunkCoord coord = new ChunkCoord(block.getLocation());
-
-			HashSet<Wall> walls = CivGlobal.getWallChunk(coord);
-			if (walls != null) {
-				for (Wall wall : walls) {
-					if (wall.isProtectedLocation(block.getLocation())) {
-						event.setCancelled(true);
-						return;
-					}
-				}
-			}
+			ChunkCoord coord = new ChunkCoord(block);
 
 			TownChunk tc = CivGlobal.getTownChunk(coord);
 			if (tc == null) {
@@ -632,17 +594,6 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-		if (rb != null) {
-			if (rb.isAboveRoadBlock()) {
-				if (resident.getCiv() != rb.getRoad().getCiv()) {
-					event.setCancelled(true);
-					CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockPlace_errorRoad1") + " " + (Road.HEIGHT - 1) + " " + CivSettings.localize.localizedString("blockPlace_errorRoad2"));
-				}
-			}
-			return;
-		}
-
 		TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(event.getBlock().getLocation()));
 		if (CivSettings.blockPlaceExceptions.get(event.getBlock().getType()) != null) return;
 		if (tc != null) {
@@ -741,20 +692,6 @@ public class BlockListener implements Listener {
 			}
 		}
 
-		RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-		if (rb != null && !rb.isAboveRoadBlock()) {
-			if (War.isWarTime()) {
-				/* Allow blocks to be 'destroyed' during war time. */
-				WarRegen.destroyThisBlock(event.getBlock(), rb.getTown());
-				event.setCancelled(true);
-				return;
-			} else {
-				event.setCancelled(true);
-				rb.onHit(event.getPlayer());
-				return;
-			}
-		}
-
 		ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
 		if (structSign != null && !resident.isSBPermOverride()) {
 			event.setCancelled(true);
@@ -769,27 +706,7 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		ChunkCoord coord = new ChunkCoord(event.getBlock().getLocation());
-		HashSet<Wall> walls = CivGlobal.getWallChunk(coord);
-
-		if (walls != null) {
-			for (Wall wall : walls) {
-				if (wall.isProtectedLocation(event.getBlock().getLocation())) {
-					if (resident == null || !resident.hasTown() || resident.getTown().getCiv() != wall.getTown().getCiv() && !resident.isSBPermOverride()) {
-
-						ConstructBlock tmpStructureBlock = new ConstructBlock(bcoord, wall);
-						tmpStructureBlock.setAlwaysDamage(true);
-						TaskMaster.syncTask(new StructureBlockHitEvent(event.getPlayer().getName(), bcoord, tmpStructureBlock, event.getBlock().getWorld()), 0);
-						// CivMessage.sendError(event.getPlayer(), "Cannot destroy this block, protected by a wall, destroy it first.");
-						event.setCancelled(true);
-						return;
-					} else {
-						CivMessage.send(event.getPlayer(), CivColor.LightGray + CivSettings.localize.localizedString("blockBreak_wallAlert") + " " + resident.getTown().getCiv().getName());
-						break;
-					}
-				}
-			}
-		}
+		ChunkCoord coord = new ChunkCoord(event.getBlock());
 
 		TownChunk tc = CivGlobal.getTownChunk(coord);
 		if (tc != null) {
@@ -1385,9 +1302,6 @@ public class BlockListener implements Listener {
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) return false;
 
-		RoadBlock rb = CivGlobal.getRoadBlock(bcoord);
-		if (rb != null) return false;
-
 		/* If we're next to an attached protected item frame. Disallow we cannot break protected item frames. Only need to check blocks directly
 		 * next to us. */
 		BlockCoord bcoord2 = new BlockCoord(bcoord);
@@ -1403,13 +1317,6 @@ public class BlockListener implements Listener {
 		bcoord2.setZ(bcoord.getZ() + 1);
 		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord2)) return false;
 
-		ChunkCoord coord = new ChunkCoord(loc);
-		HashSet<Wall> walls = CivGlobal.getWallChunk(coord);
-		if (walls != null) {
-			for (Wall wall : walls) {
-				if (wall.isProtectedLocation(loc)) return false;
-			}
-		}
 		return true;
 	}
 

@@ -37,7 +37,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 import net.minecraft.server.v1_12_R1.Vec3D;
@@ -224,7 +223,7 @@ public abstract class ProjectileComponent extends Component {
 				return;
 			}
 
-			if (!((Buildable) this.getConstruct()).getConfigId().equals("s_teslatower")) {
+			if (!(this.getConstruct()).getConfigId().equals("s_teslatower")) {
 				// XXX todo convert this to not use a player so we can async...
 				if (!this.canSee(player, turretLoc)) {
 					continue;

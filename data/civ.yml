@@ -67,15 +67,6 @@ global:
    # Attempt to validate structures to make sure they're not floating.
    structure_validation: 'true'
 
-   # Have speed checks only on chunk changes. Default: true
-   # This means that players on roads need to move across a chunk to gain the movement bonus
-   # This used to be false, but the performance gain was too great to leave it as such.
-   # If this feature annoys your players, turn it off at your own risk of poor performance.
-   speed_check_chunks: true
-
-   # Minimum Build Height for Structures, Walls, and Roads. Default: 1
-   min_build_height: 1
-
    #Use Experience as currency. Default: true
    #If true, disables EXP enchanting and repair.
    use_exp_as_currency: true

@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -47,12 +46,10 @@ public class Bank extends Structure {
 	private static final int DIAMOND_BLOCK_SIGN = 6;
 	private static final int EMERALD_BLOCK_SIGN = 7;
 
-	public Bank(Location center, String id, Town town) throws CivException {
+	public Bank(String id, Town town) throws CivException {
 		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
-		setLevel(town.saved_bank_level);
-		setInterestRate(town.saved_bank_interest_amount);
 	}
 
 	public Bank(ResultSet rs) throws SQLException, CivException {

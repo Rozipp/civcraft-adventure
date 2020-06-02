@@ -67,13 +67,11 @@ import com.avrgaming.civcraft.structure.Cottage;
 import com.avrgaming.civcraft.structure.Mine;
 import com.avrgaming.civcraft.structure.MineHouse;
 import com.avrgaming.civcraft.structure.Quarry;
-import com.avrgaming.civcraft.structure.Road;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Temple;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.TradeOutpost;
 import com.avrgaming.civcraft.structure.TradeShip;
-import com.avrgaming.civcraft.structure.Wall;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.SyncUpdateTags;
@@ -1881,20 +1879,6 @@ public class Town extends SQLObject {
 
 	}
 
-	public void processUndoConstruct() throws CivException {
-		if (this.lastBuildableBuilt == null) {
-			throw new CivException(CivSettings.localize.localizedString("town_undo_cannotFind"));
-		}
-
-		if ((this.lastBuildableBuilt instanceof Wall) || (this.lastBuildableBuilt instanceof Road)) {
-			this.lastBuildableBuilt.processUndo();
-			this.structures.remove(this.lastBuildableBuilt.getCorner());
-			this.removeBuildTask(lastBuildableBuilt);
-			this.lastBuildableBuilt = null;
-		}
-		throw new CivException(CivSettings.localize.localizedString("town_undo_notRoadOrWall"));
-	}
-
 	private void removeBuildTask(Buildable lastBuildableBuilt) {
 		for (BuildAsyncTask task : this.build_tasks) {
 			if (task.buildable == lastBuildableBuilt) {
@@ -3032,7 +3016,7 @@ public class Town extends SQLObject {
 		return failed;
 	}
 
-	public Set<Perk> getTemplatePerks(Buildable buildable, Resident resident, ConfigBuildableInfo info) {
+	public Set<Perk> getTemplatePerks(Resident resident, ConfigBuildableInfo info) {
 		Set<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, info.template_name);
 		perks.addAll(resident.getUnboundTemplatePerks(perks, info));
 		return perks;

@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Random;
 
 import com.avrgaming.donate.Donate;
+
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -59,6 +61,7 @@ import com.avrgaming.civcraft.war.WarListener;
 import com.avrgaming.global.scores.CalculateScoreTimer;
 import com.avrgaming.global.scores.GlobalTickEvent;
 import com.avrgaming.sls.SLSManager;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.avrgaming.civcraft.command.town.*;
 import com.avrgaming.civcraft.command.resident.*;
 import com.avrgaming.civcraft.command.plot.*;
@@ -137,11 +140,11 @@ public final class CivCraft extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		Transmuter.stopAllTransmuter();
 		TaskMaster.stopAll();
 		MobStatic.despawnAll();
-//		HandlerList.unregisterAll(this);
+		// HandlerList.unregisterAll(this);
 	}
 
 	private void initCommands() {
@@ -220,8 +223,8 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), TimeTools.toTicks(1));
 		// TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
-		//XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный
-		//TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
+		// XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный
+		// TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
 	}
 
 	private void registerEvents() {
@@ -267,4 +270,14 @@ public final class CivCraft extends JavaPlugin {
 		return plugin;
 	}
 
+	public static WorldEditPlugin getWorldEdit() {
+		Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+
+		// WorldGuard may not be loaded
+		if (plugin == null || !(plugin instanceof WorldEditPlugin)) {
+			return null; // Maybe you want throw an exception instead
+		}
+
+		return (WorldEditPlugin) plugin;
+	}
 }

@@ -8,7 +8,6 @@ import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 
 public class Quarry extends Structure {
@@ -49,13 +48,14 @@ public class Quarry extends Structure {
 
 	@Override
 	public void onMinuteUpdate() {
-		transmuter.modifyChance = modifyTransmuterChance();
+		modifyTransmuterChance();
 	}
 
-	public double modifyTransmuterChance() {
+	public void modifyTransmuterChance() {
 		Double chance = 1.0;
-		double increase = chance * (this.getTown().getBuffManager().getEffectiveDouble(Buff.EXTRACTION) + this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel"));
-		chance += increase;
+		double extraction = this.getTown().getBuffManager().getEffectiveDouble("buff_extraction");
+		chance += (extraction > 2) ? 2 : extraction;
+		chance += this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
 
 		try {
 			if (this.getTown().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
@@ -63,12 +63,13 @@ public class Quarry extends Structure {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
-		return chance;
+		transmuter.setModifyChance(chance);
 	}
 
 	@Override
 	public void onPostBuild() {
 		this.level = getTown().saved_quarry_level;
+		modifyTransmuterChance();
 		this.transmuter.clearRecipe();
 		for (int i = 1; i <= level; i++)
 			this.transmuter.addRecipe("quarry" + i);

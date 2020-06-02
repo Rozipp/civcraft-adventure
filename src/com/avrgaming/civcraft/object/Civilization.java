@@ -2152,8 +2152,8 @@ public class Civilization extends SQLObject {
 		/* Verify we have the correct item somewhere in our inventory. */
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
-		if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", this.getCapitol().getName()));
-		if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
+//		if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", this.getCapitol().getName()));
+//		if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
 	}
 
 }

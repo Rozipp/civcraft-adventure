@@ -41,20 +41,15 @@ public class SyncBuildUpdateTask implements Runnable {
 	public SyncBuildUpdateTask() {
 	}
 
-	/*
-	 * Runs once, per tick and changes the blocks represented by SimpleBlock up to
-	 * UPDATE_LIMIT times.
-	 */
+	/* Runs once, per tick and changes the blocks represented by SimpleBlock up to UPDATE_LIMIT times. */
 	@Override
 	public void run() {
-		if (updateBlocks.isEmpty())
-			return;
+		if (updateBlocks.isEmpty()) return;
 		if (buildBlockLock.tryLock()) {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					SimpleBlock sb = updateBlocks.poll();
-					if (sb == null)
-						break;
+					if (sb == null) break;
 
 					Block block = sb.getBlock();
 
@@ -76,12 +71,28 @@ public class SyncBuildUpdateTask implements Runnable {
 						}
 						break;
 					case NORMAL:
-//	if (ItemManager.getTypeId(block) != sb.getType() && sb.getType() != CivData.AIR) // Не уберает рамку
+						// if (ItemManager.getTypeId(block) != sb.getType() && sb.getType() != CivData.AIR) // Не уберает рамку
 						ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
 						break;
+					case COMMANDDBG:
+						ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+						if (block.getState() instanceof Sign) {
+							Sign s = (Sign) block.getState();
+							s.setLine(0, sb.command);
+							int j = 1;
+							for (String key : sb.keyvalues.keySet()) {
+								s.setLine(j, key + ":" + sb.keyvalues.get(key));
+								j++;
+							}
+							s.update();
+						} else {
+							ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+						}
+						break;
+					default:
+						break;
 					}
-					if (sb.buildable != null)
-						sb.buildable.savedBlockCount++;
+					if (sb.buildable != null) sb.buildable.savedBlockCount++;
 				}
 			} finally {
 				buildBlockLock.unlock();

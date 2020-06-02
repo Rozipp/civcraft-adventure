@@ -25,12 +25,12 @@ import lombok.Setter;
 @Getter
 public class SimpleBlock {
 
-	//public static final int SIGN = 1;
-	//public static final int CHEST = 2;
-	//public static final int SIGN_LITERAL = 3;
+	// public static final int SIGN = 1;
+	// public static final int CHEST = 2;
+	// public static final int SIGN_LITERAL = 3;
 
 	public enum Type {
-		NORMAL, COMMAND, LITERAL,
+		NORMAL, COMMAND, LITERAL, COMMANDDBG
 	}
 
 	private int type = 0;
@@ -47,7 +47,6 @@ public class SimpleBlock {
 	public Map<String, String> keyvalues = new HashMap<String, String>();
 
 	/** Construct the block with its type.
-	 *
 	 * @param block */
 	public SimpleBlock(Block block) {
 		this.x = block.getX();
@@ -58,6 +57,7 @@ public class SimpleBlock {
 		this.data = ItemManager.getData(block);
 		this.specialType = Type.NORMAL;
 	}
+
 	public SimpleBlock(BlockCoord bc, SimpleBlock sb) {
 		this.x = bc.getX() + sb.x;
 		this.y = bc.getY() + sb.y;
@@ -66,7 +66,12 @@ public class SimpleBlock {
 		this.type = sb.type;
 		this.data = sb.data;
 		this.specialType = sb.specialType;
+		this.buildable = sb.buildable;
+		this.command = sb.command;
+		this.keyvalues = sb.keyvalues;
+		this.message = sb.message;
 	}
+
 	public SimpleBlock(String hash, int type, byte data) {
 		String[] split = hash.split(",");
 		this.worldname = split[0];
@@ -77,11 +82,13 @@ public class SimpleBlock {
 		this.data = data;
 		this.specialType = Type.NORMAL;
 	}
+
 	public SimpleBlock(int type, int data) {
 		this.type = (short) type;
 		this.data = (byte) data;
 		this.specialType = Type.NORMAL;
 	}
+
 	public SimpleBlock(String world, int x, int y, int z, int type, int data) {
 		this.worldname = world;
 		this.x = x;
@@ -119,6 +126,7 @@ public class SimpleBlock {
 		this.type = (short) type;
 		this.data = (byte) data;
 	}
+
 	/** @return the data */
 	public int getData() {
 		return (int) data;
@@ -135,9 +143,8 @@ public class SimpleBlock {
 		this.y = bc.getY();
 		this.z = bc.getZ();
 	}
-	
+
 	/** Returns true if it's air.
-	 *
 	 * @return if air */
 	public boolean isAir() {
 		return type == (byte) 0x0;
@@ -157,9 +164,18 @@ public class SimpleBlock {
 	public Block getBlock() {
 		return Bukkit.getWorld(this.worldname).getBlockAt(this.x, this.y, this.z);
 	}
-	
+
 	public Location getLocation() {
 		return new Location(Bukkit.getWorld(this.worldname), this.x, this.y, this.z);
 	}
 
+	public SimpleBlock clone() {
+		SimpleBlock sb = new SimpleBlock(worldname, x, y, z, type, data);
+		sb.buildable = buildable;
+		sb.command = command;
+		sb.keyvalues = keyvalues;
+		sb.message = message;
+		sb.specialType = specialType;
+		return sb;
+	}
 }

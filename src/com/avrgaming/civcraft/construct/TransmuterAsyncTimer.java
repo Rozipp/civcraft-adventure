@@ -14,6 +14,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe;
 import com.avrgaming.civcraft.config.ConfigTransmuterRecipe.ResultItem;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
 import com.avrgaming.civcraft.util.FoundElement;
@@ -54,23 +55,21 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 			}
 			multInvs.put(cTranR.resultChest, dest);
 		}
+		if (multInvs == null)
+			CivLog.debug("multInvs == null");
+		else
+			CivLog.debug("multInvs " + multInvs.size());
 	}
 
 	public void addRecipe(String s) {
 		ConfigTransmuterRecipe ctr = CivSettings.transmuterRecipes.get(s);
-		if (ctr != null) {
-			synchronized (abort) {
-				this.cTranRs.add(ctr);
-			}
-		}
+		if (ctr != null) this.cTranRs.add(ctr);
 	}
 
 	public void clearRecipe() {
-		synchronized (abort) {
-			abort = true;
-			this.cTranRs.clear();
-			multInvs = null;
-		}
+		abort = true;
+		this.cTranRs.clear();
+		multInvs = null;
 	}
 
 	public void stop() {
@@ -80,17 +79,23 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 	@Override
 	public void run() {
 		abort = false;
-		if (multInvs == null || multInvs.isEmpty()) {
-			foundInventory();
-			if (multInvs == null) return;
+		CivLog.debug("Transmuter begin");
+		foundInventory();
+		if (multInvs == null) {
+			CivLog.debug("Transmuter stoped multInvs == null");
+			return;
 		}
 		while (true) {
 			int delay = 1;
 			synchronized (abort) {
-				if (abort) return;
+				if (abort) {
+					CivLog.debug("Transmuter stoped in begin");
+					return;
+				}
 				ArrayList<FoundElement> foundElements = new ArrayList<>();
 				for (ConfigTransmuterRecipe cTranR : cTranRs) {
 					if (multInvs.get(cTranR.resultChest).isFool()) {
+						CivLog.debug("cTranR.resultChest).isFool");
 						continue;
 					}
 
@@ -99,6 +104,7 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 							int countDelete = deleteFoundItems(foundElements);
 							int countStep = (countDelete - 1) / cTranR.sourceItem.count + 1;
 							delay = countStep * cTranR.delay;
+							CivLog.debug("delay = " + delay);
 							Map<String, Integer> resultItems = getRandomResultItems(cTranR, countStep);
 							putResultItems(multInvs.get(cTranR.resultChest), resultItems);
 						} catch (InterruptedException e) {
@@ -110,7 +116,15 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 			}
 			try {
 				if (delay < 1) delay = 1;
-				Thread.sleep(delay * 1000);
+				int i = 1;
+				while (i <= delay) {
+					Thread.sleep(1000);
+					i++;
+					if (abort) {
+						CivLog.debug("Transmuter stoped in sleep");
+						return;
+					}
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -135,7 +149,7 @@ public class TransmuterAsyncTimer extends CivAsyncTask {
 			double r = rand.nextDouble() * cTranR.totalRate;
 			ResultItem chri = null;
 			for (ResultItem ri : cTranR.resultItems) {
-				k = k + ri.rate.doubleValue() * transmuter.modifyChance;
+				k = k + ri.rate.doubleValue();// * transmuter.modifyChance;
 				if (r < k) {
 					chri = ri;
 					break;

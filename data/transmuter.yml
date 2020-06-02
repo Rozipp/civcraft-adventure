@@ -85,19 +85,19 @@ transmuter:
    total_rate: 10000
    result_item:
    -  item: mat_tungsten_ore
-      rate: 12
+      rate: 10
    -  item: '1:5'
-      rate: 150
+      rate: 125
    -  item: '1:3'
-      rate: 300
+      rate: 250
    -  item: '1:1'
-      rate: 450
+      rate: 375
    -  item: COBBLESTONE
-      rate: 3000
+      rate: 2500
    -  item: REDSTONE
-      rate: 450
+      rate: 375
    -  item: COAL
-      rate: 450
+      rate: 375
 #----------Trommel
 -  id: trommel_clay
    source_chest: '1'
@@ -107,17 +107,17 @@ transmuter:
    total_rate: 10000
    result_item:
    -  item: mat_forged_chromium
-      rate: 6
+      rate: 7
    -  item: EMERALD
-      rate: 15
+      rate: 18
    -  item: DIAMOND
-      rate: 30
+      rate: 36
    -  item: GOLD_INGOT
-      rate: 150
+      rate: 180
    -  item: IRON_INGOT
-      rate: 450
+      rate: 540
    -  item: '45:0'
-      rate: 750
+      rate: 450
 -  id: trommel_cobblestone
    source_chest: '1'
    source_item: 'COBBLESTONE,1:0'
@@ -145,17 +145,17 @@ transmuter:
    total_rate: 10000
    result_item:
    -  item: mat_forged_chromium
-      rate: 10
+      rate: 9
    -  item: EMERALD
-      rate: 25
+      rate: 22
    -  item: DIAMOND
-      rate: 50
+      rate: 44
    -  item: GOLD_INGOT
-      rate: 250
+      rate: 220
    -  item: IRON_INGOT
-      rate: 750
+      rate: 660
    -  item: '1:2'
-      rate: 1000
+      rate: 550
 -  id: trommel_diorit
    source_chest: '1'
    source_item: '1:3'
@@ -164,17 +164,17 @@ transmuter:
    total_rate: 10000
    result_item:
    -  item: mat_forged_chromium
-      rate: 12
+      rate: 10
    -  item: EMERALD
-      rate: 30
+      rate: 24
    -  item: DIAMOND
-      rate: 60
+      rate: 48
    -  item: GOLD_INGOT
-      rate: 300
+      rate: 240
    -  item: IRON_INGOT
-      rate: 900
+      rate: 720
    -  item: '1:4'
-      rate: 1500
+      rate: 600
 -  id: trommel_andesit
    source_chest: '1'
    source_item: '1:5'
@@ -183,17 +183,17 @@ transmuter:
    total_rate: 10000
    result_item:
    -  item: mat_forged_chromium
-      rate: 14
+      rate: 11
    -  item: EMERALD
-      rate: 35
+      rate: 26
    -  item: DIAMOND
-      rate: 70
+      rate: 52
    -  item: GOLD_INGOT
-      rate: 350
+      rate: 260
    -  item: IRON_INGOT
-      rate: 1050
+      rate: 780
    -  item: '1:6'
-      rate: 1750
+      rate: 650
 #----------- SilkwormFarm
 -  id: silkwormfarm
    delay: 5
@@ -218,7 +218,7 @@ transmuter:
    -  item: '265:0'
       rate: 45
    -  item: '266:0'
-      rate: 15
+      rate: 18
 -  id: sifter2
    source_chest: 'siftersource'
    source_item: '4:0,1:0,1:1,1:3,1:5'
@@ -227,15 +227,6 @@ transmuter:
    total_rate: 1000
    result_item:
    -  item: '265:0'
-      rate: 6
+      rate: 45
    -  item: '266:0'
-      rate: 2
-# ----------------
-# Orphan comments:
-# ----------------
-# Was at begin of line:219 :# ----------------
-# Was at begin of line:220 :# Orphan comments:
-# Was at begin of line:221 :# ----------------
-# Was at begin of line:222 :# Was at begin of line:271 :#Gravel
-# Was at begin of line:223 :# Was at begin of line:274 :#IRON_INGOT
-# Was at begin of line:224 :# Was at begin of line:277 :#gold
+      rate: 18
