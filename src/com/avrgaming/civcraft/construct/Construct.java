@@ -28,7 +28,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.MaterialData;
 
 import com.avrgaming.civcraft.components.Component;
-import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
@@ -391,17 +390,18 @@ public abstract class Construct extends SQLObject {
 				}
 			}
 		}
-		for (Component comp : this.attachedComponents) {
-			comp.onLoad();
-		}
-	}
+		
+		Construct construct = this;
+		TaskMaster.syncTask(new Runnable() {
+			// Посколько compClass.createComponent() создаеться в новом потоке, то нам надо подождать 2 секунды, перед загрузкой информации из ДБ
+			@Override
+			public void run() {
+				for (Component comp : construct.attachedComponents) {
+					comp.onLoad();
+				}
+			}
+		}, 40);
 
-	public ConsumeLevelComponent getConsumeComponent() {
-		ConsumeLevelComponent consumeComp = null;
-		if (consumeComp == null) {
-			consumeComp = (ConsumeLevelComponent) this.getComponent(ConsumeLevelComponent.class.getSimpleName());
-		}
-		return consumeComp;
 	}
 
 	public void bindBlocks() {

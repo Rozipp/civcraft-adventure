@@ -91,7 +91,7 @@ public class TownInfoCommand extends CommandBase {
 		TradeShip tradeShip = (TradeShip) town.getStructureByType("ti_trade_ship");
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_level", "§b" + tradeShip.getLevel()));
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_level", "§b" + tradeShip.getLevel()));
-		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_progress", CivColor.Red + tradeShip.getConsumeComponent().getCountString()));
+		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_progress", CivColor.Red + tradeShip.getTradeLevelComponent().getCountString()));
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_stagnateDebuff", "§6" + tradeShip.getLastResult() + "§a", "§2" + "Progress" + "§a"));
 		CivMessage.sendHeading(this.sender, "");
 	}

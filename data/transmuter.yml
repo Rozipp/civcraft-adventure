@@ -207,6 +207,25 @@ transmuter:
       rate: 95
    -  item: '375:0'
       rate: 1
+#----------- FishHatchery
+-  id: fishhatchery
+   delay: 5
+   source_chest: 'source'
+   source_item: 'FISHING_ROD'
+   result_chest: 'result'
+   result_other: 'mat_fish_seaweed'
+   total_rate: 10000
+   result_item:
+   -  item: 'mat_fish_flounder'
+      rate: 1
+   -  item: 'mat_fish_red_grouper'
+      rate: 10      
+   -  item: 'mat_fish_pacific_cod'
+      rate: 50
+   -  item: 'mat_fish_brown_trout'
+      rate: 500  
+   -  item: 'mat_fish_fish'
+      rate: 1000     
 #----------- Camp
 -  id: sifter1
    source_chest: 'siftersource'

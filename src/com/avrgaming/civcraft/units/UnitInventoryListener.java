@@ -132,7 +132,6 @@ public class UnitInventoryListener implements Listener {
 				if (is == null) continue;
 				UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(is));
 				if (uo != null) {
-					uo.setLastHashCode(0);
 					uo.setLastResident(null);
 					uo.setLastActivate(0);
 				}

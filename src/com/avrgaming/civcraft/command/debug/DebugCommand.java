@@ -48,9 +48,11 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
+import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.WarCamp;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -156,7 +158,7 @@ public class DebugCommand extends CommandBase {
 		cs.add("preview", "show a single block preview at your feet.");
 		cs.add("loadtemplate", "[name] [theme] tests out some new template stream code.");
 		cs.add("savetemplate", "[name] [theme] seve select region.");
-		 cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
+		cs.add("buildspawn", "[civname] [capitolname] Builds spawn from spawn template.");
 		cs.add("matmap", "prints the material map.");
 		cs.add("ping", "print something.");
 		cs.add("datebypass", "Bypasses certain date restrictions");
@@ -281,7 +283,7 @@ public class DebugCommand extends CommandBase {
 			capitol.setName(capitolName);
 			capitol.saveNow();
 
-				// Create permission groups for civs.
+			// Create permission groups for civs.
 			PermissionGroup leadersGroup;
 			leadersGroup = new PermissionGroup(civ, "leaders");
 			leadersGroup.addMember(resident);
@@ -317,7 +319,7 @@ public class DebugCommand extends CommandBase {
 			civ.setCapitolId(capitol.getId());
 			civ.setAdminCiv(true);
 			civ.save();
-			
+
 			capitol.setCiv(civ);
 			capitol.save();
 			resident.save();
@@ -463,8 +465,20 @@ public class DebugCommand extends CommandBase {
 		}
 		String name = getNamedString(1, "Enter a buildName");
 		String theme = getNamedString(2, "Enter a theme");
+		ConfigBuildableInfo sinfo;
 
-		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(name);
+		if (theme.equals("cave")) {
+			// TODO
+		}
+		
+		if (name.equals("camp"))
+			sinfo = Camp.campInfo;
+		else
+			if (name.equals("warcamp"))
+				sinfo = WarCamp.info;
+			else
+				sinfo = CivSettings.getBuildableInfoByName(name);
+		
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
 		String templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
 		Template tpl = Template.getTemplate(templatePath);

@@ -200,6 +200,7 @@ public class ConfigTownUpgrade {
 							didUpgradeFishery = true;
 							fishery.setLevel(town.saved_fish_hatchery_level);
 							fishery.updateSignText();
+							fishery.onPostBuild();
 						}
 					}
 				}

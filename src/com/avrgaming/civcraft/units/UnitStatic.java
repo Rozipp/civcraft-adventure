@@ -117,7 +117,6 @@ public class UnitStatic {
 
 		UnitStatic.getUnit(uo.getConfigUnit().id).initLore(attrs, uo);
 		is = attrs.getStack();
-		uo.setLastHashCode(is.hashCode());
 		return is;
 	}
 

@@ -156,11 +156,6 @@ public class Library extends Structure {
 		nonMemberFeeComponent.onLoad();
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-
 	public int getLevel() {
 		return level;
 	}

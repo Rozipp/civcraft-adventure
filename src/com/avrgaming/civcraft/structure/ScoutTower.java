@@ -38,12 +38,10 @@ public class ScoutTower extends Structure {
 
 	public ScoutTower(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		loadSettings();
 	}
 
 	public ScoutTower(String id, Town town) throws CivException {
 		super(id, town);
-		loadSettings();
 	}
 
 	@Override

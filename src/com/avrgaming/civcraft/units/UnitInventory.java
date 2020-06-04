@@ -42,7 +42,9 @@ public class UnitInventory {
 			// continue;
 			// }
 
-			if (!uo.validLastActivate()) {
+			try {
+				uo.validLastActivate();
+			} catch (CivException e) {
 				guiInventory.addItem(UnitStatic.respawn(uo.getId()));
 				continue;
 			}

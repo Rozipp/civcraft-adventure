@@ -55,11 +55,6 @@ public class TradeShip extends WaterStructure {
 		this.lastConsume = 128;
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-
 	public String getkey() {
 		return getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}
@@ -90,7 +85,7 @@ public class TradeShip extends WaterStructure {
 		/* Load in the template. */
 		Template tpl = this.getTemplate();
 		if (tpl == null) return;
-		
+
 		BlockCoord structCorner = this.getCorner();
 		class SyncTask implements Runnable {
 			@Override
@@ -106,135 +101,135 @@ public class TradeShip extends WaterStructure {
 			BlockCoord absCoord = new BlockCoord(corner.getBlock().getRelative(sb.getX(), sb.getY(), sb.getZ()));
 
 			switch (sb.command) {
-				case "/incoming" : {
-					Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
-					if (this.getUpgradeLvl() >= ID + 1) {
-						this.goodsWithdrawPoints.add(absCoord);
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
-						byte data3 = CivData.convertSignDataToChestData((byte) sb.getData());
-						ItemManager.setData(absCoord.getBlock(), data3);
-					} else {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-					}
-					this.addConstructBlock(absCoord, false);
-					break;
+			case "/incoming": {
+				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				if (this.getUpgradeLvl() >= ID + 1) {
+					this.goodsWithdrawPoints.add(absCoord);
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
+					byte data3 = CivData.convertSignDataToChestData((byte) sb.getData());
+					ItemManager.setData(absCoord.getBlock(), data3);
+				} else {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
 				}
-				case "/inSign" : {
-					Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
-					if (this.getUpgradeLvl() >= ID + 1) {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
-						sign.setLine(1, "" + (ID + 1));
-						sign.setLine(2, "");
-						sign.setLine(3, "");
-						sign.update();
-					} else {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
-						sign.setLine(1, CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line1"));
-						sign.setLine(2, (CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line2")));
-						sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line3"));
-						sign.update();
-					}
-					this.addConstructBlock(absCoord, false);
-					break;
-				}
-				case "/outgoing" : {
-					Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
-
-					if (this.getLevel() >= (ID * 2) + 1) {
-						this.goodsDepositPoints.add(absCoord);
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
-						byte data3 = CivData.convertSignDataToChestData((byte) sb.getData());
-						ItemManager.setData(absCoord.getBlock(), data3);
-						this.addConstructBlock(absCoord, false);
-					} else {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-					}
-					break;
-				}
-				case "/outSign" : {
-					Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
-					if (this.getLevel() >= (ID * 2) + 1) {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_output_line0"));
-						sign.setLine(1, "" + (ID + 1));
-						sign.setLine(2, "");
-						sign.setLine(3, "");
-						sign.update();
-					} else {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_output_line0"));
-						sign.setLine(1, CivSettings.localize.localizedString("tradeship_sign_output_notupgraded_line1"));
-						sign.setLine(2, (CivSettings.localize.localizedString("var_tradeship_sign_output_notupgraded_line2", ((ID * 2) + 1))));
-						sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_output_notupgraded_line3"));
-						sign.update();
-					}
-					this.addConstructBlock(absCoord, false);
-					break;
-				}
-				case "/in" : {
-					Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
-					if (ID == 0) {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
-						sign.setLine(1, "1");
-						sign.setLine(2, "2");
-						sign.setLine(3, "");
-						sign.update();
-					} else {
-						ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
-						ItemManager.setData(absCoord.getBlock(), sb.getData());
-
-						Sign sign = (Sign) absCoord.getBlock().getState();
-						sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
-						sign.setLine(1, "3");
-						sign.setLine(2, "4");
-						sign.setLine(3, "");
-						sign.update();
-					}
-					this.addConstructBlock(absCoord, false);
-					break;
-				}
-				default : {
-					/* Unrecognized command... treat as a literal sign. */
+				this.addConstructBlock(absCoord, false);
+				break;
+			}
+			case "/inSign": {
+				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				if (this.getUpgradeLvl() >= ID + 1) {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
 					ItemManager.setData(absCoord.getBlock(), sb.getData());
 
 					Sign sign = (Sign) absCoord.getBlock().getState();
-					sign.setLine(0, sb.message[0]);
-					sign.setLine(1, sb.message[1]);
-					sign.setLine(2, sb.message[2]);
-					sign.setLine(3, sb.message[3]);
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
+					sign.setLine(1, "" + (ID + 1));
+					sign.setLine(2, "");
+					sign.setLine(3, "");
 					sign.update();
+				} else {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
 
-					this.addConstructBlock(absCoord, false);
-					break;
+					Sign sign = (Sign) absCoord.getBlock().getState();
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
+					sign.setLine(1, CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line1"));
+					sign.setLine(2, (CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line2")));
+					sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_input_notupgraded_line3"));
+					sign.update();
 				}
+				this.addConstructBlock(absCoord, false);
+				break;
+			}
+			case "/outgoing": {
+				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+
+				if (this.getLevel() >= (ID * 2) + 1) {
+					this.goodsDepositPoints.add(absCoord);
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
+					byte data3 = CivData.convertSignDataToChestData((byte) sb.getData());
+					ItemManager.setData(absCoord.getBlock(), data3);
+					this.addConstructBlock(absCoord, false);
+				} else {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
+				}
+				break;
+			}
+			case "/outSign": {
+				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				if (this.getLevel() >= (ID * 2) + 1) {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+					Sign sign = (Sign) absCoord.getBlock().getState();
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_output_line0"));
+					sign.setLine(1, "" + (ID + 1));
+					sign.setLine(2, "");
+					sign.setLine(3, "");
+					sign.update();
+				} else {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+					Sign sign = (Sign) absCoord.getBlock().getState();
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_output_line0"));
+					sign.setLine(1, CivSettings.localize.localizedString("tradeship_sign_output_notupgraded_line1"));
+					sign.setLine(2, (CivSettings.localize.localizedString("var_tradeship_sign_output_notupgraded_line2", ((ID * 2) + 1))));
+					sign.setLine(3, CivSettings.localize.localizedString("tradeship_sign_output_notupgraded_line3"));
+					sign.update();
+				}
+				this.addConstructBlock(absCoord, false);
+				break;
+			}
+			case "/in": {
+				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				if (ID == 0) {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+					Sign sign = (Sign) absCoord.getBlock().getState();
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
+					sign.setLine(1, "1");
+					sign.setLine(2, "2");
+					sign.setLine(3, "");
+					sign.update();
+				} else {
+					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+					ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+					Sign sign = (Sign) absCoord.getBlock().getState();
+					sign.setLine(0, CivSettings.localize.localizedString("tradeship_sign_input_line0"));
+					sign.setLine(1, "3");
+					sign.setLine(2, "4");
+					sign.setLine(3, "");
+					sign.update();
+				}
+				this.addConstructBlock(absCoord, false);
+				break;
+			}
+			default: {
+				/* Unrecognized command... treat as a literal sign. */
+				ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
+				ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+				Sign sign = (Sign) absCoord.getBlock().getState();
+				sign.setLine(0, sb.message[0]);
+				sign.setLine(1, sb.message[1]);
+				sign.setLine(2, sb.message[2]);
+				sign.setLine(3, sb.message[3]);
+				sign.update();
+
+				this.addConstructBlock(absCoord, false);
+				break;
+			}
 			}
 		}
 	}
 
 	public TradeShipResults consume(CivAsyncTask task) throws InterruptedException {
 		TradeShipResults tradeResult;
-		//Look for the TradeShip chests.
+		// Look for the TradeShip chests.
 		if (this.goodsDepositPoints.size() == 0 || this.goodsWithdrawPoints.size() == 0) {
 			tradeResult = new TradeShipResults();
 			tradeResult.setResult(Result.STAGNATE);
@@ -260,12 +255,12 @@ public class TradeShip extends WaterStructure {
 			tradeResult.setResult(Result.STAGNATE);
 			return tradeResult;
 		}
-		getConsumeComponent().setSource(mInv);
-		getConsumeComponent().setConsumeRate(1.0);
+		getTradeLevelComponent().setSource(mInv);
+		getTradeLevelComponent().setConsumeRate(1.0);
 
 		try {
 			tradeResult = getTradeLevelComponent().processConsumption(this.getUpgradeLvl() - 1);
-			getConsumeComponent().onSave();
+			getTradeLevelComponent().onSave();
 		} catch (IllegalStateException e) {
 			tradeResult = new TradeShipResults();
 			tradeResult.setResult(Result.STAGNATE);
@@ -283,25 +278,21 @@ public class TradeShip extends WaterStructure {
 
 			Result result = tradeResult.getResult();
 			switch (result) {
-				case STAGNATE :
-					CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_tradeship_stagnated",
-							getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
-					break;
-				case GROW :
-					CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_productionGrew",
-							getConsumeComponent().getLevel(), getConsumeComponent().getCountString()));
-					break;
-				case LEVELUP :
-					CivMessage.sendTown(getTown(),
-							CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_lvlUp", getConsumeComponent().getLevel()));
-					this.reprocessCommandSigns();
-					break;
-				case MAXED :
-					CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_maxed",
-							getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
-					break;
-				default :
-					break;
+			case STAGNATE:
+				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_tradeship_stagnated", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
+				break;
+			case GROW:
+				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_productionGrew", getTradeLevelComponent().getLevel(), getTradeLevelComponent().getCountString()));
+				break;
+			case LEVELUP:
+				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_lvlUp", getTradeLevelComponent().getLevel()));
+				this.reprocessCommandSigns();
+				break;
+			case MAXED:
+				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_maxed", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
+				break;
+			default:
+				break;
 			}
 			if (tradeResult.getCulture() >= 1) {
 				int total_culture = (int) Math.round(tradeResult.getCulture());
@@ -329,13 +320,12 @@ public class TradeShip extends WaterStructure {
 				double taxesPaid = total_coins * this.getTown().getDepositCiv().getIncomeTaxRate();
 
 				if (total_coins >= 1) {
-					CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_success", Math.round(total_coins),
-							CivSettings.CURRENCY_NAME, tradeResult.getCulture(), tradeResult.getConsumed()));
+					CivMessage.sendTown(getTown(),
+							CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_success", Math.round(total_coins), CivSettings.CURRENCY_NAME, tradeResult.getCulture(), "Культуры", tradeResult.getConsumed()));
 					this.lastConsume = tradeResult.getConsumed();
 				}
 				if (taxesPaid > 0) {
-					CivMessage.sendTown(this.getTown(), CivColor.Yellow
-							+ CivSettings.localize.localizedString("var_tradeship_taxesPaid", Math.round(taxesPaid), CivSettings.CURRENCY_NAME));
+					CivMessage.sendTown(this.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_tradeship_taxesPaid", Math.round(taxesPaid), CivSettings.CURRENCY_NAME));
 				}
 
 				this.getTown().getTreasury().deposit(total_coins - taxesPaid);
@@ -386,7 +376,7 @@ public class TradeShip extends WaterStructure {
 
 	public int getLevel() {
 		try {
-			return this.getConsumeComponent().getLevel();
+			return this.getTradeLevelComponent().getLevel();
 		} catch (Exception e) {
 			return tickLevel;
 		}
@@ -408,17 +398,15 @@ public class TradeShip extends WaterStructure {
 	@Override
 	public void delete() {
 		super.delete();
-		if (getConsumeComponent() != null) {
-			getConsumeComponent().onDelete();
-		}
+		if (getTradeLevelComponent() != null) getTradeLevelComponent().onDelete();
 	}
 
 	public void onDestroy() {
 		super.onDestroy();
 
-		getConsumeComponent().setLevel(1);
-		getConsumeComponent().setCount(0);
-		getConsumeComponent().onSave();
+		getTradeLevelComponent().setLevel(1);
+		getTradeLevelComponent().setCount(0);
+		getTradeLevelComponent().onSave();
 	}
 
 	public double getBonusRate() {

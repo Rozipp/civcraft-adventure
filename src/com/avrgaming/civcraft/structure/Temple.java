@@ -48,11 +48,6 @@ public class Temple extends Structure {
 	}
 
 	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		if (getConsumeComponent() == null) {
 			return "";

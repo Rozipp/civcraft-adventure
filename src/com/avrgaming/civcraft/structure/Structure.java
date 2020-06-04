@@ -42,10 +42,12 @@ public class Structure extends Buildable {
 	public Structure(String id, Town town) throws CivException {
 		this.setInfo(CivSettings.structures.get(id));
 		this.setSQLOwner(town);
+		loadSettings();
 	}
 
 	public Structure(ResultSet rs) throws SQLException, CivException {
 		this.load(rs);
+		loadSettings();
 	}
 
 	public static Structure _newStructure(ResultSet rs, String id, Town town) throws CivException, SQLException {

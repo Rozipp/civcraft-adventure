@@ -76,6 +76,7 @@ public class Camp extends Construct {
 	private static int raidLength;
 
 	public static ConfigBuildableInfo campInfo;
+	private ConsumeLevelComponent consumeComp = null;
 
 	private HashMap<String, Resident> members = new HashMap<String, Resident>();
 	/** можно ли отменить установку лагеря */
@@ -201,18 +202,9 @@ public class Camp extends Construct {
 	public void loadSettings() {
 		this.setInfo(Camp.campInfo);
 		this.setHitpoints(getMaxHitPoints());
+		consumeComp = new ConsumeLevelComponent();
+		consumeComp.createComponent(this, false);
 		super.loadSettings();
-	}
-
-	@Override
-	protected List<HashMap<String, String>> getComponentInfoList() {
-		List<HashMap<String, String>> components = new LinkedList<HashMap<String, String>>();
-
-		HashMap<String, String> compMap = new HashMap<String, String>();
-		compMap.put("name", "ConsumeLevelComponent");
-		components.add(compMap);
-
-		return components;
 	}
 
 	public static void loadStaticSettings() {
@@ -663,7 +655,6 @@ public class Camp extends Construct {
 			CivMessage.sendCamp(this, "§c" + CivSettings.localize.localizedString("camp_longhouseNoChest"));
 			return;
 		}
-		ConsumeLevelComponent consumeComp = getConsumeComponent();
 		consumeComp.setSource(mInv);
 		Result result = consumeComp.processConsumption(true);
 		consumeComp.onSave();
@@ -889,11 +880,11 @@ public class Camp extends Construct {
 	}
 
 	public int getLonghouseLevel() {
-		return getConsumeComponent().getLevel();
+		return consumeComp.getLevel();
 	}
 
 	public String getLonghouseCountString() {
-		return getConsumeComponent().getCountString();
+		return consumeComp.getCountString();
 	}
 
 	public String getMembersString() {

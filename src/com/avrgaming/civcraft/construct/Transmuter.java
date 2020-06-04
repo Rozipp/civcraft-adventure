@@ -25,7 +25,7 @@ import com.avrgaming.civcraft.util.MultiInventory;
 
 public class Transmuter extends CivAsyncTask {
 
-	private static Map<String,Transmuter> transmuters = new HashMap<>();
+	private static Map<String, Transmuter> transmuters = new HashMap<>();
 	private static int MAXSTACKSIZE = 64;
 
 	private Construct construct;
@@ -47,7 +47,7 @@ public class Transmuter extends CivAsyncTask {
 		this.construct = construct;
 		Transmuter.transmuters.put(getName(), this);
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -58,7 +58,10 @@ public class Transmuter extends CivAsyncTask {
 			public void run() {
 				ConfigTransmuterRecipe ctr = CivSettings.transmuterRecipes.get(s);
 				synchronized (abort) {
-					if (ctr != null) cTranRs.add(ctr);
+					if (ctr != null) {
+//						CivLog.debug("add " + ctr.id);
+						cTranRs.add(ctr);
+					}
 				}
 			}
 		}, 2);
@@ -103,23 +106,23 @@ public class Transmuter extends CivAsyncTask {
 	@Override
 	public void run() {
 		abort = false;
-		CivLog.debug("Transmuter begin");
+//		CivLog.debug("Transmuter begin");
 		foundInventory();
 		if (multInvs == null) {
-			CivLog.debug("Transmuter stoped multInvs == null");
+//			CivLog.debug("Transmuter stoped multInvs == null");
 			return;
 		}
 		while (true) {
 			int delay = 1;
 			synchronized (abort) {
 				if (abort) {
-					CivLog.debug("Transmuter stoped in begin");
+//					CivLog.debug("Transmuter stoped in begin");
 					return;
 				}
 				ArrayList<FoundElement> foundElements = new ArrayList<>();
 				for (ConfigTransmuterRecipe cTranR : cTranRs) {
 					if (multInvs.get(cTranR.resultChest).isFool()) {
-						CivLog.debug("cTranR.resultChest).isFool");
+//						CivLog.debug("cTranR.resultChest).isFool");
 						continue;
 					}
 
@@ -128,7 +131,7 @@ public class Transmuter extends CivAsyncTask {
 							int countDelete = deleteFoundItems(foundElements);
 							int countStep = (countDelete - 1) / cTranR.sourceItem.count + 1;
 							delay = countStep * cTranR.delay;
-							CivLog.debug("delay = " + delay);
+//							CivLog.debug("delay = " + delay);
 							Map<String, Integer> resultItems = getRandomResultItems(cTranR, countStep);
 							putResultItems(multInvs.get(cTranR.resultChest), resultItems);
 						} catch (InterruptedException e) {
@@ -145,7 +148,7 @@ public class Transmuter extends CivAsyncTask {
 					Thread.sleep(1000);
 					i++;
 					if (abort) {
-						CivLog.debug("Transmuter stoped in sleep");
+//						CivLog.debug("Transmuter stoped in sleep");
 						return;
 					}
 				}
@@ -159,24 +162,25 @@ public class Transmuter extends CivAsyncTask {
 		// Взять все сундуки
 		multInvs = new HashMap<>();
 		for (ConfigTransmuterRecipe cTranR : cTranRs) {
-			MultiInventory sour = this.getMultiInventoryChest(this, cTranR.sourceItem.chest);
+//			CivLog.debug("cTranR.sourceItem.chest " + cTranR.sourceItem.chest);
+			MultiInventory sour = this.getMultiInventoryChest(cTranR.sourceItem.chest);
 			if (sour == null || sour.getMaxSize() < 1) {
 				multInvs = null;
 				break;
 			}
 			multInvs.put(cTranR.sourceItem.chest, sour);
 
-			MultiInventory dest = this.getMultiInventoryChest(this, cTranR.resultChest);
+			MultiInventory dest = this.getMultiInventoryChest(cTranR.resultChest);
 			if (dest == null || sour.getMaxSize() < 1) {
 				multInvs = null;
 				break;
 			}
 			multInvs.put(cTranR.resultChest, dest);
 		}
-		if (multInvs == null)
-			CivLog.debug("multInvs == null");
-		else
-			CivLog.debug("multInvs " + multInvs.size());
+//		if (multInvs == null)
+//			CivLog.debug("multInvs == null");
+//		else
+//			CivLog.debug("multInvs " + multInvs.size());
 	}
 
 	private boolean hasEnoughToTransmute(ConfigTransmuterRecipe cTranR, ArrayList<FoundElement> foundElements) {
@@ -263,16 +267,17 @@ public class Transmuter extends CivAsyncTask {
 		}
 	}
 
-	private MultiInventory getMultiInventoryChest(CivAsyncTask task, String chest) {
+	private MultiInventory getMultiInventoryChest(String chest) {
 		ArrayList<ConstructChest> chests = construct.getAllChestsById(chest);
+//		CivLog.debug("chests.size() = " + chests.size());
 		MultiInventory multiInv = new MultiInventory();
 		try {
 			for (ConstructChest c : chests) {
-				task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
+				this.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
 				// XXX Couldn't load chunk in 5000 milliseconds! Retrying.
 				Inventory tmp;
 				try {
-					tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), false);
+					tmp = this.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), false);
 					multiInv.addInventory(tmp);
 				} catch (CivTaskAbortException e) {
 					e.printStackTrace();

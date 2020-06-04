@@ -34,7 +34,6 @@ import com.avrgaming.civcraft.cache.PlayerLocationCache;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -87,7 +86,6 @@ public abstract class ProjectileComponent extends Component {
 
 	public void setTurretLocation(Collection<? extends BlockCoord> absCoord) {
 		turrets.addAll(absCoord);
-		CivLog.debug("turrets.addAll(absCoord); " + turrets.size());
 	}
 
 	public Location getTurretCenter() {

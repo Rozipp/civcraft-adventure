@@ -33,6 +33,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.threading.tasks.DelayMoveInventoryItem;
@@ -118,7 +119,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 			UnitStatic.removeChildrenItems(player);
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
 			try {
-				uo.validLastHashCode(event.getItem());
+				uo.validLastActivate();
 			} catch (CivException e) {
 				UnitStatic.removeUnit(player, uo.getConfigUnitId());
 				CivMessage.send(player, e.getMessage());
@@ -130,7 +131,7 @@ public abstract class UnitMaterial extends CustomMaterial {
 			// Активация юнита
 			try {
 				uo.validateUnitUse(player);
-				uo.validLastHashCode(event.getItem());
+				uo.validLastActivate();
 			} catch (CivException e) {
 				UnitStatic.removeUnit(player, uo.getConfigUnitId());
 				CivMessage.send(player, e.getMessage());
@@ -233,7 +234,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 				return;
 			}
 			if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
-			uo.used(CivGlobal.getResident(player), stack);
 			onItemToPlayer(player, stack);
 		}
 	}
@@ -262,7 +262,6 @@ public abstract class UnitMaterial extends CustomMaterial {
 				return;
 			}
 			DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
-			uo.used(CivGlobal.getResident(player), stack);
 			onItemToPlayer(player, stack);
 		}
 	}
@@ -316,6 +315,9 @@ public abstract class UnitMaterial extends CustomMaterial {
 
 	/* Called when a unit material is added to a player. */
 	public void onItemToPlayer(Player player, ItemStack stack) {
+		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+		uo.used(CivGlobal.getResident(player), stack);
+		CivLog.debug("onItemToPlayer");
 	}
 
 	/* Called when a unit material is removed from a player. */

@@ -26,12 +26,6 @@ public class University extends Structure {
 	}
 
 	@Override
-	public void loadSettings() {
-		super.loadSettings();
-
-	}
-	
-	@Override
 	public String getMarkerIconName() {
 		return "bronzestar";
 	}

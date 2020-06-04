@@ -21,11 +21,10 @@ import com.avrgaming.civcraft.util.MultiInventory;
 
 public class TradeLevelComponent extends Component {
 
-	private static final double PACK_CHANCE = CivSettings.getDoubleStructure("tradeship.pack_chance"); //0.5%
-	private static final double MEDIUMPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.mediumpack_chance"); //0.1%
-	private static final double BIGPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.bigpack_chance"); //0.05%
-	private static final double HUGEPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.hugepack_chance"); //0.01%
-	
+	private static final double PACK_CHANCE = CivSettings.getDoubleStructure("tradeship.pack_chance"); // 0.5%
+	private static final double MEDIUMPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.mediumpack_chance"); // 0.1%
+	private static final double BIGPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.bigpack_chance"); // 0.05%
+	private static final double HUGEPACK_CHANCE = CivSettings.getDoubleStructure("tradeship.hugepack_chance"); // 0.01%
 
 	/* Current level we're operating at. */
 	private int level;
@@ -37,10 +36,7 @@ public class TradeLevelComponent extends Component {
 	private TradeShipResults lastTrade;
 	private Result lastResult;
 
-	/*
-	 * Consumption mod rate, can be used to increase or decrease consumption
-	 * rates.
-	 */
+	/* Consumption mod rate, can be used to increase or decrease consumption rates. */
 	private double consumeRate;
 
 	private double cultureEarned;
@@ -50,16 +46,11 @@ public class TradeLevelComponent extends Component {
 	/* Buildable this component is attached to. */
 	// private Buildable buildable;
 
-	/*
-	 * The first key is the level id, followed by a hashmap containing integer,
-	 * amount entries for each item consumed for that level. For each item in
-	 * the hashmap, we must have ALL of the items in the inventory.
-	 */
+	/* The first key is the level id, followed by a hashmap containing integer, amount entries for each item consumed for that level. For each
+	 * item in the hashmap, we must have ALL of the items in the inventory. */
 	private HashMap<Integer, Integer> consumptions = new HashMap<Integer, Integer>();
 
-	/*
-	 * Contains a hashmap of levels and counts configured for this component.
-	 */
+	/* Contains a hashmap of levels and counts configured for this component. */
 	private HashMap<Integer, Integer> levelCounts = new HashMap<Integer, Integer>();
 	private HashMap<Integer, Double> culture = new HashMap<Integer, Double>();
 
@@ -76,8 +67,7 @@ public class TradeLevelComponent extends Component {
 		// they can be loaded
 		// without this check.
 		if (constr instanceof TradeShip) {
-			for (ConfigTradeShipLevel lvl : CivSettings.tradeShipLevels
-					.values()) {
+			for (ConfigTradeShipLevel lvl : CivSettings.tradeShipLevels.values()) {
 				this.addCulture(lvl.level, lvl.culture);
 				this.addLevel(lvl.level, lvl.upgradeTrade);
 				this.setConsumes(lvl.level, lvl.maxTrade);
@@ -99,8 +89,7 @@ public class TradeLevelComponent extends Component {
 	}
 
 	private String getKey() {
-		return getConstruct().getDisplayName() + ":" + getConstruct().getId()
-				+ ":" + "levelcount";
+		return getConstruct().getDisplayName() + ":" + getConstruct().getId() + ":" + "levelcount";
 	}
 
 	private String getValue() {
@@ -109,8 +98,7 @@ public class TradeLevelComponent extends Component {
 
 	@Override
 	public void onLoad() {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(
-				getKey());
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 
 		if (entries.size() == 0) {
 			getConstruct().sessionAdd(getKey(), getValue());
@@ -128,16 +116,14 @@ public class TradeLevelComponent extends Component {
 		class AsyncTask implements Runnable {
 			@Override
 			public void run() {
-				ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase()
-						.lookup(getKey());
+				ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 
 				if (entries.size() == 0) {
 					getConstruct().sessionAdd(getKey(), getValue());
 					return;
 				}
 
-				CivGlobal.getSessionDatabase().update(entries.get(0).request_id,
-						getKey(), getValue());
+				CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), getValue());
 			}
 		}
 
@@ -189,7 +175,7 @@ public class TradeLevelComponent extends Component {
 				continue;
 			}
 
-			String tradeable = ItemManager.getProperty(stack,"tradeable");
+			String tradeable = ItemManager.getProperty(stack, "tradeable");
 			if (tradeable != null) {
 				if (tradeable.equalsIgnoreCase("true")) {
 					if (itemsToConsume < thisLevelConsumptions) {
@@ -202,7 +188,7 @@ public class TradeLevelComponent extends Component {
 		}
 		return itemsToConsume;
 	}
-	
+
 	private void processItemsFromStack(ItemStack stack, Integer countInStackToConsume) {
 		String itemID = CustomMaterial.getCustomMaterial(stack).getId();
 		Random rand = new Random();
@@ -211,188 +197,144 @@ public class TradeLevelComponent extends Component {
 		for (int i = 0; i < countInStackToConsume; i++) {
 			int rand1 = rand.nextInt(MaxRand);
 
-			if (rand1 < (int)(HUGEPACK_CHANCE*MaxRand)) {
+			if (rand1 < (int) (HUGEPACK_CHANCE * MaxRand)) {
 				if (itemID.contains("_egg")) {
 					if (itemID.contains("_egg_4")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_4"),2));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_4"),2));
 						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
 							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_chestplate")));
 							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_leggings")));
 							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_helmet")));
 							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_boots")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_boots")));
-						}
+						} else
+							if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_leggings")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_chestplate")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_helmet")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_composite_leather_boots")));
+							}
 						break;
-					} else if (itemID.contains("_egg_3")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_3"),2));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_3"),2));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_boots")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_boots")));
-						}
-						break;
-					} else if (itemID.contains("_egg_2")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_2"),2));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_2"),2));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_boots")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_boots")));
-						}
-						break;
-					} else {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_1"),2));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_1"),2));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_boots")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_leggings")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_chestplate")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_helmet")));
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_boots")));
-						}
-						break;
-					}
+					} else
+						if (itemID.contains("_egg_3")) {
+							if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_chestplate")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_leggings")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_helmet")));
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_boots")));
+							} else
+								if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_leggings")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_chestplate")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_helmet")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hardened_leather_boots")));
+								}
+							break;
+						} else
+							if (itemID.contains("_egg_2")) {
+								if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_chestplate")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_leggings")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_helmet")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_boots")));
+								} else
+									if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_leggings")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_chestplate")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_helmet")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_refined_leather_boots")));
+									}
+								break;
+							} else {
+								if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_chestplate")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_leggings")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_helmet")));
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_boots")));
+								} else
+									if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_leggings")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_chestplate")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_helmet")));
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_leather_boots")));
+									}
+								break;
+							}
 				} else {
-					int emeraldRand = (rand.nextInt(4))+1;
+					int emeraldRand = (rand.nextInt(4)) + 1;
 					if (emeraldRand >= 3) {
 						newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 3));
 					} else {
 						newItems.add(ItemManager.createItemStack(CivData.EMERALD, 1));
 					}
 				}
-			} else if (rand1 < (int)(BIGPACK_CHANCE*MaxRand)) {
-				if (itemID.contains("_egg")) {
-					if (itemID.contains("_egg_4")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_4")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_4")));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_sword")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_marksmen_bow")));
-						}
-						break;
-					} else if (itemID.contains("_egg_3")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_3")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_3")));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_sword")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_longbow")));
-						}
-						break;
-					} else if (itemID.contains("_egg_2")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_2")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_2")));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_sword")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_recurve_bow")));
-						}
-						break;
+			} else
+				if (rand1 < (int) (BIGPACK_CHANCE * MaxRand)) {
+					if (itemID.contains("_egg")) {
+						if (itemID.contains("_egg_4")) {
+							if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+								newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_tungsten_sword")));
+							} else
+								if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_marksmen_bow")));
+								}
+							break;
+						} else
+							if (itemID.contains("_egg_3")) {
+								if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+									newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_carbide_steel_sword")));
+								} else
+									if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_longbow")));
+									}
+								break;
+							} else
+								if (itemID.contains("_egg_2")) {
+									if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_steel_sword")));
+									} else
+										if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+											newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_recurve_bow")));
+										}
+									break;
+								} else {
+									if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
+										newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_sword")));
+									} else
+										if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
+											newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hunting_bow")));
+										}
+									break;
+								}
 					} else {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_1")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_1")));
-						if (itemID.contains("creeper") || itemID.contains("skeleton") || itemID.contains("spider") || itemID.equals("zombie") || itemID.contains("slime") || itemID.contains("enderman")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_iron_sword")));
-						}  else if (itemID.contains("pig") || itemID.contains("cow") || itemID.contains("chicken") || itemID.contains("sheep")) {
-							newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_hunting_bow")));
+						int diamondRand = (rand.nextInt(4)) + 1;
+						if (diamondRand >= 3) {
+							newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 2));
+						} else {
+							newItems.add(ItemManager.createItemStack(CivData.DIAMOND, 1));
 						}
-						break;
 					}
-				} else {
-					int diamondRand = (rand.nextInt(4))+1;
-					if (diamondRand >= 3) {
-						newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 2));
-					} else {
-						newItems.add(ItemManager.createItemStack(CivData.DIAMOND, 1));
-					}
+				} else
+					if (rand1 < (int) (MEDIUMPACK_CHANCE * MaxRand)) {
 
-					newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_3"), (rand.nextInt(3))+1));
-					newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_3"), (rand.nextInt(3))+1));
-				}
-			} else if (rand1 < (int)(MEDIUMPACK_CHANCE*MaxRand)) {
-				if (itemID.contains("_egg")) {
-					if (itemID.contains("_egg_4")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_4")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_4")));
-						break;
-					} else if (itemID.contains("_egg_3")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_3")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_3")));
-						break;
-					} else if (itemID.contains("_egg_2")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_2")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_2")));
-						break;
-					} else {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_1")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_1")));
-						break;
-					}
-				} else {
-					int goldRand = (rand.nextInt(4))+1;
-					if (goldRand >= 3) {
-						newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 2));
-					} else {
-						newItems.add(ItemManager.createItemStack(CivData.GOLD_INGOT, 1));
-					}
-					
-					newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_2"), (rand.nextInt(3))+1));
-					newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_2"), (rand.nextInt(3))+1));
-				}
-			}  else if (rand1 < (int)(PACK_CHANCE*MaxRand)) {
-				if (itemID.contains("_egg")) {
-					if (itemID.contains("_egg_4")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_4")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_4")));
-						break;
-					} else if (itemID.contains("_egg_3")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_3")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_3")));
-						break;
-					} else if (itemID.contains("_egg_2")) {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_2")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_2")));
-						break;
-					} else {
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_metallic_crystal_fragment_1")));
-						newItems.add(CustomMaterial.spawn(CustomMaterial.getCustomMaterial("mat_ionic_crystal_fragment_1")));
-						break;
-					}
-				} else {
-					int ironRand = (rand.nextInt(4))+1;
-					if (ironRand >= 3) {
-						newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 1));
-					} else {
-						newItems.add(ItemManager.createItemStack(CivData.IRON_INGOT, 1));
-					}
-				}
-			}
+						int goldRand = (rand.nextInt(4)) + 1;
+						if (goldRand >= 3) {
+							newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 2));
+						} else {
+							newItems.add(ItemManager.createItemStack(CivData.GOLD_INGOT, 1));
+						}
+
+					} else
+						if (rand1 < (int) (PACK_CHANCE * MaxRand)) {
+							if (itemID.contains("_egg")) {
+								int ironRand = (rand.nextInt(4)) + 1;
+								if (ironRand >= 3) {
+									newItems.add(ItemManager.createItemStack(CivData.GUNPOWDER, 1));
+								} else {
+									newItems.add(ItemManager.createItemStack(CivData.IRON_INGOT, 1));
+								}
+							}
+						}
 		}
-		for (ItemStack cargo : newItems)
-		{
+		for (ItemStack cargo : newItems) {
 			lastTrade.addReturnCargo(cargo);
 		}
 
@@ -413,19 +355,19 @@ public class TradeLevelComponent extends Component {
 				break;
 			}
 
-			String tradeable = ItemManager.getProperty(stack,"tradeable");
+			String tradeable = ItemManager.getProperty(stack, "tradeable");
 			if (tradeable != null) {
 				if (tradeable.equalsIgnoreCase("true")) {
 					if (countToConsume > 0) {
 						Integer countInStack = stack.getAmount();
 						Integer countInStackToConsume = Math.min(countToConsume, countInStack);
-						String tradeValue = ItemManager.getProperty(stack,"tradeValue");
+						String tradeValue = ItemManager.getProperty(stack, "tradeValue");
 						if (tradeValue != null) {
 							double valueForStack = Double.parseDouble(tradeValue);
 							double moneyForStack = countInStackToConsume * valueForStack;
 							monetaryValue += moneyForStack;
-						} 
-	
+						}
+
 						processItemsFromStack(stack, countInStackToConsume);
 						countConsumed += countInStackToConsume;
 						countToConsume -= countInStackToConsume;
@@ -459,14 +401,14 @@ public class TradeLevelComponent extends Component {
 
 		Integer currentCountMax = levelCounts.get(this.level);
 
-//		if (currentCountMax == null) {
-//			CivLog.error("Couldn't get current level count, level was:"
-//					+ this.level);
-//			lastResult = Result.UNKNOWN;
-//			lastTrade.setResult(lastResult);
-//			return lastTrade;
-//		}
-		int itemsToConsume = hasCountToConsume((updgradeLevel*2));
+		// if (currentCountMax == null) {
+		// CivLog.error("Couldn't get current level count, level was:"
+		// + this.level);
+		// lastResult = Result.UNKNOWN;
+		// lastTrade.setResult(lastResult);
+		// return lastTrade;
+		// }
+		int itemsToConsume = hasCountToConsume((updgradeLevel * 2));
 		if (itemsToConsume >= 1) {
 			countConsumed = consumeFromInventory(itemsToConsume);
 
@@ -478,31 +420,31 @@ public class TradeLevelComponent extends Component {
 					lastTrade.setResult(lastResult);
 				} else {
 
-					this.upgradeTrade = this.upgradeTrade + countConsumed
-							- currentCountMax;
+					this.upgradeTrade = this.upgradeTrade + countConsumed - currentCountMax;
 					this.level++;
 					lastResult = Result.LEVELUP;
 					lastTrade.setResult(lastResult);
 				}
-			} else if (countConsumed >= 1) {
-				// Grow
-				this.upgradeTrade += countConsumed;
-				lastResult = Result.GROW;
-				lastTrade.setResult(lastResult);
-			} else {
+			} else
+				if (countConsumed >= 1) {
+					// Grow
+					this.upgradeTrade += countConsumed;
+					lastResult = Result.GROW;
+					lastTrade.setResult(lastResult);
+				} else {
 
-				lastResult = Result.STAGNATE;
-				lastTrade.setResult(lastResult);
-			}
+					lastResult = Result.STAGNATE;
+					lastTrade.setResult(lastResult);
+				}
 		} else {
 			lastResult = Result.STAGNATE;
 			lastTrade.setResult(lastResult);
 			// return lastTrade;
 		}
 		Double currentCultureRate = culture.get(this.level);
-		Double cultureUpgradeModifier = (updgradeLevel/5.0);
+		Double cultureUpgradeModifier = (updgradeLevel / 5.0);
 
-		cultureEarned = (currentCultureRate+cultureUpgradeModifier)*countConsumed;
+		cultureEarned = (currentCultureRate + cultureUpgradeModifier) * countConsumed;
 
 		lastTrade.setMoney(moneyEarned);
 		lastTrade.setConsumed(countConsumed);

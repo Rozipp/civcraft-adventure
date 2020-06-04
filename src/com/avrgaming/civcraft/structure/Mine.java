@@ -42,11 +42,6 @@ public class Mine extends Structure {
 		super(rs);
 	}
 
-	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-
 	public String getkey() {
 		return getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}

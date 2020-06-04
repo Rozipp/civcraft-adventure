@@ -38,7 +38,6 @@ public class UnitObject extends SQLObject {
 	private ConfigUnit configUnit;
 	private Town townOwner;
 	private Resident lastResident = null;
-	private int lastHashCode = 0;
 	private long lastActivate = 0;
 	private HashMap<String, Integer> ammunitionSlots = new HashMap<>();
 
@@ -82,7 +81,6 @@ public class UnitObject extends SQLObject {
 					+ "`town_id` int(11) DEFAULT '0'," //
 					+ "`exp` int(11) DEFAULT '0'," //
 					+ "`lastResident` VARCHAR(64) DEFAULT NULL," //
-					+ "`lastHashCode` int(11) DEFAULT 0," //
 					+ "`lastActivate` BIGINT NOT NULL DEFAULT 0," //
 					+ "`ammunitions` mediumtext DEFAULT NULL," //
 					+ "`components` mediumtext DEFAULT NULL," //
@@ -111,7 +109,6 @@ public class UnitObject extends SQLObject {
 		this.exp = rs.getInt("exp");
 		this.level = UnitStatic.calcLevel(this.exp);
 		this.lastResident = CivGlobal.getResident(rs.getString("lastResident"));
-		this.lastHashCode = rs.getInt("lastHashCode");
 		this.lastActivate = rs.getLong("lastActivate");
 
 		String tempAmmun = rs.getString("ammunitions");
@@ -168,7 +165,6 @@ public class UnitObject extends SQLObject {
 		hashmap.put("town_id", this.townOwner.getId());
 		hashmap.put("exp", this.exp);
 		hashmap.put("lastResident", (this.lastResident == null ? 0 : this.lastResident.getName()));
-		hashmap.put("lastHashCode", this.lastHashCode);
 		hashmap.put("lastActivate", this.lastActivate);
 
 		if (!ammunitionSlots.isEmpty()) hashmap.put("ammunitions", ammunitionSlots.toString().replace("{", "").replace("}", "").replace(" ", ""));
@@ -268,19 +264,16 @@ public class UnitObject extends SQLObject {
 	public void used(Resident res, ItemStack is) {
 		this.lastResident = res;
 		this.lastActivate = System.currentTimeMillis();
-		this.lastHashCode = is.hashCode();
 		save();
 	}
 
-	public boolean validLastActivate() {
-		if (lastHashCode == 0) return false;
-		if (lastActivate == 0) return true;
-		
-		return (System.currentTimeMillis() - lastActivate) < UnitStatic.unitTimeDiactivate * 60000;
-	}
-
-	public void validLastHashCode(ItemStack is) throws CivException {
-		if (lastHashCode == is.hashCode()) throw new CivException("Вы уже давно не использовали этого юнита, потому он вернулся в бараки");
+	public void validLastActivate() throws CivException {
+		boolean bool = false;
+		if (lastActivate == 0)
+			bool = true;
+		else
+			bool = (System.currentTimeMillis() - lastActivate) < UnitStatic.unitTimeDiactivate * 60000;
+		if (bool == false) throw new CivException("Вы давно  не использовали юнита, потому он вернулся в бараки");
 	}
 
 	public void setAmunitionSlot(String mat, Integer slot) {

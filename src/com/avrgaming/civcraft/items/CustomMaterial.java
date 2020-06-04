@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -166,13 +165,13 @@ public abstract class CustomMaterial {
 		AttributeUtil attrs = new AttributeUtil(stack);
 		attrs.setCivCraftProperty("mid", material.getId());
 		attrs.setName(material.getName());
-		Boolean isShiny = false;
+//		Boolean isShiny = false;
 		if (material instanceof BaseCustomMaterial) {
 			BaseCustomMaterial craftMat = (BaseCustomMaterial) material;
 			if (material instanceof CraftableCustomMaterial) attrs.addLore(CivColor.ITALIC + ((ConfigCraftableMaterial) craftMat.getConfigMaterial()).category);
 			if (craftMat.getConfigMaterial().tradeable) attrs.setCivCraftProperty("tradeable", "true");
 			if (craftMat.getConfigMaterial().tradeValue >= 0) attrs.setCivCraftProperty("tradeValue", "" + craftMat.getConfigMaterial().tradeValue);
-			isShiny = craftMat.getConfigMaterial().shiny;
+//			isShiny = craftMat.getConfigMaterial().shiny;
 		}
 
 		if (material.getLore() != null) attrs.setLore(material.getLore());
@@ -181,8 +180,9 @@ public abstract class CustomMaterial {
 		stack = attrs.getStack();
 
 		ItemMeta meta = stack.getItemMeta();
-		if (isShiny) meta.addEnchant(Enchantment.LURE, 1, false);
+//		if (isShiny) meta.addEnchant(Enchantment.LURE, 1, false);
 		meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		stack.setItemMeta(meta);
 		return stack;
 	}
