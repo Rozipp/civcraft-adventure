@@ -13,32 +13,23 @@ import gpl.AttributeUtil;
 
 public class Cooldown extends ItemComponent {
 
-	com.avrgaming.civcraft.units.Cooldown cooldown = null;
-
 	@Override
 	public void onPrepareCreate(AttributeUtil attrUtil) {
 		attrUtil.addLore(ChatColor.GOLD + "Cooldown " + getString("cooldown"));
 		attrUtil.addLore(ChatColor.RESET + CivColor.Rose + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
 	}
+
 	@Override
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		ItemStack stack = event.getItem();
-		if (cooldown == null) cooldown = new com.avrgaming.civcraft.units.Cooldown(stack, this, getInteger("cooldown"));
-		if (!cooldown.isCanUse()) {
-			CivMessage.sendError(player, "Вы не моежетет использовать это");
+		com.avrgaming.civcraft.units.Cooldown cooldown = com.avrgaming.civcraft.units.Cooldown.getCooldown(stack);
+		if (cooldown != null) {
+			CivMessage.sendError(player, "Подождите " + cooldown.getTime() + " секунд");
 			event.setCancelled(true);
 			return;
 		}
-
-		if (!cooldown.isRefresh()) {
-			CivMessage.sendError(player, "Вы не моежетет использовать это сейчас. Подождите немного");
-			event.setCancelled(true);
-			return;
-		}
-
-		setAttribute("lock", "lock");
-		cooldown.beginCooldown(player);
+		com.avrgaming.civcraft.units.Cooldown.startCooldown(player, stack, getInteger("cooldown"));
 	}
 
 }

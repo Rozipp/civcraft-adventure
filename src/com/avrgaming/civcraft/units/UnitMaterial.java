@@ -41,7 +41,7 @@ import com.avrgaming.civcraft.util.CivColor;
 import gpl.AttributeUtil;
 
 /** Клас предметов которые выступают в качестве юнитов */
-public abstract class UnitMaterial extends CustomMaterial {
+public abstract class UnitMaterial extends CustomMaterial implements CooldownFinisher{
 
 	private ConfigUnit configUnit = null;
 	public static final int LAST_SLOT = 8;
@@ -102,43 +102,19 @@ public abstract class UnitMaterial extends CustomMaterial {
 	}
 
 	@Override
-	public void onInteract(PlayerInteractEvent event) {
-		event.setCancelled(true);
-		Player player = event.getPlayer();
+	public void finishCooldown(Player player, ItemStack stack) {
 		Resident resident = CivGlobal.getResident(player);
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(event.getItem()));
-		if (uo == null) {
-			CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
-			event.setCancelled(true);
-			return;
-		}
-
+		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
 		if (resident.isUnitActive()) {
 			// Деактивация юнита
 			resident.setUnitObjectId(0);
 			UnitStatic.removeChildrenItems(player);
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
-			try {
-				uo.validLastActivate();
-			} catch (CivException e) {
-				UnitStatic.removeUnit(player, uo.getConfigUnitId());
-				CivMessage.send(player, e.getMessage());
-				event.setCancelled(true);
-				return;
-			}
-			uo.used(resident, event.getItem());
+			
+			uo.used(resident, stack);
 		} else {
 			// Активация юнита
-			try {
-				uo.validateUnitUse(player);
-				uo.validLastActivate();
-			} catch (CivException e) {
-				UnitStatic.removeUnit(player, uo.getConfigUnitId());
-				CivMessage.send(player, e.getMessage());
-				event.setCancelled(true);
-				return;
-			}
-			uo.used(resident, event.getItem());
+			uo.used(resident, stack);
 			resident.setUnitObjectId(uo.getId());
 			uo.dressAmmunitions(player);
 			CivMessage.send(player, CivColor.LightGreenBold + "Юнит активирован ");
@@ -148,6 +124,36 @@ public abstract class UnitMaterial extends CustomMaterial {
 		resident.calculateWalkingModifier(player);
 		UnitStatic.setModifiedMovementSpeed(player);
 		UnitStatic.setModifiedJumping(player);
+	}
+	
+	@Override
+	public void onInteract(PlayerInteractEvent event) {
+		event.setCancelled(true);
+		event.setUseInteractedBlock(Result.DENY);
+		event.setUseItemInHand(Result.DENY);
+		Player player = event.getPlayer();
+		ItemStack stack = event.getItem();
+		Cooldown cooldown = Cooldown.getCooldown(stack);
+		if (cooldown != null) {
+			CivMessage.sendError(player, "Подождите " + cooldown.getTime() + " секунд");
+			return;
+		}
+		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+		if (uo == null) {
+			CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
+			return;
+		}
+		try {
+			uo.validateUnitUse(player);
+			uo.validLastActivate();
+		} catch (CivException e) {
+			uo.setLastActivate(0);
+			UnitStatic.removeUnit(player, uo.getConfigUnitId());
+			CivMessage.send(player, e.getMessage());
+			return;
+		}
+		
+		Cooldown.startCooldown(player, stack, 5, this);
 	}
 
 	@Override

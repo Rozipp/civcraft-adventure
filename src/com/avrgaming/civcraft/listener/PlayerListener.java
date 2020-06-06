@@ -54,6 +54,7 @@ import org.bukkit.potion.PotionEffectType;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTechPotion;
 import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -61,7 +62,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
-import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
@@ -294,8 +294,21 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		if (War.isWarTime() && event.getEntity().getKiller() != null) {
-			WarStats.incrementPlayerKills(event.getEntity().getKiller().getName());
+		Player death = event.getEntity();
+		Resident deathRes = CivGlobal.getResident(death);
+		Player killer = event.getEntity().getKiller();
+		Resident killerRes = null;
+		if (deathRes.getLastAttackTime() - System.currentTimeMillis() < 2000) {
+			killerRes = deathRes.getLastAttacker();
+			try {
+				killer = CivGlobal.getPlayer(killerRes);
+			} catch (CivException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (War.isWarTime() && killer != null) {
+			WarStats.incrementPlayerKills(killer.getName());
 		}
 		Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
 		if (!keepInventory) {
@@ -509,39 +522,38 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDamageByEntityMonitor(EntityDamageByEntityEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
+		if (event.isCancelled()) return;
 
 		Player attacker = null;
 		Player defender = null;
 		String damage;
 		Arrow arrow = null;
 
-		if (event.getEntity() instanceof Player) {
-			defender = (Player) event.getEntity();
-		}
+		if (event.getEntity() instanceof Player) defender = (Player) event.getEntity();
 
 		if (event.getDamager() instanceof Player) {
 			attacker = (Player) event.getDamager();
 		} else
 			if (event.getDamager() instanceof Arrow) {
 				arrow = (Arrow) event.getDamager();
-				if (arrow.getShooter() instanceof Player) {
-					attacker = (Player) arrow.getShooter();
-				}
+				if (arrow.getShooter() instanceof Player) attacker = (Player) arrow.getShooter();
 			}
 
-		if (attacker == null && defender == null) {
-			return;
+		if (attacker == null && defender == null) return;
+
+		if (attacker != null && defender != null) {
+			Resident attackerRes = CivGlobal.getResident(attacker);
+			Resident defenderRes = CivGlobal.getResident(defender);
+			defenderRes.lastAttacker = attackerRes;
+			defenderRes.lastAttackTime = System.currentTimeMillis();
 		}
 
+		// TODO Проверка на артифакты. Отключить
 		if (attacker != null && attacker.hasPotionEffect(PotionEffectType.WEAKNESS)) {
 			event.setCancelled(true);
 			CivMessage.sendError(attacker, CivSettings.localize.localizedString("var_artifact_archer_attackForbidden"));
 			return;
 		}
-
 		if (attacker != null && arrow != null) {
 			if (attacker.hasPotionEffect(PotionEffectType.WEAKNESS)) {
 				event.getEntity().setFireTicks(60);
@@ -566,15 +578,8 @@ public class PlayerListener implements Listener {
 							+ CivSettings.localize.localizedString("var_playerListen_combatDefend", CivColor.Rose + attacker.getName() + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
 				} else {
 					String entityName = null;
-
-					if (event.getDamager() instanceof LivingEntity) {
-						entityName = ((LivingEntity) event.getDamager()).getCustomName();
-					}
-
-					if (entityName == null) {
-						entityName = event.getDamager().getType().toString();
-					}
-
+					if (event.getDamager() instanceof LivingEntity) entityName = ((LivingEntity) event.getDamager()).getCustomName();
+					if (entityName == null) entityName = event.getDamager().getType().toString();
 					CivMessage.send(defender, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
 							+ CivSettings.localize.localizedString("var_playerListen_combatDefend", CivColor.LightPurple + entityName + CivColor.LightGray, CivColor.Rose + damage + CivColor.LightGray));
 				}
@@ -589,35 +594,26 @@ public class PlayerListener implements Listener {
 							+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.Rose + defender.getName() + CivColor.LightGray, CivColor.LightGreen + damage + CivColor.LightGray));
 				} else {
 					String entityName = null;
-
-					if (event.getEntity() instanceof LivingEntity) {
-						entityName = ((LivingEntity) event.getEntity()).getCustomName();
-					}
-
-					if (entityName == null) {
-						entityName = event.getEntity().getType().toString();
-					}
-
+					if (event.getEntity() instanceof LivingEntity) entityName = ((LivingEntity) event.getEntity()).getCustomName();
+					if (entityName == null) entityName = event.getEntity().getType().toString();
 					CivMessage.send(attacker, CivColor.LightGray + "   " + CivSettings.localize.localizedString("playerListen_combatHeading") + " "
 							+ CivSettings.localize.localizedString("var_playerListen_attack", CivColor.LightPurple + entityName + CivColor.LightGray, CivColor.LightGreen + damage + CivColor.LightGray));
 				}
 			}
 		}
 
-		double dmg = event.getDamage();
-		if (event.getDamager() instanceof Player && attacker != null && Civilization.civHasBuiltColossus(CivGlobal.getResident(attacker))) {
-			dmg += 1.0;
-		}
-		if (!event.isCancelled() && event.getEntity() instanceof LivingEntity) {
-			LivingEntity def = (LivingEntity) event.getEntity();
-			if (def.getHealth() - dmg > 0.0) {
-				def.setHealth(def.getHealth() - dmg);
-				event.setDamage(0.5);
-			} else {
-				def.setHealth(0.1);
-				event.setDamage(1.0);
-			}
-		}
+		// FIXME Ебанутый фикс урона в мониторе
+		// double dmg = event.getDamage();
+		// if (!event.isCancelled() && event.getEntity() instanceof LivingEntity) {
+		// LivingEntity def = (LivingEntity) event.getEntity();
+		// if (def.getHealth() - dmg > 0.0) {
+		// def.setHealth(def.getHealth() - dmg);
+		// event.setDamage(0.5);
+		// } else {
+		// def.setHealth(0.1);
+		// event.setDamage(1.0);
+		// }
+		// }
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

@@ -3,48 +3,42 @@ package com.avrgaming.civcraft.units;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.items.components.ItemComponent;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.util.ItemManager;
 
 public class Cooldown {
 
-	// Integer id = 0;
+	String id = "";
 	Player player;
 	Resident resedint;
-	final ItemStack stack;
-	ItemComponent component;
+	ItemStack stack;
 	final Integer cooldown;
 	int slot = -1;
 	Long beginTime;
 	Integer time;
+	CooldownFinisher finisher;
 
-	public Cooldown(ItemStack is, ItemComponent component, int cooldown) {
-		this.stack = is;
-		this.component = component;
+	public Cooldown(Player player, ItemStack stack, int cooldown, CooldownFinisher finisher) {
+		this.id = Integer.toString(CivCraft.civRandom.nextInt(Integer.MAX_VALUE));
+		this.stack = ItemManager.setProperty(stack, "cooldown", id.toString());
 		this.cooldown = cooldown;
+		this.finisher = finisher;
 		this.time = 0;
-	}
 
-	private void setItemCount(int count) {
-		// XXX временно выкл if (resedint.isUnitActive()) {
-		if (count > 120) count = count / 60;
-		if (count < 1 || count >= cooldown) count = 1;
-		stack.setAmount(count);
-		player.getInventory().setItem(slot, stack);
-		// }
-	}
-
-	public void beginCooldown(Player player) {
 		this.player = player;
 		resedint = CivGlobal.getResident(player);
-		slot = -1;
-		for (int i = 0; i <= 40; i++) {
-			ItemStack is = player.getInventory().getItem(i);
-			if (is == null) continue;
-			if (is.equals(stack)) {
-				slot = i;
-				break;
+		slot = player.getInventory().getHeldItemSlot();
+		if (!player.getInventory().getItem(slot).equals(stack)) {
+			slot = -1;
+			for (int i = 0; i <= 40; i++) {
+				ItemStack is = player.getInventory().getItem(i);
+				if (is == null) continue;
+				if (is.equals(stack)) {
+					slot = i;
+					break;
+				}
 			}
 		}
 		if (slot == -1) return;
@@ -52,8 +46,14 @@ public class Cooldown {
 		beginTime = System.currentTimeMillis();
 		time = cooldown;
 
-		setItemCount(time);
-		CooldownTimerTask.addCooldown(this);
+//		setItemCount(time);
+	}
+
+	private void setItemCount(int count) {
+		if (count > 120) count = count / 60;
+		if (count < 1 || count >= cooldown) count = 1;
+		stack.setAmount(count);
+		player.getInventory().setItem(slot, stack);
 	}
 
 	public void processItem() {
@@ -62,15 +62,29 @@ public class Cooldown {
 		setItemCount(time);
 	}
 
-	public boolean isCanUse() {
-		return true;
-	}
-
-	public boolean isRefresh() {
-		return time < 1;
-	}
-
 	public void finish() {
-		component.setAttribute("lock", null);
+		finisher.finishCooldown(player, stack);
 	}
+
+	public Integer getTime() {
+		return time;
+	}
+
+	public static void startCooldown(Player player, ItemStack stack, int cooldown) {
+		startCooldown(player, stack, cooldown, null);
+	}
+
+	public static void startCooldown(Player player, ItemStack stack, int cooldown, CooldownFinisher finisher) {
+		Cooldown newCooldown = new Cooldown(player, stack, cooldown, finisher);
+		CooldownSynckTask.addCooldown(newCooldown.id, newCooldown);
+	}
+
+	public static boolean isCooldown(ItemStack is) {
+		return CooldownSynckTask.cooldowns.containsKey(ItemManager.getProperty(is, "cooldown"));
+	}
+
+	public static Cooldown getCooldown(ItemStack is) {
+		return CooldownSynckTask.cooldowns.get(ItemManager.getProperty(is, "cooldown"));
+	}
+
 }

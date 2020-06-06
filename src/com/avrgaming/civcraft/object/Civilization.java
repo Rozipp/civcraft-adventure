@@ -55,7 +55,6 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
 import com.avrgaming.civcraft.structure.wonders.StockExchange;
-import com.avrgaming.civcraft.structure.wonders.TheColossus;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.UpdateTechBar;
@@ -1981,21 +1980,6 @@ public class Civilization extends SQLObject {
 			goodies = goodies + goodie + ", ";
 		}
 		this.tradeGoods = goodies;
-	}
-
-	public static boolean civHasBuiltColossus(final Resident resident) {
-		final Civilization civ = resident.getCiv();
-		if (civ == null) {
-			return false;
-		}
-		for (final Town town : civ.getTowns()) {
-			for (final Wonder wonder : town.getWonders()) {
-				if (wonder instanceof TheColossus && wonder.isComplete() && wonder.isActive()) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	public boolean hasWonder(final String id) {

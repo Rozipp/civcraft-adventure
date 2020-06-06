@@ -20,6 +20,7 @@ import com.avrgaming.civcraft.enchantment.CustomEnchantment;
 import com.avrgaming.civcraft.enchantment.EnchantmentDefense;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -47,9 +48,7 @@ public class Defense extends ItemComponent {
 
 		/* Try to get any extra defense enhancements from this item. */
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
-		if (craftMat == null) {
-			return;
-		}
+		if (craftMat == null) return;
 
 		double extraDef = 0;
 		if (Enchantments.hasEnchantment(stack, CustomEnchantment.Defense)) {
@@ -61,15 +60,13 @@ public class Defense extends ItemComponent {
 
 		if (event.getEntity() instanceof Player) {
 			Resident resident = CivGlobal.getResident(((Player) event.getEntity()));
-			if (!resident.hasTechForItem(stack)) {
-				defValue = defValue / 2;
-			}
+			if (!resident.hasTechForItem(stack)) defValue = defValue / 2;
 		}
 
 		damage -= defValue;
-		if (damage < 0.5) {
+		if (damage < CivCraft.minDamage) {
 			/* Always do at least 0.5 damage. */
-			damage = 0.5;
+			damage = CivCraft.minDamage;
 		}
 
 		event.setDamage(damage);

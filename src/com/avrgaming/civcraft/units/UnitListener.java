@@ -8,7 +8,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Resident;
 
@@ -43,19 +45,43 @@ public class UnitListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerDeath(final PlayerDeathEvent event) {
-		Player player = event.getEntity();
-		Resident resident = CivGlobal.getResident(player);
-		if (resident == null) return;
-		int unitId = resident.getUnitObjectId();
-		if (unitId <= 0) return;
-		UnitObject uo = CivGlobal.getUnitObject(unitId);
+		Player death = event.getEntity();
+		Resident deathRes = CivGlobal.getResident(death);
+		if (deathRes == null) return;
+		Player killer = null;
+		Resident killerRes = null;
+		if (deathRes.getLastAttackTime() - System.currentTimeMillis() < 2000) {
+			killerRes = deathRes.getLastAttacker();
+			try {
+				killer = CivGlobal.getPlayer(killerRes);
+			} catch (CivException e) {
+				e.printStackTrace();
+			}
+		}
 
-		UnitStatic.removeChildrenItems(player);
-		uo.removeExp((int) Math.round(UnitStatic.percent_exp_lost_when_dead * uo.getExpToNextLevel()));
-		resident.setUnitObjectId(0);
-		UnitStatic.updateUnitForPlaeyr(player);
-		resident.calculateWalkingModifier(player);
-		UnitStatic.setModifiedMovementSpeed(player);
+		int unitId = deathRes.getUnitObjectId();
+		UnitObject uo = CivGlobal.getUnitObject(unitId);
+		if (uo != null) {
+			int lostExp = (int) Math.round(UnitStatic.percent_exp_lost_when_dead * uo.getExpToNextLevel());
+
+			UnitStatic.removeChildrenItems(death);
+			uo.removeExp(lostExp);
+			deathRes.setUnitObjectId(0);
+			UnitStatic.updateUnitForPlaeyr(death);
+			deathRes.calculateWalkingModifier(death);
+			UnitStatic.setModifiedMovementSpeed(death);
+		}
+		if (killer != null) {
+			int killUnitId = killerRes.getUnitObjectId();
+			UnitObject killUo = CivGlobal.getUnitObject(killUnitId);
+			if (killUo != null) {
+				int addExp = (int) Math.round(UnitStatic.percent_exp_per_level_unit * uo.getExpToNextLevel());
+				UnitStatic.addExpToPlayer(killer, addExp);
+				CivMessage.global("Игрок " + killer.getName() + " убил игрока " + death.getName() + " и забрал себе " + addExp + " единиц опыта");
+			}
+			CivMessage.global("Игрок " + killer.getName() + " убил игрока " + death.getName());
+		}
+
 	}
 
 }

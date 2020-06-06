@@ -66,11 +66,11 @@ public class CustomEnchantment {
 	public static CustomEnchantment Defense = new EnchantmentDefense(104);
 	public static CustomEnchantment Evrei = new CustomEnchantment(105, "evrei", CivSettings.localize.localizedString("itemLore_evrei"), ItemSet.NONE, 1, null);
 	public static CustomEnchantment Jumping = new CustomEnchantment(105, "jumping", "Прыгучесть", ItemSet.LEGGINGS, 100, null);
-	public static CustomEnchantment Levitate = new CustomEnchantment(106, "levitate", CivColor.LightGrayBold + CivSettings.localize.localizedString("itemLore_levitate"), ItemSet.BOOTS, 1, null);
-	public static CustomEnchantment LightningStrike = new CustomEnchantment(107, "light_strike", "LightStrike", ItemSet.WEAPONS, 1, null);
+	public static CustomEnchantment Levitate = new EnchantmentLevitate(106);
+	public static CustomEnchantment LightningStrike = new EnchantmentLightningStrike(107);
 	public static CustomEnchantment NoRepair = new CustomEnchantment(108, "norepair", CivSettings.localize.localizedString("itemLore_noRepair"), ItemSet.NONE, 1, null);
 	public static CustomEnchantment NoTech = new CustomEnchantment(109, "notech", CivSettings.localize.localizedString("itemLore_noTech"), ItemSet.NONE, 1, null);
-	public static CustomEnchantment Poison = new CustomEnchantment(110, "poision", CivColor.LightGreenBold + "Ядовитое лезвие", ItemSet.WEAPONS, 1, null);
+	public static CustomEnchantment Poison = new EnchantmentPoison(110);
 	public static CustomEnchantment Punchout = new EnchantmentPunchout(111);
 	public static CustomEnchantment SoulBound = new CustomEnchantment(112, "soulbound", CivSettings.localize.localizedString("itemLore_Soulbound"), ItemSet.ALL, 1, null);
 	public static CustomEnchantment Speed = new EnchantmentSpeed(113);

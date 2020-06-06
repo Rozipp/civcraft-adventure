@@ -53,7 +53,7 @@ import com.avrgaming.civcraft.threading.timers.*;
 import com.avrgaming.civcraft.trade.TradeInventoryListener;
 import com.avrgaming.civcraft.units.UnitInventoryListener;
 import com.avrgaming.civcraft.units.UnitListener;
-import com.avrgaming.civcraft.units.CooldownTimerTask;
+import com.avrgaming.civcraft.units.CooldownSynckTask;
 import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.TimeTools;
@@ -79,6 +79,7 @@ public final class CivCraft extends JavaPlugin {
 	private static JavaPlugin plugin;
 	public static boolean isDisable = false;
 	public static Random civRandom = new Random();
+	public static double minDamage = 0.2; //FIXME Зделать константой в файле civ.yml
 
 	@Override
 	public void onEnable() {
@@ -195,7 +196,7 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("RegenTimer", new RegenTimer(), TimeTools.toTicks(5));
 		TaskMaster.asyncTimer("BeakerTimer", new BeakerTimer(60), TimeTools.toTicks(60));
 		TaskMaster.syncTimer("UnitTrainTimer", new UnitTrainTimer(), TimeTools.toTicks(1));
-		TaskMaster.syncTimer("UnitMaterialColdownTimer", new CooldownTimerTask(), 20);
+		TaskMaster.syncTimer("UnitMaterialColdownTimer", new CooldownSynckTask(), 20);
 		try {
 			double arrow_firerate = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.fire_rate");
 			TaskMaster.syncTimer("arrowTower", new ProjectileComponentTimer(), (int) (arrow_firerate * 20));

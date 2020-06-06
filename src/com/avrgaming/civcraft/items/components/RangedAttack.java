@@ -10,7 +10,9 @@ import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentAttack;
 import com.avrgaming.civcraft.enchantment.Enchantments;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -47,8 +49,6 @@ public class RangedAttack extends ItemComponent {
 	}
 
 	public void onRangedAttack(EntityDamageByEntityEvent event, ItemStack inHand) {
-		double dmg = this.getDouble("value");
-
 		if (event.getDamager() instanceof Arrow) {
 			Arrow arrow = (Arrow) event.getDamager();
 			if (arrow.getShooter() instanceof Player) {
@@ -60,37 +60,28 @@ public class RangedAttack extends ItemComponent {
 				}
 			}
 		}
-
+		double dmg = this.getDouble("value");
 		double extraAtt = 0.0;
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Attack)) {
-			extraAtt += Enchantments.getLevelEnchantment(inHand, CustomEnchantment.Attack);
-		}
-		dmg += extraAtt;
+		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Attack)) dmg += EnchantmentAttack.onAttack(Enchantments.getLevelEnchantment(inHand, CustomEnchantment.Attack));
 
 		Vector vel = event.getDamager().getVelocity();
 		double magnitudeSquared = Math.pow(vel.getX(), 2) + Math.pow(vel.getY(), 2) + Math.pow(vel.getZ(), 2);
-
 		double percentage = magnitudeSquared / ARROW_MAX_VEL;
-		double totalDmg = percentage * dmg;
-
-		if (totalDmg > dmg) {
-			totalDmg = dmg;
-		}
+		if (percentage > 1) percentage = 1;
+		dmg = percentage * dmg;
 
 		if (event.getDamager() instanceof Arrow) {
 			Arrow arrow = (Arrow) event.getDamager();
 			if (arrow.getShooter() instanceof Player) {
 				Resident resident = CivGlobal.getResident(((Player) arrow.getShooter()));
 				if (!resident.hasTechForItem(inHand)) {
-					totalDmg = totalDmg / 2;
+					dmg = dmg / 2;
 				}
 			}
 		}
-
-		if (totalDmg < 0.5) {
-			totalDmg = 0.5;
-		}
-
-		event.setDamage(totalDmg);
+		
+		dmg += extraAtt;
+		if (dmg < CivCraft.minDamage) dmg = CivCraft.minDamage;
+		event.setDamage(dmg);
 	}
 }

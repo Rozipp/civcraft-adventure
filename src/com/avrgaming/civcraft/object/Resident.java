@@ -103,7 +103,7 @@ public class Resident extends SQLObject {
 	private Town townChatOverride = null;
 	/** Civ to chat in besides your own. /ad cc <civ> */
 	private Civilization civChatOverride = null;
-	
+
 	private boolean permOverride = false;
 	private boolean sbperm = false;
 	private boolean controlBlockInstantBreak = false;
@@ -182,6 +182,8 @@ public class Resident extends SQLObject {
 	private String desiredReportPlayerName;
 	private boolean campChat;
 	public boolean isRefresh;
+	public Resident lastAttacker = null;
+	public long lastAttackTime;
 
 	public Resident(UUID uid, String name) throws InvalidNameException {
 		this.setName(name);
@@ -1373,7 +1375,7 @@ public class Resident extends SQLObject {
 	public boolean isUnitActive() {
 		return this.unitObjectId > 0;
 	}
-	
+
 	public Town getSelectedTown() {
 		if (this.selectedTown != null) return this.selectedTown;
 		return this.getTown();

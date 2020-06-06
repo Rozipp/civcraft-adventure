@@ -73,6 +73,7 @@ public class Enchantments {
 	}
 
 	public static Integer getLevelEnchantment(final ItemStack item, CustomEnchantment enchantment) {
+		if (item == null) return 0; 
 		return item.getItemMeta().getEnchantLevel(enchantment.enchantment);
 	}
 
@@ -106,9 +107,8 @@ public class Enchantments {
 	}
 
 	public static boolean hasEnchantment(final ItemStack item, final CustomEnchantment enchantment) {
-		if (!item.hasItemMeta()) return false;
-		final ItemMeta meta = item.getItemMeta();
-		return meta.hasEnchant(enchantment.enchantment);
+		if (item == null || !item.hasItemMeta()) return false;
+		return item.getItemMeta().hasEnchant(enchantment.enchantment);
 	}
 
 	public static ItemStack removeAllEnchantments(final ItemStack item) {

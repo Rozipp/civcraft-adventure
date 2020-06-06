@@ -6,10 +6,10 @@
 # without any units attached.
 # Speed bonus with Armor Contents
 base:
-    T1_metal_speed: -0.10
-    T2_metal_speed: -0.20
-    T3_metal_speed: -0.30
-    T4_metal_speed: -0.40
+    T1_metal_speed: -0.025
+    T2_metal_speed: -0.05
+    T3_metal_speed: -0.075
+    T4_metal_speed: -0.1
     normal_speed: 0.2
 
 # если юнита не использовали указанное количество минут, то он возвращаеться в бараки    

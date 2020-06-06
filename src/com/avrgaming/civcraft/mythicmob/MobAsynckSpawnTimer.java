@@ -60,9 +60,12 @@ public class MobAsynckSpawnTimer implements Runnable {
 						if (chX * chX + chZ * chZ > rMaxSqr) continue;
 						Chunk chunk = player.getLocation().add(chX * 16, 0, chZ * 16).getChunk();
 						for (Entity e : chunk.getEntities()) {
-							if (MobStatic.isMithicMobEntity(e)) if (++count >= MOB_AREA_LIMIT) {
-								isMany = true;
-								break;
+							if (MobStatic.isMithicMobEntity(e)) {
+								++count;
+								if (count >= MOB_AREA_LIMIT) {
+									isMany = true;
+									break;
+								}
 							}
 						}
 					}
@@ -86,11 +89,11 @@ public class MobAsynckSpawnTimer implements Runnable {
 
 				// ищем игрока в радиусе rmin. Если нашли, не спавним моба
 				int rmin = MIN_SPAWN_DISTANCE / 16;
-//				int rMinSqr = rmin * (rmin + 1);
+				// int rMinSqr = rmin * (rmin + 1);
 				boolean isNearbyPlayer = false;
 				for (int chX = 0 - rmin; chX <= rmin && !isNearbyPlayer; chX++) {
 					for (int chZ = 0 - rmin; chZ <= rmin && !isNearbyPlayer; chZ++) {
-//						if (chX * chX + chZ * chZ > rMaxSqr) continue;
+						// if (chX * chX + chZ * chZ > rMaxSqr) continue;
 						Chunk chunk = mobLoc.add(chX * 16, 0, chZ * 16).getChunk();
 						for (Entity e : chunk.getEntities()) {
 							if (e instanceof Player) {

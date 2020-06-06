@@ -58,7 +58,7 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	@Override
 	public void onDropItem(PlayerDropItemEvent event) {
 		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && ic.getString("lock") != null) {
+		if (ic != null && Cooldown.isCooldown(event.getItemDrop().getItemStack())) {
 			event.setCancelled(true);
 			event.getItemDrop().setItemStack(null);
 		}
@@ -67,25 +67,25 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	@Override
 	public void onPickupItem(EntityPickupItemEvent event) {
 		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+		if (ic != null && Cooldown.isCooldown(event.getItem().getItemStack())) event.setCancelled(true);
 	}
 
 	@Override
 	public void onInvItemPickup(InventoryClickEvent event, Inventory fromInv, ItemStack stack) {
 		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
 	}
 
 	@Override
 	public void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack) {
 		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
 	}
 
 	@Override
 	public void onInvItemDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
 		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && ic.getString("lock") != null) event.setCancelled(true);
+		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
 	}
 
 	public int getSocketSlot() {
@@ -98,7 +98,6 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 
 	@Override
 	public void onInteractEntity(PlayerInteractEntityEvent event) {
-		// CivLog.debug("\tMissionBook )
 		event.setCancelled(true);
 	}
 

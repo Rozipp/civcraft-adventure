@@ -30,4 +30,5 @@ public class Warrior extends UnitMaterial {
 		attrs.addLore(CivColor.Rose     + "   " + m + CivColor.Rose + "     Ноги    : " + l + CivColor.Rose + "     " + t);
 		attrs.addLore(CivColor.Rose     + "          Ступни  : " + b);
 	}
+	
 }

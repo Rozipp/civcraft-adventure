@@ -21,6 +21,7 @@ import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.listener.armor.ArmorType;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -31,12 +32,12 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import gpl.HorseModifier;
+import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
@@ -211,15 +212,20 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerDefenseAndAttack(EntityDamageByEntityEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
+		Player attacker = null;
+		if (event.getDamager() instanceof Player) {
+			attacker = (Player) event.getDamager();
+		} else
+			if (event.getDamager() instanceof Arrow) {
+				Arrow arrow = (Arrow) event.getDamager();
+				if (arrow.getShooter() instanceof Player) attacker = (Player) arrow.getShooter();
+			}
+
+		if (event.isCancelled()) return;
 		Double baseDamage = event.getDamage();
 
 		Player defendingPlayer = null;
-		if (event.getEntity() instanceof Player) {
-			defendingPlayer = (Player) event.getEntity();
-		}
+		if (event.getEntity() instanceof Player) defendingPlayer = (Player) event.getEntity();
 
 		if (event.getDamager() instanceof LightningStrike) {
 			/* Return after Tesla tower does damage, do not apply armor defense. */
@@ -260,27 +266,54 @@ public class CustomItemListener implements Listener {
 					return;
 				}
 			}
-		} else
-			if (event.getDamager() instanceof Player) {
-				ItemStack inHand = ((Player) event.getDamager()).getInventory().getItemInMainHand();
-				CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(inHand);
-				if (craftMat != null) {
-					craftMat.onAttack(event, inHand);
-				} else {
-					/* Non-civcraft items only do 0.5 damage. */
-					event.setDamage(0.5);
-				}
+		}
+
+		if (event.getDamager() instanceof Player) {
+			Player player = (Player) event.getDamager();
+
+			ItemStack inHand = player.getInventory().getItemInMainHand();
+			CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(inHand);
+
+			if (craftMat != null) {
+				craftMat.onAttack(event, inHand);
 			} else {
-				if (MobStatic.isMithicMobEntity(event.getDamager())) {
-					event.setDamage(MobStatic.getMithicMob(event.getDamager()).getDamage());
+				/* Non-civcraft items only do 0.5 damage. */
+				event.setDamage(CivCraft.minDamage);
+			}
+
+			if (Enchantments.hasEnchantment(player.getInventory().getItemInMainHand(), CustomEnchantment.Critical) && EnchantmentCritical.randomCriticalAttack(player.getInventory().getItemInMainHand())) {
+				if (event.getEntity() instanceof LivingEntity) {
+					LivingEntity le = (LivingEntity) event.getEntity();
+					TaskMaster.syncTask(new Runnable() {
+						@Override
+						public void run() {
+							le.damage(baseDamage, player);
+						}
+					}, 10);
 				}
 			}
+		}
+
+		if (MobStatic.isMithicMobEntity(event.getDamager())) {
+			event.setDamage(MobStatic.getMithicMob(event.getDamager()).getDamage());
+		}
 
 		if (event.getEntity() instanceof Horse) {
 			if (HorseModifier.isCivCraftHorse((LivingEntity) event.getEntity())) {
 				// Horses take 50% damage from all sources.
 				event.setDamage(event.getDamage() / 2.0);
 			}
+		}
+
+		if (MobStatic.isMithicMobEntity(event.getEntity())) {
+			ActiveMob mob = MobStatic.getMithicMob(event.getEntity());
+			double dmg = event.getDamage();
+			dmg = dmg - mob.getType().getBaseArmor();
+			if (dmg < CivCraft.minDamage) {
+				dmg = CivCraft.minDamage;
+				if (attacker != null) CivMessage.sendErrorNoRepeat(attacker, "У вас не достаточно сил, что бы нанести урон");
+			}
+			event.setDamage(dmg);
 		}
 
 		if (defendingPlayer != null) {
@@ -292,23 +325,8 @@ public class CustomItemListener implements Listener {
 			if (event.getDamager() instanceof LivingEntity) {
 				LivingEntity le = (LivingEntity) event.getDamager();
 				ItemStack chestplate = defendingPlayer.getEquipment().getChestplate();
-				if (chestplate !=null && Enchantments.hasEnchantment(chestplate, CustomEnchantment.Thorns)) {
+				if (chestplate != null && Enchantments.hasEnchantment(chestplate, CustomEnchantment.Thorns)) {
 					le.damage(event.getDamage() * Enchantments.getLevelEnchantment(chestplate, CustomEnchantment.Thorns), defendingPlayer);
-				}
-			}
-		}
-		Entity e = event.getDamager();
-		if (e instanceof Player) {
-			Player player = (Player) e;
-			if (Enchantments.hasEnchantment(player.getInventory().getItemInMainHand(), CustomEnchantment.Critical) && EnchantmentCritical.randomCriticalAttack(player.getInventory().getItemInMainHand())) {
-				if (event.getEntity() instanceof LivingEntity) {
-					LivingEntity le = (LivingEntity) event.getEntity();
-					TaskMaster.syncTask(new Runnable() {
-						@Override
-						public void run() {
-							le.damage(baseDamage, player);
-						}
-					}, 10);
 				}
 			}
 		}
@@ -709,7 +727,7 @@ public class CustomItemListener implements Listener {
 		if (craftMat != null) return false;
 		if (LoreGuiItem.isGUIItem(stack)) return false;
 
-		return CivSettings.removedRecipies.contains(stack.getType()) || stack.getType().equals(Material.ENCHANTED_BOOK); 
+		return CivSettings.removedRecipies.contains(stack.getType()) || stack.getType().equals(Material.ENCHANTED_BOOK);
 	}
 
 	public static void removeUnwantedVanillaItems(Player player, Inventory inv) {

@@ -22,6 +22,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.ControlPoint;
@@ -246,6 +247,10 @@ public class BlockListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
 		/* Protect the Protected Item Frames! */
+		if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
+			event.setCancelled(true);
+			return;
+		}
 		if (event.getEntity() instanceof ItemFrame) {
 			ItemFrameStorage iFrameStorage = CivGlobal.getProtectedItemFrame(event.getEntity().getUniqueId());
 			if (iFrameStorage != null) {
@@ -766,6 +771,7 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void OnEntityInteractEvent(EntityInteractEvent event) {
+		CivLog.debug("Blocklistener EntityInteractEvent NORMAL");
 		if (event.getBlock() != null) {
 			if (CivSettings.switchItems.contains(event.getBlock().getType())) {
 				ChunkCoord coord = new ChunkCoord(event.getBlock().getLocation());

@@ -27,7 +27,6 @@ import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-
 public class DebugListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)

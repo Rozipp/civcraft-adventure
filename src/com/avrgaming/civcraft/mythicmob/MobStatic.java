@@ -49,10 +49,12 @@ public class MobStatic {
 	}
 
 	public static boolean isMithicMobEntity(Entity e) {
+		if (e == null) return false;
 		return API().isMythicMob(e);
 	}
 
 	public static ActiveMob getMithicMob(Entity entity) {
+		if (entity == null) return null;
 		return API().getMythicMobInstance(entity);
 	}
 
