@@ -71,12 +71,14 @@ public class MobAsynckSpawnTimer implements Runnable {
 					for (int chZ = 0 - rmax; chZ <= rmax && !isMany; chZ++) {
 						if (chX * chX + chZ * chZ > rMaxSqr) continue;
 						Chunk chunk = player.getLocation().add(chX * 16, 0, chZ * 16).getChunk();
-						for (Entity e : chunk.getEntities()) {
-							if (MobStatic.isMithicMobEntity(e)) {
-								++count;
-								if (count >= MOB_AREA_LIMIT) {
-									isMany = true;
-									break;
+						if (chunk.getEntities() != null) {
+							for (Entity e : chunk.getEntities()) {
+								if (MobStatic.isMithicMobEntity(e)) {
+									++count;
+									if (count >= MOB_AREA_LIMIT) {
+										isMany = true;
+										break;
+									}
 								}
 							}
 						}

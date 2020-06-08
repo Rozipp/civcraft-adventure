@@ -530,7 +530,6 @@ public class DebugCommand extends CommandBase {
 		}
 
 		try {
-
 			tpl.saveTemplate();
 		} catch (CivException | IOException e) {
 			CivMessage.sendError(player, e.getMessage());

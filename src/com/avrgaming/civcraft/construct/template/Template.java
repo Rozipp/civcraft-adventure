@@ -180,9 +180,9 @@ public class Template {
 
 		blocks = new SimpleBlock[size_x][size_y][size_z];
 		// Read blocks from file.
-		for (var z = 0; z < size_z; z++) {
-			for (var y = 0; y < size_y; y++) {
-				for (var x = 0; x < size_x; x++) {
+		for (int z = 0; z < size_z; z++) {
+			for (int y = 0; y < size_y; y++) {
+				for (int x = 0; x < size_x; x++) {
 					Block block = world.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
 					int typeId = ItemManager.getTypeId(block);
 					int data = ItemManager.getData(block);
