@@ -21,9 +21,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,10 +42,9 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.enchantment.CustomEnchantment;
@@ -81,7 +78,6 @@ import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.global.perks.Perk;
-import com.avrgaming.global.perks.components.CustomTemplate;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -1019,28 +1015,6 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public Set<Perk> getUnboundTemplatePerks(Set<Perk> alreadyBoundPerkList, ConfigBuildableInfo info) {
-		Set<Perk> unboundPerks = new HashSet<Perk>();
-		for (Perk ourPerk : perks.values()) {
-			if (!ourPerk.getConfigId().contains("template")) {
-				CustomTemplate customTemplate = (CustomTemplate) ourPerk.getComponent("CustomTemplate");
-				if (customTemplate == null) continue;
-				if (!customTemplate.getString("template").equals(info.template_name)) continue;
-
-				boolean has = false;
-				for (Perk perk : alreadyBoundPerkList) {
-					if (perk.getConfigId().equals(ourPerk.getConfigId())) {
-						/* Perk is already bound in this town, do not display for binding. */
-						has = true;
-						continue;
-					}
-				}
-				if (!has) unboundPerks.add(ourPerk);
-			}
-		}
-		return unboundPerks;
-	}
-
 	public void setControlBlockInstantBreak(boolean controlBlockInstantBreak) {
 		this.controlBlockInstantBreak = controlBlockInstantBreak;
 	}
@@ -1052,11 +1026,7 @@ public class Resident extends SQLObject {
 
 		expire.add(Calendar.DATE, days);
 
-		if (now.after(expire)) {
-			return true;
-		}
-
-		return false;
+		return now.after(expire);
 	}
 
 	public Inventory startTradeWith(Resident resident) {

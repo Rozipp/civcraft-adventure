@@ -6,7 +6,7 @@
  * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
  * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
  * obtained from AVRGAMING LLC. */
-package com.avrgaming.civcraft.construct;
+package com.avrgaming.civcraft.construct.template;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,7 +54,7 @@ public class Template {
 	public int size_y;
 	public int size_z;
 	private String direction;
-	private String filepath;
+	public String filepath;
 	public int totalBlocks;
 
 	/* Save the command block locations when we init the template, so we dont have to search for them later. */
@@ -222,7 +222,6 @@ public class Template {
 
 	public void saveTemplate() throws CivException, IOException {
 		File templateFile = new File(this.filepath);
-		if (templateFile.exists()) throw new CivException("File " + this.filepath + " access deni");
 
 		templateFile.getParentFile().mkdirs();
 		FileWriter writer = new FileWriter(templateFile);

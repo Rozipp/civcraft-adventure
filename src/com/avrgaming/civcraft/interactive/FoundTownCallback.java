@@ -6,7 +6,8 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.town.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -16,8 +17,11 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.questions.TownNewRequest;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
+import com.avrgaming.civcraft.structurevalidation.StructureValidator;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -62,10 +66,11 @@ public class FoundTownCallback implements CallbackInterface {
 		town = new Town(resident.getCiv());
 		town.checkCanCreatedTown(resident, structure);
 
-		new ChoiseTemplate(player, structure, this);
+		new ChoiseTemplate(player, structure.getInfo(), this);
 	}
 
 	private String templateTheme = null;
+	private String structureValidatorfinish = null;
 	private String townName = null;
 	private String townCreationConfirm = null;
 	private String interactiveConfirm = null;
@@ -75,6 +80,27 @@ public class FoundTownCallback implements CallbackInterface {
 		/* getTownName */
 		if (templateTheme == null) {
 			templateTheme = strings[0];
+			try {
+				Template old_tpl = structure.getTemplate();
+				String tplPath = Template.getTemplateFilePath(structure.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template tpl = Template.getTemplate(tplPath);
+				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
+				structure.setTemplate(tpl);
+
+				BuildableStatic.buildPlayerPreview(player, structure);
+				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
+				TaskMaster.asyncTask(new StructureValidator(player, structure, this), 0);
+				return;
+			} catch (CivException e) {
+				CivMessage.sendError(player, e.getMessage());
+				resident.clearInteractiveMode();
+				resident.undoPreview();
+				return;
+			}
+		}
+
+		if (structureValidatorfinish == null) {
+			structureValidatorfinish = "true";
 
 			CivMessage.sendHeading(player, CivSettings.localize.localizedString("settler_heading"));
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("settler_prompt1"));

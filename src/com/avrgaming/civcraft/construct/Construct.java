@@ -30,6 +30,7 @@ import org.bukkit.material.MaterialData;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;

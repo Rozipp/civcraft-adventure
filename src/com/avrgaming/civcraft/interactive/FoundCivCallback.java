@@ -4,7 +4,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.town.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -12,7 +13,10 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Structure;
+import com.avrgaming.civcraft.structurevalidation.StructureValidator;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -38,10 +42,11 @@ public class FoundCivCallback implements CallbackInterface {
 		civ = new Civilization(resident);
 		civ.checkCanCreatedCiv(player);
 
-		new ChoiseTemplate(player, structure, this);
+		new ChoiseTemplate(player, structure.getInfo(), this);
 	}
 
 	private String templateTheme = null;
+	private String structureValidatorfinish = null;
 	private String civName = null;
 	private String tagName = null;
 	private String townName = null;
@@ -52,6 +57,27 @@ public class FoundCivCallback implements CallbackInterface {
 		InteractiveGetName interactive;
 		if (templateTheme == null) {
 			templateTheme = strings[0];
+			try {
+				Template old_tpl = structure.getTemplate();
+				String tplPath = Template.getTemplateFilePath(structure.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template tpl = Template.getTemplate(tplPath);
+				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
+				structure.setTemplate(tpl);
+
+				BuildableStatic.buildPlayerPreview(player, structure);
+				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
+				TaskMaster.asyncTask(new StructureValidator(player, structure, this), 0);
+				return;
+			} catch (CivException e) {
+				CivMessage.sendError(player, e.getMessage());
+				resident.clearInteractiveMode();
+				resident.undoPreview();
+				return;
+			}
+		}
+
+		if (structureValidatorfinish == null) {
+			structureValidatorfinish = "true";
 
 			CivMessage.sendHeading(player, CivSettings.localize.localizedString("foundCiv_Heading"));
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("foundCiv_Prompt1"));

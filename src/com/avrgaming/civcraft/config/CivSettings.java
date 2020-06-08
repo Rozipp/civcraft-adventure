@@ -38,6 +38,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.template.ConfigTheme;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -248,6 +249,7 @@ public class CivSettings {
 		loadConfigObjects();
 
 		Perk.init();
+		ConfigTheme.loadAllTemplateTheme();
 		UnitStatic.init();
 
 		for (Object obj : civConfig.getList("global.start_kit")) {

@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;

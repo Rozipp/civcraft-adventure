@@ -277,8 +277,7 @@ public class GuiPage {
 
 		Inventory inv = Bukkit.getServer().createInventory(player, Book.MAX_CHEST_SIZE * 9, CivSettings.localize.localizedString("resident_perksGuiHeading"));
 
-		for (Object obj : resident.perks.values()) {
-			Perk p = (Perk) obj;
+		for (Perk p : resident.perks.values()) {
 
 			if (p.getConfigId().startsWith("temp")) {
 				ItemStack stack = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,

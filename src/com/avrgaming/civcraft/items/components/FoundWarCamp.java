@@ -9,8 +9,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.ChoiseTemplate;
 import com.avrgaming.civcraft.construct.WarCamp;
+import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveConfirm;
@@ -18,6 +19,9 @@ import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structurevalidation.StructureValidator;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -41,19 +45,43 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 		resident = CivGlobal.getResident(player);
 		try {
 			warCamp = WarCamp.newWarCamp(player, player.getLocation());
-			new ChoiseTemplate(player, warCamp, this);
+			new ChoiseTemplate(player, warCamp.getInfo(), this);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}
 	}
 
 	private String templateTheme = null;
+	private String structureValidatorfinish = null;
 	private String creationConfirm = null;
 
 	@Override
 	public void execute(String... strings) {
 		if (templateTheme == null) {
 			templateTheme = strings[0];
+			
+			try {
+				Template old_tpl = warCamp.getTemplate();
+				String tplPath = Template.getTemplateFilePath(warCamp.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template tpl = Template.getTemplate(tplPath);
+				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
+				warCamp.setTemplate(tpl);
+
+				BuildableStatic.buildPlayerPreview(player, warCamp);
+				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
+				TaskMaster.asyncTask(new StructureValidator(player, warCamp, this), 0);
+				return;
+			} catch (CivException e) {
+				CivMessage.sendError(player, e.getMessage());
+				resident.clearInteractiveMode();
+				resident.undoPreview();
+				return;
+			}
+		}
+
+		if (structureValidatorfinish == null) {
+			structureValidatorfinish = "true";
+			
 			int warTimeout;
 			try {
 				warTimeout = CivSettings.getInteger(CivSettings.warConfig, "warcamp.rebuild_timeout");

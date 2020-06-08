@@ -6,6 +6,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigCampUpgrade;
 import com.avrgaming.civcraft.config.ConfigConsumeLevel;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;

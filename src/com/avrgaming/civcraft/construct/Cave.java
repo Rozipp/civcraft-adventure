@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCave;
 import com.avrgaming.civcraft.config.ConfigTech;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;

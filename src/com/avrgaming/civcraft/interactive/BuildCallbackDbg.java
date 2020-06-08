@@ -8,12 +8,13 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
-import com.avrgaming.civcraft.construct.ChoiseTemplateDbg;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -57,7 +58,7 @@ public class BuildCallbackDbg implements CallbackInterface {
 				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildName);
 				player.closeInventory();
 
-				new ChoiseTemplateDbg(player, sinfo, this);
+				new ChoiseTemplate(player, sinfo, this);
 			} catch (CivException e) {
 				e.printStackTrace();
 				sinfo = null;
@@ -71,10 +72,13 @@ public class BuildCallbackDbg implements CallbackInterface {
 			
 			Template tpl;
 			try {
-				tpl = Template.getTemplate(Template.getTemplateFilePath(player.getLocation(), sinfo, templateTheme));
+				String tplPath = Template.getTemplateFilePath(player.getLocation(), sinfo , templateTheme);
+				tpl = Template.getTemplate(tplPath);
+				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
+				
 				tpl.buildTemplateDbg(new BlockCoord(player.getLocation()));
 			} catch (CivException e) {
-				e.printStackTrace();
+				CivMessage.sendError(player, e.getMessage());
 			}
 			resident.clearInteractiveMode();
 			return;

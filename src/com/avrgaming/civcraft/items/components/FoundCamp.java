@@ -25,7 +25,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Camp;
-import com.avrgaming.civcraft.construct.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.enchantment.CustomEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
@@ -35,6 +36,9 @@ import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structurevalidation.StructureValidator;
+import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 import gpl.AttributeUtil;
@@ -65,19 +69,42 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 		resident = CivGlobal.getResident(player);
 		try {
 			camp = Camp.newCamp(player, player.getLocation());
-			new ChoiseTemplate(player, camp, this);
+			new ChoiseTemplate(player, camp.getInfo(), this);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}
 	}
 
 	private String templateTheme = null;
+	private String structureValidatorfinish = null;
 	private String campName = null;
 
 	@Override
 	public void execute(String... strings) {
 		if (templateTheme == null) {
 			templateTheme = strings[0];
+			try {
+				Template old_tpl = camp.getTemplate();
+				String tplPath = Template.getTemplateFilePath(camp.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template tpl = Template.getTemplate(tplPath);
+				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
+				camp.setTemplate(tpl);
+
+				BuildableStatic.buildPlayerPreview(player, camp);
+				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
+				TaskMaster.asyncTask(new StructureValidator(player, camp, this), 0);
+				return;
+			} catch (CivException e) {
+				CivMessage.sendError(player, e.getMessage());
+				resident.clearInteractiveMode();
+				resident.undoPreview();
+				return;
+			}
+		}
+
+		if (structureValidatorfinish == null) {
+			structureValidatorfinish = "true";
+			
 			CivMessage.sendHeading(player, CivSettings.localize.localizedString("buildcamp_Heading"));
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("buildcamp_prompt1"));
 			CivMessage.send(player, " ");

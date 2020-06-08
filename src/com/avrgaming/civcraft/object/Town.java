@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,14 +37,13 @@ import com.avrgaming.civcraft.components.AttributeWarUnpkeep;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.config.ConfigHappinessState;
 import com.avrgaming.civcraft.config.ConfigTownLevel;
 import com.avrgaming.civcraft.config.ConfigTownUpgrade;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -87,8 +85,6 @@ import com.avrgaming.civcraft.util.DateUtil;
 import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.TagManager;
 import com.avrgaming.civcraft.war.War;
-import com.avrgaming.global.perks.Perk;
-import com.avrgaming.global.perks.components.CustomTemplate;
 
 @Getter
 @Setter
@@ -3014,12 +3010,6 @@ public class Town extends SQLObject {
 		// }
 
 		return failed;
-	}
-
-	public Set<Perk> getTemplatePerks(Resident resident, ConfigBuildableInfo info) {
-		Set<Perk> perks = CustomTemplate.getTemplatePerksForBuildable(this, info.template_name);
-		perks.addAll(resident.getUnboundTemplatePerks(perks, info));
-		return perks;
 	}
 
 	public RandomEvent getActiveEvent() {

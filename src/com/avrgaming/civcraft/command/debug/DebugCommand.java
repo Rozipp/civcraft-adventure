@@ -11,6 +11,7 @@ package com.avrgaming.civcraft.command.debug;
 import gpl.AttributeUtil;
 import ua.rozipp.sound.SoundManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -51,8 +52,8 @@ import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.WarCamp;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -470,7 +471,7 @@ public class DebugCommand extends CommandBase {
 		if (theme.equals("cave")) {
 			// TODO
 		}
-		
+
 		if (name.equals("camp"))
 			sinfo = Camp.campInfo;
 		else
@@ -478,7 +479,7 @@ public class DebugCommand extends CommandBase {
 				sinfo = WarCamp.info;
 			else
 				sinfo = CivSettings.getBuildableInfoByName(name);
-		
+
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
 		String templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
 		Template tpl = Template.getTemplate(templatePath);
@@ -516,7 +517,20 @@ public class DebugCommand extends CommandBase {
 
 		Template tpl = new Template();
 		tpl.getBlocksWithWorld(loc, selection.getWidth(), selection.getHeight(), selection.getLength(), filepath);
+
+		File templateFile = new File(tpl.filepath);
+		if (templateFile.exists()) {
+			File newFile = templateFile;
+			int i = 1;
+			while (newFile.exists()) {
+				newFile = new File(tpl.filepath + ".bk" + (++i));
+			}
+			CivMessage.sendError(sender, "File " + filepath + " существует. Переименовываю файл в " + tpl.filepath + ".bk" + i);
+			templateFile.renameTo(newFile);
+		}
+
 		try {
+
 			tpl.saveTemplate();
 		} catch (CivException | IOException e) {
 			CivMessage.sendError(player, e.getMessage());

@@ -19,7 +19,7 @@ import java.util.HashMap;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;

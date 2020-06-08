@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Queue;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
