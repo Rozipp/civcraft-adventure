@@ -52,12 +52,10 @@ public class Market extends Structure {
 		
 	public Market(String id, Town town) throws CivException {
 		super(id, town);
-		CivGlobal.addMarket(this);
 	}
 
 	public Market(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-		CivGlobal.addMarket(this);
 	}
 	
 	@Override
@@ -264,11 +262,10 @@ public class Market extends Structure {
 			break;
 		}
 	}
+	
+	@Override
+	public void onPostBuild() {
+		CivGlobal.addMarket(this);
+	}
 
-	
-
-	
-	
-
-	
 }

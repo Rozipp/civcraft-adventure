@@ -36,7 +36,7 @@ import com.avrgaming.civcraft.fishing.FishingListener;
 import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
 import com.avrgaming.civcraft.mythicmob.MobListener;
-import com.avrgaming.civcraft.mythicmob.MobPoolSpawnTimer;
+import com.avrgaming.civcraft.mythicmob.MobPoolSpawnSyncTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
@@ -221,7 +221,7 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("pvptimer", new PvPTimer(), TimeTools.toTicks(30));
 
 		MobStatic.startMobSpawnTimer();
-		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnTimer(), TimeTools.toTicks(1));
+		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnSyncTimer(), TimeTools.toTicks(1));
 		// TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		// XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный

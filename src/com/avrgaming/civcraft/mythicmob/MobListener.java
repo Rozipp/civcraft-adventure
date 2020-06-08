@@ -43,7 +43,8 @@ public class MobListener implements Listener {
 		Double modify = 1.0;
 		if (killer != null) {
 			ItemStack stack = killer.getInventory().getItemInMainHand();
-			modify = modify + 0.3 * Enchantments.getLevelEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS);
+			if (Enchantments.hasEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS))
+				modify = modify + 0.3 * Enchantments.getLevelEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS);
 		}
 		event.setDrops(cm.getItemsDrop(itemDrops, modify));
 

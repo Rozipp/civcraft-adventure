@@ -13,7 +13,7 @@ base:
     normal_speed: 0.2
 
 # если юнита не использовали указанное количество минут, то он возвращаеться в бараки    
-unit_time_diactivate: 1
+unit_time_diactivate: 30
 
 # Special information per unit
 unit_info:
@@ -48,7 +48,7 @@ unit_components:
     ammunition: chestplate
     require_tech: '' 
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 307
     gui_slot: 20
@@ -58,7 +58,7 @@ unit_components:
     name: 'Скорость'
     ammunition: leggings
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 308
     gui_slot: 38
@@ -68,7 +68,7 @@ unit_components:
     name: 'Бонусная защита'
     ammunition: chestplate
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 315
     gui_slot: 21
@@ -78,17 +78,27 @@ unit_components:
     name: 'Урон меча'
     ammunition: mainhand
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 367
     gui_slot: 0
     gui_lore:
         - 'Увеличивает атаку в ближнем бою'
+  - id: 'archerswordattack'
+    name: 'Урон меча'
+    ammunition: mainhand
+    require_level: 0
+    require_level_upgrade: 10
+    max_upgrade: 15
+    gui_item_id: 367
+    gui_slot: 0
+    gui_lore:
+        - 'Увеличивает атаку в ближнем бою'        
   - id: 'bowattack'
     name: 'Урон Лука'
     ammunition: twohand
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 361
     gui_slot: 8
@@ -98,7 +108,7 @@ unit_components:
     name: 'Шанс критического удара'
     ammunition: mainhand
     require_level: 0
-    require_level_upgrade: 5
+    require_level_upgrade: 10
     max_upgrade: 30
     gui_item_id: 361
     gui_slot: 8
@@ -436,7 +446,7 @@ units:
         - 'При увеличения уровня, лучник кроме особенных стрел'
         - 'может получить особенные пасивные способности'
     equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword,mat_hunting_bow,mat_recurve_bow,mat_longbow,mat_marksmen_bow'
-    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
+    enable_components: 'u_botltest,maxheal,speed,protection,archerswordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
     
   - id: 'u_warrior'
     name: "Воин"
@@ -454,6 +464,6 @@ units:
         - 'меча может носить только тяжелую броню и щиты.'
         - 'При увеличения уровня, увеличивает оборонительные'
         - 'способности и атаку'
-    equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword'
-    enable_components: 'maxheal,speed,protection,swordattack,critical,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,swordknockback,fireaspect,looting'
+    equipments: 'mat_iron_helmet,mat_iron_chestplate,mat_iron_leggings,mat_iron_boots,mat_steel_helmet,mat_steel_chestplate,mat_steel_leggings,mat_steel_boots,mat_carbide_steel_helmet,mat_carbide_steel_chestplate,mat_carbide_steel_leggings,mat_carbide_steel_boots,mat_tungsten_helmet,mat_tungsten_chestplate,mat_tungsten_leggings,mat_tungsten_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword'
+    enable_components: 'u_botltest,maxheal,speed,protection,swordattack,critical,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,swordknockback,fireaspect,looting'
    

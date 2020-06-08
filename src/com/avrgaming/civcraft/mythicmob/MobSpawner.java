@@ -59,7 +59,7 @@ public class MobSpawner {
 		}
 
 		if (mobs.size() < MAX_MOBS_SPAWNER) {
-			MobPoolSpawnTimer.addSpawnMobTask(mobId, loc, this);
+			MobPoolSpawnSyncTimer.addSpawnMobTask(mobId, loc, this);
 		} else {
 			Iterator<Entity> mIterator = mobs.iterator();
 			while (mIterator.hasNext()) {

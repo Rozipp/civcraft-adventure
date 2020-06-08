@@ -38,7 +38,8 @@ public class PlotPermissions {
 	public PermissionNode destroy = new PermissionNode("destroy");
 	public PermissionNode interact = new PermissionNode("interact");
 	public PermissionNode itemUse = new PermissionNode("itemUse");
-	private boolean fire, mobs;
+	private boolean fire = false;
+	private boolean mobs = false;
 		
 	/*
 	 * Owner of this permission node.

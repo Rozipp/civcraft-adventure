@@ -301,10 +301,6 @@ public class Structure extends Buildable {
 		return "bighouse";
 	}
 
-	public void updateSignText() {
-		/* Override in children */
-	}
-
 	public void onBonusGoodieUpdate() {
 		/* Override in children */
 	}
@@ -335,7 +331,6 @@ public class Structure extends Buildable {
 
 	@Override
 	public void onPostBuild() {
-		// TODO Автоматически созданная заглушка метода
-
+		/* Override in children */
 	}
 }

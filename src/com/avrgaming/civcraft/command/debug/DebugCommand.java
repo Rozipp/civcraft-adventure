@@ -458,12 +458,13 @@ public class DebugCommand extends CommandBase {
 	public void loadtemplate_cmd() throws CivException {
 		Player player = getPlayer();
 
-		if (args.length < 3) {
+		if (args.length == 1) {
 			new BuildCallbackDbg(player);
 			return;
 		}
 		String name = getNamedString(1, "Enter a buildName");
-		String theme = getNamedString(2, "Enter a theme");
+		String theme = "default";
+		if (args.length == 3) theme = args[2];
 		ConfigBuildableInfo sinfo;
 
 		if (theme.equals("cave")) {

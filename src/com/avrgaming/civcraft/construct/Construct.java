@@ -34,7 +34,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
@@ -364,6 +363,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public void updateSignText() {
+		/* Override in children */
 	}
 
 	public void onDemolish() throws CivException {
@@ -663,7 +663,6 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
-		CivLog.info("No Sign action for this buildable?:" + this.getDisplayName());
 	}
 
 	// ------------ ConstructChest

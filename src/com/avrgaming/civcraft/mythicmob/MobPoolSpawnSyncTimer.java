@@ -9,7 +9,7 @@ import org.bukkit.entity.Entity;
 
 import com.avrgaming.civcraft.main.CivLog;
 
-public class MobPoolSpawnTimer implements Runnable {
+public class MobPoolSpawnSyncTimer implements Runnable {
 
 	public static class SpawnMobTask {
 		Location loc;
@@ -39,7 +39,7 @@ public class MobPoolSpawnTimer implements Runnable {
 		}
 	}
 
-	public MobPoolSpawnTimer() {
+	public MobPoolSpawnSyncTimer() {
 	}
 
 	@Override

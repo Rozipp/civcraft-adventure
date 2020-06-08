@@ -2,8 +2,11 @@ package com.avrgaming.civcraft.mythicmob;
 
 import static com.avrgaming.civcraft.main.CivCraft.civRandom;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -17,7 +20,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.util.ChunkCoord;
+import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class MobAsynckSpawnTimer implements Runnable {
@@ -29,6 +32,8 @@ public class MobAsynckSpawnTimer implements Runnable {
 	public static int Y_SHIFT = 3;
 
 	private static Set<MobSpawner> updateSpawns = new HashSet<MobSpawner>();
+
+	private static Map<UUID, Long> lastSpawnTime = new HashMap<>();
 
 	public static void addSpawnerTask(MobSpawner mSpawn) {
 		synchronized (updateSpawns) {
@@ -47,8 +52,15 @@ public class MobAsynckSpawnTimer implements Runnable {
 		for (MobSpawner msr : updateSpawns) {
 			msr.spawn();
 		}
-		for (int j = 0; j < SPAWN_FOR_PLAYER_LIMIT; j++) {
-			for (Player player : Bukkit.getOnlinePlayers()) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			Long now = System.currentTimeMillis();
+			if (!lastSpawnTime.containsKey(player.getUniqueId()))
+				lastSpawnTime.put(player.getUniqueId(), now);
+			else {
+				Long lastSpawn = lastSpawnTime.get(player.getUniqueId());
+				if (lastSpawn + SPAWN_COOLDOWN > now) continue;
+			}
+			for (int j = 0; j < SPAWN_FOR_PLAYER_LIMIT; j++) {
 				if (!player.getWorld().getName().equals("world")) continue;
 				// Сколько возле игрока в радиусе rmax мобов.
 				int rmax = MAX_SPAWN_DISTANCE / 16;
@@ -80,8 +92,10 @@ public class MobAsynckSpawnTimer implements Runnable {
 				World world = player.getWorld();
 				int y = world.getHighestBlockYAt(x, z) + Y_SHIFT;
 				Location mobLoc = new Location(world, x, y, z);
-				// две простые проверки
-				if (CivGlobal.getTownChunk(new ChunkCoord(mobLoc)) != null) continue;
+
+				TownChunk tc = CivGlobal.getTownChunk(mobLoc);
+				if (tc != null && !tc.perms.isMobs()) continue;
+
 				int blockFace = (ItemManager.getTypeId(mobLoc.getBlock().getRelative(BlockFace.DOWN)));
 				if (blockFace == CivData.WATER || blockFace == CivData.WATER_RUNNING //
 						|| blockFace == CivData.LAVA || blockFace == CivData.LAVA_RUNNING)
@@ -105,7 +119,7 @@ public class MobAsynckSpawnTimer implements Runnable {
 				}
 				if (isNearbyPlayer) continue;
 
-				MobPoolSpawnTimer.addSpawnMobTask(null, mobLoc, null);
+				MobPoolSpawnSyncTimer.addSpawnMobTask(null, mobLoc, null);
 			}
 		}
 	}

@@ -137,9 +137,6 @@ public abstract class Buildable extends Construct {
 		return true;
 	}
 
-	public void updateSignText() {
-	}
-
 	public void onDemolish() throws CivException {
 	}
 
