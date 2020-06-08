@@ -48,15 +48,11 @@ public class MobPoolSpawnTimer implements Runnable {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					SpawnMobTask smt = updateLocations.poll();
-					if (smt == null)
-						break;
-					if (smt.loc == null)
-						continue;
-					if (!smt.loc.getChunk().isLoaded())
-						continue;
+					if (smt == null) break;
+					if (smt.loc == null) continue;
+					if (!smt.loc.getChunk().isLoaded()) continue;
 					Entity en = MobStatic.spawnCustomMob(smt.mobId, smt.loc);
-					if (smt.mspawner != null)
-						smt.mspawner.mobs.add(en);
+					if (smt.mspawner != null) smt.mspawner.mobs.add(en);
 				}
 			} finally {
 				spawnLock.unlock();

@@ -42,7 +42,7 @@ public class FarmPreCachePopulateTimer implements Runnable {
 
 		if (lock.tryLock()) {
 			try {
-				LinkedList<FarmChunk> farms = new LinkedList<FarmChunk>();
+				LinkedList<FarmChunk> farmChunks = new LinkedList<FarmChunk>();
 
 				for (int i = 0; i < updateLimit; i++) {
 					FarmChunk fc = CivGlobal.pollFarmChunk();
@@ -51,20 +51,32 @@ public class FarmPreCachePopulateTimer implements Runnable {
 					/* Ignore any farm chunks that are no longer in the farm chunk list, the farm has been destroyed and doesnt need to be updated anymore. */
 					Chunk chunk = fc.getChunk();
 					if (CivGlobal.farmChunkValid(fc) && chunk.isLoaded()) {
-						farms.add(fc);
+						farmChunks.add(fc);
 						fc.snapshot = fc.getChunk().getChunkSnapshot();
 					}
 				}
 
-				for (FarmChunk fc : farms) {
+				for (FarmChunk fc : farmChunks) {
 					// put valid farms back on the queue to be populated again later.
 					// dont do it in the loop above, since it causes < 50 farms to be
 					// populated up to 50 times.
 					CivGlobal.queueFarmChunk(fc);
 				}
 
-				if (farms.size() > 0) {
-					TaskMaster.asyncTask(new FarmCachePopulateTask(farms), 0);
+				if (farmChunks.size() > 0) {
+					TaskMaster.asyncTask(new Runnable() {
+						@Override
+						public void run() {
+							if (!CivGlobal.growthEnabled) return;
+							for (FarmChunk fc : farmChunks) {
+								try {
+									fc.populateCropLocationCache();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}, 0);
 				}
 			} finally {
 				lock.unlock();

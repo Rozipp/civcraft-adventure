@@ -33,7 +33,7 @@ public class FarmGrowthSyncTask extends CivAsyncTask {
 			if (!CivGlobal.growthEnabled) return;
 
 			for (FarmChunk fc : CivGlobal.getFarmChunks()) {
-				if (fc.getTown() == null || fc.getStruct() == null) {
+				if (fc.getConstruct() == null) {
 					System.out.println("FarmChunkError: Could not process farm chunk, town or struct was null. Orphan?");
 					continue;
 				}

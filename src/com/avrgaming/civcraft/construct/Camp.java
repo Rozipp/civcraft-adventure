@@ -20,6 +20,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -71,6 +72,7 @@ public class Camp extends Construct {
 	public static final String TABLE_NAME = "CAMPS";
 	public static final double SHIFT_OUT = 2.0D;
 	public static final String SUBDIR = "camp";
+	public static double growthCampTotal = 10000.0;
 	private static Integer coal_per_firepoint;
 	private static Integer maxFirePoints;
 	private static int raidLength;
@@ -103,6 +105,7 @@ public class Camp extends Construct {
 	private Date nextRaidDate;
 
 	private HashMap<String, ConfigCampUpgrade> upgrades = new HashMap<String, ConfigCampUpgrade>();
+	public FarmChunk farmChunk;
 
 	// -------------constructor
 	public Camp(Resident resident) throws CivException {
@@ -233,13 +236,18 @@ public class Camp extends Construct {
 			tr.stop();
 		}
 		trasmuters.clear();
+
+		if (this.farmChunk != null) farmChunk.delete();
+
 		for (Resident resident : this.members.values()) {
 			resident.setCamp((Camp) null);
 			resident.save();
 		}
 		this.members.clear();
 		TagManager.editNameTag(this);
+
 		this.unbindConstructBlocks();
+
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
@@ -366,7 +374,6 @@ public class Camp extends Construct {
 				Block b = absCoord.getBlock();
 				if (annexLevel.getOrDefault(annex, 0) >= level) {
 					this.growthLocations.add(absCoord);
-					CivGlobal.vanillaGrowthLocations.add(absCoord);
 					if (ItemManager.getTypeId(b) != CivData.FARMLAND) ItemManager.setTypeId(b, CivData.FARMLAND);
 					this.addConstructBlock(absCoord, false);
 				} else {
@@ -1021,5 +1028,18 @@ public class Camp extends Construct {
 			trasmuters.add(tr);
 			tr.start();
 		}
+
+		if (farmChunk != null) {
+			farmChunk.delete();
+			farmChunk = null;
+		}
+
+		for (BlockCoord farmBlock : this.growthLocations) {
+			ChunkCoord ccoord = farmBlock.getChunkCoord();
+			farmChunk = new FarmChunk(ccoord, this);
+			break;
+
+		}
 	}
+
 }

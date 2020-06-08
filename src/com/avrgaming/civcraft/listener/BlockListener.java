@@ -32,7 +32,6 @@ import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.CannonTower;
-import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.structure.Pasture;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.wonders.Battledome;
@@ -119,10 +118,6 @@ import java.util.Set;
 
 public class BlockListener implements Listener {
 
-	/* Experimental, reuse the same object because it is single threaded. */
-	public static ChunkCoord coord = new ChunkCoord("", 0, 0);
-	public static BlockCoord bcoord = new BlockCoord("", 0, 0, 0);
-
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityTameEvent(EntityTameEvent event) {
 		if (event.getEntity() instanceof Wolf) {
@@ -151,7 +146,7 @@ public class BlockListener implements Listener {
 			for (int y = -1; y <= 1; y++) {
 				for (int z = -1; z <= 1; z++) {
 					Block b = event.getBlock().getRelative(x, y, z);
-					bcoord.setFromLocation(b.getLocation());
+					BlockCoord bcoord = new BlockCoord(b.getLocation());
 					ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 					if (bb != null) {
 						// if (b.getType().isBurnable()) {
@@ -187,7 +182,7 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityBlockChange(EntityChangeBlockEvent event) {
-		bcoord.setFromLocation(event.getBlock().getLocation());
+		BlockCoord bcoord = new BlockCoord(event.getBlock().getLocation());
 
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) {
@@ -200,7 +195,7 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onBlockBurnEvent(BlockBurnEvent event) {
-		bcoord.setFromLocation(event.getBlock().getLocation());
+		BlockCoord bcoord = new BlockCoord(event.getBlock().getLocation());
 
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) {
@@ -419,7 +414,7 @@ public class BlockListener implements Listener {
 			}
 
 		for (Block block : event.blockList()) {
-			bcoord.setFromLocation(block.getLocation());
+			BlockCoord bcoord = new BlockCoord(block.getLocation());
 			ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 			if (bb != null) {
 				event.setCancelled(true);
@@ -496,7 +491,6 @@ public class BlockListener implements Listener {
 		int id = ItemManager.getTypeId(event.getBlock());
 		if (id >= CivData.WATER && id <= CivData.LAVA) {
 			Block b = event.getToBlock();
-			bcoord.setFromLocation(b.getLocation());
 
 			int toid = ItemManager.getTypeId(b);
 			if (toid == CivData.COBBLESTONE || toid == CivData.OBSIDIAN) {
@@ -581,14 +575,13 @@ public class BlockListener implements Listener {
 
 		if (resident.isSBPermOverride()) return;
 
-		bcoord.setFromLocation(event.getBlockAgainst().getLocation());
-		ConstructSign sign = CivGlobal.getConstructSign(bcoord);
+		ConstructSign sign = CivGlobal.getConstructSign(new BlockCoord(event.getBlockAgainst().getLocation()));
 		if (sign != null) {
 			event.setCancelled(true);
 			return;
 		}
 
-		bcoord.setFromLocation(event.getBlock().getLocation());
+		BlockCoord bcoord = new BlockCoord(event.getBlock().getLocation());
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) {
 			event.setCancelled(true);
@@ -637,15 +630,11 @@ public class BlockListener implements Listener {
 
 				/* Building is validated, grab the layer and determine if this would set it over the limit. */
 				ConstructLayer layer = buildable.layerValidPercentages.get(bcoord.getY());
-				if (layer == null) {
-					continue;
-				}
+				if (layer == null) continue;
 
 				/* Update the layer. */
 				layer.current += BuildableStatic.getReinforcementValue(ItemManager.getTypeId(event.getBlockPlaced()));
-				if (layer.current < 0) {
-					layer.current = 0;
-				}
+				if (layer.current < 0) layer.current = 0;
 				buildable.layerValidPercentages.put(bcoord.getY(), layer);
 			}
 		}
@@ -920,8 +909,7 @@ public class BlockListener implements Listener {
 			}
 
 			// Check for clicked structure signs.
-			bcoord.setFromLocation(event.getClickedBlock().getLocation());
-			ConstructSign sign = CivGlobal.getConstructSign(bcoord);
+			ConstructSign sign = CivGlobal.getConstructSign(new BlockCoord(event.getClickedBlock().getLocation()));
 			if (sign != null) {
 				if (leftClick || sign.isAllowRightClick()) {
 					if (sign.getOwner() != null && sign.getOwner().isActive()) {
@@ -1228,7 +1216,7 @@ public class BlockListener implements Listener {
 			public void run() {
 				if (fc.getMissedGrowthTicks() > 0) {
 					fc.processMissedGrowths(false, this);
-					fc.getFarm().saveMissedGrowths();
+					fc.saveMissedGrowths();
 				}
 			}
 
@@ -1249,20 +1237,12 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockGrowEvent(BlockGrowEvent event) {
-		bcoord.setFromLocation(event.getBlock().getLocation().add(0, -1, 0));
-
-		if (CivGlobal.vanillaGrowthLocations.contains(bcoord)) {
-			/* Allow vanilla growth on these plots. */
-			return;
-		}
-
-		if (Farm.isBlockControlled(event.getBlock())) event.setCancelled(true);
+		if (FarmChunk.isBlockControlled(event.getBlock())) event.setCancelled(true);
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onEntityBreakDoor(EntityBreakDoorEvent event) {
-		bcoord.setFromLocation(event.getBlock().getLocation());
-		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
+		ConstructBlock bb = CivGlobal.getConstructBlock(new BlockCoord(event.getBlock().getLocation()));
 		if (bb != null) event.setCancelled(true);
 	}
 
@@ -1304,7 +1284,7 @@ public class BlockListener implements Listener {
 	}
 
 	public boolean allowPistonAction(Location loc) {
-		bcoord.setFromLocation(loc);
+		BlockCoord bcoord = new BlockCoord(loc);
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) return false;
 
@@ -1592,10 +1572,7 @@ public class BlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
-
-		bcoord.setFromLocation(event.getBlock().getLocation());
-
-		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
+		ConstructBlock bb = CivGlobal.getConstructBlock(new BlockCoord(event.getBlock().getLocation()));
 		if (bb != null && bb.getOwner() instanceof Camp) {
 			if (ItemManager.getTypeId(event.getBlock()) == CivData.WOOD_DOOR || ItemManager.getTypeId(event.getBlock()) == CivData.IRON_DOOR || ItemManager.getTypeId(event.getBlock()) == CivData.SPRUCE_DOOR
 					|| ItemManager.getTypeId(event.getBlock()) == CivData.BIRCH_DOOR || ItemManager.getTypeId(event.getBlock()) == CivData.JUNGLE_DOOR || ItemManager.getTypeId(event.getBlock()) == CivData.ACACIA_DOOR

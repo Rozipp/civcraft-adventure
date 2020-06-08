@@ -123,7 +123,6 @@ public class CivGlobal {
 	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
 	private static Map<BlockCoord, CustomMapMarker> customMapMarkers = new ConcurrentHashMap<BlockCoord, CustomMapMarker>();
 	private static Map<String, Camp> camps = new ConcurrentHashMap<String, Camp>();
-	public static HashSet<BlockCoord> vanillaGrowthLocations = new HashSet<BlockCoord>();
 	private static Map<BlockCoord, Market> markets = new ConcurrentHashMap<BlockCoord, Market>();
 	public static HashSet<String> researchedTechs = new HashSet<String>();
 	private static Map<Integer, Report> reports = new HashMap<Integer, Report>();
@@ -1142,7 +1141,7 @@ public class CivGlobal {
 	}
 
 	public static boolean farmChunkValid(FarmChunk fc) {
-		return farmChunks.containsKey(fc.getCoord());
+		return farmChunks.containsKey(fc.getCCoord());
 	}
 
 	public static Collection<FarmChunk> getFarmChunks() {

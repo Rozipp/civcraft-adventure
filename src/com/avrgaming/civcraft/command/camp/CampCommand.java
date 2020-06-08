@@ -32,7 +32,9 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class CampCommand extends CommandBase {
 	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
+	public static int growthCampTotal = 10000;
 	private Date lastBuildableRefresh = null;
+	
 
 	@Override
 	public void init() {

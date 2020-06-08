@@ -25,14 +25,15 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
 import com.avrgaming.civcraft.exception.InvalidBlockLocation;
+import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.util.BlockSnapshot;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class CivData {
-	//TODO make this an enum
-	
+	// TODO make this an enum
+
 	public static final int BARRIER = 166;
-	
+
 	public static final int WALL_SIGN = 68;
 	public static final int SIGN = 63;
 	public static final int CHEST = 54;
@@ -40,8 +41,7 @@ public class CivData {
 	public static final int WOOD = 17;
 	public static final int PLANKS = 5;
 	public static final int LEAF = 18;
-	
-	
+
 	public static final byte DATA_OAK = 0;
 	public static final byte DATA_PINE = 1;
 	public static final byte DATA_BIRCH = 2;
@@ -51,11 +51,11 @@ public class CivData {
 
 	public static final int COARSE_DIRT = 1;
 	public static final int PODZOL = 2;
-	
+
 	public static final int SALMON = 1;
 	public static final int CLOWNFISH = 2;
 	public static final int PUFFERFISH = 3;
-	
+
 	public static final int GOLD_ORE = 14;
 	public static final int IRON_ORE = 15;
 	public static final int IRON_INGOT = 265;
@@ -97,18 +97,18 @@ public class CivData {
 	public static final int ENDER_CHEST = 130;
 	public static final int BEACON = 138;
 	public static final int GUNPOWDER = 289;
-	
+
 	public static final int MONSTER_EGG = 383;
 	public static final String BOOK_UNDERLINE = "§n";
 	public static final String BOOK_BOLD = "§l";
 	public static final String BOOK_ITALIC = "§o";
 	public static final String BOOK_NORMAL = "§r";
-	
+
 	public static final byte DATA_SIGN_EAST = 0x5;
 	public static final int DATA_SIGN_WEST = 0x4;
 	public static final int DATA_SIGN_NORTH = 0x2;
 	public static final int DATA_SIGN_SOUTH = 0x3;
-	
+
 	public static final int ITEMFRAME = 389;
 	public static final int EMERALD_BLOCK = 133;
 	public static final int GOLD_BLOCK = 41;
@@ -141,12 +141,12 @@ public class CivData {
 	public static final int SANDSTONE = 24;
 	public static final byte CHISELED_SANDSTONE = 0x1;
 	public static final byte SMOOTH_SANDSTONE = 0x2;
-	
+
 	public static final byte CHEST_NORTH = 0x2;
 	public static final byte CHEST_SOUTH = 0x3;
 	public static final byte CHEST_WEST = 0x4;
 	public static final byte CHEST_EAST = 0x5;
-	
+
 	public static final byte SIGNPOST_NORTH = 0x8;
 	public static final byte SIGNPOST_SOUTH = 0x0;
 	public static final byte SIGNPOST_WEST = 0x4;
@@ -154,7 +154,7 @@ public class CivData {
 	public static final int BREAD_SEED = 295;
 	public static final int CARROT_ITEM = 391;
 	public static final int POTATO_ITEM = 392;
-	
+
 	public static final int LEATHER_HELMET = 298;
 	public static final int LEATHER_CHESTPLATE = 299;
 	public static final int LEATHER_LEGGINGS = 300;
@@ -164,17 +164,17 @@ public class CivData {
 	public static final int IRON_CHESTPLATE = 307;
 	public static final int IRON_LEGGINGS = 308;
 	public static final int IRON_BOOTS = 309;
-	
+
 	public static final int DIAMOND_HELMET = 310;
 	public static final int DIAMOND_CHESTPLATE = 311;
 	public static final int DIAMOND_LEGGINGS = 312;
 	public static final int DIAMOND_BOOTS = 313;
-	
+
 	public static final int GOLD_HELMET = 314;
 	public static final int GOLD_CHESTPLATE = 315;
 	public static final int GOLD_LEGGINGS = 316;
 	public static final int GOLD_BOOTS = 317;
-	
+
 	public static final int CHAIN_HELMET = 302;
 	public static final int CHAIN_CHESTPLATE = 303;
 	public static final int CHAIN_LEGGINGS = 304;
@@ -184,19 +184,19 @@ public class CivData {
 	public static final int IRON_SWORD = 267;
 	public static final int DIAMOND_SWORD = 276;
 	public static final int GOLD_SWORD = 283;
-	
+
 	public static final int WOOD_AXE = 271;
 	public static final int STONE_AXE = 275;
 	public static final int IRON_AXE = 258;
 	public static final int DIAMOND_AXE = 279;
 	public static final int GOLD_AXE = 286;
-	
+
 	public static final int WOOD_SHOVEL = 269;
 	public static final int STONE_SHOVEL = 273;
 	public static final int IRON_SHOVEL = 256;
 	public static final int DIAMOND_SHOVEL = 277;
 	public static final int GOLD_SHOVEL = 284;
-	
+
 	public static final int WOOD_PICKAXE = 270;
 	public static final int STONE_PICKAXE = 274;
 	public static final int IRON_PICKAXE = 257;
@@ -224,8 +224,7 @@ public class CivData {
 	public static final int POLISHED_DIORITE = 4;
 	public static final int ANDESITE = 5;
 	public static final int POLISHED_ANDESITE = 6;
-	
-	
+
 	public static final short MUNDANE_POTION_DATA = 8192;
 	public static final short MUNDANE_POTION_EXT_DATA = 64;
 	public static final short THICK_POTION_DATA = 32;
@@ -233,22 +232,17 @@ public class CivData {
 	public static final int DATA_WOOL_WHITE = 0;
 	public static final int GOLDEN_APPLE = 322;
 	public static final int TNT = 46;
-	
+
 	public static String getDisplayName(int id) {
-		
-		if (id == GOLD_ORE)
-			return "Gold Ore";
-		if (id == IRON_ORE)
-			return "Iron Ore";
-		if (id == IRON_INGOT)
-			return "Iron";
-		if (id == GOLD_INGOT)
-			return "Gold";
-		
+
+		if (id == GOLD_ORE) return "Gold Ore";
+		if (id == IRON_ORE) return "Iron Ore";
+		if (id == IRON_INGOT) return "Iron";
+		if (id == GOLD_INGOT) return "Gold";
+
 		return "Unknown_Id";
 	}
-	
-	
+
 	public static boolean canGrowFromStem(BlockSnapshot bs) {
 		int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 		boolean hasAir = false;
@@ -257,24 +251,17 @@ public class CivData {
 			try {
 				nextBs = bs.getRelative(offset[i][0], 0, offset[i][1]);
 			} catch (InvalidBlockLocation e) {
-				/* 
-				 * The block is on the edge of this farm plot. 
-				 * it _could_ grow but lets not say it can to be safe.
-				 */
+				/* The block is on the edge of this farm plot. it _could_ grow but lets not say it can to be safe. */
 				return false;
 			}
-			//Block nextBlock = blockState.getBlock().getRelative(offset[i][0], 0, offset[i][1]);
-			//int nextType = snapshot.getBlockData(arg0, arg1, arg2)
-			
-			
+			// Block nextBlock = blockState.getBlock().getRelative(offset[i][0], 0, offset[i][1]);
+			// int nextType = snapshot.getBlockData(arg0, arg1, arg2)
+
 			if (nextBs.getTypeId() == CivData.AIR) {
 				hasAir = true;
 			}
-			
-			if ((nextBs.getTypeId() == CivData.MELON && 
-					bs.getTypeId() == CivData.MELON_STEM) ||
-					(nextBs.getTypeId() == CivData.PUMPKIN &&
-							bs.getTypeId() == CivData.PUMPKIN_STEM)) {
+
+			if ((nextBs.getTypeId() == CivData.MELON && bs.getTypeId() == CivData.MELON_STEM) || (nextBs.getTypeId() == CivData.PUMPKIN && bs.getTypeId() == CivData.PUMPKIN_STEM)) {
 				return false;
 			}
 		}
@@ -292,93 +279,80 @@ public class CivData {
 		}
 		return hasAir;
 	}
-	
-//	public static boolean canGrowSugarcane(Block blockState) {
-//		int total = 1; //include our block
-//		Block nextBlock = blockState.getBlock();
-//		// Get # of sugarcanes above us
-//		//Using a for loop to prevent possible infinite loop
-//		for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
-//			nextBlock = nextBlock.getRelative(0, 1, 0);
-//			if (nextBlock.getTypeId() == CivData.SUGARCANE) {
-//				total++;
-//			} else {
-//				break;
-//			}
-//		}
-//		
-//		nextBlock = blockState.getBlock();
-//		// Get # of sugarcanes below us
-//		for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
-//			nextBlock = nextBlock.getRelative(0, -1, 0);
-//			if (nextBlock.getTypeId() == CivData.SUGARCANE) {
-//				total++;
-//			} else {
-//				break;
-//			}
-//		}
-//		
-//		// Compare total+1 with max height.
-//		if (total < Farm.MAX_SUGARCANE_HEIGHT) {
-//			return true;
-//		}
-//
-//		return false;
-//	}
-	
+
+	public static boolean canGrowSugarcane(BlockSnapshot bs) {
+		int total = 1; // include our block
+		BlockSnapshot nextBlock;
+		// Get # of sugarcanes above us
+		// Using a for loop to prevent possible infinite loop
+		try {
+			for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
+				nextBlock = bs.getRelative(0, 1, 0);
+				if (nextBlock.getTypeId() == CivData.SUGARCANE)
+					total++;
+				else
+					break;
+			}
+			
+			// Get # of sugarcanes below us
+			for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
+				nextBlock = bs.getRelative(0, -1, 0);
+				if (nextBlock.getTypeId() == CivData.SUGARCANE)
+					total++;
+				else
+					break;
+			}
+		} catch (InvalidBlockLocation e) {}
+		// Compare total+1 with max height.
+		if (total < Farm.MAX_SUGARCANE_HEIGHT) return true;
+
+		return false;
+	}
+
 	public static boolean canCocoaGrow(BlockSnapshot bs) {
 		byte bits = (byte) (bs.getData() & 0xC);
-		if (bits == 0x8)
-			return false;
+		if (bits == 0x8) return false;
 		return true;
 	}
-	
+
 	public static byte getNextCocoaValue(BlockSnapshot bs) {
 		byte bits = (byte) (bs.getData() & 0xC);
 		if (bits == 0x0)
 			return 0x4;
-		else if (bits == 0x4)
-			return 0x8;
 		else
-			return 0x8;
+			if (bits == 0x4)
+				return 0x8;
+			else
+				return 0x8;
 	}
-	
+
 	public static boolean canGrow(BlockSnapshot bs) {
 		switch (bs.getTypeId()) {
 		case WHEAT:
-		case CARROTS:		
-		case POTATOES:		
-			if (bs.getData() == 0x7) {
-				return false;
-			}
-			return true;
-		
+		case CARROTS:
+		case POTATOES:
+			return bs.getData() != 0x7;
 		case NETHERWART:
-			if (bs.getData() == 0x3) {
-				return false;
-			}
-			return true;
-		
+			return bs.getData() != 0x3;
 		case COCOAPOD:
 			return canCocoaGrow(bs);
-		
 		case MELON_STEM:
 		case PUMPKIN_STEM:
 			return canGrowFromStem(bs);
-		
-		//case REDMUSHROOM:
-		//case BROWNMUSHROOM:
-		//	return canGrowMushroom(blockState);
-			
-		//case SUGARCANE:	
-	//		return canGrowSugarcane(bs);
+
+		// case REDMUSHROOM:
+		// case BROWNMUSHROOM:
+		// return canGrowMushroom(blockState);
+
+		case SUGARCANE:
+			return canGrowSugarcane(bs);
 		}
-		
+
 		return false;
 	}
 
 	public static byte convertSignDataToDoorDirectionData(byte data) {
-		switch(data) {
+		switch (data) {
 		case SIGNPOST_NORTH:
 			return 0x1;
 		case SIGNPOST_SOUTH:
@@ -388,26 +362,17 @@ public class CivData {
 		case SIGNPOST_WEST:
 			return 0x0;
 		}
-		
+
 		return 0x0;
 	}
 
 	public static byte convertSignDataToChestData(byte data) {
-		/* Chests are 
-		 * 0x2: Facing north (for ladders and signs, attached to the north side of a block)
-		 * 0x3: Facing south
-		 * 0x4: Facing west
-		 * 0x5: Facing east
-		 */
-		
-		/* Signposts are
-		 * 0x0: south
-			0x4: west
-			0x8: north
-			0xC: east
-		 */
-		
-		switch(data) {
+		/* Chests are 0x2: Facing north (for ladders and signs, attached to the north side of a block) 0x3: Facing south 0x4: Facing west 0x5:
+		 * Facing east */
+
+		/* Signposts are 0x0: south 0x4: west 0x8: north 0xC: east */
+
+		switch (data) {
 		case SIGNPOST_NORTH:
 			return CHEST_NORTH;
 		case SIGNPOST_SOUTH:
@@ -417,29 +382,26 @@ public class CivData {
 		case SIGNPOST_WEST:
 			return CHEST_WEST;
 		}
-		
-		
-//		switch (data) {
-//		case 0x0:
-//			return 0x3;
-//		case 0x4:
-//			return 0x4;
-//		case 0x8:
-//			return 0x2;
-//		case 0xC:
-//			return 0x5;
-//		}
-		
-		
-		System.out.println("Warning, unknown sign post direction:"+data);
+
+		// switch (data) {
+		// case 0x0:
+		// return 0x3;
+		// case 0x4:
+		// return 0x4;
+		// case 0x8:
+		// return 0x2;
+		// case 0xC:
+		// return 0x5;
+		// }
+
+		System.out.println("Warning, unknown sign post direction:" + data);
 		return CHEST_SOUTH;
 	}
 
+	public static boolean randChance(int chance) {
+		Random random = CivCraft.civRandom;
+		int roll = random.nextInt(1000000);
+		return roll <= (chance *= 10000);
+	}
 
-    public static boolean randChance(int chance) {
-        Random random = CivCraft.civRandom;
-        int roll = random.nextInt(1000000);
-        return roll <= (chance *= 10000);
-    }
-	
 }

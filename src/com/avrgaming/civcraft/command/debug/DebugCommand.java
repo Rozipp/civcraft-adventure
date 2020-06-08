@@ -138,7 +138,6 @@ public class DebugCommand extends CommandBase {
 		cs.add("refreshchunk", "refreshes the chunk you're standing in.. for science.");
 		cs.add("touches", "[town] - prints a list of friendly touches for this town's culture.");
 		cs.add("listconquered", "shows a list of conquered civilizations.");
-		cs.add("camp", "Debugs camps.");
 		cs.add("blockinfo", "[x] [y] [z] shows block info for this block.");
 		cs.add("fakeresidents", "[town] [count] - Adds this many fake residents to a town.");
 		cs.add("clearresidents", "[town] - clears this town of it's random residents.");
@@ -488,8 +487,9 @@ public class DebugCommand extends CommandBase {
 	public void savetemplate_cmd() throws CivException {
 		Player player = getPlayer();
 		String name = getNamedString(1, "Enter a filename");
+		String build_name = name.replace("_", " ");
 		String theme = (args.length == 3) ? args[2] : null;
-		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(name);
+		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(build_name);
 
 		String filepath = null;
 
@@ -701,11 +701,6 @@ public class DebugCommand extends CommandBase {
 
 		CivMessage.send(sender, "type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
 
-	}
-
-	public void camp_cmd() {
-		DebugCampCommand cmd = new DebugCampCommand();
-		cmd.onCommand(sender, null, "farm", this.stripArgs(args, 1));
 	}
 
 	public void listconquered_cmd() {

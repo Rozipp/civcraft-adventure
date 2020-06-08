@@ -26,7 +26,6 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.farm.GrowBlock;
 import com.avrgaming.civcraft.threading.sync.SyncGetChestInventory;
 import com.avrgaming.civcraft.threading.sync.SyncGrowTask;
@@ -199,11 +198,10 @@ public abstract class CivAsyncTask implements Runnable {
 		}
 	}
 	
-	public Boolean growBlocks(LinkedList<GrowBlock> growBlocks, FarmChunk farmChunk) throws InterruptedException {
+	public Boolean growBlocks(LinkedList<GrowBlock> growBlocks) throws InterruptedException {
 		
 		GrowRequest request = new GrowRequest(SyncGrowTask.lock);
 		request.growBlocks = growBlocks;
-		request.farmChunk = farmChunk;
 		
 		this.finished = false;
 		SyncGrowTask.lock.lock();

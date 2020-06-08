@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -30,84 +32,72 @@ import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.farm.GrowBlock;
 import com.avrgaming.civcraft.threading.sync.request.GrowRequest;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class SyncGrowTask implements Runnable {
-	
+
 	public static Queue<GrowRequest> requestQueue = new LinkedList<GrowRequest>();
 	public static ReentrantLock lock;
-	
+
 	public static final int UPDATE_LIMIT = 200;
-	
+
 	public SyncGrowTask() {
 		lock = new ReentrantLock();
 	}
-	
+
 	@Override
 	public void run() {
-		if (!CivGlobal.growthEnabled) {
-			return;
-		}
-		
-		HashSet<FarmChunk> unloadedFarms = new HashSet<FarmChunk>();
-		
+		if (!CivGlobal.growthEnabled) return;
+
+		HashSet<ChunkCoord> unloadedChunk = new HashSet<>();
+
 		if (lock.tryLock()) {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					GrowRequest request = requestQueue.poll();
-					if (request == null) {
-						return;
-					}
-					
-					if (request.farmChunk == null) {
-						request.result = false;
-					} else if (!request.farmChunk.getChunk().isLoaded()) {
-						// This farm's chunk isn't loaded so we can't update 
-						// the crops. Add the missed growths to the farms to
-						// process later.
-						unloadedFarms.add(request.farmChunk);
-						request.result = false;
+					if (request == null) continue;
+					request.result = false;
 
-					} else {
-						
-						for (GrowBlock growBlock : request.growBlocks) {
-							switch (growBlock.typeId) {
-							case CivData.CARROTS:
-							case CivData.WHEAT:
-							case CivData.POTATOES:
-								if ((growBlock.data-1) != ItemManager.getData(growBlock.bcoord.getBlock())) {
-									// replanted??
-									continue;
-								}
-								break;
-							}
-							
-							if (!growBlock.spawn && ItemManager.getTypeId(growBlock.bcoord.getBlock()) != growBlock.typeId) {
-								continue;
-							} else {
-								if (growBlock.spawn) {
-									// Only allow block to change its type if its marked as spawnable.
-									ItemManager.setTypeId(growBlock.bcoord.getBlock(), growBlock.typeId);
-								}
-								ItemManager.setData(growBlock.bcoord.getBlock(), growBlock.data);
-								request.result = true;
-							}
-							
+					for (GrowBlock growBlock : request.growBlocks) {
+						ChunkCoord ccoord = growBlock.bcoord.getChunkCoord();
+						if (unloadedChunk.contains(ccoord)) continue;
+						if (!ccoord.getChunk().isLoaded()) unloadedChunk.add(ccoord);
+
+						switch (growBlock.typeId) {
+						case CivData.CARROTS:
+						case CivData.WHEAT:
+						case CivData.POTATOES:
+							if ((growBlock.data - 1) != ItemManager.getData(growBlock.bcoord.getBlock())) continue; // XXX replanted??
+							break;
 						}
+
+						if (ItemManager.getTypeId(growBlock.bcoord.getBlock()) != growBlock.typeId) {
+							if (growBlock.spawn)
+								ItemManager.setTypeId(growBlock.bcoord.getBlock(), growBlock.typeId);
+							else
+								continue;
+						}
+						ItemManager.setData(growBlock.bcoord.getBlock(), growBlock.data);
+						request.result = true;
 					}
-					
 					request.finished = true;
 					request.condition.signalAll();
 				}
-				
+
 				// increment any farms that were not loaded.
-				for (FarmChunk fc : unloadedFarms) {
-					fc.incrementMissedGrowthTicks();
-					Farm farm = (Farm)fc.getStruct();
-					farm.saveMissedGrowths();
+				for (ChunkCoord ccoord : unloadedChunk) {
+					for (Construct construct : CivGlobal.getConstructFromChunk(ccoord)) {
+						FarmChunk farmChunk = null;
+						if (construct instanceof Farm) farmChunk = ((Farm) construct).farmChunk;
+						if (construct instanceof Camp) farmChunk = ((Camp) construct).farmChunk;
+						if (farmChunk != null) {
+							farmChunk.incrementMissedGrowthTicks();
+							farmChunk.saveMissedGrowths();
+						}
+					}
 				}
-				
-				
+
 			} finally {
 				lock.unlock();
 			}
@@ -116,4 +106,3 @@ public class SyncGrowTask implements Runnable {
 		}
 	}
 }
-

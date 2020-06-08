@@ -29,6 +29,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.units.Cooldown;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import gpl.HorseModifier;
@@ -45,6 +46,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -152,6 +154,11 @@ public class CustomItemListener implements Listener {
 		if (event.isCancelled()) return;
 		ItemStack stack = event.getItemDrop().getItemStack();
 
+		if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
+			event.setCancelled(true);
+			return;
+		}
+		
 		CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
 		if (cmat != null) {
 			cmat.onDropItem(event);
@@ -159,7 +166,12 @@ public class CustomItemListener implements Listener {
 		}
 
 		String custom = isCustomDrop(stack);
-		if (custom != null) event.setCancelled(true);
+		if (custom != null) {
+			event.setCancelled(true);
+			return;
+		}
+
+		
 	}
 
 	private static String isCustomDrop(ItemStack stack) {
@@ -555,9 +567,24 @@ public class CustomItemListener implements Listener {
 		if (currentEmpty && cursorEmpty) return;
 		convertLegacyItem(event);
 
+		if (Cooldown.isCooldown(currentStack) || Cooldown.isCooldown(cursorStack)) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
+		Inventory clickedInv = event.getClickedInventory();
+		
+		if (Enchantments.hasEnchantment(cursorStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
 		CustomMaterial current = CustomMaterial.getCustomMaterial(currentStack);
 		CustomMaterial cursor = CustomMaterial.getCustomMaterial(cursorStack);
-		Inventory clickedInv = event.getClickedInventory();
 
 		if (current != null) current.onInvItemPickup(event, clickedInv, currentStack);
 		if (cursor != null) cursor.onInvItemDrop(event, clickedInv, cursorStack);
@@ -569,6 +596,13 @@ public class CustomItemListener implements Listener {
 		if (currentEmpty) return;
 		convertLegacyItem(event);
 
+		if (Cooldown.isCooldown(currentStack)) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
 		InventoryView view = event.getView();
 
 		Inventory clickedInv = event.getClickedInventory();
@@ -580,6 +614,13 @@ public class CustomItemListener implements Listener {
 				otherInv = view.getTopInventory();
 		}
 
+		if (Enchantments.hasEnchantment(currentStack, CustomEnchantment.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
 		CustomMaterial current = CustomMaterial.getCustomMaterial(currentStack);
 
 		if (current != null) {
@@ -597,9 +638,30 @@ public class CustomItemListener implements Listener {
 		if (firstEmpty && secondEmpty) return;
 		convertLegacyItem(event);
 
+		if (Cooldown.isCooldown(firstStack) || Cooldown.isCooldown(firstStack)) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
 		Inventory clickedInv = event.getClickedInventory();
 		Inventory otherInv = playerInventory;
 
+		if (Enchantments.hasEnchantment(firstStack, CustomEnchantment.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
+		if (Enchantments.hasEnchantment(secondStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
+			event.setCancelled(true);
+			event.setResult(Result.DENY);
+			((Player) event.getWhoClicked()).updateInventory();
+			return;
+		}
+		
 		CustomMaterial first = CustomMaterial.getCustomMaterial(firstStack);
 		CustomMaterial second = CustomMaterial.getCustomMaterial(secondStack);
 
@@ -668,7 +730,7 @@ public class CustomItemListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onInventoryClick(InventoryDragEvent event) {
+	public void onInventoryDrag(InventoryDragEvent event) {
 		if (event.isCancelled()) return;
 		ItemStack stack = event.getOldCursor();
 		if ((stack == null) || stack.getType().equals(Material.AIR)) return;
@@ -687,12 +749,15 @@ public class CustomItemListener implements Listener {
 					inv = view.getBottomInventory();
 			}
 
+			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem) && inv.getType() != InventoryType.PLAYER) {
+				event.setCancelled(true);
+				event.setResult(Result.DENY);
+				((Player) event.getWhoClicked()).updateInventory();
+				return;
+			}
+			
 			CustomMaterial custMat = CustomMaterial.getCustomMaterial(stack);
 			if (custMat != null) custMat.onInvItemDrag(event, inv, stack);
-			// else
-			// if (CivGlobal.lockInventory.contains(inv)) {
-			// event.setCancelled(true);
-			// }
 		}
 
 	}

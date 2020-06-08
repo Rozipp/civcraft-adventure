@@ -170,13 +170,6 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 				return;
 			}
 		}
-
-		if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem) && toInv.getType() != InventoryType.PLAYER) {
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			((Player) event.getWhoClicked()).updateInventory();
-			return;
-		}
 	}
 
 	@Override
