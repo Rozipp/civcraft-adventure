@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
-public class ChunkCoord{
+public class ChunkCoord {
 
 	private String worldname;
 	private int x;
@@ -104,7 +104,7 @@ public class ChunkCoord{
 		double dist = Math.pow(this.getX() - chunkCoord.getX(), 2) + Math.pow(this.getZ() - chunkCoord.getZ(), 2);
 		return dist;
 	}
-	
+
 	public double distance(ChunkCoord chunkCoord) {
 		if (!chunkCoord.getWorldname().equals(this.getWorldname())) return Double.MAX_VALUE;
 		return Math.sqrt(distanceSqr(chunkCoord));
@@ -113,13 +113,17 @@ public class ChunkCoord{
 	public Chunk getChunk() {
 		return Bukkit.getWorld(this.worldname).getChunkAt(this.x, this.z);
 	}
-//
-//	public int compareTo(ChunkCoord o) {
-//		int i = worldname.hashCode() - o.hashCode();
-//		if (i == 0) {
-//			i = x - o.x;
-//			if (i == 0) i = z - o.z;
-//		}
-//		return i;
-//	}
+
+	public static int getBlockInChunk(int d) {
+		return d % 16 + (d < 0 ? 16 : 0);
+	}
+	//
+	// public int compareTo(ChunkCoord o) {
+	// int i = worldname.hashCode() - o.hashCode();
+	// if (i == 0) {
+	// i = x - o.x;
+	// if (i == 0) i = z - o.z;
+	// }
+	// return i;
+	// }
 }

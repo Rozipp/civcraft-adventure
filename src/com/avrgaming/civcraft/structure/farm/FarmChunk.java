@@ -60,6 +60,7 @@ public class FarmChunk {
 
 	/* Populated Asynchronously, Integer represents last data value at that location.. may or may not be useful. */
 	public ArrayList<BlockCoord> cropLocationCache = new ArrayList<BlockCoord>();
+	public ArrayList<BlockCoord> staticCropLocationCache = new ArrayList<BlockCoord>();
 	public ReentrantLock lock = new ReentrantLock();
 
 	private ArrayList<BlockCoord> lastGrownCrops = new ArrayList<BlockCoord>();
@@ -308,21 +309,26 @@ public class FarmChunk {
 		try {
 			this.cropLocationCache.clear();
 			BlockSnapshot bs = new BlockSnapshot();
-
-			for (int x = 0; x < 16; x++) {
-				for (int z = 0; z < 16; z++) {
-					for (int y = 0; y < 256; y++) {
-
-						// Block nextBlock = this.struct.getCorner().getBlock().getChunk().getBlock(x, y, z);
-						// BlockCoord bcoord = new BlockCoord(nextBlock);
-						bs.setFromSnapshotLocation(x, y, z, snapshot);
-
-						if (CivData.canGrow(bs)) {
-							this.cropLocationCache.add(new BlockCoord(snapshot.getWorldName(), (snapshot.getX() << 4) + bs.getX(), (bs.getY()), (snapshot.getZ() << 4) + bs.getZ()));
+			if (staticCropLocationCache.isEmpty()) {
+				for (int x = 0; x < 16; x++) {
+					for (int z = 0; z < 16; z++) {
+						for (int y = 0; y < 256; y++) {
+							bs.setFromSnapshotLocation(x, y, z, snapshot);
+							if (CivData.canGrow(bs)) {
+								this.cropLocationCache.add(new BlockCoord(snapshot.getWorldName(), (snapshot.getX() << 4) + bs.getX(), (bs.getY()), (snapshot.getZ() << 4) + bs.getZ()));
+							}
 						}
 					}
 				}
+			} else {
+				for (BlockCoord bc : staticCropLocationCache) {
+					bs.setFromSnapshotLocation(ChunkCoord.getBlockInChunk(bc.getX()), bc.getY(), ChunkCoord.getBlockInChunk(bc.getZ()), snapshot);
+					if (CivData.canGrow(bs)) {
+						this.cropLocationCache.add(bc);
+					}
+				}
 			}
+			CivLog.debug("cropLocationCache = " + cropLocationCache.size());
 		} finally {
 			this.lock.unlock();
 		}

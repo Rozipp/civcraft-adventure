@@ -70,10 +70,12 @@ import org.bukkit.inventory.ItemStack;
 @Getter
 @Setter
 public class Camp extends Construct {
+	private static int[][] offset = { { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 0 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
+
 	public static final String TABLE_NAME = "CAMPS";
 	public static final double SHIFT_OUT = 2.0D;
 	public static final String SUBDIR = "camp";
-	public static double growthCampTotal = 10000.0;
+	public static double growthCampTotal = 1000.0;
 	private static Integer coal_per_firepoint;
 	private static Integer maxFirePoints;
 	private static int raidLength;
@@ -82,6 +84,7 @@ public class Camp extends Construct {
 	private ConsumeLevelComponent consumeComp = null;
 
 	private HashMap<String, Resident> members = new HashMap<String, Resident>();
+	public HashSet<BlockCoord> memberProtectionBlocks = new HashSet<>();
 	/** можно ли отменить установку лагеря */
 	private boolean undoable = false;
 
@@ -212,6 +215,11 @@ public class Camp extends Construct {
 	}
 
 	public static void loadStaticSettings() {
+		try {
+			Camp.growthCampTotal = CivSettings.getInteger(CivSettings.campConfig, "camp.growth");
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+		}
 		try {
 			Camp.coal_per_firepoint = CivSettings.getInteger(CivSettings.campConfig, "camp.coal_per_firepoint");
 			Camp.maxFirePoints = CivSettings.getInteger(CivSettings.campConfig, "camp.firepoints");
@@ -374,7 +382,12 @@ public class Camp extends Construct {
 				annex = "growth";
 				Block b = absCoord.getBlock();
 				if (annexLevel.getOrDefault(annex, 0) >= level) {
-					this.growthLocations.add(absCoord);
+					this.growthLocations.add(absCoord.getRelative(0, 1, 0));
+					for (int i = 0; i < Camp.offset.length; i++)
+						for (int j = 1; j < 5; j++) {
+							this.memberProtectionBlocks.add(new BlockCoord(absCoord.getRelative(Camp.offset[i][0], j, Camp.offset[i][1])));
+						}
+					
 					if (ItemManager.getTypeId(b) != CivData.FARMLAND) ItemManager.setTypeId(b, CivData.FARMLAND);
 					this.addConstructBlock(absCoord, false);
 				} else {
@@ -1036,10 +1049,8 @@ public class Camp extends Construct {
 		}
 
 		for (BlockCoord farmBlock : this.growthLocations) {
-			ChunkCoord ccoord = farmBlock.getChunkCoord();
-			farmChunk = new FarmChunk(ccoord, this);
-			break;
-
+			if (farmChunk == null) farmChunk = new FarmChunk(farmBlock.getChunkCoord(), this);
+			farmChunk.staticCropLocationCache.add(farmBlock);
 		}
 	}
 

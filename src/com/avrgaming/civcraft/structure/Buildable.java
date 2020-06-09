@@ -19,7 +19,6 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -141,10 +140,6 @@ public abstract class Buildable extends Construct {
 	}
 
 	public void onGoodieFrame() { // Override children
-	}
-
-	public void validateAsyncTask(Player player) throws CivException {
-		TaskMaster.asyncTask(new StructureValidator(player, this, null), 0);
 	}
 
 	/* SessionDB helpers */

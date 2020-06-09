@@ -23,6 +23,9 @@ camp:
     # number of hours to let camp be raidable
     raid_length: 22
     
+    # Рост на ферме кемпа
+    growth: 1000
+    
 transmuter_recipe:
     - trommel1
 

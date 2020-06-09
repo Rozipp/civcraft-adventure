@@ -20,10 +20,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -71,6 +69,7 @@ import com.avrgaming.civcraft.structure.Market;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
+import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
@@ -117,7 +116,6 @@ public class CivGlobal {
 	private static Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
 	private static Map<BlockCoord, TradeGood> tradeGoods = new ConcurrentHashMap<BlockCoord, TradeGood>();
 	private static Map<ChunkCoord, FarmChunk> farmChunks = new ConcurrentHashMap<ChunkCoord, FarmChunk>();
-	private static Queue<FarmChunk> farmChunkUpdateQueue = new LinkedList<FarmChunk>();
 	private static Map<UUID, ItemFrameStorage> protectedItemFrames = new ConcurrentHashMap<UUID, ItemFrameStorage>();
 	private static Map<BlockCoord, BonusGoodie> bonusGoodies = new ConcurrentHashMap<BlockCoord, BonusGoodie>();
 	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
@@ -1066,6 +1064,7 @@ public class CivGlobal {
 	}
 
 	public static Set<Construct> getConstructFromChunk(ChunkCoord cc) {
+		if (!constructsInChunk.containsKey(cc)) return new HashSet<Construct>();
 		return constructsInChunk.get(cc);
 	}
 
@@ -1133,7 +1132,7 @@ public class CivGlobal {
 	// ------------ FarmChunk
 	public static void addFarmChunk(ChunkCoord coord, FarmChunk fc) {
 		farmChunks.put(coord, fc);
-		CivGlobal.queueFarmChunk(fc);
+		FarmPreCachePopulateTimer.queueFarmChunk(fc);
 	}
 
 	public static FarmChunk getFarmChunk(ChunkCoord coord) {
@@ -1148,21 +1147,9 @@ public class CivGlobal {
 		return farmChunks.values();
 	}
 
-	public static void dequeueFarmChunk(FarmChunk fc) {
-		farmChunkUpdateQueue.remove(fc);
-	}
-
-	public static void queueFarmChunk(FarmChunk fc) {
-		farmChunkUpdateQueue.add(fc);
-	}
-
-	public static FarmChunk pollFarmChunk() {
-		return farmChunkUpdateQueue.poll();
-	}
-
 	public static void removeFarmChunk(ChunkCoord coord) {
 		FarmChunk fc = getFarmChunk(coord);
-		if (fc != null) CivGlobal.dequeueFarmChunk(fc);
+		if (fc != null) FarmPreCachePopulateTimer.dequeueFarmChunk(fc);
 		farmChunks.remove(coord);
 	}
 

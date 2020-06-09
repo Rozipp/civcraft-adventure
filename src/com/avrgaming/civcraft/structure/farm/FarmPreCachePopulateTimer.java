@@ -19,6 +19,7 @@
 package com.avrgaming.civcraft.structure.farm;
 
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.Chunk;
@@ -31,9 +32,18 @@ public class FarmPreCachePopulateTimer implements Runnable {
 
 	public static int updateLimit = 50;
 	public static ReentrantLock lock = new ReentrantLock();
+	private static Queue<FarmChunk> farmChunkUpdateQueue = new LinkedList<FarmChunk>();
 
 	/* This task runs synchronously and grabs chunk snapshots to send to the async task which then does the more hard-core processing. */
 	public FarmPreCachePopulateTimer() {
+	}
+
+	public static void dequeueFarmChunk(FarmChunk fc) {
+		farmChunkUpdateQueue.remove(fc);
+	}
+
+	public static void queueFarmChunk(FarmChunk fc) {
+		farmChunkUpdateQueue.add(fc);
 	}
 
 	@Override
@@ -45,7 +55,7 @@ public class FarmPreCachePopulateTimer implements Runnable {
 				LinkedList<FarmChunk> farmChunks = new LinkedList<FarmChunk>();
 
 				for (int i = 0; i < updateLimit; i++) {
-					FarmChunk fc = CivGlobal.pollFarmChunk();
+					FarmChunk fc = farmChunkUpdateQueue.poll();
 					if (fc == null) break;
 
 					/* Ignore any farm chunks that are no longer in the farm chunk list, the farm has been destroyed and doesnt need to be updated anymore. */
@@ -60,7 +70,7 @@ public class FarmPreCachePopulateTimer implements Runnable {
 					// put valid farms back on the queue to be populated again later.
 					// dont do it in the loop above, since it causes < 50 farms to be
 					// populated up to 50 times.
-					CivGlobal.queueFarmChunk(fc);
+					queueFarmChunk(fc);
 				}
 
 				if (farmChunks.size() > 0) {

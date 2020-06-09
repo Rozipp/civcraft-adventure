@@ -541,7 +541,10 @@ public class BlockListener implements Listener {
 	public void OnBlockFadeEvent(BlockFadeEvent event) {
 		Block block = event.getBlock();
 		if (block.getType() == Material.ICE || block.getType() == Material.PACKED_ICE || block.getType() == Material.FROSTED_ICE) {
-			ChunkCoord coord = new ChunkCoord(block.getLocation());
+			ConstructBlock cb = CivGlobal.getConstructBlock(new BlockCoord(block));
+			if (cb != null) event.setCancelled(true);
+			
+			ChunkCoord coord = new ChunkCoord(block);
 			final TownChunk tc = CivGlobal.getTownChunk(coord);
 			if (tc != null) event.setCancelled(true);
 		}
@@ -591,7 +594,7 @@ public class BlockListener implements Listener {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorStructure") + " " + bb.getOwner().getDisplayName() + " " + CivSettings.localize.localizedString("blockBreak_errorOwnedBy"));
 			return;
 		}
-
+		
 		TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(event.getBlock().getLocation()));
 		if (CivSettings.blockPlaceExceptions.get(event.getBlock().getType()) != null) return;
 		if (tc != null) {
@@ -617,11 +620,9 @@ public class BlockListener implements Listener {
 		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
-				if (!(construct instanceof Buildable)) continue;
-				Buildable buildable = (Buildable) construct;
-				if (!buildable.validated) {
+				if (!construct.validated) {
 					try {
-						buildable.validateAsyncTask(event.getPlayer());
+						construct.validateAsyncTask(event.getPlayer());
 					} catch (CivException e) {
 						e.printStackTrace();
 					}
@@ -629,13 +630,24 @@ public class BlockListener implements Listener {
 				}
 
 				/* Building is validated, grab the layer and determine if this would set it over the limit. */
-				ConstructLayer layer = buildable.layerValidPercentages.get(bcoord.getY());
+				ConstructLayer layer = construct.layerValidPercentages.get(bcoord.getY());
 				if (layer == null) continue;
 
 				/* Update the layer. */
 				layer.current += BuildableStatic.getReinforcementValue(ItemManager.getTypeId(event.getBlockPlaced()));
 				if (layer.current < 0) layer.current = 0;
-				buildable.layerValidPercentages.put(bcoord.getY(), layer);
+				construct.layerValidPercentages.put(bcoord.getY(), layer);
+			}
+		}
+		
+		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
+			if (constr instanceof Camp) {
+				Camp camp = (Camp) constr;
+				if (camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
+					CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
+					event.setCancelled(true);
+					return;
+				}
 			}
 		}
 	}
@@ -755,7 +767,17 @@ public class BlockListener implements Listener {
 				buildable.layerValidPercentages.put(bcoord.getY(), layer);
 			}
 		}
-
+		
+		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
+			if (constr instanceof Camp) {
+				Camp camp = (Camp) constr;
+				if (camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
+					CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
+					event.setCancelled(true);
+					return;
+				}
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)

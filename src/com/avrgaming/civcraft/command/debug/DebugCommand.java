@@ -483,6 +483,7 @@ public class DebugCommand extends CommandBase {
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
 		String templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
 		Template tpl = Template.getTemplate(templatePath);
+		CivMessage.send(sender, "Loaded Template " + templatePath);
 		if (tpl != null) tpl.buildTemplateDbg(new BlockCoord(player.getLocation()));
 	}
 

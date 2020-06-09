@@ -42,6 +42,7 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
 import com.avrgaming.civcraft.structure.BuildableStatic;
+import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
@@ -831,6 +832,10 @@ public abstract class Construct extends SQLObject {
 
 	public boolean isCanRestoreFromTemplate() {
 		return true;
+	}
+
+	public void validateAsyncTask(Player player) throws CivException {
+		TaskMaster.asyncTask(new StructureValidator(player, this, null), 0);
 	}
 
 }
