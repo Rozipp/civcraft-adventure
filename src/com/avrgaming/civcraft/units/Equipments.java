@@ -1,7 +1,7 @@
 package com.avrgaming.civcraft.units;
 
 public enum Equipments {
-	HELMET, CHESTPLATE, LEGGINGS, BOOTS, MAINHAND, TWOHAND;
+	HELMET, CHESTPLATE, LEGGINGS, BOOTS, MAINHAND, TWOHAND, ITEM, ARROW;
 
 	private int slot = -1;
 
@@ -25,6 +25,14 @@ public enum Equipments {
 				break;
 			case TWOHAND:
 				slot = 40;
+				break;
+			case ARROW:
+				slot = 6;
+				break;
+			case ITEM:
+				slot = 1;
+				break;
+			default:
 				break;
 			}
 		}

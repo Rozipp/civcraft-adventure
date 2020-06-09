@@ -13,16 +13,49 @@ materials:
       components:
           - name: 'ChoiceUnitComponent'
 
+    - id: 'u_arrow_normal'
+      item_id: '440:0'
+      name: 'Arrow'
+      slot: 6
+      components:
+          - name: 'Arrow'
+
+    - id: 'u_arrow_fire'
+      item_id: '440:0'
+      name: 'Горящая стрела'
+      slot: 6
+      components:
+          - name: 'Arrow'
+          - name: 'NBT'
+            potion: 'fire_resistance'
+            
+    - id: 'u_arrow_frozen'
+      item_id: '440:0'
+      name: 'Леденая стрела'
+      slot: 6
+      components:
+          - name: 'Arrow'
+          - name: 'NBT'
+            potion: 'slowness'
+
+    - id: 'u_arrow_poison'
+      item_id: '440:0'
+      name: 'Отравленная стрела'
+      slot: 6
+      components:
+          - name: 'Arrow'
+          - name: 'NBT'
+            potion: 'poison'
+            
     - id: 'u_botltest'
       item_id: '438:0'
       name: 'BotlTest'
-      slot: 7
+      slot: 6
       components:
           - name: 'Cooldown'
             cooldown: '20'
           - name: 'NBT'
-            potion: 'fire_resistance'
-            
+            potion: 'minecraft:fire_resistance' 
 
     - id: 'u_foundtown'
       item_id: '340:0'

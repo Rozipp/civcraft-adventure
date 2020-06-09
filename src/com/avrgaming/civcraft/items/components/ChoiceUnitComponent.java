@@ -51,6 +51,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 
 		for (String enable_component : uo.getConfigUnit().enable_components) {
 			ConfigUnitComponent comp = UnitStatic.configUnitComponents.get(enable_component);
+			if (comp == null) continue;
 			
 			Boolean isRequire = true;
 			int type = comp.gui_item_id;

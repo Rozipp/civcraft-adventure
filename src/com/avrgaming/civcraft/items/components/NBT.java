@@ -68,7 +68,7 @@ public class NBT extends ItemComponent {
 			attrs.setColor(Long.decode("0x"+value));
 		
 		if ((value = this.getString("potion")) != null)
-			attrs.setNBT("Potion", "minecraft:"+value);
+			attrs.setNBT("Potion", "minecraft:" +value);
 	}
 
 	

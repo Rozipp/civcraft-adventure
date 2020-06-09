@@ -338,35 +338,53 @@ public class UnitObject extends SQLObject {
 
 	public void dressAmmunitions(Player player) {
 		PlayerInventory inv = player.getInventory();
-
+		
 		// создаю предметы амуниции
 		HashMap<Equipments, ItemStack> newEquipments = new HashMap<>();
 		for (Equipments equip : Equipments.values()) {
+			if (equip == Equipments.ARROW || equip == Equipments.ITEM) continue; 
 			String mid = equipments.get(equip);
 			if (mid == null || mid.isEmpty()) continue;
 			ItemStack is = ItemManager.createItemStack(mid, 1);
 			newEquipments.put(equip, is);
 		}
-
+		boolean arrowFound = false;
 		HashMap<String, Integer> newItems = new HashMap<>();
 		// проверяю все компоненты юнита
 		for (String key : totalComponents.keySet()) {
-			// Если это компонент предмет. Создаем его
-			UnitCustomMaterial ucmat = CustomMaterial.getUnitCustomMaterial(key);
-			if (ucmat != null) {
-				newItems.put(ucmat.getConfigId(), ammunitionSlots.getOrDefault(ucmat.getConfigId(), ucmat.getSocketSlot()));
-				continue;
-			}
-
-			// если это атрибут амуниции, добавляем его
 			ConfigUnitComponent cuc = UnitStatic.configUnitComponents.get(key);
-			if (cuc != null) {
+			if (cuc == null) continue;
+
+			switch (cuc.ammunition) {
+			case ITEM: // Если это компонент предмет. Создаем его
+				UnitCustomMaterial ucmat = CustomMaterial.getUnitCustomMaterial(key);
+				if (ucmat != null) {
+					newItems.put(ucmat.getConfigId(), ammunitionSlots.getOrDefault(ucmat.getConfigId(), ucmat.getSocketSlot()));
+				}
+				break;
+			case ARROW:
+				if (ammunitionSlots.containsKey(key)) {
+					newItems.put(key, ammunitionSlots.get(key));
+					arrowFound = true;
+				}
+				break;
+			case BOOTS:
+			case CHESTPLATE:
+			case HELMET:
+			case LEGGINGS:
+			case MAINHAND:
+			case TWOHAND: // если это атрибут амуниции, добавляем его
 				newEquipments.put(cuc.ammunition, UnitStatic.addAttribute(newEquipments.get(cuc.ammunition), key, getComponentValue(key)));
-				continue;
+				break;
+			default:
+				CivLog.warning("Компонент " + key + " у юнита id=" + this.getId() + " был удален, так как не найдена его обработка");
+				break;
 			}
 
-			// если ничего не найдено
-			CivLog.warning("Компонент " + key + " у юнита id=" + this.getId() + " был удален, так как не найдена его обработка");
+		}
+		
+		if (this.hasComponent("infinite") && !arrowFound) {
+			newItems.put("u_arrow_normal", ammunitionSlots.getOrDefault("u_arrow_normal", 6));
 		}
 		if (getLevelUp() > 0) {
 			newItems.put("u_choiceunitcomponent", ammunitionSlots.getOrDefault("u_choiceunitcomponent", 7));

@@ -31,8 +31,7 @@ public class ConfigUnitComponent {
 			Object temp;
 			component.id = (String) b.get("id");
 			component.name = (String) b.get("name");
-			String amu = (String) b.get("ammunition");
-			component.ammunition = (!amu.equals("item")) ? Equipments.valueOf((amu).toUpperCase()) : null;
+			component.ammunition = Equipments.valueOf(((String) b.get("ammunition")).toUpperCase());
 			component.require_tech = (String) b.get("require_tech");
 
 			List<?> temp_require_component = (List<?>) b.get("require_component");
