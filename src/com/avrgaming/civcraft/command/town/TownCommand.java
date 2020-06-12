@@ -14,7 +14,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -78,7 +77,7 @@ public class TownCommand extends CommandBase {
 		// cs.add("capture", "[town] - instantly captures this town if they have a missing or illegally placed town hall during WarTime.");
 		cs.add("capitulate", CivSettings.localize.localizedString("cmd_town_capitulateDesc"));
 		cs.add("survey", CivSettings.localize.localizedString("cmd_town_surveyDesc"));
-//		cs.add("templates", CivSettings.localize.localizedString("cmd_town_templatesDesc"));
+		// cs.add("templates", CivSettings.localize.localizedString("cmd_town_templatesDesc"));
 		cs.add("event", CivSettings.localize.localizedString("cmd_town_eventDesc"));
 		cs.add("claimmayor", CivSettings.localize.localizedString("cmd_town_claimmayorDesc"));
 		// cs.add("movestructure", "[coord] [town] moves the structure specified by the coord to the specfied town.");
@@ -809,11 +808,8 @@ public class TownCommand extends CommandBase {
 		if (tc.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimNotInTown"));
 		if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));
 
-		Set<Construct> constructs = CivGlobal.getConstructFromChunk(tc.getChunkCoord());
-		if (constructs != null) {
-			for (Construct construct : constructs) {
-				if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
-			}
+		for (Construct construct : CivGlobal.getConstructFromChunk(tc.getChunkCoord())) {
+			if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
 		}
 		TownChunk.unclaim(tc);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCenterString()));

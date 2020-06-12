@@ -1073,14 +1073,12 @@ public class CivGlobal {
 	}
 
 	public static Camp getCampAt(ChunkCoord cc) {
-		if (getConstructFromChunk(cc) == null) return null;
 		for (Construct constr : getConstructFromChunk(cc))
 			if (constr instanceof Camp) return (Camp) constr;
 		return null;
 	}
 
 	public static Buildable getBuildableAt(ChunkCoord cc) {
-		if (getConstructFromChunk(cc) == null) return null;
 		for (Construct constr : getConstructFromChunk(cc))
 			if (constr instanceof Buildable) return (Buildable) constr;
 		return null;

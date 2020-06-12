@@ -292,24 +292,8 @@ public class PlayerListener implements Listener {
 	public void onEntityDeath(EntityDeathEvent event) {
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		Player death = event.getEntity();
-		Resident deathRes = CivGlobal.getResident(death);
-		Player killer = event.getEntity().getKiller();
-		Resident killerRes = null;
-		if (deathRes.getLastAttackTime() - System.currentTimeMillis() < 2000) {
-			killerRes = deathRes.getLastAttacker();
-			try {
-				killer = CivGlobal.getPlayer(killerRes);
-			} catch (CivException e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (War.isWarTime() && killer != null) {
-			WarStats.incrementPlayerKills(killer.getName());
-		}
 		Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
 		if (!keepInventory) {
 			ArrayList<ItemStack> stacksToRemove = new ArrayList<ItemStack>();
@@ -332,6 +316,27 @@ public class PlayerListener implements Listener {
 		}
 
 		MobStatic.despawnMobsFromRadius(event.getEntity().getLocation(), 80);
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerDeathMonitor(PlayerDeathEvent event) {
+		Player death = event.getEntity();
+		Resident deathRes = CivGlobal.getResident(death);
+		Player killer = event.getEntity().getKiller();
+		Resident killerRes = null;
+		if (deathRes.getLastAttackTime() - System.currentTimeMillis() < 2000) {
+			killerRes = deathRes.getLastAttacker();
+			if (killerRes == null) return;
+			try {
+				killer = CivGlobal.getPlayer(killerRes);
+			} catch (CivException e) {
+				e.printStackTrace();
+			}
+		}
+		if (War.isWarTime() && killer != null) {
+			WarStats.incrementPlayerKills(killer.getName());
+		}
+		
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

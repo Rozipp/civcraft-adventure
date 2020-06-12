@@ -281,7 +281,7 @@ unit_components:
         - 'Накладает на лук заклининие Безконечность'    
         
   - id: 'u_arrow_fire'
-    name: 'Отравленная стрела'
+    name: 'Горящая стрела'
     ammunition: arrow
     require_component:
         - infinite 1
@@ -291,8 +291,8 @@ unit_components:
     gui_lore:
         - 'Накладает на стрелу поджигание'
         
-  - id: 'u_arrow_frozen'
-    name: 'Отравленная стрела'
+  - id: 'u_arrow_frost'
+    name: 'Ледяная стрела'
     ammunition: arrow
     require_component:
         - infinite 1
@@ -479,7 +479,7 @@ units:
         - 'При увеличения уровня, лучник кроме особенных стрел'
         - 'может получить особенные пасивные способности'
     equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword,mat_hunting_bow,mat_recurve_bow,mat_longbow,mat_marksmen_bow'
-    enable_components: 'u_arrow_fire,u_arrow_frozen,u_arrow_poison,u_botltest,maxheal,speed,protection,archerswordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
+    enable_components: 'u_arrow_fire,u_arrow_frost,u_arrow_poison,u_botltest,maxheal,speed,protection,archerswordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
     
   - id: 'u_warrior'
     name: "Воин"

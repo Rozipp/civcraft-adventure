@@ -274,7 +274,6 @@ public class UnitObject extends SQLObject {
 
 	public void setAmunitionSlot(String mat, Integer slot) {
 		ammunitionSlots.put(mat, slot);
-		save();
 	}
 
 	public int getAmmunitionSlot(String mat) {

@@ -18,6 +18,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.items.components.ArrowComponent;
 import com.avrgaming.civcraft.listener.armor.ArmorType;
 import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
@@ -36,13 +37,16 @@ import gpl.HorseModifier;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Arrow.PickupStatus;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TippedArrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -52,6 +56,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
@@ -73,6 +78,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -158,7 +168,7 @@ public class CustomItemListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		CustomMaterial cmat = CustomMaterial.getCustomMaterial(stack);
 		if (cmat != null) {
 			cmat.onDropItem(event);
@@ -171,7 +181,6 @@ public class CustomItemListener implements Listener {
 			return;
 		}
 
-		
 	}
 
 	private static String isCustomDrop(ItemStack stack) {
@@ -223,10 +232,41 @@ public class CustomItemListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
+	public void onEntityShootBowEvent(EntityShootBowEvent event) {
+		if (event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+
+			Arrow arrow = (Arrow) event.getProjectile();
+			Location loc = event.getEntity().getEyeLocation();
+			Vector velocity = arrow.getVelocity();
+			float speed = (float) velocity.length();
+			Vector dir = event.getEntity().getEyeLocation().getDirection();
+			
+			int slot = ArrowComponent.foundArrowComponent(player.getInventory());
+			ItemStack stack = player.getInventory().getItem(slot);
+			stack.setAmount(2);
+			player.getInventory().setItem(slot, stack);
+			FixedMetadataValue metadata = ArrowComponent.getMetadata(stack);
+			if (metadata != null) {
+				TippedArrow tarrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f, TippedArrow.class);
+				if (metadata == ArrowComponent.arrow_fire) tarrow.setFireTicks(2000);
+				tarrow.setMetadata("civ_arrow_effect", metadata);
+				arrow = tarrow;
+			} else {
+				arrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f);
+			}
+			arrow.setShooter(event.getEntity());
+			arrow.setPickupStatus(PickupStatus.DISALLOWED);
+			event.setProjectile(arrow);
+		}
+
+	}
+
+	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerDefenseAndAttack(EntityDamageByEntityEvent event) {
 		Player attacker = null;
 		if (event.getDamager() instanceof Player) {
-			attacker = (Player) event.getDamager();
+
 		} else
 			if (event.getDamager() instanceof Arrow) {
 				Arrow arrow = (Arrow) event.getDamager();
@@ -250,14 +290,26 @@ public class CustomItemListener implements Listener {
 		}
 
 		if (event.getDamager() instanceof Arrow) {
-			LivingEntity shooter = (LivingEntity) ((Arrow) event.getDamager()).getShooter();
+			Arrow arrow = (Arrow) event.getDamager();
 
-			if (shooter instanceof Player) {
-				ItemStack inHand = shooter.getEquipment().getItemInMainHand();
-				if (!CustomMaterial.getMID(inHand).contains("_bow")) inHand = shooter.getEquipment().getItemInOffHand();
+			if (event.getEntity() instanceof LivingEntity) {
+				if (arrow.hasMetadata("civ_arrow_effect")) {
+					for (MetadataValue dd : arrow.getMetadata("civ_arrow_effect")) {
+						// if (dd.equals(ArrowComponent.arrow_fire)) defendingPlayer.set);
+						if (dd.equals(ArrowComponent.arrow_frost)) ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5, 2));
+						if (dd.equals(ArrowComponent.arrow_poison)) ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.POISON, 5, 2));
+					}
+				}
+			}
+			
+			if (arrow.getShooter() instanceof Player) {
+				attacker = (Player) arrow.getShooter();
+				ItemStack inHand = attacker.getEquipment().getItemInMainHand();
+				if (!CustomMaterial.getMID(inHand).contains("_bow")) inHand = attacker.getEquipment().getItemInOffHand();
 
 				CraftableCustomMaterial craftMat = CustomMaterial.getCraftableCustomMaterial(inHand);
 				if (craftMat != null) craftMat.onRangedAttack(event, inHand);
+
 			} else {
 				ArrowFiredCache afc = CivCache.arrowsFired.get(event.getDamager().getUniqueId());
 				if (afc != null) {
@@ -281,9 +333,9 @@ public class CustomItemListener implements Listener {
 		}
 
 		if (event.getDamager() instanceof Player) {
-			Player player = (Player) event.getDamager();
+			attacker = (Player) event.getDamager();
 
-			ItemStack inHand = player.getInventory().getItemInMainHand();
+			ItemStack inHand = attacker.getInventory().getItemInMainHand();
 			CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(inHand);
 
 			if (craftMat != null) {
@@ -293,9 +345,10 @@ public class CustomItemListener implements Listener {
 				event.setDamage(CivCraft.minDamage);
 			}
 
-			if (Enchantments.hasEnchantment(player.getInventory().getItemInMainHand(), CustomEnchantment.Critical) && EnchantmentCritical.randomCriticalAttack(player.getInventory().getItemInMainHand())) {
+			if (Enchantments.hasEnchantment(attacker.getInventory().getItemInMainHand(), CustomEnchantment.Critical) && EnchantmentCritical.randomCriticalAttack(attacker.getInventory().getItemInMainHand())) {
 				if (event.getEntity() instanceof LivingEntity) {
 					LivingEntity le = (LivingEntity) event.getEntity();
+					final Player player = attacker;
 					TaskMaster.syncTask(new Runnable() {
 						@Override
 						public void run() {
@@ -481,6 +534,7 @@ public class CustomItemListener implements Listener {
 			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
 				event.getDrops().remove(stack);
 			}
+
 		}
 
 		// event.getEntity().getInventory().getArmorContents()
@@ -573,16 +627,16 @@ public class CustomItemListener implements Listener {
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		Inventory clickedInv = event.getClickedInventory();
-		
+
 		if (Enchantments.hasEnchantment(cursorStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		CustomMaterial current = CustomMaterial.getCustomMaterial(currentStack);
 		CustomMaterial cursor = CustomMaterial.getCustomMaterial(cursorStack);
 
@@ -602,7 +656,7 @@ public class CustomItemListener implements Listener {
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		InventoryView view = event.getView();
 
 		Inventory clickedInv = event.getClickedInventory();
@@ -620,7 +674,7 @@ public class CustomItemListener implements Listener {
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		CustomMaterial current = CustomMaterial.getCustomMaterial(currentStack);
 
 		if (current != null) {
@@ -644,7 +698,7 @@ public class CustomItemListener implements Listener {
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		Inventory clickedInv = event.getClickedInventory();
 		Inventory otherInv = playerInventory;
 
@@ -654,14 +708,14 @@ public class CustomItemListener implements Listener {
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		if (Enchantments.hasEnchantment(secondStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
-		
+
 		CustomMaterial first = CustomMaterial.getCustomMaterial(firstStack);
 		CustomMaterial second = CustomMaterial.getCustomMaterial(secondStack);
 
@@ -755,7 +809,7 @@ public class CustomItemListener implements Listener {
 				((Player) event.getWhoClicked()).updateInventory();
 				return;
 			}
-			
+
 			CustomMaterial custMat = CustomMaterial.getCustomMaterial(stack);
 			if (custMat != null) custMat.onInvItemDrag(event, inv, stack);
 		}

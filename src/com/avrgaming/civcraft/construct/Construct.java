@@ -259,7 +259,7 @@ public abstract class Construct extends SQLObject {
 			}
 			if (CivGlobal.getBuildableAt(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("buildable_structureExistsHere"));
 			if (CivGlobal.getFarmChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
-			if (CivGlobal.getConstructFromChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
+			if (!CivGlobal.getConstructFromChunk(chunkCoord).isEmpty()) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
 		}
 
 		int yTotal = 0;
@@ -392,7 +392,7 @@ public abstract class Construct extends SQLObject {
 				}
 			}
 		}
-		
+
 		Construct construct = this;
 		TaskMaster.syncTask(new Runnable() {
 			// Посколько compClass.createComponent() создаеться в новом потоке, то нам надо подождать 2 секунды, перед загрузкой информации из ДБ

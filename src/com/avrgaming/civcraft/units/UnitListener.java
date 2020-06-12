@@ -43,7 +43,7 @@ public class UnitListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDeath(final PlayerDeathEvent event) {
 		Player death = event.getEntity();
 		Resident deathRes = CivGlobal.getResident(death);
