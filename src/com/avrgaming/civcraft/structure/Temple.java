@@ -78,10 +78,10 @@ public class Temple extends Structure {
 
 		// Make sure the chest is loaded and add it to the multi inv.
 		for (ConstructChest c : chests) {
-			task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
+			task.syncLoadChunk(c.getCoord().getChunkCoord());
 			Inventory tmp;
 			try {
-				tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), true);
+				tmp = task.getChestInventory(c.getCoord(), true);
 			} catch (CivTaskAbortException e) {
 				return Result.STAGNATE;
 			}

@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -20,6 +19,7 @@ import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -39,7 +39,6 @@ import lombok.Setter;
 @Getter
 public class Cave extends Construct {
 
-	public static String worldCavesName = "caves";
 	public static Integer multiplerCoord = 16;
 
 	private CaveEntrance caveEntrance;
@@ -153,11 +152,10 @@ public class Cave extends Construct {
 
 	@Override
 	public void build(Player player) throws CivException {
-		BlockCoord corner = new BlockCoord();
-		corner.setWorldname(Cave.worldCavesName);
-		corner.setX(caveEntrance.getCorner().getX() * Cave.multiplerCoord);
-		corner.setY(10);
-		corner.setZ(caveEntrance.getCorner().getZ() * Cave.multiplerCoord);
+		BlockCoord corner = new BlockCoord(CivCraft.cavesWorld, //
+				caveEntrance.getCorner().getX() * Cave.multiplerCoord, //
+				10, //
+				caveEntrance.getCorner().getZ() * Cave.multiplerCoord);
 		this.corner = corner;
 		this.setCenterLocation(this.getCorner().getLocation().add(this.getTemplate().size_x / 2, this.getTemplate().size_y / 2, this.getTemplate().size_z / 2));
 
@@ -245,7 +243,8 @@ public class Cave extends Construct {
 				if (playerHasTechnology(player)) {
 					this.showEnableInfo(player);
 					resident.setConstructSignConfirm(sign);
-				} else this.showDisableInfo(player);
+				} else
+					this.showDisableInfo(player);
 
 				if (resident.getCiv().getCaveStatus(this) == null) CaveStatus.newCaveStatus(this, resident);
 			}
@@ -298,7 +297,8 @@ public class Cave extends Construct {
 		if (oldCiv != null) {
 			oldCiv.removeCave(this, newCiv);
 			CivMessage.global("Цивилизация " + newCiv.getName() + " захватила пещеру " + this.getDisplayName() + " у цивилизации " + oldCiv.getName());
-		} else CivMessage.global("Цивилизация " + newCiv.getName() + " заняла свободную пещеру " + this.getDisplayName());
+		} else
+			CivMessage.global("Цивилизация " + newCiv.getName() + " заняла свободную пещеру " + this.getDisplayName());
 		newCiv.addCave(this);
 		this.setSQLOwner(newCiv);
 	}
@@ -342,7 +342,7 @@ public class Cave extends Construct {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 	}
 
 	@Override
@@ -391,6 +391,6 @@ public class Cave extends Construct {
 	@Override
 	public void onPostBuild() {
 		// TODO Автоматически созданная заглушка метода
-		
+
 	}
 }

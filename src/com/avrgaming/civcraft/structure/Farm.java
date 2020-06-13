@@ -29,7 +29,7 @@ public class Farm extends Structure {
 	public static final long GROW_RATE = (int) CivSettings.getIntegerStructure("farm.grow_tick_rate");
 	public static final int CROP_GROW_LIGHT_LEVEL = 9;
 	public static final int MUSHROOM_GROW_LIGHT_LEVEL = 12;
-	public static final int MAX_SUGARCANE_HEIGHT = 3;
+	public static final int MAX_SUGARCANE_HEIGHT = 4;
 
 	public FarmChunk farmChunk = null;
 

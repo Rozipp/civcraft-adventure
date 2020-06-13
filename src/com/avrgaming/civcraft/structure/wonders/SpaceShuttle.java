@@ -81,10 +81,10 @@ public class SpaceShuttle extends Wonder {
 		final MultiInventory source = new MultiInventory();
 		final Collection<ConstructChest> chests = this.getChests();
 		for (final ConstructChest c : chests) {
-			task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
+			task.syncLoadChunk(c.getCoord().getChunkCoord());
 			Inventory tmp;
 			try {
-				tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), false);
+				tmp = task.getChestInventory(c.getCoord(), false);
 			} catch (CivTaskAbortException e) {
 				e.printStackTrace();
 				return;

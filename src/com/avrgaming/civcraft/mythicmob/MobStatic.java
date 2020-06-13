@@ -18,6 +18,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.TimeTools;
@@ -89,7 +90,7 @@ public class MobStatic {
 
 	public static Set<Entity> getMobsFromRadius(Location loc, int radius) {
 		Set<Entity> mobs = new HashSet<>();
-		if (!loc.getWorld().getName().equals("world")) return mobs;
+		if (!loc.getWorld().equals(CivCraft.mainWorld)) return mobs;
 		int r = radius / 16;
 		int rSqr = r * (r + 1);
 

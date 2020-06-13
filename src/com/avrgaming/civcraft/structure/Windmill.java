@@ -58,9 +58,9 @@ public class Windmill extends Structure {
 				ChunkCoord ccB = new ChunkCoord(windmill.getCorner());
 				ArrayList<ChunkSnapshot> snapshots = new ArrayList<ChunkSnapshot>();
 
-				int[][] move = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
+				int[][] move = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 1 }, { -1, -1 }, { -1, 1 }, { 1, -1 } };
 				for (int i = 0; i < 8; i++) {
-					ChunkCoord cc = new ChunkCoord(ccB.getWorldname(), ccB.getX() + move[i][0], ccB.getZ() + move[i][1]);
+					ChunkCoord cc = ccB.getRelative(move[i][0], move[i][1]);
 					FarmChunk farmChunk = CivGlobal.getFarmChunk(cc);
 					if (farmChunk != null) snapshots.add(farmChunk.getChunk().getChunkSnapshot());
 				}
@@ -99,10 +99,10 @@ public class Windmill extends Structure {
 
 			for (ConstructChest src : sources) {
 				try {
-					this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());
+					this.syncLoadChunk(src.getCoord().getChunkCoord());
 					Inventory tmp;
 					try {
-						tmp = this.getChestInventory(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getY(), src.getCoord().getZ(), true);
+						tmp = this.getChestInventory(src.getCoord(), true);
 					} catch (CivTaskAbortException e) {
 						return;
 					}
@@ -119,17 +119,17 @@ public class Windmill extends Structure {
 			for (ItemStack stack : source_inv.getContents()) {
 				if (stack == null) continue;
 				switch (ItemManager.getTypeId(stack)) {
-					case CivData.BREAD_SEED :
-						breadCount += stack.getAmount();
-						break;
-					case CivData.CARROT_ITEM :
-						carrotCount += stack.getAmount();
-						break;
-					case CivData.POTATO_ITEM :
-						potatoCount += stack.getAmount();
-						break;
-					default :
-						continue;
+				case CivData.BREAD_SEED:
+					breadCount += stack.getAmount();
+					break;
+				case CivData.CARROT_ITEM:
+					carrotCount += stack.getAmount();
+					break;
+				case CivData.POTATO_ITEM:
+					potatoCount += stack.getAmount();
+					break;
+				default:
+					continue;
 				}
 			}
 
@@ -145,13 +145,8 @@ public class Windmill extends Structure {
 				for (int x = 0; x < 16; x++) {
 					for (int z = 0; z < 16; z++) {
 						for (int y = 0; y < 255; y++) {
-							if (ItemManager.getBlockTypeId(snapshot, x, y, z) == CivData.FARMLAND) {
-								if (ItemManager.getBlockTypeId(snapshot, x, y + 1, z) == CivData.AIR) {
-									int blockx = (snapshot.getX() * 16) + x;
-									int blocky = y + 1;
-									int blockz = (snapshot.getZ() * 16) + z;
-									blocks.add(new BlockCoord(this.windmill.getCorner().getWorldname(), blockx, blocky, blockz));
-								}
+							if (ItemManager.getBlockTypeId(snapshot, x, y, z) == CivData.FARMLAND && ItemManager.getBlockTypeId(snapshot, x, y + 1, z) == CivData.AIR) {
+								blocks.add(new BlockCoord(this.windmill.getCorner().getWorld(), (snapshot.getX() * 16) + x, y + 1, (snapshot.getZ() * 16) + z));
 							}
 						}
 					}
@@ -195,48 +190,48 @@ public class Windmill extends Structure {
 			for (BlockCoord coord : plantBlocks) {
 				int randomCropType = rand.nextInt(3);
 				switch (randomCropType) {
-					case 0 :
-						if (breadCount > 0) {
-							/* bread seed */
-							try {
-								source_inv.removeItem(CivData.BREAD_SEED, 1, true);
-							} catch (CivException e) {
-								e.printStackTrace();
-							}
-							breadCount--;
-							ItemManager.setTypeId(coord.getBlock(), CivData.WHEAT);
-							ItemManager.setData(coord.getBlock(), 0, true);
-							continue;
+				case 0:
+					if (breadCount > 0) {
+						/* bread seed */
+						try {
+							source_inv.removeItem(CivData.BREAD_SEED, 1, true);
+						} catch (CivException e) {
+							e.printStackTrace();
 						}
-					case 1 :
-						if (carrotCount > 0) {
-							/* carrots */
-							try {
-								source_inv.removeItem(CivData.CARROT_ITEM, 1, true);
-							} catch (CivException e) {
-								e.printStackTrace();
-							}
-							carrotCount--;
-							ItemManager.setTypeId(coord.getBlock(), CivData.CARROTS);
-							ItemManager.setData(coord.getBlock(), 0, true);
+						breadCount--;
+						ItemManager.setTypeId(coord.getBlock(), CivData.WHEAT);
+						ItemManager.setData(coord.getBlock(), 0, true);
+						continue;
+					}
+				case 1:
+					if (carrotCount > 0) {
+						/* carrots */
+						try {
+							source_inv.removeItem(CivData.CARROT_ITEM, 1, true);
+						} catch (CivException e) {
+							e.printStackTrace();
+						}
+						carrotCount--;
+						ItemManager.setTypeId(coord.getBlock(), CivData.CARROTS);
+						ItemManager.setData(coord.getBlock(), 0, true);
 
-							continue;
+						continue;
+					}
+					break;
+				case 2:
+					if (potatoCount > 0) {
+						/* potatoes */
+						try {
+							source_inv.removeItem(CivData.POTATO_ITEM, 1, true);
+						} catch (CivException e) {
+							e.printStackTrace();
 						}
-						break;
-					case 2 :
-						if (potatoCount > 0) {
-							/* potatoes */
-							try {
-								source_inv.removeItem(CivData.POTATO_ITEM, 1, true);
-							} catch (CivException e) {
-								e.printStackTrace();
-							}
-							potatoCount--;
-							ItemManager.setTypeId(coord.getBlock(), CivData.POTATOES);
-							ItemManager.setData(coord.getBlock(), 0, true);
+						potatoCount--;
+						ItemManager.setTypeId(coord.getBlock(), CivData.POTATOES);
+						ItemManager.setData(coord.getBlock(), 0, true);
 
-							continue;
-						}
+						continue;
+					}
 				}
 
 				/* our randomly selected crop couldn't be placed, try them all now. */

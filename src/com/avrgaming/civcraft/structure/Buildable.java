@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
@@ -149,7 +148,8 @@ public abstract class Buildable extends Construct {
 	}
 
 	// --------------- Damage
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+	@Override
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
 			return;
 		}
@@ -208,8 +208,8 @@ public abstract class Buildable extends Construct {
 
 		this.damage(amount);
 
-		world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
-		world.playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
+		hit.getWorld().playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
+		hit.getWorld().playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 
 		if ((hit.getOwner().getDamagePercentage() % 10) == 0 && !wasTenPercent) {
 			if (player != null) {

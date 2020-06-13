@@ -10,7 +10,6 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -478,7 +477,7 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 		this.setHitpoints(this.getHitpoints() - amount);
 
 		if (getHitpoints() <= 0) {

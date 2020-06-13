@@ -129,10 +129,10 @@ public class Cottage extends Structure {
 				// Make sure the chunk is loaded and add it to the inventory.
 				try {
 					for (ConstructChest c : chests) {
-						task.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
+						task.syncLoadChunk(c.getCoord().getChunkCoord());
 						Inventory tmp;
 						try {
-							tmp = task.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), true);
+							tmp = task.getChestInventory(c.getCoord(), true);
 							multiInv.addInventory(tmp);
 						} catch (CivTaskAbortException e) {
 							e.printStackTrace();

@@ -30,7 +30,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -99,10 +98,11 @@ public class Resident extends SQLObject {
 	private Town townChatOverride = null;
 	/** Civ to chat in besides your own. /ad cc <civ> */
 	private Civilization civChatOverride = null;
-
+	/** Ignore plot permission. /ad perm */
 	private boolean permOverride = false;
-	private boolean sbperm = false;
-	private boolean controlBlockInstantBreak = false;
+	/** Ignore constructBlock. /ad perm */
+	private boolean sBPermOverride = false;
+
 	private int townID = 0;
 	private int campID = 0;
 	private boolean dontSaveTown = false;
@@ -793,14 +793,6 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public boolean isSBPermOverride() {
-		return sbperm;
-	}
-
-	public void setSBPermOverride(boolean b) {
-		sbperm = b;
-	}
-
 	public void setInteractiveMode(InteractiveResponse interactive) {
 		this.interactiveMode = true;
 		this.interactiveResponse = interactive;
@@ -1015,10 +1007,6 @@ public class Resident extends SQLObject {
 		}
 	}
 
-	public void setControlBlockInstantBreak(boolean controlBlockInstantBreak) {
-		this.controlBlockInstantBreak = controlBlockInstantBreak;
-	}
-
 	public boolean isInactiveForDays(int days) {
 		Calendar now = Calendar.getInstance();
 		Calendar expire = Calendar.getInstance();
@@ -1160,8 +1148,7 @@ public class Resident extends SQLObject {
 					player.teleport(coord.getLocation());
 				}
 			} else {
-				World world = Bukkit.getWorld("world");
-				player.teleport(world.getSpawnLocation());
+				player.teleport(CivCraft.mainWorld.getSpawnLocation());
 			}
 		} catch (CivException e) {
 			return;

@@ -1011,16 +1011,14 @@ public class CivGlobal {
 		Buildable nearest = null;
 		double lowest_distance = Double.MAX_VALUE;
 		for (Structure struct : structures.values()) {
-			Location loc = new Location(Bukkit.getWorld("world"), struct.getCenterLocation().getX(), struct.getCorner().getLocation().getY(), struct.getCenterLocation().getZ());
-			double distance = loc.distance(location);
+			double distance = struct.getCenterLocation().distance(location);
 			if (distance < lowest_distance) {
 				lowest_distance = distance;
 				nearest = struct;
 			}
 		}
 		for (Wonder wonder : wonders.values()) {
-			Location loc = new Location(Bukkit.getWorld("world"), wonder.getCenterLocation().getX(), wonder.getCorner().getLocation().getY(), wonder.getCenterLocation().getZ());
-			double distance = loc.distance(location);
+			double distance = wonder.getCenterLocation().distance(location);
 			if (distance < lowest_distance) {
 				lowest_distance = distance;
 				nearest = wonder;
@@ -1428,10 +1426,6 @@ public class CivGlobal {
 		String split[] = hash.split(",");
 		Location loc = new Location(BukkitObjects.getWorld(split[0]), Double.valueOf(split[1]), Double.valueOf(split[2]), Double.valueOf(split[3]));
 		return loc;
-	}
-
-	public static String getXYFromBlockCoord(BlockCoord coord) {
-		return coord.getX() + ":" + coord.getZ() + ":" + coord.getWorldname();
 	}
 
 	public static int getLeftoverSize(HashMap<Integer, ItemStack> leftovers) {

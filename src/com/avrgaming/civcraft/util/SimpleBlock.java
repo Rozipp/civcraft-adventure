@@ -62,7 +62,7 @@ public class SimpleBlock {
 		this.x = bc.getX() + sb.x;
 		this.y = bc.getY() + sb.y;
 		this.z = bc.getZ() + sb.z;
-		this.worldname = bc.getWorldname();
+		this.worldname = bc.getWorld().getName();
 		this.type = sb.type;
 		this.data = sb.data;
 		this.specialType = sb.specialType;
@@ -104,7 +104,7 @@ public class SimpleBlock {
 	}
 
 	public static String getKeyFromBlockCoord(BlockCoord coord) {
-		return coord.getWorldname() + "," + coord.getX() + "," + coord.getY() + "," + coord.getZ();
+		return coord.getWorld().getName() + "," + coord.getX() + "," + coord.getY() + "," + coord.getZ();
 	}
 
 	/** @return the type */
@@ -138,7 +138,7 @@ public class SimpleBlock {
 	}
 
 	public void setBlockCoord(BlockCoord bc) {
-		this.worldname = bc.getWorldname();
+		this.worldname = bc.getWorld().getName();
 		this.x = bc.getX();
 		this.y = bc.getY();
 		this.z = bc.getZ();

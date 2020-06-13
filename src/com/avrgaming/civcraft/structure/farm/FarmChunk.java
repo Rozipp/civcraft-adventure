@@ -136,11 +136,11 @@ public class FarmChunk {
 
 		if (freeBlock == null) return;
 
-		if (bs.getTypeId() == CivData.MELON_STEM) {
-			addGrowBlock("world", growMe.getX() + xOff, growMe.getY(), growMe.getZ() + zOff, CivData.MELON, 0x0, true);
-		} else {
-			addGrowBlock("world", growMe.getX() + xOff, growMe.getY(), growMe.getZ() + zOff, CivData.PUMPKIN, 0x0, true);
-		}
+		if (bs.getTypeId() == CivData.MELON_STEM)
+			addGrowBlock(growMe.getRelative(xOff, 0, zOff), CivData.MELON, 0x0, true);
+		else
+			addGrowBlock(growMe.getRelative(xOff, 0, zOff), CivData.PUMPKIN, 0x0, true);
+
 		return;
 	}
 
@@ -151,28 +151,20 @@ public class FarmChunk {
 		// Random rand = new Random();
 		// int randChance = rand.nextInt(10);
 		// if (randChance <= 7) return;
-
-		for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
+		int i;
+		for (i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT + 1; i++) {
 			try {
-				nextBlock = bs.getRelative(0, 1, 0);
+				nextBlock = bs.getRelative(0, i, 0);
 			} catch (InvalidBlockLocation e) {}
 			if (nextBlock.getTypeId() == CivData.SUGARCANE) continue;
 			if (nextBlock.getTypeId() == CivData.AIR) break;
 		}
-		if (nextBlock == null) return;
-
-		addGrowBlock("world", nextBlock.getX(), nextBlock.getY(), nextBlock.getZ(), CivData.SUGARCANE, 0x0, true);
-
-		return;
+		if (nextBlock == null || i > Farm.MAX_SUGARCANE_HEIGHT) return;
+		addGrowBlock(growMe.getRelative(0, i, 0), CivData.SUGARCANE, 0x0, true);
 	}
 
-	public void addGrowBlock(String world, int x, int y, int z, int typeid, int data, boolean spawn) {
-		if ((x > -64 && x < 64) && ((z > -64 && z < 64))) {
-			CivLog.warning("Didn't grow in town " + this.getNameOwner() + ": " + x + " " + y + " " + z);
-			// Don't grow in spawn, gosh
-			return;
-		}
-		this.growBlocks.add(new GrowBlock(world, x, y, z, typeid, data, spawn));
+	public void addGrowBlock(BlockCoord bcoord, int typeid, int data, boolean spawn) {
+		this.growBlocks.add(new GrowBlock(bcoord, typeid, data, spawn));
 	}
 
 	public void growBlock(BlockSnapshot bs, BlockCoord growMe, CivAsyncTask task) throws InterruptedException {
@@ -182,15 +174,15 @@ public class FarmChunk {
 		case CivData.WHEAT:
 		case CivData.CARROTS:
 		case CivData.POTATOES:
-			if (bs.getData() < 0x7) addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData() + 0x1, false);
+			if (bs.getData() < 0x7) addGrowBlock(growMe, bs.getTypeId(), bs.getData() + 0x1, false);
 			break;
 		case CivData.NETHERWART:
-			if (bs.getData() < 0x3) addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData() + 0x1, false);
+			if (bs.getData() < 0x3) addGrowBlock(growMe, bs.getTypeId(), bs.getData() + 0x1, false);
 			break;
 		case CivData.MELON_STEM:
 		case CivData.PUMPKIN_STEM:
 			if (bs.getData() < 0x7) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), bs.getData() + 0x1, false);
+				addGrowBlock(growMe, bs.getTypeId(), bs.getData() + 0x1, false);
 			} else
 				if (bs.getData() == 0x7) {
 					spawnMelonOrPumpkin(bs, growMe, task);
@@ -198,7 +190,7 @@ public class FarmChunk {
 			break;
 		case CivData.COCOAPOD:
 			if (CivData.canCocoaGrow(bs)) {
-				addGrowBlock("world", growMe.getX(), growMe.getY(), growMe.getZ(), bs.getTypeId(), CivData.getNextCocoaValue(bs), false);
+				addGrowBlock(growMe, bs.getTypeId(), CivData.getNextCocoaValue(bs), false);
 			}
 			break;
 		case CivData.SUGARCANE:
@@ -315,14 +307,17 @@ public class FarmChunk {
 						for (int y = 0; y < 256; y++) {
 							bs.setFromSnapshotLocation(x, y, z, snapshot);
 							if (CivData.canGrow(bs)) {
-								this.cropLocationCache.add(new BlockCoord(snapshot.getWorldName(), (snapshot.getX() << 4) + bs.getX(), (bs.getY()), (snapshot.getZ() << 4) + bs.getZ()));
+								this.cropLocationCache.add(new BlockCoord(snapshot.getWorldName(), //
+										(snapshot.getX() << 4) + bs.getX(), //
+										(bs.getY()), //
+										(snapshot.getZ() << 4) + bs.getZ()));
 							}
 						}
 					}
 				}
 			} else {
 				for (BlockCoord bc : staticCropLocationCache) {
-					bs.setFromSnapshotLocation(ChunkCoord.getBlockInChunk(bc.getX()), bc.getY(), ChunkCoord.getBlockInChunk(bc.getZ()), snapshot);
+					bs.setFromSnapshotLocation(ChunkCoord.getCoordInChunk(bc.getX()), bc.getY(), ChunkCoord.getCoordInChunk(bc.getZ()), snapshot);
 					if (CivData.canGrow(bs)) {
 						this.cropLocationCache.add(bc);
 					}

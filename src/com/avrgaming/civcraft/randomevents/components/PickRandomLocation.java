@@ -2,11 +2,9 @@ package com.avrgaming.civcraft.randomevents.components;
 
 import java.util.Random;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.randomevents.RandomEventComponent;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -40,10 +38,9 @@ public class PickRandomLocation extends RandomEventComponent {
 						int randZ = rand.nextInt(range_z) - max_z;
 						
 						/* XXX only pick in "world" */
-						World world = Bukkit.getWorld("world");
-						int y = world.getHighestBlockYAt(randX, randZ);
+						int y = CivCraft.mainWorld.getHighestBlockYAt(randX, randZ);
 						
-						BlockCoord bcoord = new BlockCoord(world.getName(), randX, y, randZ);
+						BlockCoord bcoord = new BlockCoord(CivCraft.mainWorld, randX, y, randZ);
 					
 						String varname = getString("varname");
 						event.componentVars.put(varname, bcoord.toString());

@@ -11,7 +11,6 @@ package com.avrgaming.civcraft.threading.sync;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 
@@ -43,11 +42,9 @@ public class SyncGetChestInventory implements Runnable {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					GetChestRequest request = requestQueue.poll();
-					if (request == null) {
-						return;
-					}
-
-					Block b = Bukkit.getWorld(request.worldName).getBlockAt(request.block_x, request.block_y, request.block_z);
+					if (request == null) return;
+					
+					Block b = request.blockCoord.getWorld().getBlockAt(request.blockCoord.getX(), request.blockCoord.getY(), request.blockCoord.getZ());
 					Chest chest = null;
 
 					// We will return NULL if the chunk was not loaded.
@@ -74,7 +71,7 @@ public class SyncGetChestInventory implements Runnable {
 				lock.unlock();
 			}
 		} else {
-			//	CivLog.warning("Unable to aquire lock in sync tick thread. Lock busy.");
+			// CivLog.warning("Unable to aquire lock in sync tick thread. Lock busy.");
 		}
 	}
 }

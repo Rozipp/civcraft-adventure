@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -261,8 +260,7 @@ public class AdminTownCommand extends CommandBase {
 		for (int x = -radius; x < radius; x++) {
 			for (int z = -radius; z < radius; z++) {
 				try {
-					ChunkCoord next = new ChunkCoord(coord.getWorldname(), coord.getX() + x, coord.getZ() + z);
-					TownChunk.autoClaim(town, next);
+					TownChunk.autoClaim(town, coord.getRelative(x, z));
 					count++;
 				} catch (CivException e) {
 					// ignore errors...
@@ -352,8 +350,7 @@ public class AdminTownCommand extends CommandBase {
 				if (town.getTownChunks().size() > 0) {
 					ChunkCoord coord = town.getTownChunks().iterator().next().getChunkCoord();
 
-					Location loc = new Location(Bukkit.getWorld(coord.getWorldname()), (coord.getX() << 4), 100, (coord.getZ() << 4));
-					((Player) sender).teleport(loc);
+					((Player) sender).teleport(new Location(coord.getWorld(), (coord.getX() << 4), 100, (coord.getZ() << 4)));
 					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_tpSuccess", town.getName()));
 					return;
 				}

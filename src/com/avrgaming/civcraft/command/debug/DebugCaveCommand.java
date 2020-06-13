@@ -1,7 +1,7 @@
 package com.avrgaming.civcraft.command.debug;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
@@ -10,6 +10,7 @@ import com.avrgaming.civcraft.config.ConfigCave;
 import com.avrgaming.civcraft.construct.Cave;
 import com.avrgaming.civcraft.event.GoodieRepoEvent;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -28,27 +29,24 @@ public class DebugCaveCommand extends CommandBase {
 	}
 
 	public void tp_cmd() throws CivException {
-//		if (args.length < 2) {
-//			throw new CivException("Enter cave id");
-//		}
 		Player player = this.getPlayer();
 
-		String worldname = player.getWorld().getName();
+		World world = player.getWorld();
 
-		if (worldname.equals(Cave.worldCavesName)) {
+		if (world.equals(CivCraft.cavesWorld)) {
 			Resident res = CivGlobal.getResident(player);
 			Location loc;
-			if (res.getTown() != null) loc = res.getTown().getTownHall().getRandomRespawnPoint().getLocation();
-			else loc = Bukkit.getWorld("world").getSpawnLocation();
+			if (res.getTown() != null)
+				loc = res.getTown().getTownHall().getRandomRespawnPoint().getLocation();
+			else
+				loc = CivCraft.mainWorld.getSpawnLocation();
 			player.teleport(loc);
-		} 
-		if (worldname.equals("world")) {
+		}
+		if (world.equals(CivCraft.mainWorld)) {
 			BlockCoord coord = new BlockCoord(getPlayer().getLocation());
 
 			Cave cave = CivGlobal.getCave(coord.getChunkCoord());
-			if (cave == null) {
-				throw new CivException("Not Found cave this location");
-			}
+			if (cave == null) throw new CivException("Not Found cave this location");
 
 			player.teleport(cave.getSpawns().get("1").getLocation());
 			CivMessage.sendSuccess(sender, "Teleporting to cave " + cave.getName());
@@ -56,27 +54,27 @@ public class DebugCaveCommand extends CommandBase {
 	}
 
 	public void cavegenerate_cmd() throws CivException {
-//		String playerName;
-//
-//		if (sender instanceof Player) {
-//			playerName = sender.getName();
-//		} else {
-//			playerName = null;
-//		}
+		// String playerName;
+		//
+		// if (sender instanceof Player) {
+		// playerName = sender.getName();
+		// } else {
+		// playerName = null;
+		// }
 
 		CivMessage.send(sender, "Starting Trade Generation task...");
-//		TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
+		// TaskMaster.asyncTask(new TradeGoodPostGenTask(playerName, 0), 0);
 	}
 
 	public void regencavechunk_cmd() {
 
-//		World world = Bukkit.getWorld("world");
+		// World world =CivCraft.mainWorld;
 
-//		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
-//
-//			world.regenerateChunk(coord.getX(), coord.getZ());
-//			CivMessage.send(sender, "Regened:" + coord);
-//		}
+		// for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
+		//
+		// world.regenerateChunk(coord.getX(), coord.getZ());
+		// CivMessage.send(sender, "Regened:" + coord);
+		// }
 	}
 
 	public void createcave_cmd() throws Exception {

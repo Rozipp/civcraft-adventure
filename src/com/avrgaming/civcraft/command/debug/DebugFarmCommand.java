@@ -18,12 +18,12 @@
  */
 package com.avrgaming.civcraft.command.debug;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
@@ -53,7 +53,7 @@ public class DebugFarmCommand extends CommandBase {
 		int x = getNamedInteger(1);
 		int z = getNamedInteger(2);
 		
-		Bukkit.getWorld("world").unloadChunk(x, z);
+		CivCraft.mainWorld.unloadChunk(x, z);
 		CivMessage.sendSuccess(sender, "Chunk "+x+","+z+" unloaded");
 	}
 	

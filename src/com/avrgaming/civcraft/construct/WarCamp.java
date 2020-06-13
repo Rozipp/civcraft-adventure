@@ -111,8 +111,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 			ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
 			this.addConstructBlock(new BlockCoord(absCoord), false);
 
-			coord = new BlockCoord(absCoord);
-			coord.setY(absCoord.getY() + 1);
+			coord = absCoord.getRelative(0, 1, 0);
 			ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
 			this.addConstructBlock(coord, false);
 
@@ -181,13 +180,14 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
-		ControlPoint cp = this.controlPoints.get(coord);
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
+		ControlPoint cp = this.controlPoints.get(hit.getCoord());
+		World world = hit.getCoord().getWorld();
 		Resident resident = CivGlobal.getResident(player);
 
 		if (cp != null)
 			if (!cp.isDestroyed()) {
-				if (resident.isControlBlockInstantBreak())
+				if (resident.isSBPermOverride())
 					cp.damage(cp.getHitpoints());
 				else
 					cp.damage(amount);
@@ -318,6 +318,6 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	@Override
 	public void onPostBuild() {
 		// TODO Автоматически созданная заглушка метода
-		
+
 	}
 }

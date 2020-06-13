@@ -20,6 +20,8 @@ package com.avrgaming.civcraft.construct;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -56,20 +58,8 @@ public class ConstructBlock implements ConstructDamageBlock {
 
 	}
 	
-	public int getX() {
-		return this.coord.getX();
-	}
-	
-	public int getY() {
-		return this.coord.getY();
-	}
-	
-	public int getZ() {
-		return this.coord.getZ();
-	}
-	
-	public String getWorldname() {
-		return this.coord.getWorldname();
+	public World getWorld() {
+		return this.coord.getWorld();
 	}
 	
 	public boolean canDestroyOnlyDuringWar() {

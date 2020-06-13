@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
@@ -19,11 +19,13 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
+import com.avrgaming.civcraft.main.CivCraft;
+import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
 
@@ -73,6 +75,18 @@ public class Arrowpost extends Construct {
 
 		CivMessage.sendCiv(resident.getCiv(), CivSettings.localize.localizedString("var_buildCannon_Success", arrowpost.getCorner().toStringNotWorld()));
 		arrowpost.build(player);
+	}
+
+	private void destroy() {
+		for (BlockCoord b : this.constructBlocks.keySet()) {
+			if (b.getBlock().getType() == Material.AIR) continue;
+			double rand = CivCraft.civRandom.nextDouble();
+			if (rand < 0.2)
+				ItemManager.setTypeIdAndData(b.getBlock(), CivData.GRAVEL, 0, false);
+			else
+				ItemManager.setTypeIdAndData(b.getBlock(), CivData.AIR, 0, false);
+		}
+		this.delete();
 	}
 
 	@Override
@@ -136,8 +150,13 @@ public class Arrowpost extends Construct {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
-		CivLog.debug("onDamage");
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
+		this.setHitpoints(this.getHitpoints() - amount);
+
+		if (getHitpoints() <= 0) {
+			destroy();
+			return;
+		}
 	}
 
 	@Override

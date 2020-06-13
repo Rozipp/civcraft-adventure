@@ -2,7 +2,6 @@ package com.avrgaming.civcraft.randomevents.components;
 
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -31,7 +30,7 @@ public class SpawnMobs extends RandomEventComponent {
 				int index = rand.nextInt(getParentTown().getTownChunks().size());
 				
 				TownChunk tc = (TownChunk)getParentTown().getTownChunks().toArray()[index];
-				World world = Bukkit.getServer().getWorld(tc.getChunkCoord().getWorldname());
+				World world = tc.getChunkCoord().getWorld();
 				
 				for (int i = 0; i < amount; i++) {
 					int x = rand.nextInt(16);
@@ -43,7 +42,7 @@ public class SpawnMobs extends RandomEventComponent {
 					int y = world.getHighestBlockAt(x, z).getY();
 					Location loc = new Location(world, x, y, z);
 					
-					Bukkit.getServer().getWorld(tc.getChunkCoord().getWorldname()).spawnEntity(loc, type);
+					world.spawnEntity(loc, type);
 				}
 				
 				sendMessage(CivSettings.localize.localizedString("var_re_spawnMobs",amount,type.toString(),(tc.getChunkCoord().getX()*16)+",64,"+(tc.getChunkCoord().getZ()*16)));

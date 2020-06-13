@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -91,7 +90,7 @@ public class CaveEntrance extends Construct {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 	}
 
 	@Override

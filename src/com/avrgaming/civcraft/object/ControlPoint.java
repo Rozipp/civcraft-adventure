@@ -8,14 +8,18 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.object;
 
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
 import com.avrgaming.civcraft.construct.Construct;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.util.BlockCoord;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ControlPoint {
+public class ControlPoint implements ConstructDamageBlock{
 
 	/* Location of the control block. */
 	private BlockCoord coord;
@@ -46,5 +50,49 @@ public class ControlPoint {
 
 	public boolean isDestroyed() {
 		return this.hitpoints <= 0;
+	}
+
+	@Override
+	public Construct getOwner() {
+		return construct;
+	}
+
+	@Override
+	public void setOwner(Construct owner) {
+		this.construct = owner;
+	}
+
+	@Override
+	public Town getTown() {
+		return construct.getTown();
+	}
+
+	@Override
+	public Civilization getCiv() {
+		return construct.getCiv();
+	}
+
+	@Override
+	public boolean isDamageable() {
+		return true;
+	}
+
+	@Override
+	public void setDamageable(boolean damageable) {
+	}
+
+	@Override
+	public boolean canDestroyOnlyDuringWar() {
+		return false;
+	}
+
+	@Override
+	public boolean allowDamageNow(Player player) {
+		return true;
+	}
+
+	@Override
+	public World getWorld() {
+		return coord.getWorld();
 	}
 }

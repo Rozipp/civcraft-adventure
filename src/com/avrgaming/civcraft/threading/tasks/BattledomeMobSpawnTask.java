@@ -31,9 +31,6 @@ public class BattledomeMobSpawnTask extends CivAsyncTask {
 			debug(battledome, "Battledome inactive...");
 			return;
 		}
-//		World world = Bukkit.getWorld("world");
-
-//        world.spawnCreature(pLoc, EntityType.SKELETON);
 		
 		debug(battledome, "Processing Battledome...");
 	}

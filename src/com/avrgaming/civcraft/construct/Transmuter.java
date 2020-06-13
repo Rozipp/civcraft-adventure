@@ -273,11 +273,11 @@ public class Transmuter extends CivAsyncTask {
 		MultiInventory multiInv = new MultiInventory();
 		try {
 			for (ConstructChest c : chests) {
-				this.syncLoadChunk(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getZ());
+				this.syncLoadChunk(c.getCoord().getChunkCoord());
 				// XXX Couldn't load chunk in 5000 milliseconds! Retrying.
 				Inventory tmp;
 				try {
-					tmp = this.getChestInventory(c.getCoord().getWorldname(), c.getCoord().getX(), c.getCoord().getY(), c.getCoord().getZ(), false);
+					tmp = this.getChestInventory(c.getCoord(), false);
 					multiInv.addInventory(tmp);
 				} catch (CivTaskAbortException e) {
 					e.printStackTrace();

@@ -13,7 +13,6 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Effect;
@@ -426,7 +425,7 @@ public abstract class Construct extends SQLObject {
 							if (sb.specialType == SimpleBlock.Type.COMMAND) continue;
 							sbs.add(new SimpleBlock(corner, sb));
 
-							BlockCoord bc = new BlockCoord(corner.getWorldname(), corner.getX() + x, corner.getY() + y, corner.getZ() + z);
+							BlockCoord bc = corner.getRelative(x, y, z);
 							construct.addConstructBlock(new BlockCoord(bc), (y != 0));
 						}
 					}
@@ -786,7 +785,7 @@ public abstract class Construct extends SQLObject {
 		TaskMaster.syncTask(new SyncTask());
 	}
 
-	public abstract void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit);
+	public abstract void onDamage(int amount, Player player, ConstructDamageBlock hit);
 
 	public abstract void onDamageNotification(Player player, ConstructDamageBlock hit);
 
@@ -807,7 +806,7 @@ public abstract class Construct extends SQLObject {
 
 	/* Plays a fire effect on all of the structure blocks for this structure. */
 	public void flashConstructBlocks() {
-		World world = Bukkit.getWorld(this.getCorner().getWorldname());
+		World world = this.getCorner().getWorld();
 		for (BlockCoord coord : constructBlocks.keySet()) {
 			if (CivCraft.civRandom.nextDouble() < 0.3) world.playEffect(coord.getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 		}

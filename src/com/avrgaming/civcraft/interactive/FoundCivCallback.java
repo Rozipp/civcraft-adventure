@@ -24,7 +24,7 @@ public class FoundCivCallback implements CallbackInterface {
 
 	private Player player;
 	private Resident resident;
-	private Structure structure;
+	private Structure townhall;
 	private Town town;
 	private Civilization civ;
 
@@ -36,13 +36,13 @@ public class FoundCivCallback implements CallbackInterface {
 		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("civ_found_mustleavecamp"));
 
 		/* Build a preview for the Capitol structure. */
-		structure = Structure.newStructure(player, player.getLocation(), "s_capitol", null,true);
+		townhall = Structure.newStructure(player, player.getLocation(), "s_capitol", null,true);
 		town = new Town((Civilization) null);
-		town.checkCanCreatedTown(resident, structure);
+		town.checkCanCreatedTown(resident, townhall);
 		civ = new Civilization(resident);
 		civ.checkCanCreatedCiv(player);
 
-		new ChoiseTemplate(player, structure.getInfo(), this);
+		new ChoiseTemplate(player, townhall.getInfo(), this);
 	}
 
 	private String templateTheme = null;
@@ -58,15 +58,15 @@ public class FoundCivCallback implements CallbackInterface {
 		if (templateTheme == null) {
 			templateTheme = strings[0];
 			try {
-				Template old_tpl = structure.getTemplate();
-				String tplPath = Template.getTemplateFilePath(structure.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template old_tpl = townhall.getTemplate();
+				String tplPath = Template.getTemplateFilePath(townhall.getInfo().template_name, old_tpl.getDirection(), templateTheme);
 				Template tpl = Template.getTemplate(tplPath);
 				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
-				structure.setTemplate(tpl);
+				townhall.setTemplate(tpl);
 
-				BuildableStatic.buildPlayerPreview(player, structure);
+				BuildableStatic.buildPlayerPreview(player, townhall);
 				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
-				TaskMaster.asyncTask(new StructureValidator(player, structure, this), 0);
+				TaskMaster.asyncTask(new StructureValidator(player, townhall, this), 0);
 				return;
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
@@ -152,13 +152,13 @@ public class FoundCivCallback implements CallbackInterface {
 
 		if (townName == null) {
 			townName = strings[0];
-			if (!structure.validated) {
+			if (!townhall.validated) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalid"));
 				townName = null;
 				return;
 			}
 
-			if (!structure.isValid() && !player.isOp()) {
+			if (!townhall.isValid() && !player.isOp()) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalidNotOP"));
 				resident.clearInteractiveMode();
 				resident.undoPreview();
@@ -196,7 +196,7 @@ public class FoundCivCallback implements CallbackInterface {
 			CivMessage.send(player, CivSettings.localize.localizedString("foundation_of_civilization_2"));
 			CivMessage.send(player, CivSettings.localize.localizedString("foundation_of_civilization_3"));
 			try {
-				civ.createCiv(player, town, structure);
+				civ.createCiv(player, town, townhall);
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
 				return;

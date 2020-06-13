@@ -1,5 +1,6 @@
 package com.avrgaming.civcraft.construct;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.object.Civilization;
@@ -13,10 +14,7 @@ public interface ConstructDamageBlock {
 	public Civilization getCiv();
 	public BlockCoord getCoord();
 	public void setCoord(BlockCoord coord);
-	public int getX();
-	public int getY();
-	public int getZ();
-	public String getWorldname();
+	public World getWorld();
 	public boolean isDamageable();
 	public void setDamageable(boolean damageable);
 	public boolean canDestroyOnlyDuringWar();

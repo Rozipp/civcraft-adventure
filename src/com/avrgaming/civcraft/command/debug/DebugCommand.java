@@ -351,16 +351,13 @@ public class DebugCommand extends CommandBase {
 
 						Player player = (Player) sender;
 						Location center = BuildableStatic.repositionCenterStatic(player.getLocation(), 0, tpl);
+						BlockCoord corner = new BlockCoord(center);
 
 						CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
 						for (int y = start_y; y < tpl.size_y; y++) {
 							for (int x = start_x; x < tpl.size_x; x++) {
 								for (int z = start_z; z < tpl.size_z; z++) {
-									BlockCoord next = new BlockCoord(center);
-									next.setX(next.getX() + x);
-									next.setY(next.getY() + y);
-									next.setZ(next.getZ() + z);
-
+									BlockCoord next = corner.getRelative(x, y, z);
 									SimpleBlock sb = tpl.blocks[x][y][z];
 
 									if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
@@ -712,7 +709,7 @@ public class DebugCommand extends CommandBase {
 		int y = getNamedInteger(2);
 		int z = getNamedInteger(3);
 
-		Block b = Bukkit.getWorld("world").getBlockAt(x, y, z);
+		Block b = CivCraft.mainWorld.getBlockAt(x, y, z);
 
 		CivMessage.send(sender, "type:" + ItemManager.getTypeId(b) + " data:" + ItemManager.getData(b) + " name:" + b.getType().name());
 
@@ -761,8 +758,8 @@ public class DebugCommand extends CommandBase {
 		for (TownChunk chunk : town.savedEdgeBlocks) {
 			for (int x = 0; x < 16; x++) {
 				for (int z = 0; z < 16; z++) {
-					Block b = Bukkit.getWorld("world").getHighestBlockAt(((chunk.getChunkCoord().getX() + x << 4) + x), ((chunk.getChunkCoord().getZ() << 4) + z));
-					Bukkit.getWorld("world").playEffect(b.getLocation(), Effect.MOBSPAWNER_FLAMES, 1);
+					Block b = CivCraft.mainWorld.getHighestBlockAt(((chunk.getChunkCoord().getX() + x << 4) + x), ((chunk.getChunkCoord().getZ() << 4) + z));
+					CivCraft.mainWorld.playEffect(b.getLocation(), Effect.MOBSPAWNER_FLAMES, 1);
 				}
 			}
 		}

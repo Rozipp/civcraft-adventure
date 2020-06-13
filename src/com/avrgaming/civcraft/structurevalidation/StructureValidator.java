@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -95,7 +96,7 @@ public class StructureValidator implements Runnable {
 		this.callback = callback;
 	}
 	
-	public int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, String worldName) throws CivException {
+	public int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, World world) throws CivException {
 
 		int chunkX = ChunkCoord.castToChunk(absX);
 		int chunkZ = ChunkCoord.castToChunk(absZ);
@@ -106,10 +107,10 @@ public class StructureValidator implements Runnable {
 		if (blockChunkX < 0) blockChunkX += 16;
 		if (blockChunkZ < 0) blockChunkZ += 16;
 
-		ChunkCoord coord = new ChunkCoord(worldName, chunkX, chunkZ);
+		ChunkCoord coord = new ChunkCoord(world, chunkX, chunkZ);
 
 		ChunkSnapshot snapshot = snapshots.get(coord);
-		if (snapshot == null) throw new CivException("Snapshot for chunk " + chunkX + ", " + chunkZ + " in " + worldName + " not found for abs:" + absX + "," + absZ);
+		if (snapshot == null) throw new CivException("Snapshot for chunk " + chunkX + ", " + chunkZ + " in " + world.getName() + " not found for abs:" + absX + "," + absZ);
 
 		return ItemManager.getBlockTypeId(snapshot, blockChunkX, absY, blockChunkZ);
 	}
@@ -132,7 +133,7 @@ public class StructureValidator implements Runnable {
 					int absX = corner.getX() + sb.x;
 					int absZ = corner.getZ() + sb.z;
 
-					int type = getBlockIDFromSnapshotMap(chunks, absX, y, absZ, corner.getWorldname());
+					int type = getBlockIDFromSnapshotMap(chunks, absX, y, absZ, corner.getWorld());
 					totalBlocks++;
 					reinforcementValue += BuildableStatic.getReinforcementValue(type);
 				} catch (CivException e) {

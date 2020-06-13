@@ -36,7 +36,6 @@ import com.avrgaming.civcraft.util.ItemManager;
 import gpl.HorseModifier;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -235,31 +234,30 @@ public class CustomItemListener implements Listener {
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
-
 			Arrow arrow = (Arrow) event.getProjectile();
-			Location loc = event.getEntity().getEyeLocation();
-			Vector velocity = arrow.getVelocity();
-			float speed = (float) velocity.length();
-			Vector dir = event.getEntity().getEyeLocation().getDirection();
-			
-			int slot = ArrowComponent.foundArrowComponent(player.getInventory());
-			ItemStack stack = player.getInventory().getItem(slot);
-			stack.setAmount(2);
-			player.getInventory().setItem(slot, stack);
-			FixedMetadataValue metadata = ArrowComponent.getMetadata(stack);
-			if (metadata != null) {
-				TippedArrow tarrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f, TippedArrow.class);
-				if (metadata == ArrowComponent.arrow_fire) tarrow.setFireTicks(2000);
-				tarrow.setMetadata("civ_arrow_effect", metadata);
-				arrow = tarrow;
-			} else {
-				arrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f);
-			}
-			arrow.setShooter(event.getEntity());
-			arrow.setPickupStatus(PickupStatus.DISALLOWED);
-			event.setProjectile(arrow);
-		}
 
+			int slot = ArrowComponent.foundArrowComponent(player.getInventory());
+			if (slot >= 0) {
+				Location loc = event.getEntity().getEyeLocation();
+				Vector velocity = arrow.getVelocity();
+				float speed = (float) velocity.length();
+				Vector dir = event.getEntity().getEyeLocation().getDirection();
+
+				ItemStack stack = player.getInventory().getItem(slot);
+				FixedMetadataValue metadata = ArrowComponent.getMetadata(stack);
+				if (metadata != null) {
+					TippedArrow tarrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f, TippedArrow.class);
+					if (metadata == ArrowComponent.arrow_fire) tarrow.setFireTicks(2000);
+					tarrow.setMetadata("civ_arrow_effect", metadata);
+					arrow = tarrow;
+				} else {
+					arrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f);
+				}
+				arrow.setShooter(event.getEntity());
+				arrow.setPickupStatus(PickupStatus.DISALLOWED);
+				event.setProjectile(arrow);
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
@@ -301,7 +299,7 @@ public class CustomItemListener implements Listener {
 					}
 				}
 			}
-			
+
 			if (arrow.getShooter() instanceof Player) {
 				attacker = (Player) arrow.getShooter();
 				ItemStack inHand = attacker.getEquipment().getItemInMainHand();
@@ -568,7 +566,7 @@ public class CustomItemListener implements Listener {
 
 		}
 
-		Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
+		Boolean keepInventory = Boolean.valueOf(event.getEntity().getWorld().getGameRuleValue("keepInventory"));
 		if (!keepInventory) {
 			TaskMaster.syncTask(new SyncRestoreItemsTask(noDrop, armorNoDrop, event.getEntity().getName()));
 		}

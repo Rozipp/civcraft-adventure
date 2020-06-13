@@ -18,19 +18,19 @@
  */
 package com.avrgaming.civcraft.tasks;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.TradeGood;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class TradeGoodSignCleanupTask implements Runnable {
@@ -38,13 +38,13 @@ public class TradeGoodSignCleanupTask implements Runnable {
 	String playerName;
 	int xoff = 0;
 	int zoff = 0;
-	
+
 	public TradeGoodSignCleanupTask(String playername, int xoff, int zoff) {
 		this.playerName = playername;
 		this.xoff = xoff;
 		this.zoff = zoff;
 	}
-	
+
 	@Override
 	public void run() {
 		Player player;
@@ -54,79 +54,65 @@ public class TradeGoodSignCleanupTask implements Runnable {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		int count = 0;
 		int i = 0;
-		//BlockCoord bcoord2 = new BlockCoord();
-		World world = Bukkit.getWorld("world");
 
-		
-		
-		
-	//	for(ChunkCoord coord : CivGlobal.preGenerator.goodPicks.keySet()) {
-		for (TradeGood tg : CivGlobal.getTradeGoods()) { 
-			BlockCoord bcoord2 = tg.getCoord();			
-			bcoord2.setX(bcoord2.getX() + xoff);
-			bcoord2.setZ(bcoord2.getZ() + zoff);
-			bcoord2.setY(0);
+		// for(ChunkCoord coord : CivGlobal.preGenerator.goodPicks.keySet()) {
+		for (TradeGood tg : CivGlobal.getTradeGoods()) {
 			
-		//	Chunk chunk = world.getChunkAt(coord.getX(), coord.getZ());
-		//	int centerX = (chunk.getX() << 4) + 8;
-		//	int centerZ = (chunk.getZ() << 4) + 8;
-		//	int centerY = world.getHighestBlockYAt(centerX, centerZ);
-			
-		//	bcoord2.setWorldname("world");
-		//	bcoord2.setX(centerX);
-		//	bcoord2.setY(centerY);
-		//	bcoord2.setZ(centerZ);
-			
-			while(bcoord2.getY() < 256) {
-				Block top = world.getBlockAt(bcoord2.getX(), bcoord2.getY(), bcoord2.getZ());
+			//TODO ДАльше полный бред. НАдо полностью переписать
+			ChunkCoord chunkCoord = new ChunkCoord(tg.getCoord().getRelative(xoff, 0, zoff));
+			int centerX = (chunkCoord.getX() << 4) + 8;
+			int centerZ = (chunkCoord.getZ() << 4) + 8;
+			int centerY = CivCraft.mainWorld.getHighestBlockYAt(centerX, centerZ);
+
+			BlockCoord bcoord = new BlockCoord(chunkCoord, 8, centerY, 8);
+			for (int y = centerY; y < 256; y++) {
+				Block top = bcoord.getBlockRelative(0, y, 0);
 				ItemManager.setTypeId(top, CivData.AIR);
-	    			ItemManager.setData(top, 0, true);
-	    			bcoord2.setY(bcoord2.getY() + 1);
-	    			
-	    			top = top.getRelative(BlockFace.NORTH);
-	    			if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
-	    				count++;
-	    			}
-	    			ItemManager.setTypeId(top, CivData.AIR);
-		    		ItemManager.setData(top, 0, true);
+				ItemManager.setData(top, 0, true);
+				y++;
 
-	    			top = top.getRelative(BlockFace.SOUTH);
-	    			if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
-	    				count++;
-	    				ItemManager.setTypeId(top, CivData.AIR);
-			    		ItemManager.setData(top, 0, true);
-	    			}
-	    			
-	    		
-		    		top = top.getRelative(BlockFace.EAST);
-	    			if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
-	    				count++;
-	    				ItemManager.setTypeId(top, CivData.AIR);
-			    		ItemManager.setData(top, 0, true);
+				top = top.getRelative(BlockFace.NORTH);
+				if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
+					count++;
+				}
+				ItemManager.setTypeId(top, CivData.AIR);
+				ItemManager.setData(top, 0, true);
 
-	    			}
-	    			
-	    		
-		    		top = top.getRelative(BlockFace.WEST);
-	    			if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
-	    				count++;
-	    				ItemManager.setTypeId(top, CivData.AIR);
-			    		ItemManager.setData(top, 0, true);
-	    			}
+				top = top.getRelative(BlockFace.SOUTH);
+				if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
+					count++;
+					ItemManager.setTypeId(top, CivData.AIR);
+					ItemManager.setData(top, 0, true);
+				}
+
+				top = top.getRelative(BlockFace.EAST);
+				if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
+					count++;
+					ItemManager.setTypeId(top, CivData.AIR);
+					ItemManager.setData(top, 0, true);
+
+				}
+
+				top = top.getRelative(BlockFace.WEST);
+				if (ItemManager.getTypeId(top) == CivData.WALL_SIGN || ItemManager.getTypeId(top) == CivData.SIGN) {
+					count++;
+					ItemManager.setTypeId(top, CivData.AIR);
+					ItemManager.setData(top, 0, true);
+				}
 			}
-			
+
 			i++;
 			if ((i % 80) == 0) {
-				CivMessage.send(player, "Goodie:"+i+" cleared "+count+" signs...");
-			//	TaskMaster.syncTask(new TradeGoodPostGenTask(playerName, (i)));
-			//	return;
+				CivMessage.send(player, "Goodie:" + i + " cleared " + count + " signs...");
+				// TaskMaster.syncTask(new TradeGoodPostGenTask(playerName, (i)));
+				// return;
 			}
-			
+
 		}
-		
+
 		CivMessage.send(player, CivSettings.localize.localizedString("Finished"));
 	}
 

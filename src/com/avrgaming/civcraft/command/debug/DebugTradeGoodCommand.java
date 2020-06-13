@@ -1,7 +1,5 @@
 package com.avrgaming.civcraft.command.debug;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
@@ -10,6 +8,7 @@ import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.event.GoodieRepoEvent;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.BonusGoodie;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.populators.TradeGoodPopulator;
@@ -124,11 +123,9 @@ public class DebugTradeGoodCommand extends CommandBase{
 	}
 	public void regentradegoodchunk_cmd() {
 
-		World world = Bukkit.getWorld("world");
-
 		for (ChunkCoord coord : CivGlobal.tradeGoodPreGenerator.goodPicks.keySet()) {
 
-			world.regenerateChunk(coord.getX(), coord.getZ());
+			CivCraft.mainWorld.regenerateChunk(coord.getX(), coord.getZ());
 			CivMessage.send(sender, "Regened:" + coord);
 		}
 	}

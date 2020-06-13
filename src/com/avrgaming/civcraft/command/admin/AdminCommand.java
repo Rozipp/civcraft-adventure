@@ -66,7 +66,6 @@ public class AdminCommand extends CommandBase {
 
 		cs.add("perm", CivSettings.localize.localizedString("adcmd_permDesc"));
 		cs.add("sbperm", CivSettings.localize.localizedString("adcmd_adpermDesc"));
-		cs.add("cbinstantbreak", CivSettings.localize.localizedString("adcmd_cbinstantbreakDesc"));
 		cs.add("mob", CivSettings.localize.localizedString("cmd_mob_managament"));
 		cs.add("unit", "Работа с юнитами");
 		cs.add("recover", CivSettings.localize.localizedString("adcmd_recoverDesc"));
@@ -260,13 +259,6 @@ public class AdminCommand extends CommandBase {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_clearEndGameSuccess", civ.getName()));
 			}
 		}
-	}
-
-	public void cbinstantbreak_cmd() throws CivException {
-		Resident resident = getResident();
-
-		resident.setControlBlockInstantBreak(!resident.isControlBlockInstantBreak());
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_cbinstantbreakSuccess") + resident.isControlBlockInstantBreak());
 	}
 
 	public static Inventory spawnInventory = null;

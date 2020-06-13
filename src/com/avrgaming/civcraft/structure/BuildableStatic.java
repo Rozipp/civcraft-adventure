@@ -10,6 +10,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -111,12 +112,14 @@ public class BuildableStatic {
 		ArrayList<ChunkCoord> ccs = new ArrayList<>();
 		Template tpl = constr.getTemplate();
 		ChunkCoord cCorner = constr.getCorner().getChunkCoord();
-		for (int dx = 0; dx * 16 < tpl.size_x; dx++) {
-			for (int dz = 0; dz * 16 < tpl.size_z; dz++) {
-				ChunkCoord newCC = new ChunkCoord(cCorner.getWorldname(), cCorner.getX() + dx, cCorner.getZ() + dz);
-				ccs.add(newCC);
+		int size_x = ChunkCoord.castToChunk(tpl.size_x);
+		int size_z = ChunkCoord.castToChunk(tpl.size_z);
+		for (int dx = 0; dx < size_x; dx++) {
+			for (int dz = 0; dz < size_z; dz++) {
+				ccs.add(cCorner.getRelative(dx, dz));
 			}
 		}
+		CivLog.debug("BuildableStatic.getChunkCoords size = " + ccs.size());
 		return ccs;
 	}
 

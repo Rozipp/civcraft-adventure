@@ -122,7 +122,7 @@ public class BuildAsyncTask extends CivAsyncTask {
 			if (!Template.isAttachable(sb.getMaterial())) sbs.add(sb);
 			if (!buildable.isDestroyable() && sb.getType() != CivData.AIR) {
 				if (sb.specialType != Type.COMMAND) {
-					BlockCoord coord = new BlockCoord(sb.worldname, sb.x, sb.y, sb.z);
+					BlockCoord coord = new BlockCoord(sb);
 					buildable.addConstructBlock(coord, sb.y != 0);
 				}
 			}

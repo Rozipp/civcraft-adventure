@@ -89,7 +89,8 @@ public class TownCommand extends CommandBase {
 	}
 
 	public void getunit_cmd() throws CivException {
-		this.getResident().getTown().unitInventory.showUnits(getPlayer());
+		validMayor();
+		this.getSelectedTown().unitInventory.showUnits(getPlayer());
 	}
 
 	public void teleport_cmd() throws CivException {
@@ -271,26 +272,16 @@ public class TownCommand extends CommandBase {
 		while (!openSet.isEmpty()) {
 			ChunkCoord node = openSet.poll();
 
-			if (closedSet.contains(node)) {
-				continue;
-			}
-
-			if (node.manhattanDistance(start) > lvl.chunks) {
-				continue;
-				// break;
-			}
+			if (closedSet.contains(node)) continue;
+			if (node.manhattanDistance(start) > lvl.chunks) continue;
 
 			closedSet.add(node);
 
 			// Enqueue all neighbors.
 			int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 			for (int i = 0; i < 4; i++) {
-				ChunkCoord nextCoord = new ChunkCoord(node.getWorldname(), node.getX() + offset[i][0], node.getZ() + offset[i][1]);
-
-				if (closedSet.contains(nextCoord)) {
-					continue;
-				}
-
+				ChunkCoord nextCoord = node.getRelative(offset[i][0], offset[i][1]);
+				if (closedSet.contains(nextCoord)) continue;
 				openSet.add(nextCoord);
 			}
 		}

@@ -286,17 +286,11 @@ public class CivData {
 		// Get # of sugarcanes above us
 		// Using a for loop to prevent possible infinite loop
 		try {
-			for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
-				nextBlock = bs.getRelative(0, 1, 0);
-				if (nextBlock.getTypeId() == CivData.SUGARCANE)
-					total++;
-				else
-					break;
-			}
-			
+			if (bs.getRelative(0, 1, 0).getTypeId() != CivData.AIR) return false;
+
 			// Get # of sugarcanes below us
-			for (int i = 0; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
-				nextBlock = bs.getRelative(0, -1, 0);
+			for (int i = 1; i <= Farm.MAX_SUGARCANE_HEIGHT; i++) {
+				nextBlock = bs.getRelative(0, -i, 0);
 				if (nextBlock.getTypeId() == CivData.SUGARCANE)
 					total++;
 				else

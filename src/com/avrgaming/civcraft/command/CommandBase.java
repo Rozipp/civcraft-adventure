@@ -286,7 +286,6 @@ public abstract class CommandBase implements CommandExecutor {
 		if (!town.playerIsInGroupName("mayors", player)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
 		}
-		//if (this.)
 	}
 	
 	public void validMayorAssistantLeader() throws CivException {

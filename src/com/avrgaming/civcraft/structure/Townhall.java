@@ -83,7 +83,7 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 	private ArrayList<BlockCoord> respawnPoints = new ArrayList<BlockCoord>();
 	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
 	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
-	
+
 	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
 
 	public ArrayList<BlockCoord> nextGoodieFramePoint = new ArrayList<BlockCoord>();
@@ -127,13 +127,13 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 			this.setTechdataSign(absCoord);
 			this.setTechdataSignData((byte) sb.getData());
 			break;
-//		case "/itemframe":
-//			strvalue = sb.keyvalues.get("id");
-//			if (strvalue != null) {
-//				this.createGoodieItemFrame(absCoord, Integer.valueOf(strvalue), sb.getData());
-//				this.addConstructBlock(absCoord, false);
-//			}
-//			break;
+		// case "/itemframe":
+		// strvalue = sb.keyvalues.get("id");
+		// if (strvalue != null) {
+		// this.createGoodieItemFrame(absCoord, Integer.valueOf(strvalue), sb.getData());
+		// this.addConstructBlock(absCoord, false);
+		// }
+		// break;
 		case "/respawn":
 			this.addRespawnPoint(absCoord);
 			break;
@@ -329,19 +329,20 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		this.controlPoints.put(coord, new ControlPoint(coord, this, townhallControlHitpoints, info));
 	}
 
-	public void onControlBlockDestroy(ControlPoint cp, World world, Player player, ConstructBlock hit) {
+	public void onControlBlockDestroy(Player player, ControlPoint cp) {
 		// Should always have a resident and a town at this point.
+		World world = cp.getWorld();
 		Resident attacker = CivGlobal.getResident(player);
 
-		ItemManager.setTypeId(hit.getCoord().getLocation().getBlock(), CivData.AIR);
-		world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, -1.0f);
-		world.playSound(hit.getCoord().getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+		ItemManager.setTypeId(cp.getCoord().getLocation().getBlock(), CivData.AIR);
+		world.playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0f, -1.0f);
+		world.playSound(cp.getCoord().getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
 
 		FireworkEffect effect = FireworkEffect.builder().with(Type.BURST).withColor(Color.YELLOW).withColor(Color.RED).withTrail().withFlicker().build();
 		FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
 		for (int i = 0; i < 3; i++) {
 			try {
-				fePlayer.playFirework(world, hit.getCoord().getLocation(), effect);
+				fePlayer.playFirework(world, cp.getCoord().getLocation(), effect);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -354,7 +355,7 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 				break;
 			}
 		}
-		CivMessage.sendTownSound(hit.getTown(), Sound.AMBIENT_CAVE, 1.0f, 0.5f);
+		CivMessage.sendTownSound(cp.getTown(), Sound.AMBIENT_CAVE, 1.0f, 0.5f);
 
 		if (allDestroyed) {
 			Civilization civ = getTown().getCiv();
@@ -408,12 +409,12 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 			}
 
 		} else {
-			CivMessage.sendTown(hit.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
-			if (hit.getTown().hasWonder("w_neuschwanstein")) {
-				CivMessage.sendCiv(attacker.getCiv(), CivSettings.localize.localizedString("var_townHall_didDestroyNeus", hit.getTown().getName()));
+			CivMessage.sendTown(cp.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
+			if (cp.getTown().hasWonder("w_neuschwanstein")) {
+				CivMessage.sendCiv(attacker.getCiv(), CivSettings.localize.localizedString("var_townHall_didDestroyNeus", cp.getTown().getName()));
 			}
-			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB", hit.getTown().getName()));
-			CivMessage.sendCiv(hit.getTown().getCiv(), CivColor.Rose + CivSettings.localize.localizedString("var_townHall_civMsg_controlBlockDestroyed", hit.getTown().getName()));
+			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB", cp.getTown().getName()));
+			CivMessage.sendCiv(cp.getTown().getCiv(), CivColor.Rose + CivSettings.localize.localizedString("var_townHall_civMsg_controlBlockDestroyed", cp.getTown().getName()));
 		}
 	}
 
@@ -468,18 +469,18 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		}
 	}
 
-	public void onControlBlockHit(ControlPoint cp, World world, Player player, ConstructBlock hit) {
-		world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
-		world.playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
+	public void onControlBlockHit(Player player, ControlPoint cp) {
+		cp.getWorld().playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
+		cp.getWorld().playEffect(cp.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 
 		CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_townHall_damagedControlBlock", ("(" + cp.getHitpoints() + " / " + cp.getMaxHitpoints() + ")")));
-		CivMessage.sendTown(hit.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("townHall_cbUnderAttack"));
+		CivMessage.sendTown(cp.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("townHall_cbUnderAttack"));
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord coord, ConstructDamageBlock hit) {
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 
-		ControlPoint cp = this.controlPoints.get(coord);
+		ControlPoint cp = this.controlPoints.get(hit.getCoord());
 		Resident resident = CivGlobal.getResident(player);
 
 		if (!resident.canDamageControlBlock()) {
@@ -489,18 +490,16 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 
 		if (cp != null) {
 			if (!cp.isDestroyed()) {
-
-				if (resident.isControlBlockInstantBreak()) {
+				if (resident.isSBPermOverride())
 					cp.damage(cp.getHitpoints());
-				} else {
+				else
 					cp.damage(amount);
-				}
 
-				if (cp.isDestroyed()) {
-					onControlBlockDestroy(cp, world, player, (ConstructBlock) hit);
-				} else {
-					onControlBlockHit(cp, world, player, (ConstructBlock) hit);
-				}
+				if (cp.isDestroyed())
+					onControlBlockDestroy(player, cp);
+				else
+					onControlBlockHit(player, cp);
+
 			} else {
 				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_destroyed"));
 			}

@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.util.ChunkCoord;
 
 public class DebugWorldCommand extends CommandBase {
 
@@ -41,10 +40,8 @@ public class DebugWorldCommand extends CommandBase {
 		
 		World world = Bukkit.getServer().createWorld(wc);
 		world.setSpawnFlags(false, false);
-		ChunkCoord.addWorld(world);
 		
 		CivMessage.sendSuccess(sender, "World "+name+" created.");
-		
 	}
 	
 	public void tp_cmd() throws CivException {

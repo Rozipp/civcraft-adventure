@@ -324,7 +324,7 @@ public class Template {
 								// && (x == 0 || x == tpl.size_x - 1 || z == 0 || z == tpl.size_z - 1)
 
 								SimpleBlock sb = (isPutBlock) ? new SimpleBlock(CivSettings.scaffoldingType, CivSettings.scaffoldingData) : new SimpleBlock(CivData.AIR, 0);
-								sb.worldname = corner.getWorldname();
+								sb.worldname = corner.getWorld().getName();
 								sb.x = b.getX();
 								sb.y = b.getY();
 								sb.z = b.getZ();

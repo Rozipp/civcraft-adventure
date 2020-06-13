@@ -103,7 +103,7 @@ public class CannonProjectile {
 									return;
 								}
 
-								cb.getOwner().onDamage(cannon.getDamage(), b.getWorld(), whoFired, cb.getCoord(), cb);
+								cb.getOwner().onDamage(cannon.getDamage(), whoFired, cb);
 								CivMessage.sendCiv(cb.getCiv(),
 										CivColor.Yellow
 												+ CivSettings.localize.localizedString("cannonProjectile_hitAnnounce", cb.getOwner().getDisplayName(),

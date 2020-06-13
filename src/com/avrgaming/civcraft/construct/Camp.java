@@ -916,14 +916,15 @@ public class Camp extends Construct {
 		return out;
 	}
 
-	public void onControlBlockHit(ControlPoint cp, World world, Player player) {
-		world.playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2F, 1.0F);
-		world.playEffect(cp.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
+	public void onControlBlockHit(ControlPoint cp, Player player) {
+		cp.getWorld().playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2F, 1.0F);
+		cp.getWorld().playEffect(cp.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 		CivMessage.send((Object) player, (String) ("§7" + CivSettings.localize.localizedString("camp_hitControlBlock") + "(" + cp.getHitpoints() + " / " + cp.getMaxHitpoints() + ")"));
 		CivMessage.sendCamp(this, "§e" + CivSettings.localize.localizedString("camp_controlBlockUnderAttack"));
 	}
 
-	public void onControlBlockDestroy(ControlPoint cp, World world, Player player) {
+	public void onControlBlockDestroy(ControlPoint cp, Player player) {
+		World world = cp.getCoord().getWorld();
 		ItemManager.setTypeId((Block) cp.getCoord().getLocation().getBlock(), 0);
 		world.playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_BREAK, 1.0F, -1.0F);
 		world.playSound(cp.getCoord().getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0F, 1.0F);
@@ -957,8 +958,8 @@ public class Camp extends Construct {
 	}
 
 	@Override
-	public void onDamage(int amount, World world, Player player, BlockCoord hit, ConstructDamageBlock hit2) {
-		ControlPoint cp = (ControlPoint) this.controlBlocks.get(hit);
+	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
+		ControlPoint cp = this.controlBlocks.get(hit.getCoord());
 		if (cp != null) {
 			Date now = new Date();
 			Resident resident = CivGlobal.getResident(player);
@@ -971,9 +972,9 @@ public class Camp extends Construct {
 				if (!cp.isDestroyed()) {
 					cp.damage(amount);
 					if (cp.isDestroyed()) {
-						this.onControlBlockDestroy(cp, world, player);
+						this.onControlBlockDestroy(cp, player);
 					} else {
-						this.onControlBlockHit(cp, world, player);
+						this.onControlBlockHit(cp, player);
 					}
 				} else {
 					CivMessage.send((Object) player, (String) ("§c" + CivSettings.localize.localizedString("camp_controlBlockAlreadyDestroyed")));

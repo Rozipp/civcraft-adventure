@@ -22,17 +22,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.threading.sync.request.LoadChunkRequest;
 
 public class SyncLoadChunk implements Runnable {
-	/*
-	 * Loads a chunk synchronously and notifies the thread that was waiting on it
-	 * when it is loaded.
-	 */
+	/* Loads a chunk synchronously and notifies the thread that was waiting on it when it is loaded. */
 	public static final int UPDATE_LIMIT = 2048;
 
 	public static Queue<LoadChunkRequest> requestQueue = new LinkedList<LoadChunkRequest>();
@@ -48,13 +44,12 @@ public class SyncLoadChunk implements Runnable {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
 					LoadChunkRequest request = requestQueue.poll();
-					if (request == null)
-						return;
+					if (request == null) return;
 
-					Chunk chunk = Bukkit.getWorld(request.worldName).getChunkAt(request.x, request.z);
+					Chunk chunk = request.chunkCoord.getWorld().getChunkAt(request.chunkCoord.getX(), request.chunkCoord.getZ());
 					if (!chunk.isLoaded()) {
 						if (!chunk.load()) {
-							CivLog.error("Couldn't load chunk at " + request.x + "," + request.z);
+							CivLog.error("Couldn't load chunk at " + request.chunkCoord.getX() + "," + request.chunkCoord.getZ());
 							continue;
 						}
 					}

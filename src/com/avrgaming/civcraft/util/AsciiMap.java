@@ -31,63 +31,53 @@ import com.avrgaming.civcraft.object.TownChunk;
 public class AsciiMap {
 
 	private static final int width = 9;
-	private static final int height = 40;	
-	
+	private static final int height = 40;
+
 	public static List<String> getMapAsString(Location center) {
 		ArrayList<String> out = new ArrayList<String>();
-		
-	//	ChunkCoord[][] chunkmap = new ChunkCoord[width][height]; 
+
+		// ChunkCoord[][] chunkmap = new ChunkCoord[width][height];
 		ChunkCoord centerChunk = new ChunkCoord(center);
-		
+
 		/* Use the center to build a starting point. */
-		ChunkCoord currentChunk = new ChunkCoord(center.getWorld().getName(),
-											(centerChunk.getX() - (width/2)),
-											(centerChunk.getZ() - (height/2)));
-		
+		ChunkCoord currentChunk = new ChunkCoord(center.getWorld(), (centerChunk.getX() - (width / 2)), (centerChunk.getZ() - (height / 2)));
+
 		int startX = currentChunk.getX();
 		int startZ = currentChunk.getZ();
-	
+
 		out.add(CivMessage.buildTitle(CivSettings.localize.localizedString("Map")));
-		
-		//ChunkCoord currentChunk = new ChunkCoord(center);
+
+		// ChunkCoord currentChunk = new ChunkCoord(center);
 		for (int x = 0; x < width; x++) {
 			String outRow = new String("         ");
 			for (int z = 0; z < height; z++) {
 				String color = CivColor.White;
-								
-				currentChunk = new ChunkCoord(center.getWorld().getName(), 
-						startX+x, startZ+z);
-				
-				if (currentChunk.equals(centerChunk)) {
-					color = CivColor.Yellow;
-				}
-				
+
+				currentChunk = new ChunkCoord(center.getWorld(), startX + x, startZ + z);
+
+				if (currentChunk.equals(centerChunk)) color = CivColor.Yellow;
+
 				/* Try to see if there is a town chunk here.. */
 				TownChunk tc = CivGlobal.getTownChunk(currentChunk);
 				if (tc != null) {
-					
+
 					if (color.equals(CivColor.White)) {
-						if (tc.perms.getOwner() != null) {
-							color = CivColor.LightGreen;
-						} else {
-							color = CivColor.Rose;
-						}
+						color = (tc.perms.getOwner() != null) ? CivColor.LightGreen : CivColor.Rose;
 					}
-					
+
 					if (tc.isForSale()) {
-						outRow += CivColor.Yellow+"$";
+						outRow += CivColor.Yellow + "$";
 					} else {
-						outRow += color+"T";
+						outRow += color + "T";
 					}
 				} else {
-					outRow += color+"-";
+					outRow += color + "-";
 				}
 			}
 			out.add(outRow);
 		}
-		
-		
+
 		return out;
 	}
-	
+
 }

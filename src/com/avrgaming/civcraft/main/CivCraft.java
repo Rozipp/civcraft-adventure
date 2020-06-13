@@ -16,6 +16,7 @@ import java.util.Random;
 import com.avrgaming.donate.Donate;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -55,7 +56,6 @@ import com.avrgaming.civcraft.units.UnitInventoryListener;
 import com.avrgaming.civcraft.units.UnitListener;
 import com.avrgaming.civcraft.units.CooldownSynckTask;
 import com.avrgaming.civcraft.util.BukkitObjects;
-import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.civcraft.war.WarListener;
 import com.avrgaming.global.scores.CalculateScoreTimer;
@@ -80,6 +80,8 @@ public final class CivCraft extends JavaPlugin {
 	public static boolean isDisable = false;
 	public static Random civRandom = new Random();
 	public static double minDamage = 0.2; //FIXME Зделать константой в файле civ.yml
+	public static World mainWorld;
+	public static World cavesWorld;
 
 	@Override
 	public void onEnable() {
@@ -90,6 +92,8 @@ public final class CivCraft extends JavaPlugin {
 
 		CivLog.init(this);
 		BukkitObjects.initialize(this);
+		CivCraft.mainWorld = Bukkit.getServer().getWorld("world");
+		CivCraft.cavesWorld = Bukkit.getServer().getWorld("caves");
 
 		// Load World Populators
 		// BukkitObjects.getWorlds().get(0).getPopulators().add(new TradeGoodPopulator());
@@ -102,7 +106,6 @@ public final class CivCraft extends JavaPlugin {
 				SQL.clearTableData();
 			}
 			SQL.initCivObjectTables();
-			ChunkCoord.buildWorldList();
 
 			CivGlobal.loadGlobals();
 

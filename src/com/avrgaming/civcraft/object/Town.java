@@ -845,7 +845,7 @@ public class Town extends SQLObject {
 		this.baseHammers = hammerRate;
 	}
 
-	public void checkCanCreatedTown(Resident resident, Structure structure) throws CivException {
+	public void checkCanCreatedTown(Resident resident, Structure townhall) throws CivException {
 		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("town_found_errorIncamp"));
 		if (resident.getTown() != null && resident.getTown().isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("var_town_found_errorIsMayor", resident.getTown().getName()));
 
@@ -866,10 +866,11 @@ public class Town extends SQLObject {
 		}
 
 		for (Town town : CivGlobal.getTowns()) {
-			Location loc2 = town.getLocation();
-			if (loc2 == null) continue;
-
-			double distSqr = loc2.distanceSquared(structure.getCenterLocation());
+			Location loc = town.getLocation();
+			if (loc == null) continue;
+			if (!loc.getWorld().equals(townhall.getCenterLocation().getWorld())) continue;
+			
+			double distSqr = loc.distanceSquared(townhall.getCenterLocation());
 			double minDistanceSqr;
 			if (town.getCiv().equals(getCiv())) {
 				minDistanceSqr = minDistanceFriendSqr;
@@ -888,15 +889,15 @@ public class Town extends SQLObject {
 		}
 	}
 
-	public void createTown(Resident resident, Structure structure) throws CivException {
+	public void createTown(Resident resident, Structure townhall) throws CivException {
 		Player player = CivGlobal.getPlayer(resident.getName());
-		this.checkCanCreatedTown(resident, structure);
+		this.checkCanCreatedTown(resident, townhall);
 		try {
 			int cost = getCiv().getNextTownCost();
 			this.saveNow();
 			CivGlobal.addTown(this);
 			getCiv().addTown(this);
-			if (structure instanceof Capitol) getCiv().setCapitolId(this.getId());
+			if (townhall instanceof Capitol) getCiv().setCapitolId(this.getId());
 
 			// Create permission groups for town.
 			try {
@@ -929,9 +930,9 @@ public class Town extends SQLObject {
 
 			// build TownHall
 			try {
-				this.getTreasury().deposit(structure.getCost());
-				structure.setSQLOwner(this);
-				this.buildStructure(player, structure);
+				this.getTreasury().deposit(townhall.getCost());
+				townhall.setSQLOwner(this);
+				this.buildStructure(player, townhall);
 			} catch (CivException e) {
 				getCiv().removeTown(this);
 				this.delete();
@@ -1789,7 +1790,7 @@ public class Town extends SQLObject {
 	public void checkIsTownCanBuildWonder(Buildable buildable) throws CivException {
 		BlockCoord corner = buildable.getCorner();
 		if (this.wonders.size() >= 2) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorLimit2"));
-		if (!corner.getWorldname().equals("world")) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_NotOverworld"));
+		if (!corner.inMainWorld()) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_NotOverworld"));
 
 		if (!this.hasUpgrade(buildable.getRequiredUpgrade())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingUpgrade") + " §6" + CivSettings.getUpgradeById(buildable.getRequiredUpgrade()).name);
 		if (!this.hasTechnology(buildable.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(buildable.getRequiredTechnology()).name);
@@ -1817,7 +1818,7 @@ public class Town extends SQLObject {
 		if (getTownChunks().size() + needClaim > getMaxPlots())
 			throw new CivException("Для постройки здания требуеться заприватить " + chunks.size() + " плотов. В вашем городе занято " + this.getTownChunks().size() + " из " + this.getMaxPlots()
 					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
-		
+
 		if (CivGlobal.isCasualMode()) {
 			/* Check for a wonder already in this civ. */
 			for (Town town : this.getCiv().getTowns()) {
@@ -3332,22 +3333,17 @@ public class Town extends SQLObject {
 
 	@Override
 	public boolean equals(final Object another) {
-		if (!(another instanceof Town)) {
-			return false;
-		}
+		if (!(another instanceof Town)) return false;
 		final Town anther = (Town) another;
-		return anther.getName().equals(this.getName()) && anther.getId() == this.getId();
+		return anther.getId() == this.getId();
 	}
 
 	public int getXChance() {
-		if (!this.hasTradeGood("good_titanium")) {
-			return 0;
-		}
-		int x = 5;
-		if (this.getTradeGoodCount("good_titanium") >= 2) {
-			x = 10;
-		}
-		return x;
+		if (!this.hasTradeGood("good_titanium")) return 0;
+		if (this.getTradeGoodCount("good_titanium") >= 2)
+			return 10;
+		else
+			return 5;
 	}
 
 	public int getReturnChance() {

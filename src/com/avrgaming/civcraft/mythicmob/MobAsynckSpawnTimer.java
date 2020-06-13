@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.TownChunk;
@@ -61,7 +62,7 @@ public class MobAsynckSpawnTimer implements Runnable {
 				if (lastSpawn + SPAWN_COOLDOWN > now) continue;
 			}
 			for (int j = 0; j < SPAWN_FOR_PLAYER_LIMIT; j++) {
-				if (!player.getWorld().getName().equals("world")) continue;
+				if (!player.getWorld().equals(CivCraft.mainWorld)) continue;
 				// Сколько возле игрока в радиусе rmax мобов.
 				int rmax = MAX_SPAWN_DISTANCE / 16;
 				int rMaxSqr = rmax * (rmax + 1);

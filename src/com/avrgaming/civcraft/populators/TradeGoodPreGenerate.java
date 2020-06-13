@@ -14,12 +14,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeSet;
 
-import org.bukkit.Bukkit;
+import org.bukkit.World;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigHemisphere;
 import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.ChunkCoord;
 
@@ -30,7 +31,7 @@ public class TradeGoodPreGenerate {
 	private int chunks_x;
 	private int chunks_z;
 	private int seed;
-	private String worldName;
+	private World world;
 
 	// Maybe all we need is a hashset?
 	public Map<ChunkCoord, TradeGoodPick> goodPicks = new HashMap<ChunkCoord, TradeGoodPick>();
@@ -40,18 +41,10 @@ public class TradeGoodPreGenerate {
 	}
 
 	private boolean validHemisphere(ConfigHemisphere hemi, int x, int z) {
-		if (hemi.x_max != 0 && x > hemi.x_max) {
-			return false;
-		}
-		if (hemi.x_min != 0 && x < hemi.x_min) {
-			return false;
-		}
-		if (hemi.z_max != 0 && z > hemi.z_max) {
-			return false;
-		}
-		if (hemi.z_min != 0 && z < hemi.z_min) {
-			return false;
-		}
+		if (hemi.x_max != 0 && x > hemi.x_max) return false;
+		if (hemi.x_min != 0 && x < hemi.x_min) return false;
+		if (hemi.z_max != 0 && z > hemi.z_max) return false;
+		if (hemi.z_min != 0 && z < hemi.z_min) return false;
 		return true;
 	}
 
@@ -61,7 +54,7 @@ public class TradeGoodPreGenerate {
 		for (ConfigTradeGood good : goods.values()) {
 			String hemiString = good.hemiString;
 			if (hemiString == null) {
-				//No hemis selected means valid everywhere, add it.
+				// No hemis selected means valid everywhere, add it.
 				validGoods.add(good);
 				continue;
 			}
@@ -71,7 +64,7 @@ public class TradeGoodPreGenerate {
 				ConfigHemisphere hemi = CivSettings.hemispheres.get(str);
 				if (hemi == null) {
 					CivLog.warning("Invalid hemisphere:" + str + " detected for trade good generation.");
-					continue; //ignore invalid hemisphere
+					continue; // ignore invalid hemisphere
 				}
 
 				if (validHemisphere(hemi, x, z)) {
@@ -83,8 +76,8 @@ public class TradeGoodPreGenerate {
 		return validGoods;
 	}
 
-	/* Pre-generate the locations of the trade goods so that we can validate their positions relative to each other. Once generated save results to a file, and
-	 * load if that file exists. */
+	/* Pre-generate the locations of the trade goods so that we can validate their positions relative to each other. Once generated save results
+	 * to a file, and load if that file exists. */
 	public void preGenerate() {
 		try {
 			chunks_min = CivSettings.getInteger(CivSettings.goodsConfig, "generation.chunks_min");
@@ -92,7 +85,7 @@ public class TradeGoodPreGenerate {
 			chunks_x = CivSettings.getInteger(CivSettings.goodsConfig, "generation.chunks_x");
 			chunks_z = CivSettings.getInteger(CivSettings.goodsConfig, "generation.chunks_z");
 			seed = CivSettings.getInteger(CivSettings.goodsConfig, "generation.seed");
-			this.worldName = Bukkit.getWorlds().get(0).getName();
+			this.world = CivCraft.mainWorld;
 
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
@@ -121,7 +114,7 @@ public class TradeGoodPreGenerate {
 					}
 				}
 
-				ChunkCoord cCoord = new ChunkCoord(worldName, randX, randZ);
+				ChunkCoord cCoord = new ChunkCoord(world, randX, randZ);
 				pickFromCoord(cCoord);
 			}
 		}
@@ -129,10 +122,11 @@ public class TradeGoodPreGenerate {
 		CivLog.info("Done.");
 
 	}
+
 	private ConfigTradeGood pickFromSet(TreeSet<ConfigTradeGood> set, int rand) {
 
 		ArrayList<ConfigTradeGood> pickList = new ArrayList<ConfigTradeGood>();
-		//Find goodies that are == generated random value
+		// Find goodies that are == generated random value
 		for (ConfigTradeGood good : set) {
 			if (good.rarity <= rand + 1) {
 				pickList.add(good);
@@ -165,7 +159,7 @@ public class TradeGoodPreGenerate {
 		/* Do not allow two of the same goodie within 4 chunks of each other. */
 		for (int x = -4; x < 4; x++) {
 			for (int z = -4; z < 4; z++) {
-				ChunkCoord n = new ChunkCoord(cCoord.getWorldname(), cCoord.getX() + x, cCoord.getZ() + z);
+				ChunkCoord n = cCoord.getRelative(x, z);
 
 				TradeGoodPick nearby = goodPicks.get(n);
 				if (nearby == null) continue;

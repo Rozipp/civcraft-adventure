@@ -238,10 +238,10 @@ public class TradeShip extends WaterStructure {
 		MultiInventory mInv = new MultiInventory();
 
 		for (BlockCoord bcoord : this.goodsDepositPoints) {
-			task.syncLoadChunk(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
+			task.syncLoadChunk(bcoord.getChunkCoord());
 			Inventory tmp;
 			try {
-				tmp = task.getChestInventory(bcoord.getWorldname(), bcoord.getX(), bcoord.getY(), bcoord.getZ(), true);
+				tmp = task.getChestInventory(bcoord, true);
 			} catch (CivTaskAbortException e) {
 				tradeResult = new TradeShipResults();
 				tradeResult.setResult(Result.STAGNATE);
@@ -336,10 +336,10 @@ public class TradeShip extends WaterStructure {
 				MultiInventory multiInv = new MultiInventory();
 
 				for (BlockCoord bcoord : this.goodsWithdrawPoints) {
-					task.syncLoadChunk(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
+					task.syncLoadChunk(bcoord.getChunkCoord());
 					Inventory tmp;
 					try {
-						tmp = task.getChestInventory(bcoord.getWorldname(), bcoord.getX(), bcoord.getY(), bcoord.getZ(), true);
+						tmp = task.getChestInventory(bcoord, true);
 						multiInv.addInventory(tmp);
 					} catch (CivTaskAbortException e) {
 

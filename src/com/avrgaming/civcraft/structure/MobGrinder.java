@@ -136,7 +136,7 @@ public class MobGrinder extends Structure {
 					//this.syncLoadChunk(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getZ());				
 					Inventory tmp;
 					try {
-						tmp = this.getChestInventory(src.getCoord().getWorldname(), src.getCoord().getX(), src.getCoord().getY(), src.getCoord().getZ(), false);
+						tmp = this.getChestInventory(src.getCoord(), false);
 					} catch (CivTaskAbortException e) {
 						//e.printStackTrace();
 						CivLog.warning("Mob Grinder:" + e.getMessage());
@@ -154,9 +154,8 @@ public class MobGrinder extends Structure {
 					//this.syncLoadChunk(dst.getCoord().getWorldname(), dst.getCoord().getX(), dst.getCoord().getZ());
 					Inventory tmp;
 					try {
-						tmp = this.getChestInventory(dst.getCoord().getWorldname(), dst.getCoord().getX(), dst.getCoord().getY(), dst.getCoord().getZ(), false);
+						tmp = this.getChestInventory(dst.getCoord(), false);
 					} catch (CivTaskAbortException e) {
-						//e.printStackTrace();
 						CivLog.warning("Mob Grinder:" + e.getMessage());
 						return;
 					}

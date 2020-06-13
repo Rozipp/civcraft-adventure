@@ -200,11 +200,9 @@ public class WarListener implements Listener {
 				for (int x = -yield; x <= yield; x++) {
 					for (int z = -yield; z <= yield; z++) {
 						Location loc = event.getLocation().clone().add(new Vector(x, y, z));
-						Block b = loc.getBlock();
 						if (loc.distance(event.getLocation()) < yield) {
 
-							BlockCoord bcoord = new BlockCoord();
-							bcoord.setFromLocation(loc);
+							BlockCoord bcoord = new BlockCoord(loc);
 //							StructureBlock sb = CivGlobal.getStructureBlock(bcoord);
 //							if (sb == null) {
 //							WarRegen.saveBlock(loc.getBlock(), Cannon.RESTORE_NAME, false);
@@ -215,26 +213,26 @@ public class WarListener implements Listener {
 //							ItemManager.setTypeIdAndData(loc.getBlock(), CivData.AIR, 0, false);
 //							}
 
-							ConstructBlock sb = CivGlobal.getConstructBlock(bcoord);
+							ConstructBlock cb = CivGlobal.getConstructBlock(bcoord);
 
-							if (sb == null) {
+							if (cb == null) {
 								//explodeBlock(b); Разрушение блоков
 								continue;
 							}
 
-							if (!sb.isDamageable()) continue;
-							if (sb.getOwner() instanceof Townhall) {
-								Townhall th = (Townhall) sb.getOwner();
+							if (!cb.isDamageable()) continue;
+							if (cb.getOwner() instanceof Townhall) {
+								Townhall th = (Townhall) cb.getOwner();
 								if (th.getControlPoints().containsKey(bcoord)) continue;
 							}
 
-							if (!sb.getOwner().isDestroyed()) {
-								if (!structuresHit.contains(sb.getOwner())) {
+							if (!cb.getOwner().isDestroyed()) {
+								if (!structuresHit.contains(cb.getOwner())) {
 
-									structuresHit.add(sb.getOwner());
+									structuresHit.add(cb.getOwner());
 
-									if (sb.getOwner() instanceof Townhall) {
-										Townhall th = (Townhall) sb.getOwner();
+									if (cb.getOwner() instanceof Townhall) {
+										Townhall th = (Townhall) cb.getOwner();
 
 										if (th.getHitpoints() == 0) {
 											//explodeBlock(b); Разрушение блоков
@@ -242,16 +240,16 @@ public class WarListener implements Listener {
 										} else {
 											th.onTNTDamage(structureDamage);
 										}
-									} else if(sb.getOwner().getInfo().template_name.equals("cannon")) {
-										sb.getOwner().onDamage(structureDamage, b.getWorld(), null, sb.getCoord(), sb);
+									} else if(cb.getOwner().getInfo().template_name.equals("cannon")) {
+										cb.getOwner().onDamage(structureDamage, null, cb);
 									} else {
 
-										sb.getOwner().onDamage(structureDamage, b.getWorld(), null, sb.getCoord(), sb);
-										CivMessage.sendCiv(sb.getCiv(),
-												CivColor.Yellow + CivSettings.localize.localizedString("var_war_tntMsg", sb.getOwner().getDisplayName(),
-														(sb.getOwner().getCenterLocation().getBlockX() + "," + sb.getOwner().getCenterLocation().getBlockY()
-																+ "," + sb.getOwner().getCenterLocation().getBlockZ() + ")"),
-														(sb.getOwner().getHitpoints() + "/" + sb.getOwner().getMaxHitPoints())));
+										cb.getOwner().onDamage(structureDamage, null, cb);
+										CivMessage.sendCiv(cb.getCiv(),
+												CivColor.Yellow + CivSettings.localize.localizedString("var_war_tntMsg", cb.getOwner().getDisplayName(),
+														(cb.getOwner().getCenterLocation().getBlockX() + "," + cb.getOwner().getCenterLocation().getBlockY()
+																+ "," + cb.getOwner().getCenterLocation().getBlockZ() + ")"),
+														(cb.getOwner().getHitpoints() + "/" + cb.getOwner().getMaxHitPoints())));
 									}
 								}
 							} else {

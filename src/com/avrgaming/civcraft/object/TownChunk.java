@@ -145,7 +145,7 @@ public class TownChunk extends SQLObject {
 
 		hashmap.put("id", this.getId());
 		hashmap.put("town_id", this.getTown().getId());
-		hashmap.put("world", this.getChunkCoord().getWorldname());
+		hashmap.put("world", this.getChunkCoord().getWorld().getName());
 		hashmap.put("x", this.getChunkCoord().getX());
 		hashmap.put("z", this.getChunkCoord().getZ());
 		hashmap.put("permissions", perms.getSaveString());
@@ -271,8 +271,8 @@ public class TownChunk extends SQLObject {
 
 		int[][] offset = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 		for (int i = 0; i < 4; i++) {
-			TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(this.getChunkCoord().getWorldname(), this.getChunkCoord().getX() + offset[i][0], this.getChunkCoord().getZ() + offset[i][1]));
-			if (tc != null && tc.getTown() == this.getTown()) return true;
+			TownChunk tc = CivGlobal.getTownChunk(this.getChunkCoord().getRelative(offset[i][0], offset[i][1]));
+			if (tc != null && tc.getTown().equals(this.getTown())) return true;
 		}
 		return false;
 	}

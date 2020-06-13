@@ -6,6 +6,7 @@ import org.bukkit.block.Block;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -51,7 +52,7 @@ public class PickRandomBlock extends RandomEventComponent {
 						int randX = rand.nextInt(range_x) - (max_x/16);
 						int randZ = rand.nextInt(range_z) - (max_z/16);
 					
-						coord = new ChunkCoord("world", randX, randZ);
+						coord = new ChunkCoord(CivCraft.mainWorld, randX, randZ);
 						
 						/* Make sure its not in someone's culture. */
 						if(CivGlobal.getCultureChunk(coord) != null) {

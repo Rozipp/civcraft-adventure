@@ -36,6 +36,8 @@ import com.avrgaming.civcraft.threading.sync.request.GrowRequest;
 import com.avrgaming.civcraft.threading.sync.request.LoadChunkRequest;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
+import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.MultiInventory;
 
 public abstract class CivAsyncTask implements Runnable {
@@ -68,12 +70,9 @@ public abstract class CivAsyncTask implements Runnable {
 		return finished;
 	}
 			
-	public void syncLoadChunk(String worldname, int x, int z) throws InterruptedException {
+	public void syncLoadChunk(ChunkCoord chunkCoord) throws InterruptedException {
 		
-		LoadChunkRequest request = new LoadChunkRequest(SyncLoadChunk.lock);
-		request.worldName = worldname;
-		request.x = x;
-		request.z = z;
+		LoadChunkRequest request = new LoadChunkRequest(SyncLoadChunk.lock, chunkCoord);
 		
 		this.finished = false;
 		
@@ -99,13 +98,8 @@ public abstract class CivAsyncTask implements Runnable {
 		
 	}
 		
-	public Inventory getChestInventory(String worldname, int x, int y, int z, boolean retry) throws InterruptedException, CivTaskAbortException {
-
-		GetChestRequest request = new GetChestRequest(SyncGetChestInventory.lock);
-		request.worldName = worldname;
-		request.block_x = x;
-		request.block_y = y;
-		request.block_z = z;
+	public Inventory getChestInventory(BlockCoord blockCoord, boolean retry) throws InterruptedException, CivTaskAbortException {
+		GetChestRequest request = new GetChestRequest(SyncGetChestInventory.lock,blockCoord);
 		
 		this.finished = false;
 		

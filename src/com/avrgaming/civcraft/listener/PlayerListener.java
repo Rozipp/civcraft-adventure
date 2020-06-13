@@ -294,7 +294,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		Boolean keepInventory = Boolean.valueOf(Bukkit.getWorld("world").getGameRuleValue("keepInventory"));
+		Boolean keepInventory = Boolean.valueOf(event.getEntity().getWorld().getGameRuleValue("keepInventory"));
 		if (!keepInventory) {
 			ArrayList<ItemStack> stacksToRemove = new ArrayList<ItemStack>();
 			for (ItemStack stack : event.getDrops()) {
@@ -317,7 +317,7 @@ public class PlayerListener implements Listener {
 
 		MobStatic.despawnMobsFromRadius(event.getEntity().getLocation(), 80);
 	}
-	
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeathMonitor(PlayerDeathEvent event) {
 		Player death = event.getEntity();
@@ -336,7 +336,7 @@ public class PlayerListener implements Listener {
 		if (War.isWarTime() && killer != null) {
 			WarStats.incrementPlayerKills(killer.getName());
 		}
-		
+
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -420,33 +420,41 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void OnBrewEvent(BrewEvent event) {
-		/* Hardcoded disables based on ingredients used. */
-		if (event.getContents().contains(Material.BLAZE_POWDER)) {
-			if (event.getContents().getItem(3).getType() == Material.BLAZE_POWDER) {
-				event.setCancelled(true);
-				return;
-			}
-		}
-
-		if (event.getContents().contains(Material.SPIDER_EYE) || event.getContents().contains(Material.GOLDEN_CARROT) || event.getContents().contains(Material.GHAST_TEAR) || event.getContents().contains(Material.FERMENTED_SPIDER_EYE)
-				|| event.getContents().contains(Material.SULPHUR)) {
-			event.setCancelled(true);
-		}
-
-		if (event.getContents().contains(Material.POTION)) {
-			ItemStack potion = event.getContents().getItem(event.getContents().first(Material.POTION));
-
-			if (potion.getDurability() == CivData.MUNDANE_POTION_DATA || potion.getDurability() == CivData.MUNDANE_POTION_EXT_DATA || potion.getDurability() == CivData.THICK_POTION_DATA) {
-				event.setCancelled(true);
-			}
-		}
+		event.setCancelled(true);
+		
+//		/* Hardcoded disables based on ingredients used. */
+//		if (event.getContents().contains(Material.BLAZE_POWDER)) {
+//			if (event.getContents().getItem(3).getType() == Material.BLAZE_POWDER) {
+//				event.setCancelled(true);
+//				return;
+//			}
+//		}
+//
+//		if (event.getContents().contains(Material.SPIDER_EYE) || event.getContents().contains(Material.GOLDEN_CARROT) || event.getContents().contains(Material.GHAST_TEAR) || event.getContents().contains(Material.FERMENTED_SPIDER_EYE)
+//				|| event.getContents().contains(Material.SULPHUR)) {
+//			event.setCancelled(true);
+//		}
+//
+//		if (event.getContents().contains(Material.POTION)) {
+//			ItemStack potion = event.getContents().getItem(event.getContents().first(Material.POTION));
+//
+//			if (potion.getDurability() == CivData.MUNDANE_POTION_DATA || potion.getDurability() == CivData.MUNDANE_POTION_EXT_DATA || potion.getDurability() == CivData.THICK_POTION_DATA) {
+//				event.setCancelled(true);
+//			}
+//		}
 	}
 
-	private boolean isPotionDisabled(PotionEffect type) {
-		if (type.getType().equals(PotionEffectType.SPEED) || type.getType().equals(PotionEffectType.FIRE_RESISTANCE) || type.getType().equals(PotionEffectType.HEAL)) {
-			return false;
-		}
-
+	private boolean isFrendlyEffect(PotionEffect type) {
+		if (type.getType().equals(PotionEffectType.SPEED)) return true;
+		if (type.getType().equals(PotionEffectType.FIRE_RESISTANCE)) return true;
+		if (type.getType().equals(PotionEffectType.HEAL)) return true;
+		if (type.getType().equals(PotionEffectType.INCREASE_DAMAGE)) return false;
+		if (type.getType().equals(PotionEffectType.INVISIBILITY)) return true;
+		if (type.getType().equals(PotionEffectType.JUMP)) return true;
+		if (type.getType().equals(PotionEffectType.POISON)) return false;
+		if (type.getType().equals(PotionEffectType.REGENERATION)) return true;
+		if (type.getType().equals(PotionEffectType.SLOW)) return false;
+		if (type.getType().equals(PotionEffectType.WEAKNESS)) return false;
 		return true;
 	}
 
@@ -454,15 +462,25 @@ public class PlayerListener implements Listener {
 	public void onPotionSplash(PotionSplashEvent event) {
 		ThrownPotion potion = event.getPotion();
 
-		if (!(potion.getShooter() instanceof Player)) {
+		if ((potion.getShooter() instanceof Player)) {
+			Player player = (Player) potion.getShooter();
+			Resident res = CivGlobal.getResident(player);
+			if ((res.getCiv() == null)) return;
+			for (LivingEntity entity : event.getAffectedEntities()) {
+				if (!(entity instanceof Player)) continue;
+				Player target = (Player) entity;
+				Resident targetRes = CivGlobal.getResident(target);
+				
+				for (PotionEffect effect : event.getPotion().getEffects()) {
+					if (isFrendlyEffect(effect)) { //FIXME
+//						event.setCancelled(true);
+//						return;
+					}
+				}
+			}
 			return;
 		}
-		for (PotionEffect effect : event.getPotion().getEffects()) {
-			if (isPotionDisabled(effect)) {
-				event.setCancelled(true);
-				return;
-			}
-		}
+		
 	}
 
 	@EventHandler(priority = EventPriority.LOW)

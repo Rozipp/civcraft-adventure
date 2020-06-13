@@ -5,6 +5,7 @@ import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 
 public class EnderChestCommand extends CommandBase
@@ -17,7 +18,7 @@ public class EnderChestCommand extends CommandBase
     @Override
     public void doDefaultAction() throws CivException {
         final Player sender = this.getPlayer();
-        if (!sender.getWorld().getName().equalsIgnoreCase("world")) {
+        if (!sender.getWorld().equals(CivCraft.mainWorld)) {
             throw new CivException("§c" + CivSettings.localize.localizedString("cmd_enderchest_inArena"));
         }
         final Inventory enderChest = sender.getEnderChest();

@@ -49,7 +49,7 @@ public class BuildTemplateTask implements Runnable {
 				sb.x = x + cornerBlock.getX();
 				sb.y = y + cornerBlock.getY();
 				sb.z = z + cornerBlock.getZ();
-				sb.worldname = cornerBlock.getWorldname();
+				sb.worldname = cornerBlock.getWorld().getName();
 				/* Add block to sync queue, will be built on next sync tick. */
 				syncBlockQueue.add(sb);
 

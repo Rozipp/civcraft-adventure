@@ -152,7 +152,7 @@ public class TradeGoodPopulator extends BlockPopulator {
     	
     	BlockCoord coord = new BlockCoord(worldName, centerX, centerY, centerZ);
     	for (int y = centerY; y > 0; y--) {
-    		coord.setY(y);    		
+			coord.setY(y);    		
     		
     		if (CivGlobal.getTradeGood(coord) != null) {
 				/* Already a trade goodie here. DONT Generate it. */

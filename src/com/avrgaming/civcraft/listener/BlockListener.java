@@ -543,7 +543,7 @@ public class BlockListener implements Listener {
 		if (block.getType() == Material.ICE || block.getType() == Material.PACKED_ICE || block.getType() == Material.FROSTED_ICE) {
 			ConstructBlock cb = CivGlobal.getConstructBlock(new BlockCoord(block));
 			if (cb != null) event.setCancelled(true);
-			
+
 			ChunkCoord coord = new ChunkCoord(block);
 			final TownChunk tc = CivGlobal.getTownChunk(coord);
 			if (tc != null) event.setCancelled(true);
@@ -594,7 +594,7 @@ public class BlockListener implements Listener {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorStructure") + " " + bb.getOwner().getDisplayName() + " " + CivSettings.localize.localizedString("blockBreak_errorOwnedBy"));
 			return;
 		}
-		
+
 		TownChunk tc = CivGlobal.getTownChunk(new ChunkCoord(event.getBlock().getLocation()));
 		if (CivSettings.blockPlaceExceptions.get(event.getBlock().getType()) != null) return;
 		if (tc != null) {
@@ -639,7 +639,7 @@ public class BlockListener implements Listener {
 				construct.layerValidPercentages.put(bcoord.getY(), layer);
 			}
 		}
-		
+
 		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
 			if (constr instanceof Camp) {
 				Camp camp = (Camp) constr;
@@ -672,17 +672,14 @@ public class BlockListener implements Listener {
 			return;
 		}
 
-		if (resident.isSBPermOverride()) return;
-
 		BlockCoord bcoord = new BlockCoord(event.getBlock().getLocation());
-
 		ConstructBlock cb = CivGlobal.getConstructBlock(bcoord);
 		if (cb != null) {
 			if (cb.getOwner() instanceof Camp) {
 				Camp camp = (Camp) cb.getOwner();
 				ControlPoint cBlock = camp.controlBlocks.get(bcoord);
 				if (cBlock != null) {
-					camp.onDamage(1, event.getBlock().getWorld(), event.getPlayer(), bcoord, null);
+					camp.onDamage(1, event.getPlayer(), cBlock);
 					event.setCancelled(true);
 					return;
 				} else {
@@ -693,20 +690,22 @@ public class BlockListener implements Listener {
 				}
 			} else {
 				event.setCancelled(true);
-				TaskMaster.syncTask(new StructureBlockHitEvent(event.getPlayer().getName(), bcoord, cb, event.getBlock().getWorld()), 0);
+				TaskMaster.syncTask(new StructureBlockHitEvent(event.getPlayer(), cb), 0);
 				return;
 			}
 		}
 
+		if (resident.isSBPermOverride()) return;
+
 		ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
-		if (structSign != null && !resident.isSBPermOverride()) {
+		if (structSign != null) {
 			event.setCancelled(true);
 			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorStructureSign"));
 			return;
 		}
 
 		ConstructChest structChest = CivGlobal.getConstructChest(bcoord);
-		if (structChest != null && !resident.isSBPermOverride()) {
+		if (structChest != null) {
 			event.setCancelled(true);
 			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorStructureChests"));
 			return;
@@ -732,12 +731,9 @@ public class BlockListener implements Listener {
 		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
-				if (!(construct instanceof Buildable)) continue;
-				Buildable buildable = (Buildable) construct;
-
-				if (!buildable.validated) {
+				if (!construct.validated) {
 					try {
-						buildable.validateAsyncTask(event.getPlayer());
+						construct.validateAsyncTask(event.getPlayer());
 					} catch (CivException e) {
 						e.printStackTrace();
 					}
@@ -745,29 +741,25 @@ public class BlockListener implements Listener {
 				}
 
 				/* Building is validated, grab the layer and determine if this would set it over the limit. */
-				ConstructLayer layer = buildable.layerValidPercentages.get(bcoord.getY());
-				if (layer == null) {
-					continue;
-				}
+				ConstructLayer layer = construct.layerValidPercentages.get(bcoord.getY());
+				if (layer == null) continue;
 
 				double current = layer.current - BuildableStatic.getReinforcementValue(ItemManager.getTypeId(event.getBlock()));
-				if (current < 0) {
-					current = 0;
-				}
+				if (current < 0) current = 0;
 				Double percentValid = (double) (current) / (double) layer.max;
 
 				if (percentValid < StructureValidator.validPercentRequirement) {
-					CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorSupport") + " " + buildable.getDisplayName());
+					CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockBreak_errorSupport") + " " + construct.getDisplayName());
 					event.setCancelled(true);
 					return;
 				}
 
 				/* Update the layer. */
 				layer.current = (int) current;
-				buildable.layerValidPercentages.put(bcoord.getY(), layer);
+				construct.layerValidPercentages.put(bcoord.getY(), layer);
 			}
 		}
-		
+
 		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
 			if (constr instanceof Camp) {
 				Camp camp = (Camp) constr;
@@ -983,22 +975,18 @@ public class BlockListener implements Listener {
 	}
 
 	public static void OnPlayerSwitchEvent(PlayerInteractEvent event) {
+		if (event.getClickedBlock() == null) return;
 
-		if (event.getClickedBlock() == null) {
-			return;
-		}
-
-		Resident resident = CivGlobal.getResident(event.getPlayer().getName());
-
+		Resident resident = CivGlobal.getResident(event.getPlayer());
 		if (resident == null) {
 			event.setCancelled(true);
 			return;
 		}
 
-		BlockCoord bcoord = new BlockCoord(event.getClickedBlock().getLocation());
-		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
-		if (bb != null && !resident.isPermOverride() && bb.getOwner() instanceof Camp) {
-			Camp camp = (Camp) bb.getOwner();
+		BlockCoord bcoord = new BlockCoord(event.getClickedBlock());
+		ConstructBlock cb = CivGlobal.getConstructBlock(bcoord);
+		if (cb != null && !resident.isPermOverride() && cb.getOwner() instanceof Camp) {
+			Camp camp = (Camp) cb.getOwner();
 			if (!camp.hasMember(resident.getName())) {
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("blockUse_errorNotIncamp"));
 				event.setCancelled(true);
@@ -1312,18 +1300,10 @@ public class BlockListener implements Listener {
 
 		/* If we're next to an attached protected item frame. Disallow we cannot break protected item frames. Only need to check blocks directly
 		 * next to us. */
-		BlockCoord bcoord2 = new BlockCoord(bcoord);
-		bcoord2.setX(bcoord.getX() - 1);
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord2)) return false;
-
-		bcoord2.setX(bcoord.getX() + 1);
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord2)) return false;
-
-		bcoord2.setZ(bcoord.getZ() - 1);
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord2)) return false;
-
-		bcoord2.setZ(bcoord.getZ() + 1);
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord2)) return false;
+		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(-1, 0, 0))) return false;
+		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(1, 0, 0))) return false;
+		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(0, 0, -1))) return false;
+		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(0, 0, 1))) return false;
 
 		return true;
 	}
