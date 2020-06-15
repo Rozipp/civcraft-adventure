@@ -939,6 +939,7 @@ public class BlockListener implements Listener {
 				}
 				return;
 			}
+			resident.constructSignConfirm = null;
 			if (CivSettings.switchItems.contains(event.getClickedBlock().getType())) {
 				OnPlayerSwitchEvent(event);
 				if (event.isCancelled()) return;

@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Arrowpost;
 import com.avrgaming.civcraft.construct.Cannon;
@@ -44,12 +42,9 @@ import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Relation.Status;
-import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.PlayerKickBan;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.TimeTools;
 
@@ -183,7 +178,7 @@ public class War {
 			Transmuter.resumeAllTransmuter();
 
 			MobStatic.startMobSpawnTimer();
-			
+
 			/* Delete any wartime file used to prevent reboots. */
 			File file = new File("wartime");
 			file.delete();
@@ -201,7 +196,7 @@ public class War {
 			for (Civilization civ : CivGlobal.getCivs()) {
 				civ.onWarEnd();
 			}
-			TaskMaster.syncTimer("ValidateWarPlayer", new ValidateWarPlayer(), TimeTools.toTicks(10800L));
+			TaskMaster.syncTimer("ValidateWarPlayer", new ValidateWarPlayer(), TimeTools.toTicks(180));
 		} else {
 			DisableTeleportEvent.disableTeleport();
 
@@ -236,7 +231,7 @@ public class War {
 
 			MobStatic.stopMobSpawnTimer();
 			MobStatic.despawnAll();
-			
+
 			Calendar endCal = Calendar.getInstance();
 			endCal.add(Calendar.MINUTE, mins);
 
@@ -494,25 +489,4 @@ public class War {
 		return false;
 	}
 
-	public static void validatePlayerJoin(final Player... joinedPlayers) {
-		for (final Player joinedPlayer : joinedPlayers) {
-			final Resident resident = CivGlobal.getResident(joinedPlayer);
-			if (!joinedPlayer.isOp()) {
-				if (!PermissionGroup.hasGroup("Helper", joinedPlayer.getName())) {
-					if (resident == null) {
-						TaskMaster.syncTask(new PlayerKickBan(joinedPlayer.getName(), true, false,
-								"§c\u0412\u044b \u0431\u044b\u043b\u0438 \u043a\u0438\u043a\u043d\u0443\u0442\u044b, \u0438\u0431\u043e \u0432\u044b \u043d\u0435 \u0440\u0435\u0437\u0438\u0434\u0435\u043d\u0442?!"));
-					} else
-						if (resident.getCiv() == null) {
-							TaskMaster.syncTask(new PlayerKickBan(joinedPlayer.getName(), true, false,
-									"§c\u0412\u044b \u0431\u044b\u043b\u0438 \u043a\u0438\u043a\u043d\u0443\u0442\u044b, \u0438\u0431\u043e \u0441\u0435\u0439\u0447\u0430\u0441 \u0438\u0434\u0435\u0442 \u0432\u043e\u0439\u043d\u0430, \u0438 \u0443 \u0432\u0430\u0441 \u043d\u0435\u0442 \u0446\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u0438!"));
-						} else
-							if (!resident.getCiv().getDiplomacyManager().isAtWar()) {
-								TaskMaster.syncTask(new PlayerKickBan(joinedPlayer.getName(), true, false,
-										"§c\u0412\u044b \u0431\u044b\u043b\u0438 \u043a\u0438\u043a\u043d\u0443\u0442\u044b, \u0438\u0431\u043e \u0441\u0435\u0439\u0447\u0430\u0441 \u0438\u0434\u0435\u0442 \u0432\u043e\u0439\u043d\u0430 \u0438 \u0443 \u0432\u0430\u0448\u0435\u0439 \u0446\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u0438 \u043d\u0435\u0442 \u0432\u043e\u0439\u043d!"));
-							}
-				}
-			}
-		}
-	}
 }

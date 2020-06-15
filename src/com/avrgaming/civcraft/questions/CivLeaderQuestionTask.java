@@ -34,7 +34,7 @@ public class CivLeaderQuestionTask extends QuestionBaseTask implements Runnable 
 	@Override
 	public void run() {	
 		
-		for (Resident resident : askedCivilization.getLeaderGroup().getMemberList()) {
+		for (Resident resident : askedCivilization.GM.getLeaders()) {
 			CivMessage.send(resident, CivColor.LightGray+CivSettings.localize.localizedString("civleaderQtast_prompt1")+" "+CivColor.LightBlue+questionPlayer.getName());
 			CivMessage.send(resident, CivColor.LightPurple+CivColor.BOLD+question);
 			CivMessage.send(resident, CivColor.LightGray+CivSettings.localize.localizedString("civleaderQtast_prompt2"));

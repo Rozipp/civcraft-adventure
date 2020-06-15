@@ -123,18 +123,11 @@ public class PlotCommand extends CommandBase {
 		TownChunk tc = this.getStandingTownChunk();
 		validPlotOwner();
 
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_plot_removegroupPrompt"));
-		}
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_plot_removegroupPrompt"));
+		if (args[1].equalsIgnoreCase("none")) throw new CivException(CivSettings.localize.localizedString("cmd_plot_removegroupNone"));
 
-		if (args[1].equalsIgnoreCase("none")) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_plot_removegroupNone"));
-		}
-
-		PermissionGroup grp = tc.getTown().getGroupByName(args[1]);
-		if (grp == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_plot_removegroupInvalid", args[1]));
-		}
+		PermissionGroup grp = tc.getTown().GM.getGroup(args[1]);
+		if (grp == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_plot_removegroupInvalid", args[1]));
 
 		tc.perms.removeGroup(grp);
 		tc.save();
@@ -147,6 +140,7 @@ public class PlotCommand extends CommandBase {
 		validPlotOwner();
 
 		tc.perms.clearGroups();
+		tc.perms.addGroup(tc.getTown().GM.getDefaultGroup());
 		tc.save();
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_plot_cleargroupsSuccess"));
 		return;
@@ -156,19 +150,11 @@ public class PlotCommand extends CommandBase {
 		TownChunk tc = this.getStandingTownChunk();
 		validPlotOwner();
 
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_plot_addgroupPrompt"));
-		}
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_plot_addgroupPrompt"));
+		if (args[1].equalsIgnoreCase("none")) throw new CivException(CivSettings.localize.localizedString("cmd_plot_addgroupNone"));
 
-		if (args[1].equalsIgnoreCase("none")) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_plot_addgroupNone"));
-
-		}
-
-		PermissionGroup grp = tc.getTown().getGroupByName(args[1]);
-		if (grp == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_plot_removegroupInvalid", args[1]));
-		}
+		PermissionGroup grp = tc.getTown().GM.getGroup(args[1]);
+		if (grp == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_plot_removegroupInvalid", args[1]));
 
 		tc.perms.addGroup(grp);
 		tc.save();
@@ -241,21 +227,15 @@ public class PlotCommand extends CommandBase {
 	 * CivColor.LightGray+"    groupType: [owner|group|others]"); } */
 
 	public void info_cmd() throws CivException {
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
+		Player player = getPlayer();
+		TownChunk tc = CivGlobal.getTownChunk(player.getLocation());
+		if (tc == null) throw new CivException(CivSettings.localize.localizedString("cmd_plot_infoNotOwned"));
 
-			TownChunk tc = CivGlobal.getTownChunk(player.getLocation());
-			if (tc == null) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_plot_infoNotOwned"));
-			}
-
-			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_plot_infoHeading"));
-			showPermOwnership(tc);
-			showCurrentPermissions(tc);
-			showToggles(tc);
-			showPriceInfo(tc);
-
-		}
+		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_plot_infoHeading"));
+		showPermOwnership(tc);
+		showCurrentPermissions(tc);
+		showToggles(tc);
+		showPriceInfo(tc);
 	}
 
 	private void showToggles(TownChunk tc) {

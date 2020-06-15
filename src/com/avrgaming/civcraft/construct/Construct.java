@@ -34,6 +34,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
@@ -250,7 +251,7 @@ public abstract class Construct extends SQLObject {
 		if (getCorner().getY() < CivGlobal.minBuildHeight) throw new CivException(CivSettings.localize.localizedString("cannotBuild_toofarUnderground"));
 		if ((regionY + getCorner().getY()) >= 255) throw new CivException(CivSettings.localize.localizedString("buildable_errorHeightLimit"));
 
-		for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+		for (ChunkCoord chunkCoord : this.getChunksCoords()) {
 			TownChunk tc = CivGlobal.getTownChunk(chunkCoord);
 			if (tc != null && !tc.perms.hasPermission(PlotPermissions.Type.DESTROY, CivGlobal.getResident(player))) {
 				// Make sure we have permission to destroy any block in this area.
@@ -835,6 +836,22 @@ public abstract class Construct extends SQLObject {
 
 	public void validateAsyncTask(Player player) throws CivException {
 		TaskMaster.asyncTask(new StructureValidator(player, this, null), 0);
+	}
+	
+	public ArrayList<ChunkCoord> getChunksCoords() {
+		ArrayList<ChunkCoord> ccs = new ArrayList<>();
+		Template tpl = this.getTemplate();
+		ChunkCoord cCorner = this.getCorner().getChunkCoord();
+		int size_cx = ChunkCoord.castSizeInChunkSize(tpl.size_x);
+		int size_cz = ChunkCoord.castSizeInChunkSize(tpl.size_z);
+		CivLog.debug("size_cx = " + size_cx + "   size_cz = " + size_cz);
+		for (int dx = 0; dx < size_cx; dx++) {
+			for (int dz = 0; dz < size_cz; dz++) {
+				ChunkCoord ccc = cCorner.getRelative(dx, dz);
+				ccs.add(ccc);
+			}
+		}
+		return ccs;
 	}
 
 }

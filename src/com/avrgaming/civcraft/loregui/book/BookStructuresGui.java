@@ -39,7 +39,7 @@ implements GuiAction {
             return;
         }
         Civilization civ = whoClicked.getCiv();
-        if (!(town.getMayorGroup().hasMember(whoClicked) || town.getAssistantGroup().hasMember(whoClicked) || civ.getLeaderGroup().hasMember(whoClicked))) {
+        if (!(town.GM.isMayorOrAssistant(whoClicked) || civ.GM.isLeader(whoClicked))) {
             Book.spawnGuiBook(player);
             CivMessage.send((Object)player, "§c"+ CivSettings.localize.localizedString("cmd_NeedHigherTownOrCivRank"));
             return;
@@ -53,7 +53,7 @@ implements GuiAction {
             ItemStack itemStack;
             int type = ItemManager.getMaterialId(Material.EMERALD_BLOCK);
             double hammerCost = Math.round(info.hammer_cost * rate);
-            if (town.getMayorGroup() == null || town.getAssistantGroup() == null || civ.getLeaderGroup() == null) {
+            if (town.GM.getMayorGroup() == null || town.GM.getAssistantGroup() == null || civ.GM.getLeaderGroup() == null) {
                 itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep), CivColor.Red + CivSettings.localize.localizedString("belongtown"));
             } else if (!whoClicked.getCiv().hasTechnology(info.require_tech)) {
                 ConfigTech tech = CivSettings.techs.get(info.require_tech);
@@ -61,7 +61,7 @@ implements GuiAction {
                 itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE), 0, "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep), CivColor.Red + CivSettings.localize.localizedString("req") + tech.name, "§3" + CivSettings.localize.localizedString("clicktoresearch"), "§d" + CivSettings.localize.localizedString("era_this", tech.era));
                 itemStack = LoreGuiItem.setAction(itemStack, "ResearchGui");
                 itemStack = LoreGuiItem.setActionData(itemStack, "info", techh);
-            } else if (!(town.getMayorGroup().hasMember(whoClicked) || town.getAssistantGroup().hasMember(whoClicked) || civ.getLeaderGroup().hasMember(whoClicked))) {
+            } else if (!(town.GM.isMayorOrAssistant(whoClicked) || civ.GM.isLeader(whoClicked))) {
                 itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep), CivColor.Red + CivSettings.localize.localizedString("belongtown"));
             } else if (info.isAvailable(town)) {
                     itemStack = LoreGuiItem.build(info.displayName, type, 0, "§6" + CivSettings.localize.localizedString("clicktobuild"), "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost))), "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost), "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep));

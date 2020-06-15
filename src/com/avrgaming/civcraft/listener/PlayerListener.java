@@ -18,7 +18,6 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -444,42 +443,42 @@ public class PlayerListener implements Listener {
 //		}
 	}
 
-	private boolean isFrendlyEffect(PotionEffect type) {
-		if (type.getType().equals(PotionEffectType.SPEED)) return true;
-		if (type.getType().equals(PotionEffectType.FIRE_RESISTANCE)) return true;
-		if (type.getType().equals(PotionEffectType.HEAL)) return true;
-		if (type.getType().equals(PotionEffectType.INCREASE_DAMAGE)) return false;
-		if (type.getType().equals(PotionEffectType.INVISIBILITY)) return true;
-		if (type.getType().equals(PotionEffectType.JUMP)) return true;
-		if (type.getType().equals(PotionEffectType.POISON)) return false;
-		if (type.getType().equals(PotionEffectType.REGENERATION)) return true;
-		if (type.getType().equals(PotionEffectType.SLOW)) return false;
-		if (type.getType().equals(PotionEffectType.WEAKNESS)) return false;
-		return true;
-	}
+//	private boolean isFrendlyEffect(PotionEffect type) {
+//		if (type.getType().equals(PotionEffectType.SPEED)) return true;
+//		if (type.getType().equals(PotionEffectType.FIRE_RESISTANCE)) return true;
+//		if (type.getType().equals(PotionEffectType.HEAL)) return true;
+//		if (type.getType().equals(PotionEffectType.INCREASE_DAMAGE)) return false;
+//		if (type.getType().equals(PotionEffectType.INVISIBILITY)) return true;
+//		if (type.getType().equals(PotionEffectType.JUMP)) return true;
+//		if (type.getType().equals(PotionEffectType.POISON)) return false;
+//		if (type.getType().equals(PotionEffectType.REGENERATION)) return true;
+//		if (type.getType().equals(PotionEffectType.SLOW)) return false;
+//		if (type.getType().equals(PotionEffectType.WEAKNESS)) return false;
+//		return true;
+//	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPotionSplash(PotionSplashEvent event) {
-		ThrownPotion potion = event.getPotion();
-
-		if ((potion.getShooter() instanceof Player)) {
-			Player player = (Player) potion.getShooter();
-			Resident res = CivGlobal.getResident(player);
-			if ((res.getCiv() == null)) return;
-			for (LivingEntity entity : event.getAffectedEntities()) {
-				if (!(entity instanceof Player)) continue;
-				Player target = (Player) entity;
-				Resident targetRes = CivGlobal.getResident(target);
-				
-				for (PotionEffect effect : event.getPotion().getEffects()) {
-					if (isFrendlyEffect(effect)) { //FIXME
+//		ThrownPotion potion = event.getPotion();
+//
+//		if ((potion.getShooter() instanceof Player)) {
+//			Player player = (Player) potion.getShooter();
+//			Resident res = CivGlobal.getResident(player);
+//			if ((res.getCiv() == null)) return;
+//			for (LivingEntity entity : event.getAffectedEntities()) {
+//				if (!(entity instanceof Player)) continue;
+//				Player target = (Player) entity;
+//				Resident targetRes = CivGlobal.getResident(target);
+//				
+//				for (PotionEffect effect : event.getPotion().getEffects()) {
+//					if (isFrendlyEffect(effect)) { //FIXME
 //						event.setCancelled(true);
 //						return;
-					}
-				}
-			}
-			return;
-		}
+//					}
+//				}
+//			}
+//			return;
+//		}
 		
 	}
 

@@ -419,7 +419,7 @@ public class BonusGoodieManager implements Listener {
 			return;
 		}
 
-		if (!clickedFrame.getTown().getMayorGroup().hasMember(resident) && !clickedFrame.getTown().getAssistantGroup().hasMember(resident)) {
+		if (!clickedFrame.getTown().GM.isMayorOrAssistant(resident)) {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("bonusGoodie_errorNoPerms"));
 			event.setCancelled(true);
 			return;

@@ -1,6 +1,5 @@
 package com.avrgaming.civcraft.structure;
 
-import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -10,10 +9,8 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.util.ChunkCoord;
 
 public class BuildableStatic {
 	// Number of blocks to shift the structure away from us when built.
@@ -106,21 +103,6 @@ public class BuildableStatic {
 		default:
 			return 1;
 		}
-	}
-
-	public static ArrayList<ChunkCoord> getChunkCoords(Construct constr) {
-		ArrayList<ChunkCoord> ccs = new ArrayList<>();
-		Template tpl = constr.getTemplate();
-		ChunkCoord cCorner = constr.getCorner().getChunkCoord();
-		int size_x = ChunkCoord.castToChunk(tpl.size_x);
-		int size_z = ChunkCoord.castToChunk(tpl.size_z);
-		for (int dx = 0; dx < size_x; dx++) {
-			for (int dz = 0; dz < size_z; dz++) {
-				ccs.add(cCorner.getRelative(dx, dz));
-			}
-		}
-		CivLog.debug("BuildableStatic.getChunkCoords size = " + ccs.size());
-		return ccs;
 	}
 
 	public static void buildPlayerPreview(Player player, Construct construct) {

@@ -72,7 +72,6 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.structure.ArrowTower;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Capitol;
@@ -284,36 +283,14 @@ public class DebugCommand extends CommandBase {
 			capitol.saveNow();
 
 			// Create permission groups for civs.
-			PermissionGroup leadersGroup;
-			leadersGroup = new PermissionGroup(civ, "leaders");
-			leadersGroup.addMember(resident);
-			leadersGroup.saveNow();
-			civ.setLeaderGroup(leadersGroup);
+			civ.GM.init();
+			civ.GM.addLeader(resident);
 
-			PermissionGroup adviserGroup = new PermissionGroup(civ, "advisers");
-			adviserGroup.saveNow();
-			civ.setAdviserGroup(adviserGroup);
-
-			PermissionGroup ownerGroup = new PermissionGroup(civ, "owner");
-			ownerGroup.addMember(resident);
-			ownerGroup.saveNow();
-			civ.setOwnerGroup(ownerGroup);
-
-			PermissionGroup mayors = new PermissionGroup(capitol, "mayors");
-			capitol.addGroup(mayors);
-			capitol.setMayorGroup(mayors);
-			mayors.addMember(resident);
-			mayors.save();
-
-			PermissionGroup assistants = new PermissionGroup(capitol, "assistants");
-			capitol.addGroup(assistants);
-			capitol.setAssistantGroup(assistants);
-			assistants.save();
-
-			PermissionGroup residents = new PermissionGroup(capitol, "residents");
-			capitol.addGroup(residents);
-			capitol.setDefaultGroup(residents);
-			residents.save();
+			capitol.GM.init();
+			try {
+				capitol.addResident(resident);
+			} catch (AlreadyRegisteredException e) {}
+			capitol.GM.addMayor(resident);
 
 			civ.addTown(capitol);
 			civ.setCapitolId(capitol.getId());

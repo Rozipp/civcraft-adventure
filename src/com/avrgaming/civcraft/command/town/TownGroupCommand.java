@@ -18,15 +18,10 @@
  */
 package com.avrgaming.civcraft.command.town;
 
-import java.sql.SQLException;
-
-import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -39,165 +34,226 @@ public class TownGroupCommand extends CommandBase {
 	public void init() {
 		command = "/town group";
 		displayName = CivSettings.localize.localizedString("cmd_town_group_name");
-		
+
+		cs.add("addmayor", "am", "addm", "[player] Добавить мера");
+		cs.add("addassistant", "aa", "adda", "[player] Добавить ассистента мера");
+		cs.add("adddefault", "[player] Добавить в стандартную групу");
+		cs.add("removemayor", "rm", "delm", "[player] Удалить мера");
+		cs.add("removeassistant", "ra", "dela", "[player] Удалить ассистента мера");
+		cs.add("removedefault", "[player] Удалить игрока из стандартной групы");
+		cs.add("renamemayor", "[new Name] переименовать групу меров");
+		cs.add("renameassistant", "[new Name] переименовать групу ассистентов меров");
+		cs.add("renamedefault", "[new Name] переименовать стандарнтую групу");
+
 		cs.add("new", CivSettings.localize.localizedString("cmd_town_group_newDesc"));
-		cs.add("delete", CivSettings.localize.localizedString("cmd_town_group_deleteDesc"));
-		cs.add("remove", CivSettings.localize.localizedString("cmd_town_group_removeDesc"));
+		cs.add("delete", "del", CivSettings.localize.localizedString("cmd_town_group_deleteDesc"));
 		cs.add("add", CivSettings.localize.localizedString("cmd_town_group_addDesc"));
-		cs.add("info", CivSettings.localize.localizedString("cmd_town_group_infoDesc"));
+		cs.add("remove", CivSettings.localize.localizedString("cmd_town_group_removeDesc"));
+		cs.add("info", "i", CivSettings.localize.localizedString("cmd_town_group_infoDesc"));
 	}
-	
-	public void delete_cmd() throws CivException {
-		Town town = getSelectedTown();
-		PermissionGroup grp = this.getNamedPermissionGroup(town, 1);
-		
-		try {			
-			if (grp.getMemberCount() > 0) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteNotEmpty"));
-			}
-			
-			if (town.isProtectedGroup(grp)) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteProtected"));
-			}
-			
-			town.removeGroup(grp);
-			town.save();
-			grp.delete();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
-		}
 
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_group_deleteSuccess")+" "+args[1]);
-	}
-	
-	public void new_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newPrompt"));
-		}
-		
-		Town town = getSelectedTown();	
-		if (town.hasGroupNamed(args[1])) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists")+" "+args[1]);
-		}
-		
-		if (PermissionGroup.isProtectedGroupName(args[1])) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newProtected"));
-		}
-		
-		try {
-			PermissionGroup grp = new PermissionGroup(town, args[1]);
-			
-			grp.save();
-			town.addGroup(grp);
-			town.save();
-			
-		} catch (InvalidNameException e) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newInvalidName"));
-		}
-
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_newSuccess",args[1]));
-	}
-	
-	public void remove_cmd() throws CivException {
-		Town town = getSelectedTown();
-		Resident commandSenderResidnet = getResident();
-		Resident oldMember = getNamedResident(1);
-		PermissionGroup grp = getNamedPermissionGroup(town, 2);
-				
-		if (grp == town.getMayorGroup()) {
-			if(!grp.hasMember(commandSenderResidnet)) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
-			} 
-			
-			if (grp.getMemberCount() == 1) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOneMayor"));
-			}
-		}
-		
-		grp.removeMember(oldMember);
-		grp.save();
-		
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_removeSuccess1",oldMember.getName(),grp.getName(),town.getName()));
-		
-		try {
-			Player newPlayer = CivGlobal.getPlayer(oldMember);
-			CivMessage.send(newPlayer, CivColor.Rose+CivSettings.localize.localizedString("var_cmd_town_group_removeAlert",grp.getName(),grp.getTown().getName()));
-		} catch (CivException e) {
-			/* player not online. forget the exception*/
-		}
-	}
-	
-	public void add_cmd() throws CivException {
-		Town town = getSelectedTown();
-		Resident commandSenderResident = getResident();
-		Resident newMember = getNamedResident(1);
-		PermissionGroup grp = this.getNamedPermissionGroup(town, 2);
-								
-		if (grp == town.getMayorGroup() && !grp.hasMember(commandSenderResident)) {
-			
-			PermissionGroup leaderGrp = town.getCiv().getLeaderGroup();
-			if (leaderGrp == null) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_addOddError")+" "+town.getCiv());
-			}
-			
-			if (!leaderGrp.hasMember(commandSenderResident)) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_town_group_addOnlyMayor"));
-			}
-		}
-		
-		if (grp.isProtectedGroup() && !newMember.hasTown()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addNotInTown",newMember.getName()));
-		}
-		
-		if (grp.isTownProtectedGroup() && newMember.getTown() != grp.getTown()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError1",newMember.getName(),newMember.getTown().getName(),grp.getTown().getName()));
-		}
-		
-		if (grp.isCivProtectedGroup() && newMember.getCiv() != grp.getCiv()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError3",newMember.getName(),newMember.getCiv().getName(),grp.getCiv().getName()));
-		}
-		
-		grp.addMember(newMember);
-		grp.save();
-		
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_addSuccess1",newMember.getName(),grp.getName(),town.getName()));
-
-		try {
-			Player newPlayer = CivGlobal.getPlayer(newMember);
-			CivMessage.sendSuccess(newPlayer, CivSettings.localize.localizedString("var_cmd_town_group_addAlert",grp.getName(),grp.getTown().getName()));
-		} catch (CivException e) {
-			/* player not online. forget the exception*/
-		}
-	}
-	
 	public void info_cmd() throws CivException {
 		Town town = getSelectedTown();
-		
 		if (args.length >= 2) {
-			PermissionGroup grp = town.getGroupByName(args[1]);
-			if (grp == null) {
-				throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_infoInvalid",town.getName(),args[1]));
-			}
-			
-			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_group_infoHeading")+"("+town.getName()+"):"+args[1]);
-			
+			PermissionGroup grp = town.GM.getGroup(args[1]);
+			if (grp == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_infoInvalid", town.getName(), args[1]));
+
+			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_group_infoHeading") + "(" + town.getName() + "):" + args[1]);
+
 			String residents = "";
 			for (Resident res : grp.getMemberList()) {
 				residents += res.getName() + " ";
 			}
 			CivMessage.send(sender, residents);
-			
 		} else {
-			CivMessage.sendHeading(sender, town.getName()+" "+CivSettings.localize.localizedString("cmd_town_group_infoHeading2"));
-
-			for (PermissionGroup grp : town.getGroups()) {
-				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_civ_group_listGroup",grp.getName()+CivColor.LightGray,grp.getMemberCount()));
-			}		
+			CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_group_infoHeading2"));
+			for (PermissionGroup grp : town.GM.getAllGroups()) {
+				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_civ_group_listGroup", grp.getName() + CivColor.LightGray, grp.getMemberCount()));
+			}
 		}
 	}
-	
+
+	public void remove_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident oldMember = getNamedResident(1);
+		PermissionGroup grp = getNamedPermissionGroup(town, 2);
+
+		if (town.GM.isProtectedGroup(grp)) throw new CivException("Для защищенных груп используйте другую команду");
+
+		town.GM.removeFromGroup(oldMember, grp);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_removeSuccess1", oldMember.getName(), grp.getName(), town.getName()));
+		if (oldMember != commandSenderResident) CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_town_group_removeAlert", grp.getName(), grp.getTown().getName()));
+	}
+
+	public void add_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident newMember = getNamedResident(1);
+		PermissionGroup grp = this.getNamedPermissionGroup(town, 2);
+
+		if (town.GM.isProtectedGroup(grp)) throw new CivException("Для защищенных груп используйте другую команду");
+
+		town.GM.addToGroup(newMember, grp);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_addSuccess1", newMember.getName(), grp.getName(), town.getName()));
+		if (newMember != commandSenderResident) CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_town_group_addAlert", grp.getName(), grp.getTown().getName()));
+	}
+
+	public void delete_cmd() throws CivException {
+		Town town = getSelectedTown();
+		PermissionGroup grp = this.getNamedPermissionGroup(town, 1);
+
+		if (town.GM.isProtectedGroup(grp)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteProtected"));
+		if (grp.getMemberCount() > 0) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteNotEmpty"));
+
+		town.GM.removeGroup(grp);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_group_deleteSuccess") + " " + args[1]);
+	}
+
+	public void new_cmd() throws CivException {
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newPrompt"));
+
+		Town town = getSelectedTown();
+		if (town.GM.hasGroup(args[1])) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists") + " " + args[1]);
+		if (town.GM.isProtectedGroupName(args[1])) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newProtected"));
+
+		try {
+			town.GM.newGroup(args[1]);
+		} catch (InvalidNameException e) {
+			throw new CivException(e.getMessage());
+		}
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_newSuccess", args[1]));
+	}
+
+	public void renamedefault_cmd() throws CivException, InvalidNameException {
+		Town town = getSelectedTown();
+		Resident resident = getResident();
+		String newName = getNamedString(1, "Введите новое имя групы");
+
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+		if (town.GM.getGroup(newName) != null) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists") + " " + newName);
+
+		String oldName = town.GM.defaultGroupName;
+		town.GM.renameProtectedGroup(oldName, newName);
+		CivMessage.sendCiv(resident.getCiv(), "Група города " + oldName + " переименована на " + newName);
+	}
+
+	public void renameassistant_cmd() throws CivException, InvalidNameException {
+		Town town = getSelectedTown();
+		Resident resident = getResident();
+		String newName = getNamedString(1, "Введите новое имя групы");
+
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+		if (town.GM.getGroup(newName) != null) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists") + " " + newName);
+
+		String oldName = town.GM.assistantGroupName;
+		town.GM.renameProtectedGroup(oldName, newName);
+		CivMessage.sendCiv(resident.getCiv(), "Група города " + oldName + " переименована на " + newName);
+	}
+
+	public void renamemayor_cmd() throws CivException, InvalidNameException {
+		Town town = getSelectedTown();
+		Resident resident = getResident();
+		String newName = getNamedString(1, "Введите новое имя групы");
+
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+		if (town.GM.getGroup(newName) != null) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists") + " " + newName);
+
+		String oldName = town.GM.mayorGroupName;
+		town.GM.renameProtectedGroup(oldName, newName);
+		CivMessage.sendCiv(resident.getCiv(), "Група города " + oldName + " переименована на " + newName);
+	}
+
+	public void removedefault_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident oldMember = getNamedResident(1);
+
+		if (!town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+
+		town.GM.removeDefault(oldMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_removeSuccess1", oldMember.getName(), town.GM.defaultGroupName, town.getName()));
+		if (oldMember != commandSenderResident) CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_town_group_removeAlert", town.GM.defaultGroupName, town.getName()));
+	}
+
+	public void removeassistant_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident oldMember = getNamedResident(1);
+
+		if (!town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+
+		town.GM.removeAssistant(oldMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_removeSuccess1", oldMember.getName(), town.GM.assistantGroupName, town.getName()));
+		if (oldMember != commandSenderResident) CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_town_group_removeAlert", town.GM.assistantGroupName, town.getName()));
+	}
+
+	public void removemayor_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident oldMember = getNamedResident(1);
+
+		if (!town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOnlyMayor"));
+		if (town.GM.isOneMayor(oldMember)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_removeOneMayor"));
+
+		town.GM.removeMayor(oldMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_removeSuccess1", oldMember.getName(), town.GM.mayorGroupName, town.getName()));
+		if (oldMember != commandSenderResident) CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_town_group_removeAlert", town.GM.mayorGroupName, town.getName()));
+	}
+
+	public void adddefault_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident newMember = getNamedResident(1);
+
+		if (!town.getCiv().GM.isLeader(commandSenderResident) && !town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_addOnlyMayor"));
+		if (!newMember.hasTown()) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addNotInTown", newMember.getName()));
+		if (!newMember.getCiv().equals(town.getCiv())) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError3", newMember.getName(), newMember.getCiv().getName(), town.getCiv().getName()));
+
+		town.GM.addDefault(newMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_addSuccess1", newMember.getName(), town.GM.defaultGroupName, town.getName()));
+		if (newMember != commandSenderResident) CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_town_group_addAlert", town.GM.defaultGroupName, town.getName()));
+	}
+
+	public void addassistant_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident newMember = getNamedResident(1);
+
+		if (!town.getCiv().GM.isLeader(commandSenderResident) && !town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_addOnlyMayor"));
+		if (!newMember.hasTown()) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addNotInTown", newMember.getName()));
+		if (!newMember.getCiv().equals(town.getCiv())) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError3", newMember.getName(), newMember.getCiv().getName(), town.getCiv().getName()));
+
+		town.GM.addAssistant(newMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_addSuccess1", newMember.getName(), town.GM.assistantGroupName, town.getName()));
+		if (newMember != commandSenderResident) CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_town_group_addAlert", town.GM.assistantGroupName, town.getName()));
+	}
+
+	public void addmayor_cmd() throws CivException {
+		Town town = getSelectedTown();
+		Resident commandSenderResident = getResident();
+		Resident newMember = getNamedResident(1);
+
+		if (!town.getCiv().GM.isLeader(commandSenderResident) && !town.GM.isMayor(commandSenderResident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_addOnlyMayor"));
+		if (!newMember.hasTown()) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addNotInTown", newMember.getName()));
+		if (!town.hasResident(newMember)) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError1", newMember.getName(), newMember.getTown().getName(), town.getName()));
+		if (newMember.getCiv().equals(town.getCiv())) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_addError3", newMember.getName(), newMember.getCiv().getName(), town.getCiv().getName()));
+
+		town.GM.addMayor(newMember);
+
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_addSuccess1", newMember.getName(), town.GM.mayorGroupName, town.getName()));
+		if (newMember != commandSenderResident) CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_town_group_addAlert", town.GM.mayorGroupName, town.getName()));
+	}
+
 	@Override
 	public void showHelp() {
 		showBasicHelp();

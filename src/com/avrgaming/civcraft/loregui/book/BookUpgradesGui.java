@@ -37,7 +37,7 @@ implements GuiAction {
         }
         Civilization civ = whoClicked.getCiv();
         Town town = whoClicked.getSelectedTown();
-        if (!(town.getMayorGroup().hasMember(whoClicked) || town.getAssistantGroup().hasMember(whoClicked) || civ.getLeaderGroup().hasMember(whoClicked))) {
+        if (!(town.GM.isMayorOrAssistant(whoClicked) || civ.GM.isLeader(whoClicked))) {
             Book.spawnGuiBook(player);
             CivMessage.send((Object)player, "§c"+CivSettings.localize.localizedString("cmd_NeedHigherTownOrCivRank"));
             return;

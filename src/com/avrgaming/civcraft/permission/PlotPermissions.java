@@ -26,57 +26,50 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 
 public class PlotPermissions {
-	
+
 	public enum Type {
-		BUILD,
-		DESTROY,
-		INTERACT,
-		ITEMUSE
+		BUILD, DESTROY, INTERACT, ITEMUSE
 	}
-	
+
 	public PermissionNode build = new PermissionNode("build");
 	public PermissionNode destroy = new PermissionNode("destroy");
 	public PermissionNode interact = new PermissionNode("interact");
 	public PermissionNode itemUse = new PermissionNode("itemUse");
 	private boolean fire = false;
 	private boolean mobs = false;
-		
-	/*
-	 * Owner of this permission node.
-	 */
+
+	/* Owner of this permission node. */
 	private Resident owner;
-	
-	/*
-	 * Group for this permission node.
-	 */
-	//private PermissionGroup group;
+
+	/* Group for this permission node. */
+	// private PermissionGroup group;
 	private ArrayList<PermissionGroup> groups = new ArrayList<PermissionGroup>();
-	
+
 	public String getSaveString() {
-		
+
 		String ownerString = "";
 		if (owner != null) {
 			ownerString = owner.getName();
-		} 
-		
+		}
+
 		String groupString = "0";
 		if (groups.size() != 0) {
 			for (PermissionGroup grp : groups) {
-				groupString += grp.getId()+":";
+				groupString += grp.getId() + ":";
 			}
 		}
-		
-		return build.getSaveString()+","+destroy.getSaveString()+","+interact.getSaveString()+","+itemUse.getSaveString()+","+ownerString+","+groupString+","+fire+","+mobs;
+
+		return build.getSaveString() + "," + destroy.getSaveString() + "," + interact.getSaveString() + "," + itemUse.getSaveString() + "," + ownerString + "," + groupString + "," + fire + "," + mobs;
 	}
-	
+
 	public void loadFromSaveString(Town town, String src) throws CivException {
 		String[] split = src.split(",");
-		
+
 		build.loadFromString(split[0]);
 		destroy.loadFromString(split[1]);
 		interact.loadFromString(split[2]);
 		itemUse.loadFromString(split[3]);
-		
+
 		setOwner(CivGlobal.getResident(split[4]));
 		String grpString[] = split[5].split(":");
 
@@ -85,17 +78,17 @@ public class PlotPermissions {
 			if (gstr.equals("0") || gstr.equals("")) {
 				continue;
 			}
-			PermissionGroup group = CivGlobal.getPermissionGroup(town, Integer.valueOf(gstr));
+			PermissionGroup group = town.GM.getGroupById(Integer.valueOf(gstr));
 			addGroup(group);
 		}
-		
+
 		if (split.length > 7) {
 			fire = Boolean.valueOf(split[6]);
 			mobs = Boolean.valueOf(split[7]);
 		}
-		
-	//	group = CivGlobal.getPermissionGroup(town, Integer.valueOf(split[5]));
-		
+
+		// group = CivGlobal.getPermissionGroup(town, Integer.valueOf(split[5]));
+
 	}
 
 	public boolean isFire() {
@@ -140,12 +133,8 @@ public class PlotPermissions {
 
 	private boolean checkPermissionNode(PermissionNode node, Resident resident) {
 		if (node != null) {
-			if (owner == resident && node.isPermitOwner())
-				return true;
-			
-			if (owner != null && owner.isFriend(resident) && node.isPermitOwner()) 
-				return true;
-			
+			if (owner == resident && node.isPermitOwner()) return true;
+
 			if (groups.size() != 0 && node.isPermitGroup()) {
 				for (PermissionGroup group : groups) {
 					if (group.hasMember(resident)) {
@@ -153,19 +142,15 @@ public class PlotPermissions {
 					}
 				}
 			}
-			
-			if (node.isPermitOthers()) {
-				return true;
-			}
+
+			if (node.isPermitOthers()) return true;
 		}
 		return false;
 	}
-	
+
 	public boolean hasPermission(Type type, Resident resident) {
-		if (resident.isPermOverride()) {
-			return true;
-		}
-		
+		if (resident.isPermOverride()) return true;
+
 		switch (type) {
 		case BUILD:
 			return checkPermissionNode(this.build, resident);
@@ -178,24 +163,18 @@ public class PlotPermissions {
 		default:
 			break;
 		}
-		
 		return false;
 	}
 
 	public void addGroup(PermissionGroup grp) {
-		if (grp == null) {
-			return;
-		}
-		
-		if (!groups.contains(grp)) {
-			groups.add(grp);
-		}
+		if (grp == null) return;
+		if (!groups.contains(grp)) groups.add(grp);
 	}
-	
+
 	public void removeGroup(PermissionGroup grp) {
 		groups.remove(grp);
 	}
-	
+
 	public ArrayList<PermissionGroup> getGroups() {
 		return this.groups;
 	}
@@ -204,15 +183,15 @@ public class PlotPermissions {
 		build.setPermitOwner(true);
 		build.setPermitGroup(true);
 		build.setPermitOthers(false);
-		
+
 		destroy.setPermitOwner(true);
 		destroy.setPermitGroup(true);
 		destroy.setPermitOthers(false);
-		
+
 		interact.setPermitOwner(true);
 		interact.setPermitGroup(true);
 		interact.setPermitOthers(false);
-		
+
 		itemUse.setPermitOwner(true);
 		itemUse.setPermitGroup(true);
 		itemUse.setPermitOthers(false);
@@ -220,9 +199,9 @@ public class PlotPermissions {
 
 	public String getGroupString() {
 		String out = "";
-		
+
 		for (PermissionGroup grp : groups) {
-			out += grp.getName()+", ";
+			out += grp.getName() + ", ";
 		}
 		return out;
 	}
@@ -235,5 +214,5 @@ public class PlotPermissions {
 		this.groups.clear();
 		this.addGroup(defaultGroup);
 	}
-	
+
 }

@@ -283,9 +283,8 @@ public class AdminCivCommand extends CommandBase {
 		Civilization civ = getNamedCiv(1);
 		Resident resident = getNamedResident(2);
 
-		if (civ.getAdviserGroup().hasMember(resident)) {
-			civ.getAdviserGroup().removeMember(resident);
-			civ.save();
+		if (civ.GM.isAdviser(resident)) {
+			civ.GM.removeAdviser(resident);
 			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_civ_rmAdvisorSuccess", resident.getName(), civ.getName()));
 		} else {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("var_adcmd_civ_rmAdvisorNotInGroup", resident.getName(), civ.getName()));
@@ -296,9 +295,8 @@ public class AdminCivCommand extends CommandBase {
 		Civilization civ = getNamedCiv(1);
 		Resident resident = getNamedResident(2);
 
-		if (civ.getLeaderGroup().hasMember(resident)) {
-			civ.getLeaderGroup().removeMember(resident);
-			civ.save();
+		if (civ.GM.isLeader(resident)) {
+			civ.GM.removeLeader(resident);
 			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_civ_rmLeaderSuccess", resident.getName(), civ.getName()));
 		} else {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("var_adcmd_civ_rmLeaderNotInGroup", resident.getName(), civ.getName()));
@@ -309,9 +307,7 @@ public class AdminCivCommand extends CommandBase {
 		Civilization civ = getNamedCiv(1);
 		Resident resident = getNamedResident(2);
 
-		civ.getAdviserGroup().addMember(resident);
-		civ.getAdviserGroup().save();
-		civ.save();
+		civ.GM.addAdviser(resident);
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_civ_addAdvisorSuccess", resident.getName(), civ.getName()));
 	}
@@ -320,9 +316,7 @@ public class AdminCivCommand extends CommandBase {
 		Civilization civ = getNamedCiv(1);
 		Resident resident = getNamedResident(2);
 
-		civ.getLeaderGroup().addMember(resident);
-		civ.getLeaderGroup().save();
-		civ.save();
+		civ.GM.addLeader(resident);
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_civ_addLeaderSuccess", resident.getName(), civ.getName()));
 	}

@@ -108,7 +108,7 @@ public class UnitStatic {
 		attrs.setName(uo.getName() + " уровень " + level);
 		attrs.setLore(uo.getConfigUnit().lore);
 		attrs.addLore(CivColor.Rose + "Создан в городе: " + CivColor.LightBlue + uo.getTownOwner().getName());
-		
+
 		Enchantments.addEnchantment(attrs, CustomEnchantment.SoulBound, 1);
 		attrs.addLore(CivColor.Rose + "id = " + uo.getId());
 
@@ -245,7 +245,8 @@ public class UnitStatic {
 					inv.remove(isother);
 					inv.setItem(UnitMaterial.LAST_SLOT, is);
 					inv.addItem(isother);
-				} else inv.setItem(UnitMaterial.LAST_SLOT, is);
+				} else
+					inv.setItem(UnitMaterial.LAST_SLOT, is);
 			}
 			player.setExp(uo.getPercentExpToNextLevel());
 			player.setLevel(uo.getLevel());
@@ -325,9 +326,11 @@ public class UnitStatic {
 		if (player == null) return;
 		Resident res = CivGlobal.getResident(player);
 		int unitId = res.getUnitObjectId();
-		if (unitId <= 0) unitId = UnitStatic.getUnitIdNBTTag(UnitStatic.findUnit(player));
-		UnitObject uo = CivGlobal.getUnitObject(unitId);
-		uo.setAmmunitionSlots(new HashMap<>());
+		UnitObject uo= null;
+		if (unitId > 0) {
+			uo = CivGlobal.getUnitObject(unitId);
+			uo.setAmmunitionSlots(new HashMap<>());
+		}
 		for (int i = 0; i <= 40; i++) {
 			ItemStack stack = player.getInventory().getItem(i);
 			if (stack == null) continue;

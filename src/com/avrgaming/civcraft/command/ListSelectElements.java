@@ -100,7 +100,7 @@ public class ListSelectElements {
 			Integer index = getCt.lastIndexOf("]") + 1;
 			String altComms = "";
 			for (String s : getAltCommands(i))
-				altComms = altComms + "(" + s + ")";
+				altComms = altComms + " (" + s + ")";
 			string = CivColor.addTabToString(string, CivColor.LightPurple + getCommand(i) +altComms + getCt.substring(0, index), 18);
 			string = CivColor.addTabToString(string, CivColor.LightGray + getComent(i).substring(index), 0);
 			string = string.replace("[", CivColor.Yellow + "[");

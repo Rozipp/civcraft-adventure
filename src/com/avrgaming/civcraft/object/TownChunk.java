@@ -59,16 +59,15 @@ public class TownChunk extends SQLObject {
 	}
 
 	public TownChunk(Town newTown, Location location) {
-		ChunkCoord coord = new ChunkCoord(location);
 		setTown(newTown);
-		setChunkCord(coord);
-		perms.addGroup(newTown.getDefaultGroup());
+		setChunkCord(new ChunkCoord(location));
+		perms.addGroup(newTown.GM.getDefaultGroup());
 	}
 
 	public TownChunk(Town newTown, ChunkCoord chunkLocation) {
 		setTown(newTown);
 		setChunkCord(chunkLocation);
-		perms.addGroup(newTown.getDefaultGroup());
+		perms.addGroup(newTown.GM.getDefaultGroup());
 	}
 
 	public static void init() throws SQLException {
@@ -123,7 +122,7 @@ public class TownChunk extends SQLObject {
 		if (grpString != null) {
 			String[] groups = grpString.split(":");
 			for (String grp : groups) {
-				this.perms.addGroup(CivGlobal.getPermissionGroup(this.getTown(), Integer.valueOf(grp)));
+				this.perms.addGroup(this.getTown().GM.getGroupById(Integer.valueOf(grp)));
 			}
 		}
 
@@ -215,7 +214,7 @@ public class TownChunk extends SQLObject {
 			town.addTownChunk(tc);
 		} catch (AlreadyRegisteredException e1) {
 			e1.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
+			throw new CivException(e1.getMessage());
 		}
 
 		Camp camp = CivGlobal.getCampAt(coord);
@@ -253,7 +252,7 @@ public class TownChunk extends SQLObject {
 			town.addTownChunk(tc);
 		} catch (AlreadyRegisteredException e1) {
 			e1.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalCommandException"));
+			throw new CivException(e1.getMessage());
 		}
 
 		Camp camp = CivGlobal.getCampAt(coord);

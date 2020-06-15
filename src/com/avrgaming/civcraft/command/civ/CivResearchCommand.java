@@ -266,7 +266,7 @@ public class CivResearchCommand extends CommandBase {
 		Resident resident = getResident();
 		Civilization civ = getSenderCiv();
 		
-		if (!civ.getLeaderGroup().hasMember(resident) && !civ.getAdviserGroup().hasMember(resident)) {
+		if (!civ.GM.isLeaderOrAdviser(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_notLeader"));
 		}		
 	}

@@ -106,15 +106,13 @@ public class AdminRecoverCommand extends CommandBase {
 	public void listdefunctcivs_cmd() {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_recover_ListNoCapitolHeading"));
 		for (Civilization civ : CivGlobal.getCivs()) {
-			if (civ.getLeaderGroup() == null) {
-				CivMessage.send(sender, civ.getName());
-			}
+			if (civ.GM.getLeaderGroup() == null) CivMessage.send(sender, civ.getName());
 		}
 	}
 
 	public void killdefunctcivs_cmd() {
 		for (Civilization civ : CivGlobal.getCivs()) {
-			if (civ.getLeaderGroup() == null) {
+			if (civ.GM.getLeaderGroup() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("Deleting") + " " + civ.getName());
 				civ.delete();
 			}
@@ -124,15 +122,13 @@ public class AdminRecoverCommand extends CommandBase {
 	public void listdefuncttowns_cmd() {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_recover_listDefunctTownsHeading"));
 		for (Town town : CivGlobal.getTowns()) {
-			if (town.getMayorGroup() == null) {
-				CivMessage.send(sender, town.getName());
-			}
+			if (town.GM.getMayorGroup() == null) CivMessage.send(sender, town.getName());
 		}
 	}
 
 	public void killdefuncttowns_cmd() {
 		for (Town town : CivGlobal.getTowns()) {
-			if (town.getMayorGroup() == null) {
+			if (town.GM.getMayorGroup() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("Deleting") + " " + town.getName());
 				town.delete();
 			}
@@ -165,7 +161,7 @@ public class AdminRecoverCommand extends CommandBase {
 			Town capitol = civ.getCapitol();
 			if (capitol == null) continue;
 
-			Resident leader = civ.getLeader();
+			Resident leader = civ.GM.getLeader();
 			if (leader == null) continue;
 
 			CivMessage.send(sender, CivSettings.localize.localizedString("Broken") + " " + leader.getName() + " " + CivSettings.localize.localizedString("inCiv") + " " + civ.getName() + " "
@@ -180,18 +176,17 @@ public class AdminRecoverCommand extends CommandBase {
 			Town capitol = civ.getCapitol();
 			if (capitol == null) continue;
 
-			Resident leader = civ.getLeader();
+			Resident leader = civ.GM.getLeader();
 			if (leader == null) continue;
 
-			if (capitol.getMayorGroup() == null) {
+			if (capitol.GM.getMayorGroup() == null) {
 				CivMessage.send(sender, CivSettings.localize.localizedString("var_adcmd_recover_fixMayorsError", capitol.getName()));
 				continue;
 			}
 
-			capitol.getMayorGroup().addMember(leader);
 			try {
-				capitol.getMayorGroup().saveNow();
-			} catch (SQLException e) {
+				capitol.GM.addMayor(leader);
+			} catch (CivException e) {
 				e.printStackTrace();
 			}
 			CivMessage.send(sender, CivSettings.localize.localizedString("Fixed") + " " + leader.getName() + " " + CivSettings.localize.localizedString("inCiv") + " " + civ.getName() + " " + CivSettings.localize.localizedString("inCapitol")
@@ -200,16 +195,12 @@ public class AdminRecoverCommand extends CommandBase {
 		}
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("Finished"));
-
 	}
 
 	public void fixleaders_cmd() {
-
 		for (Civilization civ : CivGlobal.getCivs()) {
-			Resident res = civ.getLeader();
-			if (res == null) {
-				continue;
-			}
+			Resident res = civ.GM.getLeader();
+			if (res == null) continue;
 
 			if (!res.hasTown()) {
 				Town capitol = civ.getCapitol();
@@ -226,15 +217,13 @@ public class AdminRecoverCommand extends CommandBase {
 				CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_recover_FixLeaders1") + " " + civ.getName() + " " + CivSettings.localize.localizedString("Leader") + " " + res.getName());
 			}
 
-			if (!civ.getLeaderGroup().hasMember(res)) {
-				civ.getLeaderGroup().addMember(res);
+			if (!civ.GM.isLeader(res)) {
 				try {
-					civ.getLeaderGroup().saveNow();
-				} catch (SQLException e) {
+					civ.GM.addLeader(res);
+				} catch (CivException e) {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 
@@ -242,7 +231,7 @@ public class AdminRecoverCommand extends CommandBase {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_recover_listOrphanLeadersHeading"));
 
 		for (Civilization civ : CivGlobal.getCivs()) {
-			Resident res = civ.getLeader();
+			Resident res = civ.GM.getLeader();
 			if (res == null) continue;
 
 			if (!res.hasTown()) {

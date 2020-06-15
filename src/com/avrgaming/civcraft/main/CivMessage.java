@@ -508,7 +508,7 @@ public class CivMessage {
 	}
 
 	public static void sendTechError(final Civilization civ, final String string) {
-		CivLog.info("[\u0426\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u044f:" + civ.getName() + "][\u041e\u0448\u0438\u0431\u043a\u0430 \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u044f] " + string);
+		CivLog.info("[Civilization" + civ.getName() + "][technology learning ERROR] " + string);
 		for (final Town t : civ.getTowns()) {
 			for (final Resident resident : t.getResidents()) {
 				if (!resident.isShowCiv()) {
@@ -519,7 +519,7 @@ public class CivMessage {
 					if (player == null) {
 						continue;
 					}
-					send(player, "§d[\u0426\u0438\u0432\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u044f] " + CivColor.RoseItalic + "[\u041e\u0448\u0438\u0431\u043a\u0430 \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u044f] " + "§f" + string);
+					send(player, "§d[Civilization] " + CivColor.RoseItalic + "[technology learning ERROR] " + "§f" + string);
 				} catch (CivException ex) {}
 			}
 		}
@@ -592,5 +592,10 @@ public class CivMessage {
 		}
 		CivMessage.lastMessageHashCode.put(town.getName(), line.hashCode());
 		sendTown(town, line);
+	}
+
+	public static String plurals(final int count, final String... pluralForms) {
+		final int i = (count % 10 == 1 && count % 100 != 11) ? 0 : ((count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) ? 1 : 2);
+		return pluralForms[i];
 	}
 }

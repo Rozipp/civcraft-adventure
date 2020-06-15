@@ -73,7 +73,7 @@ public class CivDiplomacyCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_capitulateErrorNoMother"));
 		}
 		
-		if (!town.getMotherCiv().getLeaderGroup().hasMember(resident)) {
+		if (!town.getMotherCiv().GM.isLeader(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_capitulateErrorNotLeader"));
 		}
 		

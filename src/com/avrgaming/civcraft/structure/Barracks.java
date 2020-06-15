@@ -104,7 +104,7 @@ public class Barracks extends Structure {
 	}
 
 	private void train(Resident whoClicked) throws CivException {
-		if (!getTown().getAssistantGroup().hasMember(whoClicked) && !getTown().getMayorGroup().hasMember(whoClicked)) {
+		if (!getTown().GM.isMayorOrAssistant(whoClicked)) {
 			throw new CivException(CivSettings.localize.localizedString("barracks_actionNoPerms"));
 		}
 

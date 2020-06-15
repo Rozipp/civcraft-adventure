@@ -34,7 +34,7 @@ implements GuiAction {
             CivMessage.sendError((Object)player, CivSettings.localize.localizedString("var_virtualTG_noCiv"));
             return;
         }
-        if (!to.getLeaderGroup().hasMember(resident) && !resident.getSelectedTown().getMayorGroup().hasMember(resident)) {
+        if (!to.GM.isLeader(resident) && !resident.getSelectedTown().GM.isMayor(resident)) {
             CivMessage.sendError((Object)player, CivSettings.localize.localizedString("var_virtualTG_noPermM", "§6" + to.getName() + CivColor.Red, "§6" + from.getName() + CivColor.Red));
             return;
         }

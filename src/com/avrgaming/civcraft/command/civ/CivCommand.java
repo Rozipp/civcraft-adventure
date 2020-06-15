@@ -96,18 +96,12 @@ public class CivCommand extends CommandBase {
 	public void culture_cmd() throws CivException {
 		final Resident resident = this.getResident();
 		final Civilization civ = this.getSenderCiv();
-		if (!civ.getLeaderGroup().hasMember(resident) && !civ.getAdviserGroup().hasMember(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_civ_culture_notLeader"));
-		}
+		if (!civ.GM.isLeaderOrAdviser(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_civ_culture_notLeader"));
 		boolean hasBurj = false;
 		int cultureSummary = 0;
 		for (final Town town : civ.getTowns()) {
-			if (town.getMotherCiv() == null) {
-				cultureSummary += town.getAccumulatedCulture();
-			}
-			if (town.hasWonder("w_burj")) {
-				hasBurj = true;
-			}
+			if (town.getMotherCiv() == null) cultureSummary += town.getAccumulatedCulture();
+			if (town.hasWonder("w_burj")) hasBurj = true;
 		}
 		final boolean culturePassed = cultureSummary > 16500000;
 		CivMessage.sendHeading(this.sender, CivSettings.localize.localizedString("cmd_civ_culture_heading"));
@@ -175,8 +169,7 @@ public class CivCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_civ_claimleaderStillActive"));
 		}
 
-		civ.getLeaderGroup().addMember(resident);
-		civ.getLeaderGroup().save();
+		civ.GM.addLeader(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_claimLeaderSuccess", civ.getName()));
 		CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_cmd_civ_claimLeaderBroadcast", resident.getName()));
 	}
@@ -497,22 +490,16 @@ public class CivCommand extends CommandBase {
 	}
 
 	public void withdraw_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_civ_withdrawPrompt"));
-		}
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_civ_withdrawPrompt"));
 
 		Civilization civ = getSenderCiv();
 		Resident resident = getResident();
 
-		if (!civ.getLeaderGroup().hasMember(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank2"));
-		}
+		if (!civ.GM.isLeader(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank2"));
 
 		try {
 			Double amount = Double.valueOf(args[1]);
-			if (amount < 1) {
-				throw new CivException(amount + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
-			}
+			if (amount < 1) throw new CivException(amount + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
 			amount = Math.floor(amount);
 
 			if (!civ.getTreasury().payTo(resident.getTreasury(), Double.valueOf(args[1]))) {

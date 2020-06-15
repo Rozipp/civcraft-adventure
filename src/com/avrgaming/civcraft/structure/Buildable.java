@@ -56,7 +56,7 @@ public abstract class Buildable extends Construct {
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 		// Make sure we are building this building inside of culture.
 		if (!this.isTownHall()) {
-			for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+			for (ChunkCoord chunkCoord : getChunksCoords()) {
 				CultureChunk cc = CivGlobal.getCultureChunk(chunkCoord);
 				if (cc == null || cc.getTown().getCiv() != this.getCiv()) throw new CivException(CivSettings.localize.localizedString("buildable_notInCulture"));
 			}
@@ -258,7 +258,7 @@ public abstract class Buildable extends Construct {
 
 	public void markInvalid() {
 		this.valid = isPartOfAdminCiv();
-		if (!this.valid) this.getTown().invalidStructures.add(this);
+		if (!this.valid) this.getTown().invalidStructures.add((Structure)this);
 	}
 
 	public void setValid(boolean b) {

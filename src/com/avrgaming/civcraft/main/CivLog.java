@@ -97,7 +97,7 @@ public class CivLog {
 	}
 
 	public static void moneylog(final String name, final String message) {
-        CivLog.plugin.getLogger().info("[\u0414\u0435\u0431\u0430\u0433 \u0434\u0435\u043d\u044c\u0433\u043e\u0431\u043e\u0440\u043e\u0442\u0430: " + name + "] " + message);
+        CivLog.plugin.getLogger().info("[moneylog: " + name + "] " + message);
     }
 
 	public static String paste(final String contents, final String extension, final String customName, final String deleteKey) {

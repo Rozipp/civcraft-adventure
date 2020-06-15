@@ -86,9 +86,7 @@ public class Capitol extends Townhall {
 		if (!War.isWarTime()) return;
 
 		Boolean hasPermission = false;
-		if ((resident.getTown().isMayor(resident)) || (resident.getTown().getAssistantGroup().hasMember(resident)) || (resident.getCiv().getLeaderGroup().hasMember(resident)) || (resident.getCiv().getAdviserGroup().hasMember(resident))) {
-			hasPermission = true;
-		}
+		if ((resident.getTown().GM.isMayorOrAssistant(resident)) || (resident.getCiv().GM.isLeaderOrAdviser(resident))) hasPermission = true;
 
 		switch (sign.getAction()) {
 		case "prev":

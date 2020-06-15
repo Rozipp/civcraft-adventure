@@ -98,8 +98,8 @@ public class StructureValidator implements Runnable {
 	
 	public int getBlockIDFromSnapshotMap(HashMap<ChunkCoord, ChunkSnapshot> snapshots, int absX, int absY, int absZ, World world) throws CivException {
 
-		int chunkX = ChunkCoord.castToChunk(absX);
-		int chunkZ = ChunkCoord.castToChunk(absZ);
+		int chunkX = ChunkCoord.castCoordToChunkCoord(absX);
+		int chunkZ = ChunkCoord.castCoordToChunkCoord(absZ);
 
 		int blockChunkX = absX % 16;
 		int blockChunkZ = absZ % 16;

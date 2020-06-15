@@ -56,7 +56,7 @@ public class ResearchSpaceShuttle extends ItemComponent implements CallbackInter
 			return;
 		}
 		Civilization civ = interactor.getCiv();
-		if (!civ.getLeaderGroup().hasMember(interactor)) {
+		if (!civ.GM.isLeader(interactor)) {
 			CivMessage.sendError((Object) player, CivSettings.localize.localizedString("researchSpaceShuttle_lore4", civ.getName()));
 			return;
 		}

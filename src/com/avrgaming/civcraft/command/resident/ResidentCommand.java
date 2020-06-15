@@ -43,12 +43,10 @@ public class ResidentCommand extends CommandBase {
 		displayName = CivSettings.localize.localizedString("cmd_res_Name");
 
 		cs.add("info", "i", CivSettings.localize.localizedString("cmd_res_infoDesc"));
-		cs.add("paydebt", CivSettings.localize.localizedString("cmd_res_paydebtDesc"));
-		cs.add("friend", CivSettings.localize.localizedString("cmd_res_friendDesc"));
 		cs.add("toggle", CivSettings.localize.localizedString("cmd_res_toggleDesc"));
 		cs.add("show", CivSettings.localize.localizedString("cmd_res_showDesc"));
 		cs.add("resetspawn", CivSettings.localize.localizedString("cmd_res_resetspawnDesc"));
-//		cs.add("exchange", CivSettings.localize.localizedString("cmd_res_exchangeDesc"));
+		// cs.add("exchange", CivSettings.localize.localizedString("cmd_res_exchangeDesc"));
 		cs.add("book", "b", CivSettings.localize.localizedString("cmd_res_bookDesc"));
 		cs.add("perks", CivSettings.localize.localizedString("cmd_res_perksDesc"));
 		cs.add("refresh", CivSettings.localize.localizedString("cmd_res_refreshDesc"));
@@ -349,26 +347,6 @@ public class ResidentCommand extends CommandBase {
 		cmd.onCommand(sender, null, "friend", this.stripArgs(args, 1));
 	}
 
-	public void friend_cmd() {
-		ResidentFriendCommand cmd = new ResidentFriendCommand();
-		cmd.onCommand(sender, null, "friend", this.stripArgs(args, 1));
-	}
-
-	public void paydebt_cmd() throws CivException {
-		Resident resident = getResident();
-
-		if (!resident.getTreasury().inDebt() || !resident.hasTown()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_res_paydebtError2"));
-		}
-
-		if (!resident.getTreasury().hasEnough(resident.getTreasury().getDebt())) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_res_paydebtError1", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
-		}
-
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_res_paydebtSuccess", resident.getTreasury().getDebt(), CivSettings.CURRENCY_NAME));
-		resident.payOffDebt();
-	}
-
 	public void info_cmd() throws CivException {
 		Resident resident = getResident();
 		show(sender, resident);
@@ -379,12 +357,11 @@ public class ResidentCommand extends CommandBase {
 		Date lastOnline = new Date(resident.getLastOnline());
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showLastOnline") + " " + CivColor.LightGreen + sdf.format(lastOnline));
-		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + resident.getTownString());
-		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Camp") + " " + CivColor.LightGreen + resident.getCampString());
+		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + (resident.getTown() == null ? "none" : resident.getTown().getName()));
+		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Camp") + " " + CivColor.LightGreen + (resident.getCamp() == null ? "none" : resident.getCamp().getName()));
 
 		if (sender.getName().equalsIgnoreCase(resident.getName()) || sender.isOp()) {
-			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showTreasure") + " " + CivColor.LightGreen + resident.getTreasury().getBalance() + " " + CivColor.Green
-					+ CivSettings.localize.localizedString("cmd_res_showTaxes") + " " + CivColor.LightGreen + (resident.getPropertyTaxOwed() + resident.getFlatTaxOwed()));
+			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showTreasure") + " " + CivColor.LightGreen + resident.getTreasury().getBalance() + " " + CivColor.Green);
 			if (resident.hasTown()) {
 				if (resident.getSelectedTown() != null) {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen + resident.getSelectedTown().getName());
@@ -392,14 +369,6 @@ public class ResidentCommand extends CommandBase {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_res_showSelected") + " " + CivColor.LightGreen + resident.getTown().getName());
 				}
 			}
-		}
-
-		if (resident.getTreasury().inDebt()) {
-			CivMessage.send(resident, CivColor.Yellow + CivSettings.localize.localizedString("cmd_res_showDebt") + " " + resident.getTreasury().getDebt() + " " + CivSettings.CURRENCY_NAME);
-		}
-
-		if (resident.getDaysTilEvict() > 0) {
-			CivMessage.send(resident, CivColor.Yellow + CivSettings.localize.localizedString("cmd_res_showEviction") + " " + resident.getDaysTilEvict());
 		}
 
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Groups") + " " + resident.getGroupsString());

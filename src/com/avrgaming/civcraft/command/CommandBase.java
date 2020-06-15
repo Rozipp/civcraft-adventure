@@ -33,7 +33,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
@@ -47,14 +46,14 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.util.CivColor;
 
 public abstract class CommandBase implements CommandExecutor {
-	
+
 	private static final int MATCH_LIMIT = 5;
 
 	public ListSelectElements cs;
 
 	protected String[] args;
 	protected CommandSender sender;
-	
+
 	protected String command = "FIXME";
 	protected String displayName = "FIXME";
 	protected boolean sendUnknownToDefault = false;
@@ -62,18 +61,18 @@ public abstract class CommandBase implements CommandExecutor {
 
 	public Town senderTownOverride = null;
 	public Civilization senderCivOverride = null;
-	
+
 	public abstract void init();
-	
+
 	/* Called when no arguments are passed. */
 	public abstract void doDefaultAction() throws CivException;
-	
+
 	/* Called on syntax error. */
 	public abstract void showHelp();
-	
+
 	/* Called before command is executed to check permissions. */
 	public abstract void permissionCheck() throws CivException;
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		cs = new ListSelectElements();
@@ -82,7 +81,7 @@ public abstract class CommandBase implements CommandExecutor {
 
 		this.args = args;
 		this.sender = sender;
-		
+
 		try {
 			permissionCheck();
 			doLogging();
@@ -94,7 +93,7 @@ public abstract class CommandBase implements CommandExecutor {
 			CivMessage.sendError(sender, e.getMessage());
 			return false;
 		}
-		
+
 		if (args[0].equalsIgnoreCase("help")) {
 			showHelp();
 			return true;
@@ -114,9 +113,9 @@ public abstract class CommandBase implements CommandExecutor {
 			for (String s : cs.getAltCommands(i))
 				if (s.equalsIgnoreCase(args[0])) {
 					return runSelectElement(cs.getCommand(i));
-				}	
+				}
 		}
-		
+
 		String convertComm = convertCommand(args[0]);
 		for (Integer i = 0; i < cs.size(); i++) {
 			if (cs.getCommand(i).equalsIgnoreCase(convertComm)) {
@@ -125,14 +124,14 @@ public abstract class CommandBase implements CommandExecutor {
 			for (String s : cs.getAltCommands(i))
 				if (s.equalsIgnoreCase(convertComm)) {
 					return runSelectElement(cs.getCommand(i));
-				}	
+				}
 		}
 
 		if (convertComm.equalsIgnoreCase("help")) {
 			showHelp();
 			return true;
 		}
-		
+
 		if (cs.sendUnknownToDefault) {
 			try {
 				doDefaultAction();
@@ -176,20 +175,20 @@ public abstract class CommandBase implements CommandExecutor {
 		}
 		return true;
 	}
-	
+
 	private String convertCommand(String comm) {
 		String rus = "фисвуапршолдьтщзйкыегмцчня";
 		String eng = "abcdefghijklmnopqrstuvwxyz";
-		
+
 		String res = comm;
 		for (int i = 0; i < rus.length(); i++)
 			res = res.replace(rus.charAt(i), eng.charAt(i));
 		return res;
 	}
-	
-	public void doLogging() {	
+
+	public void doLogging() {
 	}
-	
+
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		List<String> al = new ArrayList<String>();
 		al.add("sub1");
@@ -202,42 +201,42 @@ public abstract class CommandBase implements CommandExecutor {
 		CivMessage.sendHeading(sender, displayName + " " + CivSettings.localize.localizedString("cmd_CommandHelpTitle"));
 		cs.showListSelectElement(sender);
 	}
-	
+
 	public Resident getResident() throws CivException {
 		Player player = getPlayer();
 		Resident res = CivGlobal.getResident(player);
 		if (res == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_Resident_CouldNotBeFound",player.getName()));
+			throw new CivException(CivSettings.localize.localizedString("var_Resident_CouldNotBeFound", player.getName()));
 		}
 		return res;
 	}
-	
+
 	public Player getPlayer() throws CivException {
 		if (sender instanceof Player) {
-			return (Player)sender;
+			return (Player) sender;
 		}
 		throw new CivException(CivSettings.localize.localizedString("cmd_MustBePlayer"));
 	}
-	
+
 	public Town getSelectedTown() throws CivException {
 		if (senderTownOverride != null) {
 			return senderTownOverride;
 		}
-		
+
 		if (sender instanceof Player) {
-			Player player = (Player)sender;
+			Player player = (Player) sender;
 			Resident res = CivGlobal.getResident(player);
 			if (res != null && res.getTown() != null) {
-				
+
 				if (res.getSelectedTown() != null) {
 					try {
 						res.getSelectedTown().validateResidentSelect(res);
 					} catch (CivException e) {
-						CivMessage.send(player, CivColor.Yellow+CivSettings.localize.localizedString("var_cmd_townDeselectedInvalid",res.getSelectedTown().getName(),res.getTown().getName()));
+						CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_townDeselectedInvalid", res.getSelectedTown().getName(), res.getTown().getName()));
 						res.setSelectedTown(res.getTown());
 						return res.getTown();
 					}
-					
+
 					return res.getSelectedTown();
 				} else {
 					return res.getTown();
@@ -246,31 +245,30 @@ public abstract class CommandBase implements CommandExecutor {
 		}
 		throw new CivException(CivSettings.localize.localizedString("cmd_notPartOfTown"));
 	}
-	
+
 	public TownChunk getStandingTownChunk() throws CivException {
 		Player player = getPlayer();
-		
+
 		TownChunk tc = CivGlobal.getTownChunk(player.getLocation());
 		if (tc == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_plotNotOwned"));
 		}
 		return tc;
 	}
-	
+
 	protected String[] stripArgs(String[] someArgs, int amount) {
 		if (amount >= someArgs.length) {
 			return new String[0];
 		}
-		
-		
+
 		String[] argsLeft = new String[someArgs.length - amount];
 		for (int i = 0; i < argsLeft.length; i++) {
-			argsLeft[i] = someArgs[i+amount];
+			argsLeft[i] = someArgs[i + amount];
 		}
-		
+
 		return argsLeft;
 	}
-	
+
 	protected String combineArgs(String[] someArgs) {
 		String combined = "";
 		for (String str : someArgs) {
@@ -278,64 +276,56 @@ public abstract class CommandBase implements CommandExecutor {
 		}
 		return combined.trim();
 	}
-	
+
 	public void validMayor() throws CivException {
-		Player player = getPlayer();
+		Resident resident = getResident();
 		Town town = getSelectedTown();
-		
-		if (!town.playerIsInGroupName("mayors", player)) {
+
+		if (!town.GM.isMayor(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
 		}
 	}
-	
+
 	public void validMayorAssistantLeader() throws CivException {
 		Resident resident = getResident();
 		Town town = getSelectedTown();
 		Civilization civ;
-		
-		/* 
-		 * If we're using a selected town that isn't ours validate based on the mother civ.
-		 */
-		if (town.getMotherCiv() != null) {
+
+		/* If we're using a selected town that isn't ours validate based on the mother civ. */
+		if (town.getMotherCiv() != null)
 			civ = town.getMotherCiv();
-		} else {
+		else
 			civ = getSenderCiv();
+
+		if (town.GM.getMayorGroup() == null || town.GM.getAssistantGroup() == null || civ.GM.getLeaderGroup() == null) {
+			throw new CivException(CivSettings.localize.localizedString("var_cmd_townOrCivMissingGroup1", town.getName(), civ.getName()));
 		}
-		
-		if (town.getMayorGroup() == null || town.getAssistantGroup() == null || 
-				civ.getLeaderGroup() == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_townOrCivMissingGroup1",town.getName(),civ.getName()));
-		}
-		
-		if (!town.getMayorGroup().hasMember(resident) && !town.getAssistantGroup().hasMember(resident) &&
-				!civ.getLeaderGroup().hasMember(resident)) {
+
+		if (!town.GM.isMayorOrAssistant(resident) && !civ.GM.isLeader(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherTownOrCivRank"));
 		}
 	}
-	
+
 	public void validLeaderAdvisor() throws CivException {
 		Resident res = getResident();
 		Civilization civ = getSenderCiv();
 
-		
-		if (!civ.getLeaderGroup().hasMember(res) && !civ.getAdviserGroup().hasMember(res)) {
+		if (!civ.GM.isLeaderOrAdviser(res)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank"));
 		}
 	}
-	
+
 	public void validLeader() throws CivException {
 		Resident res = getResident();
 		Civilization civ = getSenderCiv();
-		
-		if (!civ.getLeaderGroup().hasMember(res)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank2"));
-		}
+
+		if (!civ.GM.isLeader(res)) throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank2"));
 	}
-	
+
 	public void validPlotOwner() throws CivException {
 		Resident resident = getResident();
 		TownChunk tc = getStandingTownChunk();
-		
+
 		if (tc.perms.getOwner() == null) {
 			validMayorAssistantLeader();
 			if (tc.getTown() != resident.getTown()) {
@@ -345,65 +335,65 @@ public abstract class CommandBase implements CommandExecutor {
 			if (resident != tc.perms.getOwner()) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_validPlotOwnerFalse2"));
 			}
-		}	
+		}
 	}
-	
+
 	public Civilization getSenderCiv() throws CivException {
-		
+
 		if (this.senderCivOverride != null) {
 			return this.senderCivOverride;
 		}
-		
+
 		Resident resident = getResident();
-		
+
 		if (resident.getTown() == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_getSenderCivNoCiv"));
 		}
-				
+
 		if (resident.getTown().getCiv() == null) {
-			//This should never happen but....
+			// This should never happen but....
 			throw new CivException(CivSettings.localize.localizedString("cmd_getSenderCivNoCiv"));
 		}
-		
+
 		return resident.getTown().getCiv();
 	}
 
 	protected Double getNamedDouble(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_enterNumber"));
 		}
-		
+
 		try {
 			Double number = Double.valueOf(args[index]);
 			return number;
 		} catch (NumberFormatException e) {
-			throw new CivException(args[index]+" "+CivSettings.localize.localizedString("cmd_enterNumerError"));
+			throw new CivException(args[index] + " " + CivSettings.localize.localizedString("cmd_enterNumerError"));
 		}
-		
+
 	}
-	
+
 	protected Integer getNamedInteger(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_enterNumber"));
 		}
-		
+
 		try {
 			Integer number = Integer.valueOf(args[index]);
 			return number;
 		} catch (NumberFormatException e) {
-			throw new CivException(args[index]+" "+CivSettings.localize.localizedString("cmd_enterNumerError2"));
+			throw new CivException(args[index] + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
 		}
-		
+
 	}
-	
+
 	protected Resident getNamedResident(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EnterResidentName"));
 		}
-		
+
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
-				
+
 		ArrayList<Resident> potentialMatches = new ArrayList<Resident>();
 		for (Resident resident : CivGlobal.getResidents()) {
 			String str = resident.getName().toLowerCase();
@@ -414,39 +404,39 @@ public abstract class CommandBase implements CommandExecutor {
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
-			
+
 			if (potentialMatches.size() > MATCH_LIMIT) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_TooManyResults"));
 			}
 		}
-		
+
 		if (potentialMatches.size() == 0) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults"));
 		}
-		
+
 		if (potentialMatches.size() != 1) {
-			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
+			CivMessage.send(sender, CivColor.LightPurple + ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
 			for (Resident resident : potentialMatches) {
-				out += resident.getName()+", ";
+				out += resident.getName() + ", ";
 			}
-		
-			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);
+
+			CivMessage.send(sender, CivColor.LightBlue + ChatColor.ITALIC + out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
-		
+
 		return potentialMatches.get(0);
 	}
-	
+
 	protected Civilization getNamedCiv(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EnterCivName"));
 		}
-		
+
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
-				
+
 		ArrayList<Civilization> potentialMatches = new ArrayList<Civilization>();
 		for (Civilization civ : CivGlobal.getCivs()) {
 			String str = civ.getName().toLowerCase();
@@ -457,39 +447,39 @@ public abstract class CommandBase implements CommandExecutor {
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
-			
+
 			if (potentialMatches.size() > MATCH_LIMIT) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_TooManyResults"));
 			}
 		}
-		
+
 		if (potentialMatches.size() == 0) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults")+" '"+args[index]+"'");
+			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults") + " '" + args[index] + "'");
 		}
-		
+
 		if (potentialMatches.size() != 1) {
-			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
+			CivMessage.send(sender, CivColor.LightPurple + ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
 			for (Civilization civ : potentialMatches) {
-				out += civ.getName()+", ";
+				out += civ.getName() + ", ";
 			}
-		
-			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);
+
+			CivMessage.send(sender, CivColor.LightBlue + ChatColor.ITALIC + out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
-		
+
 		return potentialMatches.get(0);
 	}
-	
+
 	protected Civilization getNamedCapturedCiv(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EnterCivName"));
 		}
-		
+
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
-				
+
 		ArrayList<Civilization> potentialMatches = new ArrayList<Civilization>();
 		for (Civilization civ : CivGlobal.getConqueredCivs()) {
 			String str = civ.getName().toLowerCase();
@@ -500,51 +490,51 @@ public abstract class CommandBase implements CommandExecutor {
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
-			
+
 			if (potentialMatches.size() > MATCH_LIMIT) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_TooManyResults"));
 			}
 		}
-		
+
 		if (potentialMatches.size() == 0) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults")+" '"+args[index]+"'");
+			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults") + " '" + args[index] + "'");
 		}
-		
+
 		if (potentialMatches.size() != 1) {
-			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
+			CivMessage.send(sender, CivColor.LightPurple + ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
 			for (Civilization civ : potentialMatches) {
-				out += civ.getName()+", ";
+				out += civ.getName() + ", ";
 			}
-		
-			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);
+
+			CivMessage.send(sender, CivColor.LightBlue + ChatColor.ITALIC + out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
-		
+
 		return potentialMatches.get(0);
 	}
-//	protected Town getNamedTown(int index) throws CivException {
-//		if (args.length < (index+1)) {
-//			throw new CivException("Enter a town name");
-//		}
-//		
-//		Town town = CivGlobal.getTown(args[index]);
-//		if (town == null) {
-//			throw new CivException("No town named:"+args[index]);
-//		}
-//		
-//		return town;
-//	}
-	
+	// protected Town getNamedTown(int index) throws CivException {
+	// if (args.length < (index+1)) {
+	// throw new CivException("Enter a town name");
+	// }
+	//
+	// Town town = CivGlobal.getTown(args[index]);
+	// if (town == null) {
+	// throw new CivException("No town named:"+args[index]);
+	// }
+	//
+	// return town;
+	// }
+
 	protected Town getNamedTown(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EnterTownName"));
 		}
-		
+
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
-				
+
 		ArrayList<Town> potentialMatches = new ArrayList<Town>();
 		for (Town town : CivGlobal.getTowns()) {
 			String str = town.getName().toLowerCase();
@@ -555,106 +545,102 @@ public abstract class CommandBase implements CommandExecutor {
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
-			
+
 			if (potentialMatches.size() > MATCH_LIMIT) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_TooManyResults"));
 			}
 		}
-		
+
 		if (potentialMatches.size() == 0) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults"));
 		}
-		
+
 		if (potentialMatches.size() != 1) {
-			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
+			CivMessage.send(sender, CivColor.LightPurple + ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
 			for (Town town : potentialMatches) {
-				out += town.getName()+", ";
+				out += town.getName() + ", ";
 			}
-		
-			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);
+
+			CivMessage.send(sender, CivColor.LightBlue + ChatColor.ITALIC + out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
-		
+
 		return potentialMatches.get(0);
 	}
-	
+
 	public String getNamedString(int index, String message) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(message);
 		}
-		
+
 		return args[index];
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	protected OfflinePlayer getNamedOfflinePlayer(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EnterPlayerName"));
 		}
-		
+
 		OfflinePlayer offplayer = Bukkit.getOfflinePlayer(args[index]);
 		if (offplayer == null) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults")+" "+args[index]);
+			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults") + " " + args[index]);
 		}
-		
+
 		return offplayer;
 	}
-	
+
 	public String makeInfoString(HashMap<String, String> kvs, String lowColor, String highColor) {
-		
+
 		String out = "";
 		for (String key : kvs.keySet()) {
-			out += lowColor+key+": "+highColor+kvs.get(key)+" ";
+			out += lowColor + key + ": " + highColor + kvs.get(key) + " ";
 		}
-		
+
 		return out;
 	}
-	
+
 	protected PermissionGroup getNamedPermissionGroup(Town town, int index) throws CivException {
-		if (args.length < (index+1)) {
-			throw new CivException(CivSettings.localize.localizedString("EnterGroupName"));
-		}
-		
-		PermissionGroup grp = CivGlobal.getPermissionGroupFromName(town, args[index]);
-		if (grp == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_NameNoResults",args[index],town.getName()));
-		}
-		
+		if (args.length < (index + 1)) throw new CivException(CivSettings.localize.localizedString("EnterGroupName"));
+
+		PermissionGroup grp = town.GM.getGroup(args[index]);
+		if (grp == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_NameNoResults", args[index], town.getName()));
+
 		return grp;
 	}
-	
+
 	protected void validCampOwner() throws CivException {
 		Resident resident = getResident();
-		
+
 		if (!resident.hasCamp()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotIncamp"));
 		}
-		
+
 		if (resident.getCamp().getSQLOwner() != resident) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotOwner")+" ("+resident.getCamp().getOwnerName()+")");
+			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotOwner") + " (" + resident.getCamp().getOwnerName() + ")");
 		}
 	}
-	
+
 	protected Camp getCurrentCamp() throws CivException {
 		Resident resident = getResident();
-		
+
 		if (!resident.hasCamp()) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotIncamp"));
 		}
-		
+
 		return resident.getCamp();
 	}
-	
+
 	protected Camp getNamedCamp(int index) throws CivException {
-		if (args.length < (index+1)) {
+		if (args.length < (index + 1)) {
 			throw new CivException(CivSettings.localize.localizedString("EntercampName"));
 		}
-		
+
 		String name = args[index].toLowerCase();
 		name = name.replace("%", "(\\w*)");
-		
+
 		ArrayList<Camp> potentialMatches = new ArrayList<Camp>();
 		for (Camp camp : CivGlobal.getCamps()) {
 			String str = camp.getName().toLowerCase();
@@ -665,32 +651,31 @@ public abstract class CommandBase implements CommandExecutor {
 			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
-			
+
 			if (potentialMatches.size() > MATCH_LIMIT) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_TooManyResults"));
 			}
 		}
-		
+
 		if (potentialMatches.size() == 0) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults"));
 		}
-		
-		
+
 		if (potentialMatches.size() != 1) {
-			CivMessage.send(sender, CivColor.LightPurple+ChatColor.UNDERLINE+CivSettings.localize.localizedString("cmd_NameMoreThan1"));
+			CivMessage.send(sender, CivColor.LightPurple + ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_NameMoreThan1"));
 			CivMessage.send(sender, " ");
 			String out = "";
 			for (Camp camp : potentialMatches) {
-				out += camp.getName()+", ";
+				out += camp.getName() + ", ";
 			}
-		
-			CivMessage.send(sender, CivColor.LightBlue+ChatColor.ITALIC+out);
+
+			CivMessage.send(sender, CivColor.LightBlue + ChatColor.ITALIC + out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
-		
+
 		return potentialMatches.get(0);
 	}
-	
+
 	protected Civilization getNamedCiv(final int index, final String text) throws CivException {
 		if (this.args.length < index + 1) {
 			throw new CivException(text);
@@ -704,8 +689,7 @@ public abstract class CommandBase implements CommandExecutor {
 				if (str.matches(name)) {
 					potentialMatches.add(civ);
 				}
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
 			}
 			if (potentialMatches.size() > 5) {
@@ -722,7 +706,7 @@ public abstract class CommandBase implements CommandExecutor {
 			for (final Civilization civ2 : potentialMatches) {
 				out.append(civ2.getName()).append(", ");
 			}
-			CivMessage.send(this.sender, "§b" + ChatColor.ITALIC + (Object)out);
+			CivMessage.send(this.sender, "§b" + ChatColor.ITALIC + (Object) out);
 			throw new CivException(CivSettings.localize.localizedString("cmd_NameMoreThan2"));
 		}
 		return potentialMatches.get(0);

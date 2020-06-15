@@ -102,7 +102,7 @@ public class TownCommand extends CommandBase {
 		if (town.getCiv() != resident.getCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
 		if (!resident.getTreasury().hasEnough(5000.0))
 			throw new CivException(CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
-					"§c" + Resident.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
+					"§c" + CivMessage.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
 		final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", player);
 		final long timeNow = Calendar.getInstance().getTimeInMillis();
 		if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
@@ -126,7 +126,7 @@ public class TownCommand extends CommandBase {
 		if (town.getCiv() != resident.getCiv()) {
 			throw new CivException(CivSettings.localize.localizedString("var_switchtown_now_own"));
 		}
-		if (town.getMayorGroup().hasMember(resident)) {
+		if (town.GM.isMayor(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("var_switchtown_last_mayor"));
 		}
 		if (this.getSelectedTown().getResidents().size() == 1) {
@@ -180,7 +180,7 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_enableStructureNotFound", coordString));
 		}
 
-		if (!resident.getCiv().getLeaderGroup().hasMember(resident)) {
+		if (!resident.getCiv().GM.isLeader(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureNotLead"));
 		}
 
@@ -247,8 +247,7 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_claimMayorNotInactive"));
 		}
 
-		town.getMayorGroup().addMember(resident);
-		town.getMayorGroup().save();
+		town.GM.addMayor(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_claimmayorSuccess", town.getName()));
 		CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_claimmayorSuccess2", resident.getName()));
 	}
@@ -432,11 +431,11 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_leavegroupNotIn1", grp.getName(), town.getName()));
 		}
 
-		if (grp == town.getMayorGroup() && grp.getMemberCount() == 1) {
+		if (grp == town.GM.getMayorGroup() && town.GM.isOneMayor(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_leavegroupLastMayor"));
 		}
 
-		if (grp == town.getCiv().getLeaderGroup() && grp.getMemberCount() == 1) {
+		if (grp == town.getCiv().GM.leaderGroup && town.getCiv().GM.isLeader(resident)) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_leavegroupLastLead"));
 		}
 
@@ -516,27 +515,17 @@ public class TownCommand extends CommandBase {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
 
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_evictPrompt"));
-		}
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictPrompt"));
 
 		Resident residentToKick = getNamedResident(1);
 
 		if (residentToKick.getTown() != town) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_evictNotInTown", args[1]));
-		if (!town.isInGroup("mayors", resident) && !town.isInGroup("assistants", resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictNoPerms"));
-		if (town.isInGroup("mayors", residentToKick) || town.isInGroup("assistants", residentToKick)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictDemoteFirst"));
+		if (!town.GM.isMayorOrAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictNoPerms"));
+		if (town.GM.isMayorOrAssistant(residentToKick)) throw new CivException(CivSettings.localize.localizedString("cmd_town_evictDemoteFirst"));
 
-		if (!residentToKick.isLandOwner()) {
-			town.removeResident(residentToKick);
-			CivMessage.send(residentToKick, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_evictAlert"));
-			CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_evictSuccess1", residentToKick.getName(), resident.getName()));
-			return;
-		}
-
-		residentToKick.setDaysTilEvict(CivSettings.GRACE_DAYS);
-		residentToKick.warnEvict();
-		residentToKick.save();
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_evictAlert2", args[1], CivSettings.GRACE_DAYS));
+		town.removeResident(residentToKick);
+		CivMessage.send(residentToKick, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_evictAlert"));
+		CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_evictSuccess1", residentToKick.getName(), resident.getName()));
 	}
 
 	public void show_cmd() throws CivException {
@@ -597,14 +586,10 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_leaveNotSelected"));
 		}
 
-		if (town.getMayorGroup().getMemberCount() == 1 && town.getMayorGroup().hasMember(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_leaveOnlyMayor"));
-		}
+		if (town.GM.isOneMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_leaveOnlyMayor"));
 
 		town.removeResident(resident);
-		if (resident.isCivChat()) {
-			resident.setCivChat(false);
-		}
+		if (resident.isCivChat()) resident.setCivChat(false);
 
 		if (resident.isTownChat()) {
 			resident.setTownChat(false);
@@ -614,8 +599,8 @@ public class TownCommand extends CommandBase {
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_leaveSuccess", town.getName()));
 		CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_leaveBroadcast", resident.getName()));
 
-		town.save();
 		resident.save();
+		town.save();
 	}
 
 	public void set_cmd() {
@@ -634,23 +619,16 @@ public class TownCommand extends CommandBase {
 	}
 
 	public void withdraw_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_withdrawPrompt"));
-		}
+		if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_town_withdrawPrompt"));
 
 		Town town = getSelectedTown();
-		Player player = getPlayer();
 		Resident resident = getResident();
 
-		if (!town.playerIsInGroupName("mayors", player)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
-		}
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
 
 		try {
 			Double amount = Double.valueOf(args[1]);
-			if (amount < 1) {
-				throw new CivException(amount + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
-			}
+			if (amount < 1) throw new CivException(amount + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
 			amount = Math.floor(amount);
 
 			if (!town.getTreasury().payTo(resident.getTreasury(), Double.valueOf(args[1]))) {
@@ -763,23 +741,13 @@ public class TownCommand extends CommandBase {
 	// }
 
 	public void claim_cmd() throws CivException {
-		if (War.isWarTime()) {
-			throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
-		}
+		if (War.isWarTime()) throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
 
 		Player player = getPlayer();
 		Town town = this.getSelectedTown();
+		Resident resident = getResident();
 
-		if (!town.playerIsInGroupName("mayors", player) && !town.playerIsInGroupName("assistants", player)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
-		}
-
-		// boolean outpost = false;
-		// if (args.length >= 2 && args[1].equalsIgnoreCase("outpost")) {
-		// outpost = true;
-		// CivMessage.send(player, "Claiming an outpost!");
-		// }
-
+		if (!town.GM.isMayorOrAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
 		TownChunk.claim(town, player);
 	}
 
@@ -794,7 +762,7 @@ public class TownCommand extends CommandBase {
 			}
 		}
 
-		if (!town.playerIsInGroupName("mayors", player) && !town.playerIsInGroupName("assistants", player)) throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
+		if (!town.GM.isMayorOrAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
 		if (town.getTownChunks().size() <= 1) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimError"));
 		if (tc.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimNotInTown"));
 		if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));

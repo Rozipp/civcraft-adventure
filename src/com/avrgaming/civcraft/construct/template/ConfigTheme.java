@@ -57,6 +57,7 @@ public class ConfigTheme {
 		configTheme.data = fconfig.getInt("data");
 
 		for (String constrName : folder.list()) {
+			if (constrName.equals("config.yml")) continue;
 			configTheme.constrNames.add(constrName);
 		}
 		configThemes.add(configTheme);

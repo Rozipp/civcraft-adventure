@@ -37,12 +37,14 @@ public class PermissionGroup extends SQLObject {
 	private Map<String, Resident> members = new ConcurrentHashMap<String, Resident>();
 	/* Only cache towns as the 'civ' can change when a town gets conquered or gifted/moved. */
 	private Town town = null;
+	private Civilization civ = null;
 
 	private int civId;
 	private int townId;
 
 	public PermissionGroup(Civilization civ, String name) throws InvalidNameException {
 		this.civId = civ.getId();
+		this.civ = civ;
 		this.setName(name);
 	}
 
@@ -62,15 +64,15 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public void addMember(Resident res) {
-		members.put(res.getUid().toString(), res);
+		members.put(res.getUuid().toString(), res);
 	}
 
 	public void removeMember(Resident res) {
-		members.remove(res.getUid().toString());
+		members.remove(res.getUuid().toString());
 	}
 
 	public boolean hasMember(Resident res) {
-		return members.containsKey(res.getUid().toString());
+		return members.containsKey(res.getUuid().toString());
 	}
 
 	public void clearMembers() {
@@ -78,12 +80,13 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public static final String TABLE_NAME = "GROUPS";
+
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment,"
-					+ "`name` VARCHAR(64) NOT NULL," + "`town_id` int(11)," + "`civ_id` int(11)," + "`members` mediumtext," +
-					//"FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+"TOWN(id),"+
-					//"FOREIGN KEY (civ_id) REFERENCES "+SQL.tb_prefix+"CIVILIZATIONS(id),"+
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment," + "`name` VARCHAR(64) NOT NULL," + "`town_id` int(11)," + "`civ_id` int(11)," + "`members` mediumtext,"
+					+
+					// "FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+"TOWN(id),"+
+					// "FOREIGN KEY (civ_id) REFERENCES "+SQL.tb_prefix+"CIVILIZATIONS(id),"+
 					"PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
@@ -101,9 +104,9 @@ public class PermissionGroup extends SQLObject {
 		this.setCivId(rs.getInt("civ_id"));
 		loadMembersFromSaveString(rs.getString("members"));
 
-		if (this.getTownId() != 0) {
-			this.town = CivGlobal.getTownFromId(this.getTownId());
-			if (this.town == null) {
+		if (townId != 0) {
+			town = CivGlobal.getTownFromId(this.getTownId());
+			if (town == null) {
 				CivLog.warning("TownChunk tried to load without a town...");
 				if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
 					CivLog.info("CLEANING");
@@ -111,9 +114,10 @@ public class PermissionGroup extends SQLObject {
 				}
 				throw new CivException("COUlD NOT FIND TOWN ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
 			} else
-				this.getTown().addGroup(this);
-		} else {
-			Civilization civ = CivGlobal.getCivFromId(this.getCivId());
+				this.getTown().GM.addGroup(this);
+		}
+		if (civId != 0) {
+			civ = CivGlobal.getCivFromId(this.getCivId());
 			if (civ == null) {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
 				if (civ == null) {
@@ -126,7 +130,7 @@ public class PermissionGroup extends SQLObject {
 				}
 			}
 
-			civ.addGroup(this);
+			civ.GM.addGroup(this);
 		}
 	}
 
@@ -186,46 +190,7 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public Civilization getCiv() {
-		if (town == null) {
-			return null;
-		}
-
-		return town.getCiv();
-	}
-
-	public boolean isProtectedGroup() {
-		return isTownProtectedGroup(this.getName()) || isCivProtectedGroup(this.getName());
-	}
-
-	public static boolean isProtectedGroupName(String name) {
-		return isTownProtectedGroup(name) || isCivProtectedGroup(name);
-	}
-
-	public boolean isTownProtectedGroup() {
-		return isTownProtectedGroup(this.getName());
-	}
-
-	public boolean isCivProtectedGroup() {
-		return isCivProtectedGroup(this.getName());
-	}
-
-	private static boolean isTownProtectedGroup(String name) {
-		switch (name.toLowerCase()) {
-			case "mayors" :
-			case "assistants" :
-			case "residents" :
-				return true;
-		}
-		return false;
-	}
-
-	private static boolean isCivProtectedGroup(String name) {
-		switch (name.toLowerCase()) {
-			case "leaders" :
-			case "advisers" :
-				return true;
-		}
-		return false;
+		return civ;
 	}
 
 	public String getMembersString() {
@@ -239,27 +204,27 @@ public class PermissionGroup extends SQLObject {
 	}
 
 	public static boolean hasGroup(String playerName, String groupName) {
-//		try {
-//			RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
-//
-//			Player playerToCheck = Bukkit.getPlayer(playerName);
-//			String group = chat.getProvider().getPrimaryGroup(playerToCheck);
-//			if (playerToCheck != null) {
-//				if (!groupName.contains("Helper")) {
-//					String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
-//					int var4 = var3.length;
-//
-//					for (int var5 = 0; var5 < var4; ++var5) {
-//						String g = var3[var5];
-//						if (g.equalsIgnoreCase(groupName)) {
-//							return true;
-//						}
-//					}
-//				}
-//			}
-//		} catch (NoClassDefFoundError e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// RegisteredServiceProvider<Chat> chat = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
+		//
+		// Player playerToCheck = Bukkit.getPlayer(playerName);
+		// String group = chat.getProvider().getPrimaryGroup(playerToCheck);
+		// if (playerToCheck != null) {
+		// if (!groupName.contains("Helper")) {
+		// String[] var3 = chat.getProvider().getPlayerGroups(playerToCheck);
+		// int var4 = var3.length;
+		//
+		// for (int var5 = 0; var5 < var4; ++var5) {
+		// String g = var3[var5];
+		// if (g.equalsIgnoreCase(groupName)) {
+		// return true;
+		// }
+		// }
+		// }
+		// }
+		// } catch (NoClassDefFoundError e) {
+		// e.printStackTrace();
+		// }
 		return false;
 	}
 

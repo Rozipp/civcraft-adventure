@@ -57,16 +57,16 @@ public class TeleportPlayerTaskTown extends BukkitRunnable
                     return;
                 }
                 if (!this.resident.getTreasury().hasEnough(5000.0)) {
-                    CivMessage.sendError(this.resident, CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int)this.resident.getTreasury().getBalance()) + "§c", "§c" + Resident.plurals(5000 - (int)this.resident.getTreasury().getBalance(), "\u043c\u043e\u043d\u0435\u0442\u0430", "\u043c\u043e\u043d\u0435\u0442\u044b", "\u043c\u043e\u043d\u0435\u0442")));
+                    CivMessage.sendError(this.resident, CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int)this.resident.getTreasury().getBalance()) + "§c", "§c" + CivMessage.plurals(5000 - (int)this.resident.getTreasury().getBalance(), "\u043c\u043e\u043d\u0435\u0442\u0430", "\u043c\u043e\u043d\u0435\u0442\u044b", "\u043c\u043e\u043d\u0435\u0442")));
                     return;
                 }
                 if (i != 0) {
-                    CivMessage.sendSuccess(this.resident, CivSettings.localize.localizedString("cmd_camp_teleport_waiting", "§c" + i + "§a", "§6" + Resident.plurals(i, "\u0441\u0435\u043a\u0443\u043d\u0434\u0443", "\u0441\u0435\u043a\u0443\u043d\u0434\u044b", "\u0441\u0435\u043a\u0443\u043d\u0434")));
-                    CivSettings.localize.localizedString("cmd_camp_teleport_waiting", CivColor.RoseBold + i + CivColor.LightGreenBold, CivColor.GoldBold + Resident.plurals(i, "\u0441\u0435\u043a\u0443\u043d\u0434\u0443", "\u0441\u0435\u043a\u0443\u043d\u0434\u044b", "c\u0435\u043a\u0443\u043d\u0434"));
+                    CivMessage.sendSuccess(this.resident, CivSettings.localize.localizedString("cmd_camp_teleport_waiting", "§c" + i + "§a", "§6" + CivMessage.plurals(i, "\u0441\u0435\u043a\u0443\u043d\u0434\u0443", "\u0441\u0435\u043a\u0443\u043d\u0434\u044b", "\u0441\u0435\u043a\u0443\u043d\u0434")));
+                    CivSettings.localize.localizedString("cmd_camp_teleport_waiting", CivColor.RoseBold + i + CivColor.LightGreenBold, CivColor.GoldBold + CivMessage.plurals(i, "\u0441\u0435\u043a\u0443\u043d\u0434\u0443", "\u0441\u0435\u043a\u0443\u043d\u0434\u044b", "c\u0435\u043a\u0443\u043d\u0434"));
                 }
                 else {
                     if (!this.resident.getTreasury().hasEnough(5000.0)) {
-                        CivMessage.sendError(this.resident, CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int)this.resident.getTreasury().getBalance()) + "§c", "§c" + Resident.plurals(5000 - (int)this.resident.getTreasury().getBalance(), "\u043c\u043e\u043d\u0435\u0442\u0430", "\u043c\u043e\u043d\u0435\u0442\u044b", "\u043c\u043e\u043d\u0435\u0442")));
+                        CivMessage.sendError(this.resident, CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int)this.resident.getTreasury().getBalance()) + "§c", "§c" + CivMessage.plurals(5000 - (int)this.resident.getTreasury().getBalance(), "\u043c\u043e\u043d\u0435\u0442\u0430", "\u043c\u043e\u043d\u0435\u0442\u044b", "\u043c\u043e\u043d\u0435\u0442")));
                         return;
                     }
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask((Plugin)CivCraft.getPlugin(), () -> {

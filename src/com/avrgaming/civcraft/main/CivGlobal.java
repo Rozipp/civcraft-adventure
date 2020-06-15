@@ -35,7 +35,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
@@ -695,7 +694,7 @@ public class CivGlobal {
 	}
 
 	public static Player getPlayer(Resident resident) throws CivException {
-		Player player = Bukkit.getPlayer(resident.getUid());
+		Player player = Bukkit.getPlayer(resident.getUuid());
 		if (player == null) throw new CivException("No player named" + " " + resident.getName());
 		return player;
 	}
@@ -703,7 +702,7 @@ public class CivGlobal {
 	public static Player getPlayer(String name) throws CivException {
 		Resident res = CivGlobal.getResident(name);
 		if (res == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noResident", name));
-		Player player = Bukkit.getPlayer(res.getUid());
+		Player player = Bukkit.getPlayer(res.getUuid());
 		if (player == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noPlayer", name));
 		return player;
 	}
@@ -711,12 +710,12 @@ public class CivGlobal {
 	// ---------- Resident
 	public static void addResident(Resident res) {
 		residents.put(res.getName(), res);
-		residentsViaUUID.put(res.getUid(), res);
+		residentsViaUUID.put(res.getUuid(), res);
 	}
 
 	public static void removeResident(Resident res) {
 		residents.remove(res.getName());
-		residentsViaUUID.remove(res.getUid());
+		residentsViaUUID.remove(res.getUuid());
 	}
 
 	public static boolean hasResident(String name) {
@@ -886,32 +885,6 @@ public class CivGlobal {
 
 	public static Collection<Civilization> getAdminCivs() {
 		return adminCivs.values();
-	}
-
-	// ----------- PermissionGroup
-	public static PermissionGroup getPermissionGroup(Town town, Integer id) {
-		return town.getGroupFromId(id);
-	}
-
-	public static PermissionGroup getPermissionGroupFromName(Town town, String name) {
-		for (PermissionGroup grp : town.getGroups()) {
-			if (grp.getName().equalsIgnoreCase(name)) return grp;
-		}
-		return null;
-	}
-
-	public static Collection<PermissionGroup> getPermissionGroups() {
-		ArrayList<PermissionGroup> groups = new ArrayList<PermissionGroup>();
-		for (Town t : towns.values()) {
-			for (PermissionGroup grp : t.getGroups()) {
-				if (grp != null) groups.add(grp);
-			}
-		}
-		for (Civilization civ : civs.values()) {
-			if (civ.getLeaderGroup() != null) groups.add(civ.getLeaderGroup());
-			if (civ.getAdviserGroup() != null) groups.add(civ.getAdviserGroup());
-		}
-		return groups;
 	}
 
 	// --------- CultureChunk
@@ -1722,11 +1695,6 @@ public class CivGlobal {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public static OfflinePlayer getFakeOfflinePlayer(String name) {
-		return Bukkit.getOfflinePlayer(name);
-	}
-
 	public static Integer getScoreForCiv(Civilization civ) {
 		for (Entry<Integer, Civilization> entry : civilizationScores.entrySet()) {
 			if (civ == entry.getValue()) {
@@ -1936,20 +1904,20 @@ public class CivGlobal {
 	public static String getTimeString() {
 		String time = "";
 		if (War.isWarTime()) {
-			time = time + CivColor.RedBold + "\u0412\u043e\u0439\u043d\u0430! ";
+			time = time + CivColor.RedBold + CivSettings.localize.localizedString("WAR") + "! ";
 		}
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy ");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
 		time = time + CivColor.GoldBold + dateFormat.format(Calendar.getInstance().getTime());
-		dateFormat.applyPattern("HH:mm:ss '\u041c\u0421\u041a'");
+		dateFormat.applyPattern("HH:mm:ss 'МСК'");
 		time = time + CivColor.YellowBold + dateFormat.format(Calendar.getInstance().getTime());
 		return time;
 	}
 
 	public static String getDynmapLink(final String server) {
 		if ("Columba".equals(server)) {
-			return "http://95.216.74.3:5551";
+			return "FIXME"; //FIXME
 		}
-		return "https://wiki.furnex.ru/index.php?title=Введение\u041a\u0430\u0440\u0442\u044b_\u0441\u0435\u0440\u0432\u0435\u0440\u043e\u0432";
+		return "FIXME";
 	}
 }

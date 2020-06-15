@@ -33,7 +33,7 @@ implements GuiAction {
             return;
         }
         Civilization civ = interactor.getCiv();
-        if (!civ.getLeaderGroup().hasMember(interactor)) {
+        if (!civ.GM.isLeader(interactor)) {
             CivMessage.sendError((Object)player, CivSettings.localize.localizedString("var_bookcivspacegui_noLeader", civ.getName()));
             return;
         }

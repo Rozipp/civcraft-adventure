@@ -113,7 +113,7 @@ public class Camp extends Construct {
 
 	// -------------constructor
 	public Camp(Resident resident) throws CivException {
-		this.ownerName = resident.getUid().toString();
+		this.ownerName = resident.getUuid().toString();
 		this.setSQLOwner(resident);
 		try {
 			this.setName(resident.getName());
@@ -164,7 +164,7 @@ public class Camp extends Construct {
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		hashmap.put("owner_name", this.getOwnerResident().getUid().toString());
+		hashmap.put("owner_name", this.getOwnerResident().getUuid().toString());
 		hashmap.put("firepoints", this.firepoints);
 		hashmap.put("corner", this.corner.toString());
 		hashmap.put("next_raid_date", this.nextRaidDate.getTime());
@@ -292,7 +292,7 @@ public class Camp extends Construct {
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
-		for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+		for (ChunkCoord chunkCoord : this.getChunksCoords()) {
 			if (CivGlobal.getCultureChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("camp_checkInCivError"));
 		}
 		super.checkBlockPermissionsAndRestrictions(player);

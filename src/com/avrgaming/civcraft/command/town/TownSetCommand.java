@@ -40,8 +40,6 @@ public class TownSetCommand extends CommandBase {
 		command = "/town set";
 		displayName = CivSettings.localize.localizedString("cmd_town_set_name");
 		
-		cs.add("taxrate", CivSettings.localize.localizedString("cmd_town_set_taxrateDesc"));
-		cs.add("flattax", CivSettings.localize.localizedString("cmd_town_set_flattaxDesc"));
 		cs.add("bankfee", CivSettings.localize.localizedString("cmd_town_set_bankfeeDesc"));
 		cs.add("storefee", CivSettings.localize.localizedString("cmd_town_set_storefeeDesc"));
 		cs.add("grocerfee", CivSettings.localize.localizedString("cmd_town_set_grocerfeeDesc"));
@@ -193,39 +191,6 @@ public class TownSetCommand extends CommandBase {
 		
 	}
 	
-	public void taxrate_cmd() throws CivException {
-		Town town = getSelectedTown();
-		
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_taxratePrompt"));
-		}
-		
-		try { 
-			town.setTaxRate(Double.valueOf(args[1])/100);
-		} catch (NumberFormatException e) {
-			throw new CivException(args[1]+" "+CivSettings.localize.localizedString("cmd_enterNumerError"));
-		}
-		
-		town.save();
-		CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_set_taxrateSuccess",args[1]));
-	}
-
-	public void flattax_cmd() throws CivException {
-		Town town = getSelectedTown();	
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_taxratePrompt"));
-		}
-				
-		try { 
-			town.setFlatTax(Integer.valueOf(args[1]));
-		} catch (NumberFormatException e) {
-			throw new CivException(args[1]+" "+CivSettings.localize.localizedString("cmd_enterNumerError"));
-		}
-		
-		town.save();
-		CivMessage.send(town, CivSettings.localize.localizedString("var_cmd_town_set_flattaxSuccess",args[1]));
-	}
-	
 	@Override
 	public void doDefaultAction() throws CivException {
 		showHelp();
@@ -239,7 +204,7 @@ public class TownSetCommand extends CommandBase {
 	@Override
     public void permissionCheck() throws CivException {
         final Town town = this.getSelectedTown();
-        if (!town.getMayorGroup().hasMember(this.getResident()) && !town.getAssistantGroup().hasMember(this.getResident()) && !town.getCiv().getLeaderGroup().hasMember(this.getResident())) {
+        if (!town.GM.isMayorOrAssistant(this.getResident()) && !town.getCiv().GM.isLeader(this.getResident())) {
             throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
         }
     }

@@ -68,7 +68,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 			CivMessage.send(player, "Вы оп, потому можно строить в мирное время");
 		else {
 			if (!resident.hasTown()) throw new CivException(CivSettings.localize.localizedString("buildWarCamp_errorNotInCiv"));
-			if (!resident.getCiv().getLeaderGroup().hasMember(resident) && !resident.getCiv().getAdviserGroup().hasMember(resident)) throw new CivException(CivSettings.localize.localizedString("buildWarCamp_errorNotPerms"));
+			if (!resident.getCiv().GM.isLeaderOrAdviser(resident)) throw new CivException(CivSettings.localize.localizedString("buildWarCamp_errorNotPerms"));
 			if (!War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("buildWarCamp_errorNotWarTime"));
 			if (resident.getCiv().getWarCamps().size() >= warCampMax) throw new CivException(CivSettings.localize.localizedString("var_warcamp_maxReached", warCampMax));
 		}

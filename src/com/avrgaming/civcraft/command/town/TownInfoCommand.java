@@ -593,15 +593,15 @@ public class TownInfoCommand extends CommandBase {
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("TownLevel") + " " + CivColor.LightGreen + town.getLevel() + " (" + town.getLevelTitle() + ") " + CivColor.Green
 				+ CivSettings.localize.localizedString("Score") + " " + CivColor.LightGreen + town.getScore());
 
-		if (town.getMayorGroup() == null)
+		if (town.GM.getMayorGroup() == null)
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Mayors") + " " + CivColor.Rose + CivSettings.localize.localizedString("none"));
 		else
-			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Mayors") + " " + CivColor.LightGreen + town.getMayorGroup().getMembersString());
+			CivMessage.send(sender, CivColor.Green + town.GM.mayorGroupName + ": " + CivColor.LightGreen + town.GM.getMayorGroup().getMembersString());
 
-		if (town.getAssistantGroup() == null)
+		if (town.GM.getAssistantGroup() == null)
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Assitants") + " " + CivColor.Rose + CivSettings.localize.localizedString("none"));
 		else
-			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Assitants") + " " + CivColor.LightGreen + town.getAssistantGroup().getMembersString());
+			CivMessage.send(sender, CivColor.Green + town.GM.assistantGroupName + ": " + CivColor.LightGreen + town.GM.getAssistantGroup().getMembersString());
 
 		if (resident == null || civ.hasResident(resident) || isAdmin) {
 			String color = CivColor.LightGreen;
@@ -614,8 +614,7 @@ public class TownInfoCommand extends CommandBase {
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Growth") + " " + CivColor.LightGreen + df.format(town.getGrowth().total) + " " + CivColor.Green + CivSettings.localize.localizedString("Hammers")
 					+ " " + CivColor.LightGreen + df.format(town.getHammers().total) + " " + CivColor.Green + CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + df.format(town.getBeakers().total));
 
-			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Members") + " " + CivColor.LightGreen + town.getResidentCount() + " " + CivColor.Green + CivSettings.localize.localizedString("TaxRate") + " "
-					+ CivColor.LightGreen + town.getTaxRateString() + " " + CivColor.Green + CivSettings.localize.localizedString("FlatTax") + " " + CivColor.LightGreen + town.getFlatTax() + " " + CivSettings.CURRENCY_NAME);
+			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Members") + " " + CivColor.LightGreen + town.getResidentCount());
 
 			HashMap<String, String> info = new HashMap<String, String>();
 			// info.put("Happiness", CivColor.White+"("+CivColor.LightGreen+"H"+CivColor.Yellow+town.getHappinessTotal()
@@ -640,7 +639,7 @@ public class TownInfoCommand extends CommandBase {
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Goodies") + " " + CivColor.LightGreen + goodies);
 		}
 
-		if (resident == null || town.isInGroup("mayors", resident) || town.isInGroup("assistants", resident) || civ.getLeaderGroup().hasMember(resident) || civ.getAdviserGroup().hasMember(resident) || isAdmin) {
+		if (resident == null || town.GM.isMayorOrAssistant(resident) || civ.GM.isLeaderOrAdviser(resident) || isAdmin) {
 			try {
 				CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Treasury") + " " + CivColor.LightGreen + town.getBalance() + CivColor.Green + " " + CivSettings.CURRENCY_NAME + " "
 						+ CivSettings.localize.localizedString("cmd_town_info_structuresUpkeep") + " " + CivColor.LightGreen + town.getTotalUpkeep() * town.getGovernment().upkeep_rate);

@@ -31,7 +31,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.NotreDame;
@@ -61,7 +60,6 @@ public class DailyTimer implements Runnable {
 					collectTownTaxes();
 					payTownUpkeep();
 					payCivUpkeep();
-					decrementResidentGraceCounters();
 					checkAutoCapitulate();
 					Iterator<Entry<BlockCoord, Structure>> iter = CivGlobal.getStructureIterator();
 					while (iter.hasNext()) {
@@ -181,18 +179,13 @@ public class DailyTimer implements Runnable {
 	private void collectTownTaxes() {
 
 		for (Civilization civ : CivGlobal.getCivs()) {
-			if (civ.isAdminCiv()) {
-				continue;
-			}
+			if (civ.isAdminCiv()) continue;
 
 			double total = 0;
 			for (Town t : civ.getTowns()) {
 				try {
 					double taxrate = t.getDepositCiv().getIncomeTaxRate();
 					double townTotal = 0;
-
-					townTotal += t.collectPlotTax();
-					townTotal += t.collectFlatTax();
 
 					double taxesToCiv = total * taxrate;
 					townTotal -= taxesToCiv;
@@ -214,26 +207,6 @@ public class DailyTimer implements Runnable {
 
 			// TODO make a better messaging system...
 			CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_daily_townTaxes", total, CivSettings.CURRENCY_NAME));
-		}
-
-	}
-
-	private void decrementResidentGraceCounters() {
-
-		// TODO convert this from a countdown into a "days in debt" like civs have.
-		for (Resident resident : CivGlobal.getResidents()) {
-			if (!resident.hasTown()) {
-				continue;
-			}
-
-			try {
-				if (resident.getDaysTilEvict() > 0) {
-					resident.decrementGraceCounters();
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 
 	}

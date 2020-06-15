@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
@@ -48,7 +47,6 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation.Status;
-import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.RespawnLocationHolder;
 import com.avrgaming.civcraft.structure.Structure;
@@ -82,16 +80,8 @@ public class Civilization extends SQLObject {
 	private double researchProgress = 0.0;
 
 	private EconObject treasury;
-	private PermissionGroup leaderGroup;
-	private PermissionGroup adviserGroup;
-
-	/* Strings used for reverse lookups. */
-	private String leaderName;
-	private String leaderGroupName;
-	private String advisersGroupName;
 	private int capitolId;
-
-	private String ownerName;
+	public CivGroupManager GM;
 
 	private ConcurrentHashMap<String, Town> towns = new ConcurrentHashMap<String, Town>();
 	private ConfigGovernment government;
@@ -129,11 +119,7 @@ public class Civilization extends SQLObject {
 
 	public Object civGuiLeaders;
 
-	private String ownerGroupName;
-	private PermissionGroup ownerGroup;
-
 	private ConfigTech techQueue = null;
-	private double settlerCost = 25000.0;
 	int currentMission = 1;
 	boolean missionActive = false;
 	String missionProgress = "0:0";
@@ -144,12 +130,13 @@ public class Civilization extends SQLObject {
 	private Set<Cave> takedCave = new HashSet<Cave>();
 
 	public Civilization(Resident leader) {
-		this.leaderName = leader.getUid().toString();
+		try {
+			this.GM = new CivGroupManager(this, "leaders", "advisers");
+		} catch (InvalidNameException e) {}
 		this.government = CivSettings.governments.get("gov_tribalism");
 		this.color = this.pickCivColor();
 		this.setTreasury(CivGlobal.createEconObject(this));
 		this.getTreasury().setBalance(0, false);
-		this.ownerName = leader.getUid().toString();
 		this.loadSettings();
 	}
 
@@ -173,7 +160,6 @@ public class Civilization extends SQLObject {
 			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" //
 					+ "`id` int(11) unsigned NOT NULL auto_increment," //
 					+ "`name` VARCHAR(64) NOT NULL," //
-					+ "`leaderName` mediumtext," //
 					+ "`capitolId` int(11) DEFAULT 0,"//
 					+ "`debt` float NOT NULL DEFAULT '0',"//
 					+ "`coins` double DEFAULT 0,"//
@@ -200,7 +186,6 @@ public class Civilization extends SQLObject {
 					+ "`cave_statuses` mediumtext DEFAULT NULL,"//
 					+ "`ownerName` mediumtext DEFAULT NULL," // ник основателя цивилизации
 					+ "`tag` mediumtext," // tэг цивилизации
-					+ "`settlerCost` double DEFAULT 25000,"//
 					+ "`currentMission` int(11) DEFAULT 0,"//
 					+ "`missionActive` boolean DEFAULT false,"//
 					+ "`missionProgress` mediumtext,"//
@@ -222,14 +207,11 @@ public class Civilization extends SQLObject {
 	public void load(ResultSet rs) throws SQLException, InvalidNameException {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));
-		String resUUID = rs.getString("leaderName");
-		// Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(resUUID));
-		leaderName = resUUID;
-		tag = rs.getString("tag");
 
-		capitolId = rs.getInt("capitolId");
-		setLeaderGroupName(rs.getString("leaderGroupName"));
-		setAdvisersGroupName(rs.getString("advisersGroupName"));
+		this.capitolId = rs.getInt("capitolId");
+		this.GM = new CivGroupManager(this, rs.getString("leaderGroupName"), rs.getString("advisersGroupName"));
+		this.tag = rs.getString("tag");
+
 		daysInDebt = rs.getInt("daysInDebt");
 		this.color = rs.getInt("color");
 		this.setResearchTech(CivSettings.techs.get(rs.getString("researchTech")));
@@ -273,10 +255,6 @@ public class Civilization extends SQLObject {
 		this.getTreasury().setBalance(rs.getDouble("coins"), false);
 		this.getTreasury().setDebt(rs.getDouble("debt"));
 
-		resUUID = rs.getString("ownerName");
-		this.ownerName = resUUID;
-		this.setOwnerGroupName();
-
 		for (ConfigTech tech : this.getTechs()) {
 			if (tech.era > this.getCurrentEra()) this.setCurrentEra(tech.era);
 		}
@@ -292,19 +270,14 @@ public class Civilization extends SQLObject {
 		this.loadCaveStatus(rs.getString("cave_statuses"));
 	}
 
-	public void setOwnerGroupName() {
-		this.ownerGroupName = "owner";
-	}
-
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		hashmap.put("name", this.getName());
-		hashmap.put("leaderName", this.getLeader().getUid().toString());
 		hashmap.put("tag", this.tag);
 		hashmap.put("capitolId", this.capitolId);
-		hashmap.put("leaderGroupName", this.getLeaderGroupName());
-		hashmap.put("advisersGroupName", this.getAdvisersGroupName());
+		hashmap.put("leaderGroupName", this.GM.leaderGroupName);
+		hashmap.put("advisersGroupName", this.GM.advisersGroupName);
 		hashmap.put("debt", this.getTreasury().getDebt());
 		hashmap.put("coins", this.getTreasury().getBalance());
 		hashmap.put("daysInDebt", this.daysInDebt);
@@ -328,9 +301,7 @@ public class Civilization extends SQLObject {
 		hashmap.put("researched", this.saveResearchedTechs());
 		hashmap.put("adminCiv", this.adminCiv);
 		hashmap.put("conquered", this.conquered);
-		hashmap.put("ownerName", this.ownerName);
-		hashmap.put("ownerGroupName", this.getOwnerGroupName());
-		hashmap.put("settlerCost", this.settlerCost);
+
 		hashmap.put("currentMission", this.currentMission);
 		hashmap.put("missionActive", this.missionActive);
 		hashmap.put("missionProgress", this.missionProgress);
@@ -476,33 +447,17 @@ public class Civilization extends SQLObject {
 		return this.messageOfTheDay;
 	}
 
-	public Resident getLeader() {
-		return CivGlobal.getResidentViaUUID(UUID.fromString(leaderName));
-	}
-
-	public void setLeader(Resident leader) {
-		this.leaderName = leader.getUid().toString();
-	}
-
 	@Override
 	public void delete() {
-		/* First delete all of our groups. */
 		try {
-			if (this.leaderGroup != null) {
-				this.leaderGroup.delete();
-			}
-
-			if (this.adviserGroup != null) {
-				this.adviserGroup.delete();
-			}
+			/* First delete all of our groups. */
+			this.GM.delete();
 
 			/* Delete all of our towns. */
 			for (Town t : getTowns()) {
 				t.delete();
 			}
-			if (this.ownerGroup != null) {
-				this.ownerGroup.delete();
-			}
+
 			/* Delete all relationships with other civs. */
 			this.diplomacyManager.deleteAllRelations();
 
@@ -514,22 +469,6 @@ public class Civilization extends SQLObject {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public String getLeaderGroupName() {
-		return "leaders";
-	}
-
-	public void setLeaderGroupName(String leaderGroupName) {
-		this.leaderGroupName = "leaders";
-	}
-
-	public String getAdvisersGroupName() {
-		return "advisers";
-	}
-
-	public void setAdvisersGroupName(String advisersGroupName) {
-		this.advisersGroupName = "advisers";
 	}
 
 	public Town getTown(String name) {
@@ -572,39 +511,16 @@ public class Civilization extends SQLObject {
 			}
 
 			// Create permission groups for civs.
+			this.GM.init();
+			this.GM.addLeader(resident);
+			/* Save this civ in the db and hashtable. */
 			try {
-				PermissionGroup leadersGroup;
-				leadersGroup = new PermissionGroup(this, "leaders");
-				leadersGroup.addMember(resident);
-				leadersGroup.saveNow();
-				this.setLeaderGroup(leadersGroup);
-
-				PermissionGroup adviserGroup = new PermissionGroup(this, "advisers");
-				adviserGroup.saveNow();
-				this.setAdviserGroup(adviserGroup);
-
-				PermissionGroup ownerGroup = new PermissionGroup(this, "owner");
-				ownerGroup.addMember(resident);
-				ownerGroup.saveNow();
-				this.setOwnerGroup(ownerGroup);
-
-				/* Save this civ in the db and hashtable. */
-				try {
-					town.setCiv(this);
-					town.createTown(resident, structure);
-				} catch (CivException e) {
-					this.delete();
-					leadersGroup.delete();
-					adviserGroup.delete();
-					CivLog.error("Caught exception:" + e.getMessage());
-					if (e.getMessage().contains("Duplicate entry")) {
-						SQL.deleteByName(getName(), TABLE_NAME);
-						throw new CivException(CivSettings.localize.localizedString("town_found_databaseException"));
-					}
-					throw new CivException(e.getMessage());
-				}
-			} catch (InvalidNameException e) {
+				town.setCiv(this);
+				town.createTown(resident, structure);
+			} catch (CivException e) {
 				e.printStackTrace();
+				this.delete();
+				throw e;
 			}
 			CivGlobal.addCiv(this);
 			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", this.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", town.getName(), player.getName()));
@@ -616,18 +532,6 @@ public class Civilization extends SQLObject {
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
 		}
 
-	}
-
-	public void addGroup(PermissionGroup grp) {
-		if (grp.getName().equalsIgnoreCase(this.leaderGroupName)) {
-			this.setLeaderGroup(grp);
-		} else
-			if (grp.getName().equalsIgnoreCase(this.advisersGroupName)) {
-				this.setAdviserGroup(grp);
-			} else
-				if (grp.getName().equalsIgnoreCase(this.ownerGroupName)) {
-					this.setOwnerGroup(grp);
-				}
 	}
 
 	public Collection<Town> getTowns() {
@@ -992,10 +896,7 @@ public class Civilization extends SQLObject {
 	}
 
 	public void addBeakers(double beakers) {
-
-		if (beakers == 0) {
-			return;
-		}
+		if (beakers == 0) return;
 
 		TaskMaster.asyncTask(new UpdateTechBar(this), 0);
 		setResearchProgress(getResearchProgress() + beakers);
@@ -1025,7 +926,7 @@ public class Civilization extends SQLObject {
 				}
 				if (!this.getTreasury().hasEnough(tech.getAdjustedTechCost(this))) {
 					CivMessage.sendTechError(this, CivSettings.localize.localizedString("civ_research_queueErrorCodeThree", tech.name, tech.getAdjustedTechCost(this) - this.getTreasury().getBalance(),
-							Resident.plurals((int) (tech.getAdjustedTechCost(this) - this.getTreasury().getBalance()), "монета", "монеты", "монет")));
+							CivMessage.plurals((int) (tech.getAdjustedTechCost(this) - this.getTreasury().getBalance()), "монета", "монеты", "монет")));
 					return;
 				}
 				if (this.getResearchTech() != null) {
@@ -1411,14 +1312,10 @@ public class Civilization extends SQLObject {
 	}
 
 	public boolean hasResident(Resident resident) {
-		if (resident == null) {
-			return false;
-		}
+		if (resident == null) return false;
 
 		for (Town t : this.getTowns()) {
-			if (t.hasResident(resident)) {
-				return true;
-			}
+			if (t.hasResident(resident)) return true;
 		}
 
 		return false;
@@ -1656,18 +1553,13 @@ public class Civilization extends SQLObject {
 	public boolean areLeadersInactive() {
 		try {
 			int leader_inactive_days = CivSettings.getInteger(CivSettings.civConfig, "civ.leader_inactive_days");
-
-			for (Resident resident : this.getLeaderGroup().getMemberList()) {
-				if (!resident.isInactiveForDays(leader_inactive_days)) {
-					return false;
-				}
+			for (Resident resident : this.GM.getLeaders()) {
+				if (!resident.isInactiveForDays(leader_inactive_days)) return false;
 			}
-
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 			return false;
 		}
-
 		return true;
 	}
 
@@ -1803,11 +1695,11 @@ public class Civilization extends SQLObject {
 
 	public ItemStack getRandomLeaderSkull(String message) {
 		Random rand = new Random();
-		int i = rand.nextInt(this.getLeaderGroup().getMemberCount());
+		int i = rand.nextInt(this.GM.getLeaders().size());
 		int count = 0;
-		Resident resident = this.getLeader();
+		Resident resident = this.GM.getLeader();
 
-		for (Resident res : this.getLeaderGroup().getMemberList()) {
+		for (Resident res : this.GM.getLeaders()) {
 			if (count == i) {
 				resident = res;
 				break;
@@ -1815,9 +1707,7 @@ public class Civilization extends SQLObject {
 		}
 
 		String leader = "";
-		if (resident != null) {
-			leader = resident.getName();
-		}
+		if (resident != null) leader = resident.getName();
 
 		ItemStack stack = ItemManager.spawnPlayerHead(leader, message + " (" + leader + ")");
 		return stack;
@@ -1835,40 +1725,8 @@ public class Civilization extends SQLObject {
 		}
 	}
 
-	public String getTag() {
-		return this.tag;
-	}
-
-	public void setOwner(final Resident owner) {
-		this.ownerName = owner.getUid().toString();
-	}
-
-	public void setTag(final String tag) {
-		this.tag = tag;
-	}
-
-	public String getOwnerName() {
-		return this.ownerName;
-	}
-
-	public void setOwnerName(final String ownerName) {
-		this.ownerName = ownerName;
-	}
-
 	public void rebuildTag() {
 		TagManager.editNameTag(this);
-	}
-
-	public Resident getOwner() {
-		return CivGlobal.getResidentViaUUID(UUID.fromString(this.ownerName));
-	}
-
-	public String getOwnerGroupName() {
-		return "owner";
-	}
-
-	public PermissionGroup getOwnerGroup() {
-		return this.ownerGroup;
 	}
 
 	public int getARGBColorTech(final int era) {
@@ -1890,14 +1748,6 @@ public class Civilization extends SQLObject {
 			if (town.isCapitol()) return town;
 		}
 		return null;
-	}
-
-	public double getSettlerCost() {
-		return this.settlerCost;
-	}
-
-	public void setSettlerCost(final double settlerCost) {
-		this.settlerCost = settlerCost;
 	}
 
 	public int getStockExchangeLevel() {
@@ -2136,8 +1986,9 @@ public class Civilization extends SQLObject {
 		/* Verify we have the correct item somewhere in our inventory. */
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
-//		if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists", this.getCapitol().getName()));
-//		if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
+		// if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists",
+		// this.getCapitol().getName()));
+		// if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
 	}
 
 }

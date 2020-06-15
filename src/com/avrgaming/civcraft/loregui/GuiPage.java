@@ -121,7 +121,7 @@ public class GuiPage {
 			String money_requ = "§b" + CivSettings.localize.localizedString("money_requ", Double.parseDouble(String.valueOf(info.cost)));
 			String hammers_requ = "§a" + CivSettings.localize.localizedString("hammers_requ", hammerCost);
 			String upkeep_day = "§d" + CivSettings.localize.localizedString("upkeep_day", info.upkeep);
-			if (town.getMayorGroup() == null || town.getAssistantGroup() == null || civ.getLeaderGroup() == null) {
+			if (town.GM.getMayorGroup() == null || town.GM.getAssistantGroup() == null || civ.GM.getLeaderGroup() == null) {
 				itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, money_requ, hammers_requ, upkeep_day,
 						"§c" + CivSettings.localize.localizedString("belongtown"));
 				inv.addItem(itemStack);
@@ -138,7 +138,7 @@ public class GuiPage {
 				inv.addItem(itemStack);
 				continue;
 			}
-			if (!town.getMayorGroup().hasMember(resident) && !town.getAssistantGroup().hasMember(resident) && !civ.getLeaderGroup().hasMember(resident)) {
+			if (!town.GM.isMayorOrAssistant(resident) && !civ.GM.isLeader(resident)) {
 				itemStack = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, money_requ, hammers_requ, upkeep_day,
 						"§c" + CivSettings.localize.localizedString("belongtown"));
 				inv.addItem(itemStack);
@@ -257,7 +257,7 @@ public class GuiPage {
 					ItemStack stack6;
 					stack4 = LoreGuiItem.build(p.getDisplayName(), p.configPerk.type_id, p.configPerk.data,
 							"§6" + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"),
-							"\u041d\u0435\u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u043d\u043e\u0435 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u0435");
+							"Неограниченное использование");
 					stack5 = LoreGuiItem.setAction(stack4, "ActivatePerk");
 					stack6 = LoreGuiItem.setActionData(stack5, "perk", p.configPerk.id);
 					inventory.addItem(new ItemStack[]{stack6});
@@ -338,7 +338,7 @@ public class GuiPage {
 				CivSettings.localize.localizedString("resident_perksGui_templatesHeading") + " " + name);
 		resident.perks.values().stream().filter(p -> p.getConfigId().contains("tpl_" + name)).map(p -> {
 			ItemStack stack2 = LoreGuiItem.build(p.configPerk.display_name, p.configPerk.type_id, p.configPerk.data,
-					"§6" + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), "§b\u041a\u043e\u043b-\u0432\u043e: " + p.count);
+					"§6" + CivSettings.localize.localizedString("resident_perksGui_clickToActivate"), "§bКол-во: " + p.count);
 			ItemStack stack3 = LoreGuiItem.setAction(stack2, "ActivatePerk");
 			ItemStack stack4 = LoreGuiItem.setActionData(stack3, "perk", p.configPerk.id);
 			return stack4;

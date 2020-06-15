@@ -39,7 +39,6 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.structure.Townhall;
@@ -182,59 +181,61 @@ public class AdminTownCommand extends CommandBase {
 	}
 
 	public void rebuildgroups_cmd() throws CivException {
-		Town town = getNamedTown(1);
-
-		if (town.getDefaultGroup() == null) {
-			PermissionGroup residents;
-			try {
-				residents = new PermissionGroup(town, "residents");
-				town.setDefaultGroup(residents);
-				try {
-					residents.saveNow();
-					town.saveNow();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			} catch (InvalidNameException e1) {
-				e1.printStackTrace();
-			}
-			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsResidents"));
-		}
-
-		if (town.getAssistantGroup() == null) {
-			PermissionGroup assistant;
-			try {
-				assistant = new PermissionGroup(town, "assistants");
-
-				town.setAssistantGroup(assistant);
-				try {
-					assistant.saveNow();
-					town.saveNow();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			} catch (InvalidNameException e) {
-				e.printStackTrace();
-			}
-			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsAssistants"));
-		}
-
-		if (town.getMayorGroup() == null) {
-			PermissionGroup mayor;
-			try {
-				mayor = new PermissionGroup(town, "mayors");
-				town.setMayorGroup(mayor);
-				try {
-					mayor.saveNow();
-					town.saveNow();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			} catch (InvalidNameException e) {
-				e.printStackTrace();
-			}
-			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsMayors"));
-		}
+		CivMessage.send(sender, "FIXME");
+		// FIXME
+		// Town town = getNamedTown(1);
+		//
+		// if (town.getDefaultGroup() == null) {
+		// PermissionGroup residents;
+		// try {
+		// residents = new PermissionGroup(town, "residents");
+		// town.setDefaultGroup(residents);
+		// try {
+		// residents.saveNow();
+		// town.saveNow();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
+		// } catch (InvalidNameException e1) {
+		// e1.printStackTrace();
+		// }
+		// CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsResidents"));
+		// }
+		//
+		// if (town.getAssistantGroup() == null) {
+		// PermissionGroup assistant;
+		// try {
+		// assistant = new PermissionGroup(town, "assistants");
+		//
+		// town.setAssistantGroup(assistant);
+		// try {
+		// assistant.saveNow();
+		// town.saveNow();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
+		// } catch (InvalidNameException e) {
+		// e.printStackTrace();
+		// }
+		// CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsAssistants"));
+		// }
+		//
+		// if (town.getMayorGroup() == null) {
+		// PermissionGroup mayor;
+		// try {
+		// mayor = new PermissionGroup(town, "mayors");
+		// town.setMayorGroup(mayor);
+		// try {
+		// mayor.saveNow();
+		// town.saveNow();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
+		// } catch (InvalidNameException e) {
+		// e.printStackTrace();
+		// }
+		// CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_town_rebuildgroupsMayors"));
+		// }
 
 	}
 
@@ -365,37 +366,17 @@ public class AdminTownCommand extends CommandBase {
 		Town town = getNamedTown(1);
 		Resident resident = getNamedResident(2);
 
-		if (!town.getAssistantGroup().hasMember(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("var_adcmd_town_rmassistantNotInTown", resident.getName(), town.getName()));
-		}
-
-		town.getAssistantGroup().removeMember(resident);
-		try {
-			town.getAssistantGroup().saveNow();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		if (!town.GM.isAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("var_adcmd_town_rmassistantNotInTown", resident.getName(), town.getName()));
+		town.GM.removeAssistant(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_rmassistantSuccess", resident.getName(), town.getName()));
-
 	}
 
 	public void rmmayor_cmd() throws CivException {
 		Town town = getNamedTown(1);
 		Resident resident = getNamedResident(2);
 
-		if (!town.getMayorGroup().hasMember(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("var_adcmd_town_rmmayorNotInTown", resident.getName(), town.getName()));
-
-		}
-
-		town.getMayorGroup().removeMember(resident);
-		try {
-			town.getMayorGroup().saveNow();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("var_adcmd_town_rmmayorNotInTown", resident.getName(), town.getName()));
+		town.GM.removeMayor(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_rmmayorSuccess", resident.getName(), town.getName()));
 
 	}
@@ -404,30 +385,16 @@ public class AdminTownCommand extends CommandBase {
 		Town town = getNamedTown(1);
 		Resident resident = getNamedResident(2);
 
-		town.getAssistantGroup().addMember(resident);
-		try {
-			town.getAssistantGroup().saveNow();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		town.GM.addAssistant(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_addAssistantSuccess", resident.getName(), town.getName()));
-
 	}
 
 	public void addmayor_cmd() throws CivException {
 		Town town = getNamedTown(1);
 		Resident resident = getNamedResident(2);
 
-		town.getMayorGroup().addMember(resident);
-		try {
-			town.getMayorGroup().saveNow();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+		town.GM.addMayor(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_addmayorSuccess", resident.getName(), town.getName()));
-
 	}
 
 	public void disband_cmd() throws CivException {

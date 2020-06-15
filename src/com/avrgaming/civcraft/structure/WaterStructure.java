@@ -43,7 +43,7 @@ public class WaterStructure extends Structure {
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
-		for (ChunkCoord chunkCoord : BuildableStatic.getChunkCoords(this)) {
+		for (ChunkCoord chunkCoord : this.getChunksCoords()) {
 			Biome biome = chunkCoord.getChunk().getBlock(7, 64, 7).getBiome();
 			switch (biome) {
 			case OCEAN:

@@ -960,7 +960,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '2.5'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'AB8618'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -981,7 +981,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '4.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'AB8618'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1002,7 +1002,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '3.5'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'AB8618'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1023,7 +1023,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '2.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'AB8618'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1046,7 +1046,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '3.75'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: '339933'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1067,7 +1067,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '6.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: '339933'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1088,7 +1088,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '5.25'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: '339933'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1109,7 +1109,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '3.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: '339933'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1132,7 +1132,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '5.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'FF0000'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1153,7 +1153,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '8.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'FF0000'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1174,7 +1174,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '7.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'FF0000'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'
@@ -1195,7 +1195,7 @@ materials:
           components:
               - name: 'Defense'
                 value: '4.0'
-              - name: 'LeatherColor'
+              - name: 'NBT'
                 color: 'FF0000'
               - name: 'NoVanillaDurability'
               - name: 'DurabilityOnDeath'

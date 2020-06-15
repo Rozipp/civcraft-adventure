@@ -166,7 +166,7 @@ public class SpaceShuttle extends Wonder {
 
 		Civilization civ = ((Buildable) sign.getOwner()).getCiv();
 		Town town = ((Buildable) sign.getOwner()).getTown();
-		if (!civ.getLeaderGroup().hasMember(resident)) access = false;
+		if (!civ.GM.isLeader(resident)) access = false;
 		if (access) {
 			final String action = sign.getAction();
 			switch (action) {

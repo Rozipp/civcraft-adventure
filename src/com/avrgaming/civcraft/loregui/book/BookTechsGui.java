@@ -34,7 +34,7 @@ implements GuiAction {
             return;
         }
         Civilization civ = whoClicked.getCiv();
-        if (!civ.getLeaderGroup().hasMember(whoClicked) && !civ.getAdviserGroup().hasMember(whoClicked)) {
+        if (!civ.GM.isLeaderOrAdviser(whoClicked)) {
             Book.spawnGuiBook(player);
             CivMessage.send((Object)player, "§c"+CivSettings.localize.localizedString("cmd_NeedHigherCivRank"));
             return;

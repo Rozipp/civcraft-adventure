@@ -39,8 +39,8 @@ public class ChunkCoord {
 
 	public ChunkCoord(Location location) {
 		this.world = location.getWorld();
-		this.x = castToChunk(location.getBlockX());
-		this.z = castToChunk(location.getBlockZ());
+		this.x = castCoordToChunkCoord(location.getBlockX());
+		this.z = castCoordToChunkCoord(location.getBlockZ());
 	}
 
 	public ChunkCoord(Chunk c) {
@@ -51,14 +51,14 @@ public class ChunkCoord {
 
 	public ChunkCoord(BlockCoord coord) {
 		this.world = coord.getWorld();
-		this.x = castToChunk(coord.getX());
-		this.z = castToChunk(coord.getZ());
+		this.x = castCoordToChunkCoord(coord.getX());
+		this.z = castCoordToChunkCoord(coord.getZ());
 	}
 
 	public ChunkCoord(Block block) {
 		this.world = block.getWorld();
-		this.x = castToChunk(block.getX());
-		this.z = castToChunk(block.getZ());
+		this.x = castCoordToChunkCoord(block.getX());
+		this.z = castCoordToChunkCoord(block.getZ());
 	}
 
 	@Override
@@ -87,10 +87,6 @@ public class ChunkCoord {
 		return new ChunkCoord(getWorld(), getX() + dx, getZ() + dz);
 	}
 
-	public static int castToChunk(int i) {
-		return (int) Math.floor((double) i / 16.0);
-	}
-
 	public int manhattanDistance(ChunkCoord chunkCoord) {
 		return Math.abs(chunkCoord.x - this.x) + Math.abs(chunkCoord.z - this.z);
 	}
@@ -108,8 +104,15 @@ public class ChunkCoord {
 		return this.world.getChunkAt(this.x, this.z);
 	}
 
-	public static int getCoordInChunk(int d) {
-		return d % 16 + (d < 0 ? 16 : 0);
+	public static int getCoordInChunk(int x) {
+		return (x >= 0 ? x % 16 : 15 + (x + 1) % 16);
 	}
 
+	public static int castCoordToChunkCoord(int x) {
+		return x / 16 - (x < 0 ? 1 : 0);
+	}
+
+	public static int castSizeInChunkSize(int size_x) {
+		return 1 + (Math.abs(size_x) - 1) / 16;
+	}
 }
