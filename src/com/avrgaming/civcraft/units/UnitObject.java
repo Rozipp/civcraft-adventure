@@ -272,7 +272,7 @@ public class UnitObject extends SQLObject {
 		if ((System.currentTimeMillis() - lastActivate) > UnitStatic.unitTimeDiactivate * 60000) throw new CivException("Вы давно  не использовали юнита, потому он вернулся в бараки");
 	}
 
-	public void setAmunitionSlot(String mat, Integer slot) {
+	public void setAmmunitionSlot(String mat, Integer slot) {
 		ammunitionSlots.put(mat, slot);
 	}
 

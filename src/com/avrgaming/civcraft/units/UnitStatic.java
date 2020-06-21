@@ -324,23 +324,22 @@ public class UnitStatic {
 	/** Удаляет все предмети юнита из инвентаря */
 	public static void removeChildrenItems(Player player) {
 		if (player == null) return;
-		Resident res = CivGlobal.getResident(player);
-		int unitId = res.getUnitObjectId();
-		UnitObject uo= null;
-		if (unitId > 0) {
-			uo = CivGlobal.getUnitObject(unitId);
-			uo.setAmmunitionSlots(new HashMap<>());
-		}
-		for (int i = 0; i <= 40; i++) {
+
+		HashMap<String, Integer> ammunitionSlot = new HashMap<>();
+		for (int i = 0; i <= player.getInventory().getSize(); i++) {
 			ItemStack stack = player.getInventory().getItem(i);
-			if (stack == null) continue;
 			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
 				String mid = CustomMaterial.getMID(stack);
-				if (uo != null) uo.setAmunitionSlot(mid, i);
+				if (mid != null) ammunitionSlot.put(mid, i);
 				player.getInventory().setItem(i, null);
 			}
 		}
-		uo.save();
+
+		UnitObject uo = CivGlobal.getUnitObject(CivGlobal.getResident(player).getUnitObjectId());
+		if (uo != null) {
+			uo.setAmmunitionSlots(ammunitionSlot);
+			uo.save();
+		}
 
 		player.updateInventory();
 	}

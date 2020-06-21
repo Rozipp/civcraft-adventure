@@ -236,8 +236,11 @@ public class CustomItemListener implements Listener {
 			Player player = (Player) event.getEntity();
 			Arrow arrow = (Arrow) event.getProjectile();
 
-			int slot = ArrowComponent.foundArrowComponent(player.getInventory());
-			if (slot >= 0) {
+			int slot = ArrowComponent.foundShootingArrow(player.getInventory());
+			if (slot == -1) {
+				event.setCancelled(true);
+				event.setProjectile(null);
+			} else {
 				Location loc = event.getEntity().getEyeLocation();
 				Vector velocity = arrow.getVelocity();
 				float speed = (float) velocity.length();
@@ -247,7 +250,12 @@ public class CustomItemListener implements Listener {
 				FixedMetadataValue metadata = ArrowComponent.getMetadata(stack);
 				if (metadata != null) {
 					TippedArrow tarrow = loc.getWorld().spawnArrow(loc.add(dir.multiply(2)), dir, speed, 0.0f, TippedArrow.class);
-					if (metadata == ArrowComponent.arrow_fire) tarrow.setFireTicks(2000);
+					if (metadata.equals(ArrowComponent.arrow_fire1)) tarrow.setFireTicks(2000);
+					if (metadata.equals(ArrowComponent.arrow_fire2)) tarrow.setFireTicks(4000);
+					if (metadata.equals(ArrowComponent.arrow_fire3)) tarrow.setFireTicks(6000);
+					if (metadata.equals(ArrowComponent.arrow_knockback1)) tarrow.setKnockbackStrength(1);
+					if (metadata.equals(ArrowComponent.arrow_knockback2)) tarrow.setKnockbackStrength(2);
+					if (metadata.equals(ArrowComponent.arrow_knockback3)) tarrow.setKnockbackStrength(3);
 					tarrow.setMetadata("civ_arrow_effect", metadata);
 					arrow = tarrow;
 				} else {
@@ -262,6 +270,7 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerDefenseAndAttack(EntityDamageByEntityEvent event) {
+		if (event.isCancelled()) return;
 		Player attacker = null;
 		if (event.getDamager() instanceof Player) {
 
@@ -271,7 +280,6 @@ public class CustomItemListener implements Listener {
 				if (arrow.getShooter() instanceof Player) attacker = (Player) arrow.getShooter();
 			}
 
-		if (event.isCancelled()) return;
 		Double baseDamage = event.getDamage();
 
 		Player defendingPlayer = null;
@@ -294,8 +302,15 @@ public class CustomItemListener implements Listener {
 				if (arrow.hasMetadata("civ_arrow_effect")) {
 					for (MetadataValue dd : arrow.getMetadata("civ_arrow_effect")) {
 						// if (dd.equals(ArrowComponent.arrow_fire)) defendingPlayer.set);
-						if (dd.equals(ArrowComponent.arrow_frost)) ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5, 2));
-						if (dd.equals(ArrowComponent.arrow_poison)) ((LivingEntity) event.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.POISON, 5, 2));
+						PotionEffect pe = null;
+						if (dd.equals(ArrowComponent.arrow_frost1)) pe = new PotionEffect(PotionEffectType.SLOW, 20, 1);
+						if (dd.equals(ArrowComponent.arrow_frost2)) pe = new PotionEffect(PotionEffectType.SLOW, 40, 1);
+						if (dd.equals(ArrowComponent.arrow_frost3)) pe = new PotionEffect(PotionEffectType.SLOW, 60, 1);
+						if (dd.equals(ArrowComponent.arrow_poison1)) pe = new PotionEffect(PotionEffectType.POISON, 20, 1);
+						if (dd.equals(ArrowComponent.arrow_poison2)) pe = new PotionEffect(PotionEffectType.POISON, 40, 1);
+						if (dd.equals(ArrowComponent.arrow_poison3)) pe = new PotionEffect(PotionEffectType.POISON, 60, 1);
+
+						if (pe != null) ((LivingEntity) event.getEntity()).addPotionEffect(pe);
 					}
 				}
 			}
