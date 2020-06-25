@@ -38,7 +38,6 @@ public class CaveEntrance extends Construct {
 			structSign.setAction("entrance");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 			break;
 		}
 

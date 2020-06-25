@@ -41,7 +41,7 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
-import com.avrgaming.civcraft.structure.Townhall;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -339,11 +339,11 @@ public class AdminTownCommand extends CommandBase {
 	public void tp_cmd() throws CivException {
 		Town town = getNamedTown(1);
 
-		Townhall townhall = town.getTownHall();
+		Cityhall cityhall = town.getCityhall();
 
 		if (sender instanceof Player) {
-			if (townhall != null && townhall.isComplete()) {
-				BlockCoord bcoord = townhall.getRandomRevivePoint();
+			if (cityhall != null && cityhall.isComplete()) {
+				BlockCoord bcoord = cityhall.getRandomRevivePoint();
 				((Player) sender).teleport(bcoord.getLocation());
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_tpSuccess", town.getName()));
 				return;

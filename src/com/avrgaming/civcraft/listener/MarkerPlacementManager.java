@@ -72,7 +72,7 @@ public class MarkerPlacementManager implements Listener {
 	public static void removeFromPlacementMode(Player player, boolean canceled) {
 		if (canceled) {
 			Structure struct = playersInPlacementMode.get(player.getName());
-			struct.getTown().removeStructure(struct);
+			struct.getTown().SM.removeStructure(struct);
 			CivGlobal.removeStructure(struct);
 		}
 		playersInPlacementMode.remove(player.getName());

@@ -19,7 +19,7 @@ extends CivAsyncTask {
     }
 
     private void processTick() {
-        SpaceShuttle spaceShuttle = (SpaceShuttle)town.getWonderByType("w_space_shuttle");
+        SpaceShuttle spaceShuttle = (SpaceShuttle)town.SM.getWonderById("w_space_shuttle");
         try {
             spaceShuttle.startMission(this, player);
         }

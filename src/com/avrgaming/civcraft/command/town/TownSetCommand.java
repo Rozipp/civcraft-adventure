@@ -80,7 +80,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_scoutrateRates"));
 		}
 		
-		for (Structure struct : town.getStructures()) {
+		for (Structure struct : town.SM.getStructures()) {
 			if (struct instanceof ScoutTower) {
 				((ScoutTower)struct).setReportSeconds(rate);
 			} 
@@ -100,7 +100,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_rate5to15"));
 		}
 		
-		Structure struct = town.findStructureByConfigId("s_blacksmith");
+		Structure struct = town.SM.getFirstStructureById("s_blacksmith");
 		if (struct == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_blacksmithfeeNone"));
 		}
@@ -120,7 +120,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_rate5to15"));
 		}
 		
-		Structure struct = town.findStructureByConfigId("s_library");
+		Structure struct = town.SM.getFirstStructureById("s_library");
 		if (struct == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_libraryfeeNone"));
 		}
@@ -139,7 +139,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_rate5to15"));
 		}
 		
-		Structure struct = town.findStructureByConfigId("s_grocer");
+		Structure struct = town.SM.getFirstStructureById("s_grocer");
 		if (struct == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_grocerfeeNone"));
 		}
@@ -159,7 +159,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_rate5to15"));
 		}
 		
-		Structure struct = town.findStructureByConfigId("s_store");
+		Structure struct = town.SM.getFirstStructureById("s_store");
 		if (struct == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_storefeeNone"));
 		}
@@ -179,7 +179,7 @@ public class TownSetCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_rate5to15"));
 		}
 		
-		Structure struct = town.findStructureByConfigId("s_bank");
+		Structure struct = town.SM.getFirstStructureById("s_bank");
 		if (struct == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_set_bankfeeNone"));
 		}

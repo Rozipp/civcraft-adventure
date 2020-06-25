@@ -47,10 +47,9 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation.Status;
-import com.avrgaming.civcraft.structure.Capitol;
 import com.avrgaming.civcraft.structure.RespawnLocationHolder;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
 import com.avrgaming.civcraft.structure.wonders.StockExchange;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
@@ -129,10 +128,8 @@ public class Civilization extends SQLObject {
 	private Set<Cave> disputedCave = new HashSet<Cave>();
 	private Set<Cave> takedCave = new HashSet<Cave>();
 
-	public Civilization(Resident leader) {
-		try {
-			this.GM = new CivGroupManager(this, "leaders", "advisers");
-		} catch (InvalidNameException e) {}
+	public Civilization() {
+		this.GM = new CivGroupManager(this, null, null);
 		this.government = CivSettings.governments.get("gov_tribalism");
 		this.color = this.pickCivColor();
 		this.setTreasury(CivGlobal.createEconObject(this));
@@ -510,24 +507,28 @@ public class Civilization extends SQLObject {
 				}
 			}
 
-			// Create permission groups for civs.
-			this.GM.init();
-			this.GM.addLeader(resident);
 			/* Save this civ in the db and hashtable. */
 			try {
 				town.setCiv(this);
 				town.createTown(resident, structure);
+				this.setCapitolId(town.getId());
 			} catch (CivException e) {
 				e.printStackTrace();
 				this.delete();
 				throw e;
 			}
+			
+			// Create permission groups for civs.
+			this.GM.init();
+			this.GM.addLeader(resident);
+
 			CivGlobal.addCiv(this);
 			CivMessage.globalTitle(CivSettings.localize.localizedString("var_civ_found_successTitle", this.getName()), CivSettings.localize.localizedString("var_civ_found_successSubTitle", town.getName(), player.getName()));
 			this.saveNow();
 			player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
 			TagManager.editNameTag(player);
 		} catch (SQLException e) {
+			this.delete();
 			e.printStackTrace();
 			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
 		}
@@ -707,29 +708,16 @@ public class Civilization extends SQLObject {
 		return distance_happy;
 	}
 
-	public Location getCapitolTownHallLocation() {
-		Town capitol = CivGlobal.getTownFromId(this.capitolId);
-		if (capitol == null) {
-			return null;
-		}
-
-		for (Structure struct : capitol.getStructures()) {
-			if (struct instanceof Capitol) {
-				return struct.getCorner().getLocation();
-			}
-		}
-
-		return null;
-	}
-
-	public Capitol getCapitolStructure() {
+	public Location getCapitolCityHallLocation() {
 		Town capitol = this.getCapitol();
 		if (capitol == null) return null;
+		return capitol.getLocation();
+	}
 
-		for (Structure struct : capitol.getStructures()) {
-			if (struct instanceof Capitol) return (Capitol) struct;
-		}
-		return null;
+	public Cityhall getCapitolCityHall() {
+		Town capitol = this.getCapitol();
+		if (capitol == null) return null;
+		return capitol.getCityhall();
 	}
 
 	public double payUpkeep() throws InvalidConfiguration, CivException {
@@ -1050,9 +1038,6 @@ public class Civilization extends SQLObject {
 		double coins_per_beaker;
 		try {
 			coins_per_beaker = CivSettings.getDouble(CivSettings.civConfig, "civ.coins_per_beaker");
-			if (this.getCapitol() != null && this.getCapitol().getBuffManager().hasBuff("level7_higherIncomeTown")) {
-				--coins_per_beaker;
-			}
 			for (Town t : this.getTowns()) {
 				if (t.getBuffManager().hasBuff("buff_greatlibrary_double_tax_beakers")) {
 					coins_per_beaker /= 2;
@@ -1175,7 +1160,7 @@ public class Civilization extends SQLObject {
 
 	public void regenControlBlocks() {
 		for (Town t : getTowns()) {
-			t.getTownHall().regenControlBlocks();
+			t.getCityhall().regenControlBlocks();
 		}
 	}
 
@@ -1194,13 +1179,11 @@ public class Civilization extends SQLObject {
 	}
 
 	public void repositionPlayers(String reason) {
-		if (this.getDiplomacyManager().isAtWar() == false) {
-			return;
-		}
+		if (this.getDiplomacyManager().isAtWar() == false) return;
 
 		for (Town t : this.getTowns()) {
-			Townhall townhall = t.getTownHall();
-			if (townhall == null) {
+			Cityhall cityhall = t.getCityhall();
+			if (cityhall == null) {
 				CivLog.error("Town hall was null for " + t.getName() + " when trying to reposition players.");
 				continue;
 			}
@@ -1213,7 +1196,6 @@ public class Civilization extends SQLObject {
 
 			for (Resident resident : t.getResidents()) {
 				// if (townhall.isActive()) {
-				BlockCoord revive = townhall.getRandomRevivePoint();
 
 				try {
 					Player player = CivGlobal.getPlayer(resident);
@@ -1221,6 +1203,7 @@ public class Civilization extends SQLObject {
 					CultureChunk cc = CivGlobal.getCultureChunk(coord);
 					if (cc != null && cc.getCiv() != this && cc.getCiv().getDiplomacyManager().atWarWith(this)) {
 						CivMessage.send(player, CivColor.Purple + reason);
+						BlockCoord revive = cityhall.getRandomRevivePoint();
 						player.teleport(revive.getLocation());
 					}
 
@@ -1441,17 +1424,12 @@ public class Civilization extends SQLObject {
 				}
 			}
 
-			if (this.getCapitol() != null && this.getCapitol().getBuffManager().hasBuff("level8_unhappyConquerorTown")) {
-				happy_town *= 2.0;
-				happy_captured_town = 0.0;
-			}
-
 			total += happy_town;
 			sources.put("Towns", happy_town);
 
 			boolean civHasColossus = false;
 			for (final Town town2 : this.getTowns()) {
-				for (final Wonder wonder : town2.getWonders()) {
+				for (final Wonder wonder : town2.SM.getWonders()) {
 					if (wonder.getConfigId().equalsIgnoreCase("w_colossus") && wonder.isComplete() && wonder.isActive()) {
 						civHasColossus = true;
 					}
@@ -1459,10 +1437,6 @@ public class Civilization extends SQLObject {
 			}
 			if (civHasColossus) {
 				happy_captured_town = 0.0;
-			}
-			if (this.getCapitol() != null && this.getCapitol().getBuffManager().hasBuff("level8_unhappyLargeEmpireTown")) {
-				final double decrease = happy_town / 5.0 * 2.0;
-				happy_town -= decrease;
 			}
 			total += happy_captured_town;
 			sources.put("Captured Towns", happy_captured_town);
@@ -1479,29 +1453,6 @@ public class Civilization extends SQLObject {
 		return total;
 	}
 
-	/* Gets distance happiness for a town. */
-	public double getDistanceHappiness(Town town) {
-		Structure capitolTownHall = this.getCapitolStructure();
-		Structure townHall = town.getTownHall();
-		if (capitolTownHall != null && townHall != null) {
-			Location loc_cap = capitolTownHall.getCorner().getLocation();
-			Location loc_town = townHall.getCorner().getLocation();
-			double distanceHappy;
-			if (town.getMotherCiv() == null || town.getMotherCiv() == this) {
-				try {
-					distanceHappy = this.getDistanceHappiness(loc_cap, loc_town, town.touchesCapitolCulture(new HashSet<Town>()));
-				} catch (InvalidConfiguration e) {
-					e.printStackTrace();
-					return 0.0;
-				}
-			} else {
-				distanceHappy = 0;
-			}
-			return distanceHappy;
-		}
-		return 0.0;
-	}
-
 	public void declareAsWinner(EndGameCondition end) {
 		String out = CivSettings.localize.localizedString("var_civ_victory_end1", this.getName(), end.getVictoryName());
 		CivGlobal.getSessionDatabase().add("endgame:winningCiv", out, 0, 0, 0);
@@ -1513,7 +1464,6 @@ public class Civilization extends SQLObject {
 	}
 
 	public double getPercentageConquered() {
-
 		int totalCivs = CivGlobal.getCivs().size() + CivGlobal.getConqueredCivs().size();
 		int conqueredCivs = 1; /* Your civ already counts */
 
@@ -1532,7 +1482,6 @@ public class Civilization extends SQLObject {
 	}
 
 	public void processUnusedBeakers() {
-
 		EndGameCondition scienceVictory = EndGameCondition.getEndCondition("end_science");
 		if (scienceVictory == null) {
 			CivLog.error("Couldn't find science victory, not configured?");
@@ -1564,53 +1513,40 @@ public class Civilization extends SQLObject {
 	}
 
 	public void rename(String name) throws CivException, InvalidNameException {
-
 		Civilization other = CivGlobal.getCiv(name);
-		if (other != null) {
-			throw new CivException(CivSettings.localize.localizedString("civ_rename_errorExists"));
-		}
+		if (other != null) throw new CivException(CivSettings.localize.localizedString("civ_rename_errorExists"));
 
 		other = CivGlobal.getConqueredCiv(name);
-		if (other != null) {
-			throw new CivException(CivSettings.localize.localizedString("civ_rename_errorExists"));
-		}
+		if (other != null) throw new CivException(CivSettings.localize.localizedString("civ_rename_errorExists"));
 
-		if (this.conquered) {
+		if (this.conquered)
 			CivGlobal.removeConqueredCiv(this);
-		} else {
+		else
 			CivGlobal.removeCiv(this);
-		}
 
 		String oldName = this.getName();
 		this.setName(name);
 		this.save();
 
-		if (this.conquered) {
+		if (this.conquered)
 			CivGlobal.addConqueredCiv(this);
-		} else {
+		else
 			CivGlobal.addCiv(this);
-		}
 
 		CivMessage.global(CivSettings.localize.localizedString("var_civ_rename_success1", oldName, this.getName()));
 	}
 
 	public void updateReviveSigns() {
-		Capitol capitol = this.getCapitolStructure();
-		capitol.updateRespawnSigns();
-
+		this.getCapitolCityHall().updateRespawnSigns();
 	}
 
 	public ArrayList<RespawnLocationHolder> getAvailableRespawnables() {
 		ArrayList<RespawnLocationHolder> respawns = new ArrayList<RespawnLocationHolder>();
 
 		for (Town town : this.getTowns()) {
-			Townhall townhall = town.getTownHall();
-			if (townhall != null && townhall.isActive()) {
-				if (!town.defeated) respawns.add(townhall); /* Do not respawn at defeated towns. */
-			}
-			if (town.hasWonder("w_neuschwanstein")) {
-				respawns.add((Neuschwanstein) town.getWonderByType("w_neuschwanstein"));
-			}
+			Cityhall cityhall = town.getCityhall();
+			if (cityhall != null && cityhall.isActive() && !town.defeated) respawns.add(cityhall); /* Do not respawn at defeated towns. */
+			if (town.SM.hasWonder("w_neuschwanstein")) respawns.add((Neuschwanstein) town.SM.getWonderById("w_neuschwanstein"));
 		}
 
 		for (WarCamp camp : this.warCamps) {
@@ -1629,10 +1565,10 @@ public class Civilization extends SQLObject {
 		}
 
 		for (Town town : towns.values()) {
-			Townhall th = town.getTownHall();
-			if (th != null) {
-				th.setHitpoints(th.getMaxHitPoints());
-				th.save();
+			Cityhall cityhall = town.getCityhall();
+			if (cityhall != null) {
+				cityhall.setHitpoints(cityhall.getMaxHitPoints());
+				cityhall.save();
 			}
 		}
 	}
@@ -1640,10 +1576,7 @@ public class Civilization extends SQLObject {
 	public void validateGift() throws CivException {
 		try {
 			int min_gift_age = CivSettings.getInteger(CivSettings.civConfig, "civ.min_gift_age");
-
-			if (!DateUtil.isAfterDays(created_date, min_gift_age)) {
-				throw new CivException(CivSettings.localize.localizedString("var_civ_gift_tooyoung1", this.getName(), min_gift_age));
-			}
+			if (!DateUtil.isAfterDays(created_date, min_gift_age)) throw new CivException(CivSettings.localize.localizedString("var_civ_gift_tooyoung1", this.getName(), min_gift_age));
 		} catch (InvalidConfiguration e) {
 			throw new CivException(CivSettings.localize.localizedString("internalException"));
 		}
@@ -1653,11 +1586,7 @@ public class Civilization extends SQLObject {
 		/* If this civ is the aggressor in any wars. Cancel the, this happens when civs go into debt. */
 		LinkedList<Relation> removeUs = new LinkedList<Relation>();
 		for (Relation relation : this.getDiplomacyManager().getRelations()) {
-			if (relation.getStatus().equals(Relation.Status.WAR)) {
-				if (relation.getAggressor() == this) {
-					removeUs.add(relation);
-				}
-			}
+			if (relation.getStatus().equals(Relation.Status.WAR) && relation.getAggressor() == this) removeUs.add(relation);
 		}
 
 		for (Relation relation : removeUs) {
@@ -1681,7 +1610,7 @@ public class Civilization extends SQLObject {
 		double lowest_distance = Double.MAX_VALUE;
 
 		for (Town town : towns.values()) {
-			for (Structure struct : town.getStructures()) {
+			for (Structure struct : town.SM.getStructures()) {
 				double distance = struct.getCenterLocation().distanceSquared(loc);
 				if (distance < lowest_distance) {
 					lowest_distance = distance;
@@ -1689,7 +1618,6 @@ public class Civilization extends SQLObject {
 				}
 			}
 		}
-
 		return nearest;
 	}
 
@@ -1753,18 +1681,14 @@ public class Civilization extends SQLObject {
 	public int getStockExchangeLevel() {
 		StockExchange stockExchange = null;
 		for (Town town : this.getTowns()) {
-			for (Wonder wonder : town.getWonders()) {
+			for (Wonder wonder : town.SM.getWonders()) {
 				if (wonder.isActive() && !this.isConquered() && wonder.getConfigId().equalsIgnoreCase("w_stock_exchange")) {
 					stockExchange = (StockExchange) wonder;
 				}
 			}
-			if (stockExchange != null) {
-				break;
-			}
+			if (stockExchange != null) break;
 		}
-		if (stockExchange == null) {
-			return 0;
-		}
+		if (stockExchange == null) return 0;
 		return stockExchange.getLevel();
 	}
 
@@ -1819,11 +1743,10 @@ public class Civilization extends SQLObject {
 		final ArrayList<String> newGoods = new ArrayList<String>();
 		boolean withdrawed = false;
 		for (final String goodID : goods) {
-			if (!withdrawed && goodID.equals(id)) {
+			if (!withdrawed && goodID.equals(id))
 				withdrawed = true;
-			} else {
+			else
 				newGoods.add(goodID);
-			}
 		}
 		String goodies = "";
 		for (final String goodie : newGoods) {
@@ -1834,18 +1757,14 @@ public class Civilization extends SQLObject {
 
 	public boolean hasWonder(final String id) {
 		for (final Town town : this.getTowns()) {
-			if (town.hasWonder(id)) {
-				return true;
-			}
+			if (town.SM.hasWonder(id)) return true;
 		}
 		return false;
 	}
 
 	public Town getStatueTown() {
 		for (final Town town : this.getTowns()) {
-			if (town.hasWonder("w_statue_of_zeus")) {
-				return town;
-			}
+			if (town.SM.hasWonder("w_statue_of_zeus")) return town;
 		}
 		return null;
 	}
@@ -1857,25 +1776,16 @@ public class Civilization extends SQLObject {
 		for (final Town t : this.getTowns()) {
 			final double residentHours = t.getResidentCount();
 			double modifier = 1.0;
-			if (t.getBuffManager().hasBuff("buff_reduced_anarchy")) {
-				modifier -= t.getBuffManager().getEffectiveDouble("buff_reduced_anarchy");
-			}
-			if (t.getBuffManager().hasBuff("buff_noanarchy")) {
-				noanarchy = true;
-			}
-			if (t.hasWonder("w_notre_dame")) {
-				hasNotreDame = true;
-			}
+			if (t.getBuffManager().hasBuff("buff_reduced_anarchy")) modifier -= t.getBuffManager().getEffectiveDouble("buff_reduced_anarchy");
+			if (t.getBuffManager().hasBuff("buff_noanarchy")) noanarchy = true;
+			if (t.SM.hasWonder("w_notre_dame")) hasNotreDame = true;
 			memberHours += residentHours * modifier;
 		}
 		double maxAnarchy = CivSettings.getIntegerGovernment("anarchy_duration");
-		if (noanarchy) {
-			maxAnarchy = CivSettings.getIntegerGovernment("notre_dame_max_anarchy");
-		}
+		if (noanarchy) maxAnarchy = CivSettings.getIntegerGovernment("notre_dame_max_anarchy");
 		double anarchyHours = Math.min(memberHours, maxAnarchy);
-		if (hasNotreDame) {
-			anarchyHours /= 2.0;
-		}
+		if (hasNotreDame) anarchyHours /= 2.0;
+
 		return (double) Math.round(anarchyHours);
 	}
 
@@ -1989,6 +1899,11 @@ public class Civilization extends SQLObject {
 		// if (this.getCapitol() != null) throw new CivException(CivSettings.localize.localizedString("var_civ_found_townExists",
 		// this.getCapitol().getName()));
 		// if (CivGlobal.anybodyHasTag(tag)) throw new CivException(CivSettings.localize.localizedString("var_civ_found_tagExists", tag));
+	}
+
+	public boolean isValid() {
+		if (getCapitol() == null) return false;
+		return getCapitol().isValid();
 	}
 
 }

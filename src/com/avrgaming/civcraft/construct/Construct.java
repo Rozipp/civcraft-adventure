@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Chunk;
@@ -72,11 +73,11 @@ public abstract class Construct extends SQLObject {
 
 	public String invalidLayerMessage = "";
 	public boolean validated = false;
-	public boolean valid = false;
+	protected boolean valid = false;
 	public HashMap<Integer, ConstructLayer> layerValidPercentages = new HashMap<Integer, ConstructLayer>();
 
-	private Map<BlockCoord, ConstructSign> сonstructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
-	private Map<BlockCoord, ConstructChest> сonstructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
+	protected Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
+	private Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
 	protected Map<BlockCoord, Boolean> constructBlocks = new ConcurrentHashMap<BlockCoord, Boolean>();
 
 	public ArrayList<Component> attachedComponents = new ArrayList<Component>();
@@ -259,7 +260,7 @@ public abstract class Construct extends SQLObject {
 			}
 			if (CivGlobal.getBuildableAt(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("buildable_structureExistsHere"));
 			if (CivGlobal.getFarmChunk(chunkCoord) != null) throw new CivException(CivSettings.localize.localizedString("cannotBuild_farmInWay"));
-			if (!CivGlobal.getConstructFromChunk(chunkCoord).isEmpty()) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
+			if (!CivGlobal.getConstructsFromChunk(chunkCoord).isEmpty()) throw new CivException(CivSettings.localize.localizedString("cannotBuild_structureInWay"));
 		}
 
 		int yTotal = 0;
@@ -506,14 +507,12 @@ public abstract class Construct extends SQLObject {
 				}
 				structSign.setOwner(this);
 				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
 				break;
 			case "/chest":
 				ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 				if (structChest == null) structChest = new ConstructChest(absCoord, this);
 				structChest.setChestId(sb.keyvalues.get("id"));
 				this.addChest(structChest);
-				CivGlobal.addConstructChest(structChest);
 
 				/* Convert sign data to chest data. */
 				block = absCoord.getBlock();
@@ -531,51 +530,6 @@ public abstract class Construct extends SQLObject {
 				this.commandBlockRelatives(absCoord, sb);
 				break;
 			}
-
-			// switch (sb.command) {
-			// case "/tradeoutpost" :
-			// /* Builds the trade outpost tower at this location. */
-			// if (this instanceof TradeOutpost) {
-			// TradeOutpost outpost = (TradeOutpost) this;
-			// outpost.setTradeOutpostTower(absCoord);
-			// try {
-			// outpost.build_trade_outpost_tower();
-			// } catch (CivException e) {
-			// e.printStackTrace();
-			// }
-			// }
-			// break;
-			// case "/control" :
-			// if (!(this instanceof Neuschwanstein)) {
-			// break;
-			// }
-			// if (this.getTown().hasStructure("s_capitol")) {
-			// final Capitol capitol = (Capitol) this.getTown().getStructureByType("s_capitol");
-			// capitol.createControlPoint(absCoord, "Neuschwanstein");
-			// break;
-			// }
-			// if (this.getTown().hasStructure("s_townhall")) {
-			// final TownHall townHall = (TownHall) this.getTown().getStructureByType("s_townhall");
-			// townHall.createControlPoint(absCoord, "Neuschwanstein");
-			// break;
-			// }
-			// break;
-			// case "/towerfire" :
-			// this.setTurretLocation(absCoord);
-			// break;
-			// case "/arrowfire" :
-			// if (this instanceof GrandShipIngermanland) {
-			// GrandShipIngermanland arrowtower = (GrandShipIngermanland) this;
-			// arrowtower.setArrowLocation(absCoord);
-			// }
-			// break;
-			// case "/cannonfire" :
-			// if (this instanceof GrandShipIngermanland) {
-			// GrandShipIngermanland cannontower = (GrandShipIngermanland) this;
-			// cannontower.setCannonLocation(absCoord);
-			// }
-			// break;
-			// }
 		}
 	}
 
@@ -587,24 +541,46 @@ public abstract class Construct extends SQLObject {
 	}
 
 	// ------------------- delete
+	public void delete(boolean isUndo) {
+
+	}
+
 	@Override
 	public void delete() {
-		this.unbindConstructBlocks();
 		this.setEnabled(false);
 		for (Component comp : this.attachedComponents) {
 			comp.destroyComponent();
 		}
-		Construct constr = this;
-		TaskMaster.asyncTask(new Runnable() {
-			@Override
-			public void run() {
-				for (ConstructChest chest : constr.getChests())
-					chest.delete();
-				for (ConstructSign sign : constr.getSigns()) {
-					sign.delete();
-				}
+		synchronized (this.constructChests) {
+			Set<BlockCoord> deleteObject = this.constructChests.keySet();
+			for (BlockCoord bcoord : deleteObject) {
+				this.constructChests.get(bcoord).delete();
+				this.constructChests.remove(bcoord);
 			}
-		}, 10);
+		}
+
+		synchronized (this.constructSigns) {
+			Set<BlockCoord> deleteObject = this.constructSigns.keySet();
+			for (BlockCoord bcoord : deleteObject) {
+				this.constructSigns.get(bcoord).delete();
+				this.constructSigns.remove(bcoord);
+			}
+		}
+	}
+
+	public void deleteWithUndo() {
+		try {
+			this.undoFromTemplate();
+		} catch (IOException | CivException e1) {
+			e1.printStackTrace();
+			this.fancyDestroyConstructBlocks();
+		}
+		this.delete();
+	}
+
+	public void deleteWithFancy() {
+		this.fancyDestroyConstructBlocks();
+		this.delete();
 	}
 
 	public void undoFromTemplate() throws IOException, CivException {
@@ -633,108 +609,20 @@ public abstract class Construct extends SQLObject {
 						e.printStackTrace();
 					}
 				}
+				constr.unbindConstructBlocks();
 				Template.deleteFilePath(templatePath);
 			}
-		}, 10);
-	}
-
-	public void unbindConstructBlocks() {
-		for (BlockCoord coord : this.constructBlocks.keySet()) {
-			CivGlobal.removeConstructBlock(coord);
-		}
-	}
-
-	public void removeContructBlock(BlockCoord coord) {
-		CivGlobal.removeConstructBlock(coord);
-		// all we really need is it's key, we'll put in true to make sure this
-		// structureBlocks collection is not abused.
-		this.constructBlocks.remove(coord);
-	}
-
-	// ------------- ConstructSign
-	public void addConstructSign(ConstructSign s) {
-		this.сonstructSigns.put(s.getCoord(), s);
-	}
-
-	public Collection<ConstructSign> getSigns() {
-		return this.сonstructSigns.values();
-	}
-
-	public ConstructSign getSign(BlockCoord coord) {
-		return this.сonstructSigns.get(coord);
-	}
-
-	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
-	}
-
-	// ------------ ConstructChest
-	public void addChest(ConstructChest chest) {
-		this.сonstructChests.put(chest.getCoord(), chest);
-	}
-
-	public ArrayList<ConstructChest> getAllChestsById(String id) {
-		ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
-		for (ConstructChest chest : this.сonstructChests.values()) {
-			if (chest.getChestId().equalsIgnoreCase(id)) chests.add(chest);
-		}
-		return chests;
-	}
-
-	public ArrayList<ConstructChest> getAllChestsById(String[] ids) {
-		final ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
-		for (final ConstructChest chest : this.сonstructChests.values()) {
-			for (String i : ids) {
-				if (chest.getChestId() == i && chest != null) chests.add(chest);
-			}
-		}
-		return chests;
-	}
-
-	public Collection<ConstructChest> getChests() {
-		return this.сonstructChests.values();
-	}
-
-	public Map<BlockCoord, ConstructChest> getAllChests() {
-		return this.сonstructChests;
-	}
-
-	// --------------- Damage
-	public int getDamagePercentage() {
-		double percentage = (double) hitpoints / (double) this.getMaxHitPoints();
-		percentage *= 100;
-		return (int) percentage;
-	}
-
-	public void damage(int amount) {
-		if (hitpoints == 0) return;
-		hitpoints -= amount;
-
-		if (hitpoints <= 0) {
-			hitpoints = 0;
-			onDestroy();
-		}
-	}
-
-	public void onDestroy() {
-		// can be overriden in subclasses.
-		// CivMessage.global(CivSettings.localize.localizedString("var_buildable_destroyedAlert", this.getDisplayName(), this.getTown().getName()));
-		this.hitpoints = 0;
-		this.fancyDestroyConstructBlocks();
-		this.save();
+		}, 100);
 	}
 
 	public void fancyDestroyConstructBlocks() {
-		class SyncTask implements Runnable {
+		String templatePath = Template.getUndoFilePath(this.getCorner().toString());
+		Template.deleteFilePath(templatePath);
+		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
 				for (BlockCoord coord : constructBlocks.keySet()) {
-
-					for (ConstructChest chest : сonstructChests.values())
-						CivGlobal.removeConstructChest(chest);
-					for (final BlockCoord blockCoord : getConstructBlocks().keySet())
-						CivGlobal.removeConstructBlock(blockCoord);
-					for (final ConstructSign sign : сonstructSigns.values())
-						CivGlobal.removeConstructSign(sign);
+					CivGlobal.removeConstructBlock(coord);
 
 					if (ItemManager.getTypeId(coord.getBlock()) == CivData.AIR) continue;
 					if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
@@ -782,8 +670,91 @@ public abstract class Construct extends SQLObject {
 					}
 				}
 			}
+		}, 100);
+	}
+
+	public void unbindConstructBlocks() {
+		for (BlockCoord coord : this.constructBlocks.keySet()) {
+			CivGlobal.removeConstructBlock(coord);
 		}
-		TaskMaster.syncTask(new SyncTask());
+	}
+
+	// ------------- ConstructSign
+	public void addConstructSign(ConstructSign sign) {
+		this.constructSigns.put(sign.getCoord(), sign);
+		CivGlobal.addConstructSign(sign);
+	}
+
+	public Collection<ConstructSign> getSigns() {
+		return this.constructSigns.values();
+	}
+
+	public ConstructSign getSign(BlockCoord coord) {
+		return this.constructSigns.get(coord);
+	}
+
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
+	}
+
+	// ------------ ConstructChest
+	public void addChest(ConstructChest chest) {
+		this.constructChests.put(chest.getCoord(), chest);
+		CivGlobal.addConstructChest(chest);
+	}
+
+	public ConstructChest getChest(BlockCoord bcoord) {
+		return this.constructChests.get(bcoord);
+	}
+
+	public ArrayList<ConstructChest> getAllChestsById(String id) {
+		ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
+		for (ConstructChest chest : this.constructChests.values()) {
+			if (chest.getChestId().equalsIgnoreCase(id)) chests.add(chest);
+		}
+		return chests;
+	}
+
+	public ArrayList<ConstructChest> getAllChestsById(String[] ids) {
+		final ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
+		for (final ConstructChest chest : this.constructChests.values()) {
+			for (String i : ids) {
+				if (chest.getChestId() == i && chest != null) chests.add(chest);
+			}
+		}
+		return chests;
+	}
+
+	public Collection<ConstructChest> getChests() {
+		return this.constructChests.values();
+	}
+
+	public Map<BlockCoord, ConstructChest> getAllChests() {
+		return this.constructChests;
+	}
+
+	// --------------- Damage
+	public int getDamagePercentage() {
+		double percentage = (double) hitpoints / (double) this.getMaxHitPoints();
+		percentage *= 100;
+		return (int) percentage;
+	}
+
+	public void damage(int amount) {
+		if (hitpoints == 0) return;
+		hitpoints -= amount;
+
+		if (hitpoints <= 0) {
+			hitpoints = 0;
+			onDestroy();
+		}
+	}
+
+	public void onDestroy() {
+		// can be overriden in subclasses.
+		// CivMessage.global(CivSettings.localize.localizedString("var_buildable_destroyedAlert", this.getDisplayName(), this.getTown().getName()));
+		this.hitpoints = 0;
+		this.fancyDestroyConstructBlocks();
+		this.save();
 	}
 
 	public abstract void onDamage(int amount, Player player, ConstructDamageBlock hit);
@@ -837,7 +808,7 @@ public abstract class Construct extends SQLObject {
 	public void validateAsyncTask(Player player) throws CivException {
 		TaskMaster.asyncTask(new StructureValidator(player, this, null), 0);
 	}
-	
+
 	public ArrayList<ChunkCoord> getChunksCoords() {
 		ArrayList<ChunkCoord> ccs = new ArrayList<>();
 		Template tpl = this.getTemplate();

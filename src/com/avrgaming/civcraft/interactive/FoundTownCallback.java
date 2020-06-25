@@ -1,6 +1,5 @@
 package com.avrgaming.civcraft.interactive;
 
-import java.text.DecimalFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -9,7 +8,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -19,7 +17,6 @@ import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.questions.TownNewRequest;
 import com.avrgaming.civcraft.structure.BuildableStatic;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -31,7 +28,7 @@ public class FoundTownCallback implements CallbackInterface {
 
 	private Player player;
 	private Resident resident;
-	private Structure townhall;
+	private Structure cityhall;
 	private Town town;
 
 	public FoundTownCallback(Player player) throws CivException {
@@ -40,33 +37,12 @@ public class FoundTownCallback implements CallbackInterface {
 		if (resident == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noResident", player.getName()));
 		if (!resident.hasTown()) throw new CivException(CivSettings.localize.localizedString("settler_errorNotRes"));
 
-		double minDistance;
-		try {
-			minDistance = CivSettings.getDouble(CivSettings.townConfig, "town.min_town_distance");
-		} catch (InvalidConfiguration e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalException"));
-		}
-
-		for (Town town : CivGlobal.getTowns()) {
-			Townhall townhall = town.getTownHall();
-			if (townhall == null) continue;
-
-			double distSqr = townhall.getCenterLocation().distanceSquared(player.getLocation());
-			if (distSqr < minDistance * minDistance) {
-				DecimalFormat df = new DecimalFormat();
-				throw new CivException(CivSettings.localize.localizedString("var_settler_errorTooClose", town.getName(), df.format(Math.sqrt(distSqr)), minDistance));
-			}
-		}
-
-		/* Build a preview for the Capitol structure. */
-
-		townhall = Structure.newStructure(player, player.getLocation(), "s_townhall", null, true);
+		cityhall = Structure.newStructure(player, player.getLocation(), "s_cityhall", null, true);
 
 		town = new Town(resident.getCiv());
-		town.checkCanCreatedTown(resident, townhall);
+		town.checkCanCreatedTown(resident, cityhall);
 
-		new ChoiseTemplate(player, townhall.getInfo(), this);
+		new ChoiseTemplate(player, cityhall.getInfo(), this);
 	}
 
 	private String templateTheme = null;
@@ -81,15 +57,15 @@ public class FoundTownCallback implements CallbackInterface {
 		if (templateTheme == null) {
 			templateTheme = strings[0];
 			try {
-				Template old_tpl = townhall.getTemplate();
-				String tplPath = Template.getTemplateFilePath(townhall.getInfo().template_name, old_tpl.getDirection(), templateTheme);
+				Template old_tpl = cityhall.getTemplate();
+				String tplPath = Template.getTemplateFilePath(cityhall.getInfo().template_name, old_tpl.getDirection(), templateTheme);
 				Template tpl = Template.getTemplate(tplPath);
 				if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
-				townhall.setTemplate(tpl);
+				cityhall.setTemplate(tpl);
 
-				BuildableStatic.buildPlayerPreview(player, townhall);
+				BuildableStatic.buildPlayerPreview(player, cityhall);
 				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
-				TaskMaster.asyncTask(new StructureValidator(player, townhall, this), 0);
+				TaskMaster.asyncTask(new StructureValidator(player, cityhall, this), 0);
 				return;
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
@@ -107,7 +83,7 @@ public class FoundTownCallback implements CallbackInterface {
 			CivMessage.send(player, " ");
 			CivMessage.send(player, CivColor.LightGreen + ChatColor.BOLD + CivSettings.localize.localizedString("settler_prompt2"));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("build_cancel_prompt"));
-			
+
 			InteractiveGetName interactive = new InteractiveGetName();
 			interactive.cancelMessage = CivSettings.localize.localizedString("interactive_town_cancelled");
 			interactive.invalidMessage = CivSettings.localize.localizedString("interactive_town_nameInvalid");
@@ -120,13 +96,13 @@ public class FoundTownCallback implements CallbackInterface {
 		if (townName == null) {
 			townName = strings[0];
 
-			if (!townhall.validated) {
+			if (!cityhall.validated) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalid"));
 				townName = null;
 				return;
 			}
 
-			if (!townhall.isValid() && !player.isOp()) {
+			if (!cityhall.isValid() && !player.isOp()) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("interactive_build_invalidNotOP"));
 				resident.clearInteractiveMode();
 				resident.undoPreview();
@@ -161,7 +137,7 @@ public class FoundTownCallback implements CallbackInterface {
 
 			TownNewRequest join = new TownNewRequest(resident, resident.getCiv(), townName, this);
 			try {
-				Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_interactive_town_alert", player.getName(), townName, (townhall.getCorner().toStringNotWorld())), INVITE_TIMEOUT, join);
+				Question.questionLeaders(player, resident.getCiv(), CivSettings.localize.localizedString("var_interactive_town_alert", player.getName(), townName, (cityhall.getCorner().toStringNotWorld())), INVITE_TIMEOUT, join);
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
 				resident.clearInteractiveMode();
@@ -176,7 +152,7 @@ public class FoundTownCallback implements CallbackInterface {
 
 		if (interactiveConfirm == null) {
 			try {
-				town.createTown(resident, townhall);
+				town.createTown(resident, cityhall);
 			} catch (CivException e) {
 				CivMessage.send(player, CivColor.Rose + e.getMessage());
 				return;

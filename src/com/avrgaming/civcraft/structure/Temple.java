@@ -199,10 +199,10 @@ public class Temple extends Structure {
 
 	@Override
 	public void delete(){
-		super.delete();
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();
 		}
+		super.delete();
 	}
 
 	public void onDestroy() {

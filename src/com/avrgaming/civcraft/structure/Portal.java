@@ -78,7 +78,6 @@ extends Structure {
             structSign.setAction("teleport");
             structSign.update();
             this.addConstructSign(structSign);
-            CivGlobal.addConstructSign(structSign);
             if (this.spawnLocation == null) {
                 this.spawnLocation = structSign.getCoord().getLocation();
             }

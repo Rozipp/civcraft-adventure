@@ -235,7 +235,7 @@ public class CultureProcessAsyncTask extends CivAsyncTask {
 		}
 
 		for (Town t : CivGlobal.getTowns()) {
-			t.processStructureFlipping(centerCoords);
+			t.SM.processStructureFlipping(centerCoords);
 		}
 	}
 

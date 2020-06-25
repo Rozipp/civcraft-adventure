@@ -353,10 +353,8 @@ public class Camp extends Construct {
 					structSign.setAction("gardenupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
-					CivGlobal.addConstructSign(structSign);
 				} else {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
-					this.removeContructBlock(absCoord);
 				}
 				break;
 			case "/sign":
@@ -374,7 +372,6 @@ public class Camp extends Construct {
 					this.addConstructBlock(absCoord, false);
 				} else {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.AIR));
-					this.removeContructBlock(absCoord);
 				}
 				break;
 			case "/growth":
@@ -412,11 +409,10 @@ public class Camp extends Construct {
 						chestId = "sifternull";
 						break;
 					}
-					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
+					ConstructChest structChest = this.getChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
 					this.addChest(structChest);
-					CivGlobal.addConstructChest(structChest);
 
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
 					byte data2 = CivData.convertSignDataToChestData((byte) sb.getData());
@@ -431,7 +427,6 @@ public class Camp extends Construct {
 					structSign.setAction("sifterupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
-					CivGlobal.addConstructSign(structSign);
 				}
 				this.addConstructBlock(absCoord, false);
 				break;
@@ -445,7 +440,6 @@ public class Camp extends Construct {
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
 					this.addChest(structChest);
-					CivGlobal.addConstructChest(structChest);
 
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.CHEST));
 					byte data2 = CivData.convertSignDataToChestData((byte) sb.getData());
@@ -460,7 +454,6 @@ public class Camp extends Construct {
 					structSign.setAction("longhouseupgrade");
 					structSign.update();
 					this.addConstructSign(structSign);
-					CivGlobal.addConstructSign(structSign);
 				}
 				this.addConstructBlock(absCoord, false);
 				break;
@@ -802,8 +795,8 @@ public class Camp extends Construct {
 
 	public void fancyCampBlockDestory() {
 		for (BlockCoord coord : this.getConstructBlocks().keySet()) {
-			if (CivGlobal.getConstructChest(coord) != null) continue;
-			if (CivGlobal.getConstructSign(coord) != null) continue;
+			if (this.getChest(coord) != null) continue;
+			if (this.getSign(coord) != null) continue;
 			if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
 			if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
 				ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);

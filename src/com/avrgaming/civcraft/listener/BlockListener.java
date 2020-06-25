@@ -617,7 +617,7 @@ public class BlockListener implements Listener {
 
 		/* Check if we're going to break too many structure blocks beneath a structure. */
 		// LinkedList<StructureBlock> sbList = CivGlobal.getStructureBlocksAt(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
-		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
+		Set<Construct> constructs = CivGlobal.getConstructsFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
 				if (!construct.validated) {
@@ -640,15 +640,11 @@ public class BlockListener implements Listener {
 			}
 		}
 
-		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
-			if (constr instanceof Camp) {
-				Camp camp = (Camp) constr;
-				if (camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
-					CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
-					event.setCancelled(true);
-					return;
-				}
-			}
+		Camp camp = CivGlobal.getCampAt(new ChunkCoord(bcoord));
+		if (camp != null && camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
+			CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
+			event.setCancelled(true);
+			return;
 		}
 	}
 
@@ -728,7 +724,7 @@ public class BlockListener implements Listener {
 
 		/* Check if we're going to break too many structure blocks beneath a structure. */
 		// LinkedList<StructureBlock> sbList = CivGlobal.getStructureBlocksAt(bcoord.getWorldname(), bcoord.getX(), bcoord.getZ());
-		Set<Construct> constructs = CivGlobal.getConstructFromChunk(bcoord);
+		Set<Construct> constructs = CivGlobal.getConstructsFromChunk(bcoord);
 		if (constructs != null) {
 			for (Construct construct : constructs) {
 				if (!construct.validated) {
@@ -760,15 +756,11 @@ public class BlockListener implements Listener {
 			}
 		}
 
-		for (Construct constr : CivGlobal.getConstructFromChunk(bcoord)) {
-			if (constr instanceof Camp) {
-				Camp camp = (Camp) constr;
-				if (camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
-					CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
-					event.setCancelled(true);
-					return;
-				}
-			}
+		Camp camp = CivGlobal.getCampAt(new ChunkCoord(bcoord));
+		if (camp != null && camp.memberProtectionBlocks.contains(bcoord) && !camp.hasMember(event.getPlayer().getName())) {
+			CivMessage.sendErrorNoRepeat(event.getPlayer(), "Этот блок под защитой кемпа " + camp.getName());
+			event.setCancelled(true);
+			return;
 		}
 	}
 
@@ -966,12 +958,10 @@ public class BlockListener implements Listener {
 
 		ChunkCoord coord = new ChunkCoord(event.getPlayer().getLocation());
 		Camp camp = CivGlobal.getCampAt(coord);
-		if (camp != null) {
-			if (!camp.hasMember(event.getPlayer().getName())) {
-				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("bedUse_errorNotIncamp"));
-				event.setCancelled(true);
-				return;
-			}
+		if (camp != null && !camp.hasMember(event.getPlayer().getName())) {
+			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("bedUse_errorNotIncamp"));
+			event.setCancelled(true);
+			return;
 		}
 	}
 
@@ -1044,12 +1034,10 @@ public class BlockListener implements Listener {
 		ChunkCoord coord = new ChunkCoord(event.getPlayer().getLocation());
 
 		Camp camp = CivGlobal.getCampAt(coord);
-		if (camp != null) {
-			if (!camp.hasMember(event.getPlayer().getName())) {
-				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("itemUse_errorcamp") + " " + stack.getType().toString());
-				event.setCancelled(true);
-				return;
-			}
+		if (camp != null && !camp.hasMember(event.getPlayer().getName())) {
+			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("itemUse_errorcamp") + " " + stack.getType().toString());
+			event.setCancelled(true);
+			return;
 		}
 
 		TownChunk tc = CivGlobal.getTownChunk(loc);

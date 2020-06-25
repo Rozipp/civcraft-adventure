@@ -36,12 +36,11 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Capitol;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.structure.Cottage;
 import com.avrgaming.civcraft.structure.FishingBoat;
 import com.avrgaming.civcraft.structure.Granary;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.TradeOutpost;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.BookUtil;
@@ -244,29 +243,18 @@ public class Spy extends UnitMaterial {
 		}
 
 		// Check that the player is within range of the town hall.
-		Buildable buildable = cc.getTown().getNearestBuildable(player.getLocation());
-		if (buildable instanceof Townhall) {
-			throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorTownHall"));
-		}
+		Buildable buildable = cc.getTown().SM.getNearestBuildable(player.getLocation());
+		if (buildable instanceof Cityhall) throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorTownHall"));
 		if (buildable instanceof Wonder) {
-			if (buildable.isComplete()) {
-				throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorCompleteWonder"));
-			}
+			if (buildable.isComplete()) throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorCompleteWonder"));
 		}
 
-		double distance = player.getLocation().distance(buildable.getCorner().getLocation());
-		if (distance > mission.range) {
-			throw new CivException(CivSettings.localize.localizedString("var_missionBook_sabatoge_errorTooFar", buildable.getDisplayName()));
-		}
+		double distance = player.getLocation().distance(buildable.getCenterLocation());
+		if (distance > mission.range) throw new CivException(CivSettings.localize.localizedString("var_missionBook_sabatoge_errorTooFar", buildable.getDisplayName()));
 
 		if (buildable instanceof Structure) {
-			if (!buildable.isComplete()) {
-				throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorIncomplete"));
-			}
-
-			if (buildable.isDestroyed()) {
-				throw new CivException(CivSettings.localize.localizedString("var_missionBook_sabatoge_errorDestroyed", buildable.getDisplayName()));
-			}
+			if (!buildable.isComplete()) throw new CivException(CivSettings.localize.localizedString("missionBook_sabatoge_errorIncomplete"));
+			if (buildable.isDestroyed()) throw new CivException(CivSettings.localize.localizedString("var_missionBook_sabatoge_errorDestroyed", buildable.getDisplayName()));
 		}
 
 		if (buildable instanceof TradeOutpost || buildable instanceof FishingBoat) {
@@ -287,14 +275,13 @@ public class Spy extends UnitMaterial {
 		if (processMissionResult(player, cc.getTown(), mission, failMod, 1.0)) {
 			CivMessage.global(CivColor.Yellow + CivSettings.localize.localizedString("missionBook_sabatoge_alert1") + CivColor.White + " "
 					+ CivSettings.localize.localizedString("missionBook_sabatoge_alert2", buildable.getDisplayName(), cc.getTown().getName()));
-			buildable.setHitpoints(0);
-			buildable.fancyDestroyConstructBlocks();
-			buildable.save();
 
 			if (buildable instanceof Wonder) {
-				Wonder wonder = (Wonder) buildable;
-				wonder.unbindConstructBlocks();
-				wonder.delete();
+				buildable.deleteWithFancy();
+			} else {
+				buildable.setHitpoints(0);
+				buildable.fancyDestroyConstructBlocks();
+				buildable.save();
 			}
 
 		}
@@ -360,7 +347,7 @@ public class Spy extends UnitMaterial {
 		}
 
 		// Check that the player is within range of the town hall.
-		Structure granary = tc.getTown().getNearestStrucutre(player.getLocation());
+		Structure granary = tc.getTown().SM.getNearestStrucutre(player.getLocation());
 		if (!(granary instanceof Granary)) {
 			throw new CivException(CivSettings.localize.localizedString("missionBook_poison_errorNotGranary"));
 		}
@@ -403,7 +390,7 @@ public class Spy extends UnitMaterial {
 
 				if (rand.nextInt(100) < (int) (famine_chance * 100)) {
 
-					for (Structure struct : tc.getTown().getStructures()) {
+					for (Structure struct : tc.getTown().SM.getStructures()) {
 						if (struct instanceof Cottage) {
 							((Cottage) struct).delevel();
 						}
@@ -424,28 +411,19 @@ public class Spy extends UnitMaterial {
 	private static void performStealTreasury(Player player, ConfigMission mission) throws CivException {
 
 		Resident resident = CivGlobal.getResident(player);
-		if (resident == null || !resident.hasTown()) {
-			throw new CivException(CivSettings.localize.localizedString("missionBook_errorNotResident"));
-		}
+		if (resident == null || !resident.hasTown()) throw new CivException(CivSettings.localize.localizedString("missionBook_errorNotResident"));
 
 		// Must be within enemy town borders.
 		ChunkCoord coord = new ChunkCoord(player.getLocation());
 		TownChunk tc = CivGlobal.getTownChunk(coord);
 
-		if (tc == null || tc.getTown().getCiv() == resident.getTown().getCiv()) {
-			throw new CivException(CivSettings.localize.localizedString("missionBook_errorBorder"));
-		}
+		if (tc == null || tc.getTown().getCiv() == resident.getTown().getCiv()) throw new CivException(CivSettings.localize.localizedString("missionBook_errorBorder"));
 
 		// Check that the player is within range of the town hall.
-		Townhall townhall = tc.getTown().getTownHall();
-		if (townhall == null) {
-			throw new CivException(CivSettings.localize.localizedString("missionBook_steal_errorNoTownHall"));
-		}
+		if (!tc.getTown().isValid()) throw new CivException(CivSettings.localize.localizedString("missionBook_steal_errorNoTownHall"));
 
-		double distance = player.getLocation().distance(townhall.getCorner().getLocation());
-		if (distance > mission.range) {
-			throw new CivException(CivSettings.localize.localizedString("missionBook_steal_errorTooFar"));
-		}
+		double distance = player.getLocation().distance(tc.getTown().getLocation());
+		if (distance > mission.range) throw new CivException(CivSettings.localize.localizedString("missionBook_steal_errorTooFar"));
 
 		double failMod = 1.0;
 		if (resident.getTown().getBuffManager().hasBuff("buff_dirty_money")) {
@@ -556,15 +534,13 @@ public class Spy extends UnitMaterial {
 		}
 
 		// Check that the player is within range of the town hall.
-		Structure capitol = town.getNearestStrucutre(player.getLocation());
-		if (!(capitol instanceof Capitol)) {
+		Structure capitol = town.SM.getNearestStrucutre(player.getLocation());
+		if (!(capitol instanceof Cityhall)) {
 			throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorNotCapitol", capitol.getDisplayName(), civ.getName()));
 		}
 
-		double distance = player.getLocation().distance(capitol.getCorner().getLocation());
-		if (distance > mission.range) {
-			throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorTooFar", mission.range));
-		}
+		double distance = player.getLocation().distance(town.getLocation());
+		if (distance > mission.range) throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorTooFar", mission.range));
 
 		if (civ.getGovernment().id == "gov_anarchy") {
 			throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorInAnarchy", civ.getName()));

@@ -132,19 +132,14 @@ public class PlotPermissions {
 	}
 
 	private boolean checkPermissionNode(PermissionNode node, Resident resident) {
-		if (node != null) {
-			if (owner == resident && node.isPermitOwner()) return true;
-
-			if (groups.size() != 0 && node.isPermitGroup()) {
-				for (PermissionGroup group : groups) {
-					if (group.hasMember(resident)) {
-						return true;
-					}
-				}
+		if (node == null) return false;
+		if (owner == resident && node.isPermitOwner()) return true;
+		if (groups.size() != 0 && node.isPermitGroup()) {
+			for (PermissionGroup group : groups) {
+				if (group.hasMember(resident)) return true;
 			}
-
-			if (node.isPermitOthers()) return true;
 		}
+		if (node.isPermitOthers()) return true;
 		return false;
 	}
 

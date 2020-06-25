@@ -94,9 +94,6 @@ extends ProjectileComponent {
             if (this.getTown().getBuffManager().hasBuff("buff_statue_of_zeus_tower_range")) {
                 this.range *= this.getTown().getBuffManager().getEffectiveDouble("buff_statue_of_zeus_tower_range");
             }
-            if (this.getTown().getCiv().getCapitol() != null) {
-                this.range += this.getTown().getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraRangeTown");
-            }
             this.min_range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.min_range");
             this.fireRate = CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.fire_rate");
             

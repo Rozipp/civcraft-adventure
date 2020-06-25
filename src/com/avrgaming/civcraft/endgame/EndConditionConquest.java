@@ -66,7 +66,7 @@ extends EndGameCondition {
         boolean hasChichenItza = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.SM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals("w_chichen_itza")) continue;
                 hasChichenItza = true;
                 break;

@@ -21,11 +21,11 @@ public class CivGroupManager extends GroupManager {
 	public String leaderGroupName = "Leaders";
 	public String advisersGroupName = "Advisers";
 
-	public CivGroupManager(Civilization civ, String leaderGroupName, String advisersGroupName) throws InvalidNameException {
+	public CivGroupManager(Civilization civ, String leaderGroupName, String advisersGroupName) {
 		super();
 		this.civ = civ;
-		this.leaderGroupName = leaderGroupName;
-		this.advisersGroupName = advisersGroupName;
+		if (leaderGroupName != null) this.leaderGroupName = leaderGroupName;
+		if (advisersGroupName != null) this.advisersGroupName = advisersGroupName;
 	}
 
 	@Override
@@ -33,14 +33,16 @@ public class CivGroupManager extends GroupManager {
 		for (PermissionGroup grp : this.groups.values()) {
 			grp.delete();
 		}
-		leaderGroup.delete();
-		adviserGroup.delete();
+		if (leaderGroup != null) leaderGroup.delete();
+		if (adviserGroup != null) adviserGroup.delete();
 	}
 
 	public void init() {
 		try {
 			leaderGroup = new PermissionGroup(civ, leaderGroupName);
+			leaderGroup.save();
 			adviserGroup = new PermissionGroup(civ, advisersGroupName);
+			adviserGroup.save();
 		} catch (InvalidNameException e) {}
 
 	}

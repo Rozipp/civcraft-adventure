@@ -52,9 +52,6 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 				if (this.getTown().getBuffManager().hasBuff("buff_ingermanland_water_range") && ((this.getConstruct()).getConfigId().equals("w_grand_ship_ingermanland") || (this.getConstruct()).getConfigId().equals("s_arrowship"))) {
 					range *= this.getTown().getBuffManager().getEffectiveDouble("buff_ingermanland_water_range");
 				}
-			if (this.getTown().getCiv().getCapitol() != null) {
-				this.range += this.getTown().getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraRangeTown");
-			}
 			min_range = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.min_range");
 
 			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));

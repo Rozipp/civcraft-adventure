@@ -88,12 +88,12 @@ public class BuildAsyncTask extends CivAsyncTask {
 						CivMessage.sendTown(buildable.getTown(), CivSettings.localize.localizedString("var_buildAsync_wonderHaltedConquered", buildable.getTown().getCiv().getName()));
 						Thread.sleep(1800000); // 30 min notify.
 					}
-					Buildable inProgress = buildable.getTown().getCurrentStructureInProgress();
+					Buildable inProgress = buildable.getTown().SM.getCurrentStructureInProgress();
 					if (inProgress != null && inProgress != buildable) { // если строим другое здание, то ждем 1 минуту
 						CivMessage.sendTown(buildable.getTown(), CivSettings.localize.localizedString("var_buildAsync_wonderHaltedOtherConstruction", inProgress.getDisplayName()));
 						Thread.sleep(60000); // 1 min notify.
 					}
-					if (buildable.getTown().getTownHall() == null) {
+					if (!buildable.getTown().isValid()) {
 						CivMessage.sendTown(buildable.getTown(), CivSettings.localize.localizedString("buildAsync_wonderHaltedNoTownHall"));
 						Thread.sleep(600000); // 10 min notify.
 					}
@@ -211,15 +211,15 @@ public class BuildAsyncTask extends CivAsyncTask {
 
 		buildable.setComplete(true);
 		if (buildable instanceof Wonder)
-			buildable.getTown().setCurrentWonderInProgress(null);
+			buildable.getTown().SM.setCurrentWonderInProgress(null);
 		else
-			buildable.getTown().setCurrentStructureInProgress(null);
+			buildable.getTown().SM.setCurrentStructureInProgress(null);
 		buildable.savedBlockCount = buildable.blocksCompleted;
 		buildable.updateBuildProgess();
 		buildable.save();
 
 		Template.deleteFilePath(Template.getInprogressFilePath(buildable.getCorner().toString()));
-		buildable.getTown().build_tasks.remove(this);
+		buildable.getTown().SM.removeBuildTask(this);
 		TaskMaster.syncTask(new Runnable() {
 			@Override
 			public void run() {
@@ -330,22 +330,13 @@ public class BuildAsyncTask extends CivAsyncTask {
 	}
 
 	private void abortWonder() {
-		// class SyncTask implements Runnable {
-		// @Override
-		// public void run() {
 		// Remove build task from town..
-		buildable.getTown().build_tasks.remove(this);
-		buildable.unbindConstructBlocks();
+		buildable.getTown().SM.removeBuildTask(this);
 		// remove wonder from town.
 		synchronized (buildable.getTown()) {
-			buildable.getTown().removeWonder((Wonder)buildable);
+			buildable.deleteWithUndo();
 		}
-		// Remove the scaffolding..
-		tpl.removeScaffolding(buildable.getCorner().getLocation());
-		buildable.delete();
-		// }
-		// }
-		// TaskMaster.syncTask(new SyncTask());
+		
 	}
 
 	public double setExtraHammers(double extra_hammers) {

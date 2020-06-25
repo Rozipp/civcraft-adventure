@@ -50,7 +50,6 @@ import com.avrgaming.civcraft.structure.Cottage;
 import com.avrgaming.civcraft.structure.Mine;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.Temple;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.TradeShip;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.CivColor;
@@ -85,10 +84,8 @@ public class TownInfoCommand extends CommandBase {
 	public void tradeship_cmd() throws CivException {
 		Town town = this.getSelectedTown();
 		CivMessage.sendHeading(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeshipHeading", town.getName()));
-		if (!town.hasStructure("ti_trade_ship")) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_info_tradeship_noShip"));
-		}
-		TradeShip tradeShip = (TradeShip) town.getStructureByType("ti_trade_ship");
+		if (!town.SM.hasStructure("ti_trade_ship")) throw new CivException(CivSettings.localize.localizedString("cmd_town_info_tradeship_noShip"));
+		TradeShip tradeShip = (TradeShip) town.SM.getFirstStructureById("ti_trade_ship");
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_level", "§b" + tradeShip.getLevel()));
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_level", "§b" + tradeShip.getLevel()));
 		CivMessage.sendSuccess(this.sender, CivSettings.localize.localizedString("cmd_town_info_tradeship_progress", CivColor.Red + tradeShip.getTradeLevelComponent().getCountString()));
@@ -103,7 +100,7 @@ public class TownInfoCommand extends CommandBase {
 		LinkedList<String> out = new LinkedList<String>();
 		boolean showhelp = false;
 
-		for (Buildable buildable : town.getDisabledBuildables()) {
+		for (Buildable buildable : town.SM.getDisabledBuildables()) {
 			showhelp = true;
 			out.add(CivColor.Green + buildable.getDisplayName() + CivColor.LightGreen + " " + CivSettings.localize.localizedString("Coord") + buildable.getCorner().toString());
 		}
@@ -355,7 +352,7 @@ public class TownInfoCommand extends CommandBase {
 	public void showDebugStructureInfo(Town town) {
 
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_info_showDebug"));
-		for (Structure struct : town.getStructures()) {
+		for (Structure struct : town.SM.getStructures()) {
 			CivMessage.send(sender, struct.getDisplayName() + ": " + CivSettings.localize.localizedString("cmd_town_info_showdebugCorner") + " " + struct.getCorner() + " "
 					+ CivSettings.localize.localizedString("cmd_town_info_showdebugCenter") + " " + struct.getCenterLocation().toVector());
 		}
@@ -372,7 +369,7 @@ public class TownInfoCommand extends CommandBase {
 		}
 
 		HashMap<String, Double> structsByName = new HashMap<String, Double>();
-		for (Structure struct : town.getStructures()) {
+		for (Structure struct : town.SM.getStructures()) {
 			Double upkeep = structsByName.get(struct.getConfigId());
 			if (upkeep == null) {
 				structsByName.put(struct.getDisplayName(), struct.getUpkeepCost());
@@ -390,7 +387,7 @@ public class TownInfoCommand extends CommandBase {
 		}
 
 		CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_stucturesWonders"));
-		for (Wonder wonder : town.getWonders()) {
+		for (Wonder wonder : town.SM.getWonders()) {
 			CivMessage.send(sender, CivColor.Green + wonder.getDisplayName() + " " + CivSettings.localize.localizedString("cmd_town_info_structuresUpkeep") + " " + CivColor.LightGreen + wonder.getUpkeepCost());
 		}
 
@@ -403,11 +400,8 @@ public class TownInfoCommand extends CommandBase {
 		CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_cottageHeading"));
 		double total = 0;
 
-		for (Structure struct : town.getStructures()) {
-			if (!struct.getConfigId().equals("ti_cottage")) {
-				continue;
-			}
-
+		for (Structure struct : town.SM.getStructures()) {
+			if (!struct.getConfigId().equals("ti_cottage")) continue;
 			Cottage cottage = (Cottage) struct;
 
 			String color;
@@ -473,11 +467,8 @@ public class TownInfoCommand extends CommandBase {
 		CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_templeHeading"));
 		double total = 0;
 
-		for (Structure struct : town.getStructures()) {
-			if (!struct.getConfigId().equals("s_temple")) {
-				continue;
-			}
-
+		for (Structure struct : town.SM.getStructures()) {
+			if (!struct.getConfigId().equals("s_temple")) continue;
 			Temple temple = (Temple) struct;
 
 			String color;
@@ -519,10 +510,8 @@ public class TownInfoCommand extends CommandBase {
 		CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_mineHeading"));
 		double total = 0;
 
-		for (Structure struct : town.getStructures()) {
-			if (!struct.getConfigId().equals("ti_mine")) {
-				continue;
-			}
+		for (Structure struct : town.SM.getStructures()) {
+			if (!struct.getConfigId().equals("ti_mine")) continue;
 
 			Mine mine = (Mine) struct;
 
@@ -643,7 +632,7 @@ public class TownInfoCommand extends CommandBase {
 			try {
 				CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Treasury") + " " + CivColor.LightGreen + town.getBalance() + CivColor.Green + " " + CivSettings.CURRENCY_NAME + " "
 						+ CivSettings.localize.localizedString("cmd_town_info_structuresUpkeep") + " " + CivColor.LightGreen + town.getTotalUpkeep() * town.getGovernment().upkeep_rate);
-				Structure bank = town.getStructureByType("s_bank");
+				Structure bank = town.SM.getFirstStructureById("s_bank");
 				if (bank != null) {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_town_info_showBankInterest") + " " + CivColor.LightGreen + df.format(((Bank) bank).getInterestRate() * 100) + "%" + CivColor.Green + " "
 							+ CivSettings.localize.localizedString("cmd_town_info_showBankPrinciple") + " " + CivColor.LightGreen + town.getTreasury().getPrincipalAmount());
@@ -662,31 +651,21 @@ public class TownInfoCommand extends CommandBase {
 			CivMessage.send(sender, CivColor.Yellow + CivSettings.localize.localizedString("cmd_town_info_showInDebt"));
 		}
 
-		if (town.getMotherCiv() != null) {
-			CivMessage.send(sender, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_info_showYearn", CivColor.LightPurple + town.getMotherCiv().getName() + CivColor.Yellow));
-		}
-
-		if (town.hasDisabledStructures()) {
-			CivMessage.send(sender, CivColor.Rose + CivSettings.localize.localizedString("cmd_town_info_showDisabled"));
-		}
+		if (town.getMotherCiv() != null) CivMessage.send(sender, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_info_showYearn", CivColor.LightPurple + town.getMotherCiv().getName() + CivColor.Yellow));
+		if (town.SM.getDisabledBuildables().size() > 0) CivMessage.send(sender, CivColor.Rose + CivSettings.localize.localizedString("cmd_town_info_showDisabled"));
 
 		if (isAdmin) {
-			Townhall townhall = town.getTownHall();
-			if (townhall == null) {
+			if (!town.isValid())
 				CivMessage.send(sender, CivColor.LightPurple + CivSettings.localize.localizedString("cmd_town_info_showNoTownHall"));
-			} else {
-				CivMessage.send(sender, CivColor.LightPurple + CivSettings.localize.localizedString("Location") + " " + townhall.getCorner());
-			}
+			else
+				CivMessage.send(sender, CivColor.LightPurple + CivSettings.localize.localizedString("Location") + " " + town.getLocation());
 
 			String wars = "";
 			for (Relation relation : town.getCiv().getDiplomacyManager().getRelations()) {
-				if (relation.getStatus() == Status.WAR) {
-					wars += relation.getOtherCiv().getName() + ", ";
-				}
+				if (relation.getStatus() == Status.WAR) wars += relation.getOtherCiv().getName() + ", ";
 			}
 			CivMessage.send(sender, CivColor.LightPurple + CivSettings.localize.localizedString("cmd_town_info_showWars") + " " + wars);
 		}
-
 	}
 
 	private void show_info() throws CivException {

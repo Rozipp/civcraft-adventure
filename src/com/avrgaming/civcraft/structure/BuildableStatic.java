@@ -76,9 +76,9 @@ public class BuildableStatic {
 		}
 
 		for (Civilization civ : CivGlobal.getAdminCivs()) {
-			Location townHallLoc = civ.getCapitolTownHallLocation();
-			if (townHallLoc == null) continue;
-			double distance = townHallLoc.distance(loc);
+			Location cityHallLoc = civ.getCapitolCityHallLocation();
+			if (cityHallLoc == null) continue;
+			double distance = cityHallLoc.distance(loc);
 			if (distance < requiredDistance) {
 				throw new CivException(CivSettings.localize.localizedString("var_buildable_toocloseToSpawn1", requiredDistance));
 			}

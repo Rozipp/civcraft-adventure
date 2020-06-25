@@ -157,7 +157,7 @@ public class StructureValidator implements Runnable {
 
 		construct.validated = true;
 		construct.invalidLayerMessage = message;
-		construct.valid = valid;
+		construct.setValid(valid);
 	}
 
 	@Override
@@ -207,9 +207,9 @@ public class StructureValidator implements Runnable {
 				CivMessage.sendError(player, construct.invalidLayerMessage);
 				if (player.isOp()) {
 					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("structureValidator_isOP"));
-					construct.valid = true;
+					construct.setValid(true);
 				}
-				if (construct.valid) {
+				if (construct.isValid()) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("structureValidator_isValid"));
 					construct.invalidLayerMessage = "";
 				}

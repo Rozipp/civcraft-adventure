@@ -202,7 +202,7 @@ public class GuiPage {
 				is = LoreGuiItem.setAction(is, "UpgradeGuiBuy");
 				is = LoreGuiItem.setActionData(is, "info", upgrade.name);
 			} else
-				if (!town.hasStructure(upgrade.require_structure)) {
+				if (!town.SM.hasStructure(upgrade.require_structure)) {
 					final ConfigBuildableInfo structure = CivSettings.structures.get(upgrade.require_structure);
 					is = LoreGuiItem.build(upgrade.name, ItemManager.getMaterialId(Material.EMERALD), 0,
 							"§b" + CivSettings.localize.localizedString("money_requ", Math.round(cost)),

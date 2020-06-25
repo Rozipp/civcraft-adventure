@@ -93,7 +93,7 @@ public class Cannon extends Construct {
 
 	public static void cleanupAll() {
 		for (Construct cannon : cannons.values()) {
-			cannon.delete();
+			cannon.deleteWithUndo();
 		}
 	}
 
@@ -197,7 +197,6 @@ public class Cannon extends Construct {
 		sign.setType("id");
 		sign.setOwner(this);
 		this.addConstructSign(sign);
-		CivGlobal.addConstructSign(sign);
 		return sign;
 	}
 

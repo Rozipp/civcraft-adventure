@@ -105,7 +105,7 @@ public class FishHatchery extends Structure {
 
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().saved_fish_hatchery_level;
+		this.level = getTown().SM.saved_fish_hatchery_level;
 		for (ConstructChest chest : this.getAllChests().values()) {
 			int id;
 			try {

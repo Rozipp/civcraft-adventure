@@ -218,7 +218,6 @@ public class SpaceShuttle extends Wonder {
 			structSign.setAction("runMission");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 		} else
 			if (commandBlock.command.equals("/missionProgress")) {
 				ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
@@ -229,7 +228,6 @@ public class SpaceShuttle extends Wonder {
 				structSign.setAction("missionProgress");
 				structSign.update();
 				this.addConstructSign(structSign);
-				CivGlobal.addConstructSign(structSign);
 			}
 	}
 }

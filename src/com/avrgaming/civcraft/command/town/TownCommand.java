@@ -39,7 +39,6 @@ import com.avrgaming.civcraft.questions.JoinTownResponse;
 import com.avrgaming.civcraft.questions.Question;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.sync.TeleportPlayerTaskTown;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -106,7 +105,7 @@ public class TownCommand extends CommandBase {
 		final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", player);
 		final long timeNow = Calendar.getInstance().getTimeInMillis();
 		if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
-		final TeleportPlayerTaskTown teleportPlayerTask = new TeleportPlayerTaskTown(resident, this.getPlayer(), town.getTownHall().getRandomRevivePoint().getLocation().add(0.0, 4.5, 0.0), resident.getTown());
+		final TeleportPlayerTaskTown teleportPlayerTask = new TeleportPlayerTaskTown(resident, this.getPlayer(), town.getCityhall().getRandomRevivePoint().getLocation(), resident.getTown());
 		teleportPlayerTask.run(true);
 	}
 
@@ -150,13 +149,12 @@ public class TownCommand extends CommandBase {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
 		if (resident.getTown() == town) {
-			Townhall townhall = town.getTownHall();
-			if (townhall == null) {
+			if (!town.isValid()) {
 				CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
 				CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
 			} else {
 				CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
-				CivMessage.send(sender, CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + townhall.getCorner());
+				CivMessage.send(sender, CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + town.getLocation());
 			}
 		}
 	}
@@ -172,25 +170,14 @@ public class TownCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureInvalid"));
 		}
 
-		if (War.isWarTime()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureWar"));
-		}
-
-		if (struct == null) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_town_enableStructureNotFound", coordString));
-		}
-
-		if (!resident.getCiv().GM.isLeader(resident)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureNotLead"));
-		}
-
-		if (!town.isStructureAddable(struct)) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureOverLimit"));
-		}
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureWar"));
+		if (struct == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_enableStructureNotFound", coordString));
+		if (!resident.getCiv().GM.isLeader(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureNotLead"));
+		if (!town.SM.isStructureAddable(struct)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureOverLimit"));
 
 		/* Readding structure will make it valid. */
-		town.removeStructure(struct);
-		town.addStructure(struct);
+		town.SM.removeStructure(struct);
+		town.SM.addStructure(struct);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_enableStructureSuccess"));
 	}
 
@@ -545,17 +532,15 @@ public class TownCommand extends CommandBase {
 			if (town.getCiv() != civ) {
 				if (sender instanceof Player) {
 					Player player = (Player) sender;
-					Location ourCapLoc = civ.getCapitolTownHallLocation();
+					Location ourCapLoc = civ.getCapitolCityHallLocation();
 
-					if (ourCapLoc == null) {
-						return;
-					}
+					if (ourCapLoc == null) return;
 
 					double potentialDistanceLow;
 					double potentialDistanceHigh;
 					try {
-						if (town.getTownHall() != null) {
-							Location theirTownHallLoc = town.getTownHall().getCenterLocation();
+						if (!town.isValid()) {
+							Location theirTownHallLoc = town.getLocation();
 							potentialDistanceLow = civ.getDistanceUpkeepAtLocation(ourCapLoc, theirTownHallLoc, true);
 							potentialDistanceHigh = civ.getDistanceUpkeepAtLocation(ourCapLoc, theirTownHallLoc, false);
 
@@ -767,7 +752,7 @@ public class TownCommand extends CommandBase {
 		if (tc.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimNotInTown"));
 		if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));
 
-		for (Construct construct : CivGlobal.getConstructFromChunk(tc.getChunkCoord())) {
+		for (Construct construct : CivGlobal.getConstructsFromChunk(tc.getChunkCoord())) {
 			if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
 		}
 		TownChunk.unclaim(tc);

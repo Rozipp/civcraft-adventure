@@ -57,9 +57,10 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
+import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TeslaTower;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildPreviewAsyncTask;
 import com.avrgaming.civcraft.units.UnitStatic;
@@ -447,7 +448,7 @@ public class Resident extends SQLObject {
 	}
 
 	public boolean canDamageControlBlock() {
-		return (!this.hasTown()) || (this.getCiv().getCapitolStructure().isValid());
+		return (!this.hasTown()) || (this.getCiv().isValid());
 	}
 
 	public boolean isInactiveForDays(int days) {
@@ -755,9 +756,9 @@ public class Resident extends SQLObject {
 		try {
 			Player player = CivGlobal.getPlayer(this);
 			if (this.hasTown()) {
-				Townhall townhall = this.getTown().getTownHall();
-				if (townhall != null) {
-					BlockCoord coord = townhall.getRandomRevivePoint();
+				Cityhall cityhall = this.getTown().getCityhall();
+				if (cityhall != null) {
+					BlockCoord coord = cityhall.getRandomRevivePoint();
 					player.teleport(coord.getLocation());
 				}
 			} else {
@@ -793,7 +794,7 @@ public class Resident extends SQLObject {
 		}
 
 		int dmg = 7;
-		Structure tesla = source.getStructureByType("s_teslatower");
+		Structure tesla = source.SM.getFirstStructureById("s_teslatower");
 		if (tesla != null) {
 			dmg = ((TeslaTower) tesla).getDamage();
 		}
@@ -848,9 +849,9 @@ public class Resident extends SQLObject {
 	public void showPlayerLoginWarnings(Player player) {
 		/* Notify Resident of any invalid structures. */
 		if (this.getTown() != null) {
-			for (Structure struct : this.getTown().invalidStructures) {
-				CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_resident_structInvalidAlert1", struct.getDisplayName(), struct.getCorner()) + " "
-						+ CivSettings.localize.localizedString("resident_structInvalidAlert2") + " " + struct.getInvalidLayerMessage());
+			for (Buildable buildable : this.getTown().SM.getInvalideBuildables()) {
+				CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_resident_structInvalidAlert1", buildable.getDisplayName(), buildable.getCorner()) + " "
+						+ CivSettings.localize.localizedString("resident_structInvalidAlert2") + " " + buildable.getInvalidLayerMessage());
 			}
 
 			/* Show any event messages. */

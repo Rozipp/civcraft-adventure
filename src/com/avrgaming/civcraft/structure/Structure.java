@@ -8,7 +8,6 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -100,7 +99,7 @@ public class Structure extends Buildable {
 		}
 		structure.initDefaultTemplate(location);
 		if (checkPerm) {
-			if (town != null) town.checkIsTownCanBuildStructure(structure);
+			if (town != null) town.SM.checkIsTownCanBuildBuildable(structure);
 			structure.checkBlockPermissionsAndRestrictions(player);
 		}
 		return structure;
@@ -134,7 +133,7 @@ public class Structure extends Buildable {
 		this.setSQLOwner(CivGlobal.getTownFromId(rs.getInt("town_id")));
 
 		if (this.getTown() == null) {
-			this.delete();
+			this.deleteWithUndo();
 			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
 		}
 		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
@@ -144,7 +143,7 @@ public class Structure extends Buildable {
 
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
-		this.getTown().addStructure(this);
+		this.getTown().SM.addStructure(this);
 
 		Structure struct = this;
 		TaskMaster.syncTask(new Runnable() {
@@ -184,30 +183,16 @@ public class Structure extends Buildable {
 
 	@Override
 	public void delete() {
-		if (this.getTown() != null) {
-			try {
-				this.undoFromTemplate();
-			} catch (IOException | CivException e1) {
-				e1.printStackTrace();
-				this.fancyDestroyConstructBlocks();
-			}
-
-			CivGlobal.removeStructure(this);
-			this.getTown().removeStructure(this);
-		}
 		super.delete();
+		
+		if (this.getTown() != null) this.getTown().SM.removeStructure(this);
+		CivGlobal.removeStructure(this);
+		
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void deleteSkipUndo() throws SQLException {
-		CivGlobal.removeStructure(this);
-		this.getTown().removeStructure(this);
-		super.delete();
-		SQL.deleteNamedObject(this, TABLE_NAME);
 	}
 
 	// -------------------build
@@ -224,30 +209,7 @@ public class Structure extends Buildable {
 		}
 	}
 
-	public void build(Player player) {
-		// Before we place the blocks, give our build function a chance to work on it
-		try {
-			this.runOnBuild(this.getCorner().getChunkCoord());
-		} catch (CivException e1) {
-			e1.printStackTrace();
-		}
-
-		// Setup undo information
-		getTown().lastBuildableBuilt = this;
-		Template tpl = this.getTemplate();
-		try {
-			tpl.saveUndoTemplate(this.getCorner().toString(), this.getCorner());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		CivGlobal.getResident(player).undoPreview();
-		tpl.buildScaffolding(this.getCorner());
-		this.startBuildTask();
-
-		CivGlobal.addStructure(this);
-	}
-
-	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+	public void runOnBuild(ChunkCoord cChunk) throws CivException {
 		/* Override in children */
 	}
 
@@ -259,7 +221,7 @@ public class Structure extends Buildable {
 	}
 
 	public void repairStructure() throws CivException {
-		if (this instanceof Townhall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
+		if (this instanceof Cityhall) throw new CivException(CivSettings.localize.localizedString("structure_repair_notCaporHall"));
 		double cost = getRepairCost();
 		if (!getTown().getTreasury().hasEnough(cost)) throw new CivException(CivSettings.localize.localizedString("var_structure_repair_tooPoor", getTown().getName(), cost, CivSettings.CURRENCY_NAME, getDisplayName()));
 		repairStructureForFree();
@@ -269,10 +231,8 @@ public class Structure extends Buildable {
 
 	@Override
 	public void processUndo() throws CivException {
-		if (isTownHall()) {
-			throw new CivException(CivSettings.localize.localizedString("structure_move_notCaporHall"));
-		}
-		delete();
+		if (this instanceof Cityhall) throw new CivException(CivSettings.localize.localizedString("structure_move_notCaporHall"));
+		deleteWithUndo();
 
 		CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_structure_undo_success", getDisplayName()));
 		double refund = this.getCost();

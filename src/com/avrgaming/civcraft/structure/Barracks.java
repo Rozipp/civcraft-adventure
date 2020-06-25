@@ -264,8 +264,6 @@ public class Barracks extends Structure {
 			structSign.setAction("prev");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			break;
 		case "/unitname":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
@@ -280,8 +278,6 @@ public class Barracks extends Structure {
 			this.unitNameSign = structSign;
 
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			break;
 		case "/next":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
@@ -293,8 +289,6 @@ public class Barracks extends Structure {
 			structSign.setAction("next");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			break;
 		case "/train":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
@@ -306,8 +300,6 @@ public class Barracks extends Structure {
 			structSign.setAction("train");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			break;
 		case "/progress":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
@@ -319,8 +311,6 @@ public class Barracks extends Structure {
 			structSign.setAction("");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
 
 			break;
@@ -334,8 +324,6 @@ public class Barracks extends Structure {
 			structSign.setAction("repair_item");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
-
 			break;
 
 		}

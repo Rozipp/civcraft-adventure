@@ -23,47 +23,32 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class BeakerTimer extends CivAsyncTask {
 
-	//private double beakersPerRun;
-	
+	// private double beakersPerRun;
+
 	public static final int BEAKER_PERIOD = 60;
-	
+
 	public BeakerTimer(int periodInSeconds) {
-		
-	//	this.beakersPerRun = ((double)periodInSeconds/60);
+
+		// this.beakersPerRun = ((double)periodInSeconds/60);
 	}
-	
+
 	@Override
 	public void run() {
-		
 		for (Civilization civ : CivGlobal.getCivs()) {
-			
-			if (civ.getCapitol() == null) {
-				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("beaker_ErrorNoCapitol"));
-				continue;
-			}
-			
 			Town town = civ.getCapitol();
 			if (town == null) {
-				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_beaker_noCapitol",civ.getName()));
+				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_beaker_noCapitol", civ.getName()));
 				continue;
 			}
-			
-			Townhall townhall = town.getTownHall();
-			if (townhall == null) {
-				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("beaker_noCapitolHall"));
-			}
-			
+			if (!town.isValid()) CivMessage.sendCiv(civ, CivSettings.localize.localizedString("beaker_noCapitolHall"));
+
 			try {
-				/* 
-				 * The base_beakers defines the number of beakers per hour to give.
-				 * This timer runs every min, so dividing my 60 will give us the number
-				 * of beakers per min.
-				 */
+				/* The base_beakers defines the number of beakers per hour to give. This timer runs every min, so dividing my 60 will give us the number of
+				 * beakers per min. */
 				if (civ.getResearchTech() != null) {
 					civ.addBeakers(civ.getBeakers() / BEAKER_PERIOD);
 				} else {
@@ -73,8 +58,7 @@ public class BeakerTimer extends CivAsyncTask {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 	}
 
 }

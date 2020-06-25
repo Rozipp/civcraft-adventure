@@ -19,13 +19,11 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
@@ -34,11 +32,8 @@ import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -59,7 +54,6 @@ import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.interactive.BuildCallbackDbg;
-import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.lorestorage.LoreStoreage;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -74,9 +68,8 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.structure.ArrowTower;
 import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.Capitol;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -84,9 +77,7 @@ import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.AsciiMap;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
-import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.global.perks.Perk;
@@ -109,9 +100,6 @@ public class DebugCommand extends CommandBase {
 
 		cs.add("map", "shows a town chunk map of the current area.");
 
-		cs.add("moveframes", "[x] [y] [z] moves item frames in this chunk to x,y,z");
-		cs.add("frame", "gets player's town and shows the goodie frames in this town.");
-		cs.add("makeframe", "[loc] [direction]");
 		cs.add("dupe", "duplicates the item in your hand.");
 		cs.add("test", "Run test suite commands.");
 
@@ -136,7 +124,6 @@ public class DebugCommand extends CommandBase {
 		cs.add("farm", "show debug commands for farms");
 		cs.add("flashedges", "[town] flash edge blocks for town.");
 		cs.add("refreshchunk", "refreshes the chunk you're standing in.. for science.");
-		cs.add("touches", "[town] - prints a list of friendly touches for this town's culture.");
 		cs.add("listconquered", "shows a list of conquered civilizations.");
 		cs.add("blockinfo", "[x] [y] [z] shows block info for this block.");
 		cs.add("fakeresidents", "[town] [count] - Adds this many fake residents to a town.");
@@ -272,7 +259,7 @@ public class DebugCommand extends CommandBase {
 
 		try {
 			/* Build a spawn civ. */
-			Civilization civ = new Civilization(resident);
+			Civilization civ = new Civilization();
 			civ.setName(civName);
 			civ.setTag(civName);
 			civ.saveNow();
@@ -369,7 +356,7 @@ public class DebugCommand extends CommandBase {
 										loc.setY(loc.getY() + yShift);
 
 										Structure struct = Structure.newStructure(player, loc, info.id, spawnCapitol, false);
-										if (struct instanceof Capitol) {
+										if (struct instanceof Cityhall) {
 											AdminTownCommand.claimradius(spawnCapitol, center, 15);
 										}
 										struct.setTemplate(Template.getTemplate(Template.getTemplateFilePath(info.template_name, dir, null)));
@@ -377,7 +364,7 @@ public class DebugCommand extends CommandBase {
 										struct.setComplete(true);
 										struct.setHitpoints(info.max_hitpoints);
 										CivGlobal.addStructure(struct);
-										spawnCapitol.addStructure(struct);
+										spawnCapitol.SM.addStructure(struct);
 										struct.postBuildSyncTask();
 										struct.save();
 										spawnCapitol.save();
@@ -701,24 +688,6 @@ public class DebugCommand extends CommandBase {
 		CivMessage.send(sender, out);
 	}
 
-	public void touches_cmd() throws CivException {
-		Town town = getNamedTown(1);
-
-		CivMessage.sendHeading(sender, "Touching Towns");
-		String out = "";
-		for (Town t : town.townTouchList) {
-			out += t.getName() + ", ";
-		}
-
-		if (town.touchesCapitolCulture(new HashSet<Town>())) {
-			CivMessage.send(sender, CivColor.LightGreen + "Touches capitol.");
-		} else {
-			CivMessage.send(sender, CivColor.Rose + "Does NOT touch capitol.");
-		}
-
-		CivMessage.send(sender, out);
-	}
-
 	public void refreshchunk_cmd() throws CivException {
 		Player you = getPlayer();
 		ChunkCoord coord = new ChunkCoord(you.getLocation());
@@ -914,12 +883,12 @@ public class DebugCommand extends CommandBase {
 			throw new CivException("/arrow [power]");
 		}
 		for (Town town : CivGlobal.getTowns()) {
-			for (Structure struct : town.getStructures()) {
+			for (Structure struct : town.SM.getStructures()) {
 				if (struct instanceof ArrowTower) {
 					((ArrowTower) struct).setPower(Float.valueOf(args[1]));
 				}
 			}
-			for (Wonder wonder : town.getWonders()) {
+			for (Wonder wonder : town.SM.getWonders()) {
 				if (wonder instanceof GrandShipIngermanland) {
 					((GrandShipIngermanland) wonder).setArrorPower(Float.valueOf(args[1]));
 				}
@@ -961,78 +930,6 @@ public class DebugCommand extends CommandBase {
 		}
 		player.getInventory().addItem(player.getInventory().getItemInMainHand());
 		CivMessage.sendSuccess(player, player.getInventory().getItemInMainHand().getType().name() + "duplicated.");
-	}
-
-	public void makeframe_cmd() throws CivException {
-		if (args.length > 3) {
-			throw new CivException("Provide a x,y,z and a direction (n,s,e,w)");
-		}
-
-		String locationString = "world," + args[1];
-		BlockFace face;
-
-		switch (args[2]) {
-		case "n":
-			face = BlockFace.NORTH;
-			break;
-
-		case "s":
-			face = BlockFace.SOUTH;
-			break;
-
-		case "e":
-			face = BlockFace.EAST;
-			break;
-
-		case "w":
-			face = BlockFace.WEST;
-			break;
-		default:
-			throw new CivException("Invalid direction, use n,s,e,w");
-		}
-
-		Location loc = CivGlobal.getLocationFromHash(locationString);
-		new ItemFrameStorage(loc, face);
-		CivMessage.send(sender, "Created frame.");
-	}
-
-	public void frame_cmd() throws CivException {
-		Town town = getSelectedTown();
-
-		Townhall townhall = town.getTownHall();
-		if (townhall == null) {
-			throw new CivException("No town hall?");
-		}
-
-		for (ItemFrameStorage itemstore : townhall.getGoodieFrames()) {
-			String itemString = "empty";
-
-			if (!itemstore.isEmpty()) {
-				BonusGoodie goodie = CivGlobal.getBonusGoodie(itemstore.getItem());
-				itemString = goodie.getDisplayName();
-			}
-			CivMessage.send(sender, "GoodieFrame UUID:" + itemstore.getUUID() + " item:" + itemString);
-		}
-
-	}
-
-	public void moveframes_cmd() throws CivException {
-		Player player = getPlayer();
-		Chunk chunk = player.getLocation().getChunk();
-
-		// int x = this.getNamedInteger(1);
-		// int y = this.getNamedInteger(2);
-		// int z = this.getNamedInteger(3);
-
-		// Location loc = new Location(player.getWorld(), x, y, z);
-
-		for (Entity entity : chunk.getEntities()) {
-			if (entity instanceof ItemFrame) {
-				CivMessage.send(sender, "Teleported...");
-				entity.teleport(entity.getLocation());
-			}
-		}
-
 	}
 
 	public void culturechunk_cmd() {

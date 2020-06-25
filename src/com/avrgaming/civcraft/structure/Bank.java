@@ -99,9 +99,6 @@ public class Bank extends Structure {
 		if (rate > 1) {
 			exchange_rate *= rate;
 		}
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
-			exchange_rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level4_extraBankTown");
-		}
 		if (this.getCiv().getStockExchangeLevel() >= 3) {
 			exchange_rate *= 1.25;
 		}
@@ -358,9 +355,6 @@ public class Bank extends Structure {
 			CivMessage.sendTown(this.getTown(), CivColor.LightGray + CivSettings.localize.localizedString("bank_greed"));
 		}
 
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraBankTown")) {
-			effectiveInterestRate *= 2.0;
-		}
 		double newCoins = principal * effectiveInterestRate;
 
 		// Dont allow fractional coins.
@@ -379,8 +373,8 @@ public class Bank extends Structure {
 
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().saved_bank_level;
-		this.interestRate = getTown().saved_bank_interest_amount;
+		this.level = getTown().SM.saved_bank_level;
+		this.interestRate = getTown().SM.saved_bank_interest_amount;
 	}
 
 	public NonMemberFeeComponent getNonMemberFeeComponent() {

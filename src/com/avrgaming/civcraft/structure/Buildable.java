@@ -1,5 +1,6 @@
 package com.avrgaming.civcraft.structure;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -8,15 +9,16 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.wonders.Neuschwanstein;
+import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
@@ -24,6 +26,7 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.TimeTools;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,20 +45,20 @@ public abstract class Buildable extends Construct {
 
 	// private String invalidReason = "";
 
-	protected void startBuildTask() {
+	public void startBuildTask() {
 		if (this instanceof Structure)
-			this.getTown().setCurrentStructureInProgress(this);
+			this.getTown().SM.setCurrentStructureInProgress(this);
 		else
-			this.getTown().setCurrentWonderInProgress(this);
+			this.getTown().SM.setCurrentWonderInProgress(this);
 		BuildAsyncTask task = new BuildAsyncTask(this);
-		this.getTown().build_tasks.add(task);
+		this.getTown().SM.addBuildTask(task);
 		TaskMaster.asyncTask(task, TimeTools.toTicks(5));
 	}
 
 	@Override
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
 		// Make sure we are building this building inside of culture.
-		if (!this.isTownHall()) {
+		if (!(this instanceof Cityhall)) {
 			for (ChunkCoord chunkCoord : getChunksCoords()) {
 				CultureChunk cc = CivGlobal.getCultureChunk(chunkCoord);
 				if (cc == null || cc.getTown().getCiv() != this.getCiv()) throw new CivException(CivSettings.localize.localizedString("buildable_notInCulture"));
@@ -70,6 +73,61 @@ public abstract class Buildable extends Construct {
 	}
 
 	// ------------- Build Task
+
+	@Override
+	public void build(Player player) throws CivException {
+		BlockCoord corner = this.getCorner();
+		Template tpl = this.getTemplate();
+		Town town = this.getTown();
+
+		Structure struct = (this instanceof Structure) ? (Structure) this : null;
+		Wonder wonder = (this instanceof Wonder) ? (Wonder) this : null;
+
+		town.SM.checkIsTownCanBuildBuildable(this);
+		this.checkBlockPermissionsAndRestrictions(player);
+
+		town.SM.setLastBuildableBuilt(this);
+		try {
+			tpl.saveUndoTemplate(corner.toString(), corner);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		CivGlobal.getResident(player).undoPreview();
+		this.getTemplate().buildScaffolding(corner);
+
+		for (ChunkCoord cc : this.getChunksCoords()) {
+			TownChunk tc = CivGlobal.getTownChunk(cc);
+			if (tc == null) TownChunk.autoClaim(town, cc).save();
+		}
+
+		try {
+			if (struct != null) struct.runOnBuild(corner.getChunkCoord());
+		} catch (CivException e1) {
+			e1.printStackTrace();
+		}
+		this.startBuildTask();
+		this.save();
+
+		town.getTreasury().withdraw(this.getCost());
+		if (town.getExtraHammers() > 0) town.giveExtraHammers(town.getExtraHammers());
+
+		if (this instanceof TradeOutpost) {
+			TradeOutpost outpost = (TradeOutpost) this;
+			if (outpost.getGood() != null) outpost.getGood().save();
+		}
+
+		if (struct != null) {
+			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", this.getDisplayName()));
+			town.SM.addStructure(struct);
+		} 
+		if (wonder != null){
+			town.SM.addWonder(wonder);
+			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", this.getDisplayName(), player.getName(), town.getName()));
+			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", town.getCiv().getName(), this.getDisplayName(), town.getName(), player.getName()));
+		}
+		town.save();
+	}
+
 	public double getHammerCost() {
 		double rate = 1;
 		rate -= this.getTown().getBuffManager().getEffectiveDouble(Buff.RUSH);
@@ -173,35 +231,35 @@ public abstract class Buildable extends Construct {
 			}
 			return;
 		}
-		if (this instanceof Neuschwanstein && player != null) {
-			if (this.getTown().hasStructure("s_capitol")) {
-				final Capitol capitol = (Capitol) this.getTown().getStructureByType("s_capitol");
-				boolean allDestroyed = true;
-				for (final ControlPoint c : capitol.controlPoints.values()) {
-					if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
-						allDestroyed = false;
-						break;
-					}
-				}
-				if (!allDestroyed) {
-					CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_cannotAttackNeu", this.getTown().getName()));
-					return;
-				}
-			} else {
-				final Townhall townHall = (Townhall) this.getTown().getStructureByType("s_townhall");
-				boolean allDestroyed = true;
-				for (final ControlPoint c : townHall.controlPoints.values()) {
-					if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
-						allDestroyed = false;
-						break;
-					}
-				}
-				if (!allDestroyed) {
-					CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_cannotAttackNeu", this.getTown().getName()));
-					return;
-				}
-			}
-		}
+		// if (this instanceof Neuschwanstein && player != null) {
+		// if (this.getTown().hasStructure("s_capitol")) {
+		// final Capitol capitol = (Capitol) this.getTown().getStructureByType("s_capitol");
+		// boolean allDestroyed = true;
+		// for (final ControlPoint c : capitol.controlPoints.values()) {
+		// if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
+		// allDestroyed = false;
+		// break;
+		// }
+		// }
+		// if (!allDestroyed) {
+		// CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_cannotAttackNeu", this.getTown().getName()));
+		// return;
+		// }
+		// } else {
+		// final Townhall townHall = (Townhall) this.getTown().getStructureByType("s_townhall");
+		// boolean allDestroyed = true;
+		// for (final ControlPoint c : townHall.controlPoints.values()) {
+		// if (c.getInfo().equalsIgnoreCase("Neuschwanstein") && !c.isDestroyed()) {
+		// allDestroyed = false;
+		// break;
+		// }
+		// }
+		// if (!allDestroyed) {
+		// CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_cannotAttackNeu", this.getTown().getName()));
+		// return;
+		// }
+		// }
+		// }
 		if ((hit.getOwner().getDamagePercentage() % 10) == 0) {
 			wasTenPercent = true;
 		}
@@ -241,9 +299,6 @@ public abstract class Buildable extends Construct {
 		int regenRate = this.getRegenRate();
 		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff_chichen_itza_regen_rate");
 		regenRate += this.getTown().getBuffManager().getEffectiveInt("buff_statue_of_zeus_struct_regen");
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
-			++regenRate;
-		}
 		if (regenRate != 0) {
 			if ((this.getHitpoints() != this.getMaxHitPoints()) && (this.getHitpoints() != 0)) {
 				this.setHitpoints(this.getHitpoints() + regenRate);
@@ -252,17 +307,10 @@ public abstract class Buildable extends Construct {
 		}
 	}
 
-	public boolean isTownHall() {
-		return (this instanceof Townhall);
-	}
-
-	public void markInvalid() {
-		this.valid = isPartOfAdminCiv();
-		if (!this.valid) this.getTown().invalidStructures.add((Structure)this);
-	}
-
+	@Override
 	public void setValid(boolean b) {
 		this.valid = this.isPartOfAdminCiv() || b;
+		if (!this.valid) this.getTown().SM.addInvalideBuildable(this);
 	}
 
 	@Override
@@ -272,7 +320,7 @@ public abstract class Buildable extends Construct {
 
 	@Override
 	public boolean isActive() {
-		return this.isComplete() && (this.isTownHall() || super.isActive());
+		return this.isComplete() && (this instanceof Cityhall || super.isActive());
 	}
 
 	public boolean isCanRestoreFromTemplate() {

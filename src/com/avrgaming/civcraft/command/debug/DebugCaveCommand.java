@@ -37,7 +37,7 @@ public class DebugCaveCommand extends CommandBase {
 			Resident res = CivGlobal.getResident(player);
 			Location loc;
 			if (res.getTown() != null)
-				loc = res.getTown().getTownHall().getRandomRespawnPoint().getLocation();
+				loc = res.getTown().getCityhall().getRandomRespawnPoint().getLocation();
 			else
 				loc = CivCraft.mainWorld.getSpawnLocation();
 			player.teleport(loc);

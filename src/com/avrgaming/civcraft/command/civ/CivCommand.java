@@ -43,7 +43,6 @@ import com.avrgaming.civcraft.object.Relation.Status;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
 
@@ -101,7 +100,7 @@ public class CivCommand extends CommandBase {
 		int cultureSummary = 0;
 		for (final Town town : civ.getTowns()) {
 			if (town.getMotherCiv() == null) cultureSummary += town.getAccumulatedCulture();
-			if (town.hasWonder("w_burj")) hasBurj = true;
+			if (town.SM.hasWonder("w_burj")) hasBurj = true;
 		}
 		final boolean culturePassed = cultureSummary > 16500000;
 		CivMessage.sendHeading(this.sender, CivSettings.localize.localizedString("cmd_civ_culture_heading"));
@@ -146,11 +145,10 @@ public class CivCommand extends CommandBase {
 		if (resident.getCiv() == civ) {
 			for (Town town : civ.getTowns()) {
 				String name = town.getName();
-				Townhall townhall = town.getTownHall();
-				if (townhall == null) {
+				if (!town.isValid()) {
 					CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + name + CivColor.RESET + CivColor.Gray + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
 				} else {
-					CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + name + CivColor.LightPurple + " - " + CivSettings.localize.localizedString("cmd_civ_locationSuccess") + " " + townhall.getCorner());
+					CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + name + CivColor.LightPurple + " - " + CivSettings.localize.localizedString("cmd_civ_locationSuccess") + " " + town.getLocation());
 				}
 			}
 		}

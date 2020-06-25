@@ -32,9 +32,6 @@ implements GuiAction {
         CivSettings.wonders.values().stream().map(info -> {
             ItemStack is;
             double cost = info.cost;
-            if (res.getCiv().getCapitol() != null && res.getCiv().getCapitol().getBuffManager().hasBuff("level10_architectorTown")) {
-                cost *= 0.9;
-            }
             if (!res.getTown().hasTechnology(info.require_tech)) {
                 ConfigTech tech = CivSettings.techs.get(info.require_tech);
                 is = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.GOLD_INGOT), 0, "§b" + CivSettings.localize.localizedString("money_requ", cost), "§a" + CivSettings.localize.localizedString("hammers_requ", info.hammer_cost), "§d" + CivSettings.localize.localizedString("ppoints", info.points), CivColor.Red + CivSettings.localize.localizedString("req") + tech.name, "§3" + CivSettings.localize.localizedString("clicktoresearch"));
@@ -45,7 +42,7 @@ implements GuiAction {
                 is = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.BLAZE_ROD), 0, "§b" + CivSettings.localize.localizedString("money_requ", cost), "§a" + CivSettings.localize.localizedString("hammers_requ", info.hammer_cost), "§d" + CivSettings.localize.localizedString("ppoints", info.points), CivColor.Red + CivSettings.localize.localizedString("req") + upgrade.name, "§3" + CivSettings.localize.localizedString("tutorial_lore_clicktoView"));
                 is = LoreGuiItem.setAction(is, "UpgradeGuiBuy");
                 is = LoreGuiItem.setActionData(is, "info", upgrade.name);
-            } else if (!res.getSelectedTown().hasStructure(info.require_structure)) {
+            } else if (!res.getSelectedTown().SM.hasStructure(info.require_structure)) {
                 ConfigBuildableInfo structure = CivSettings.structures.get(info.require_structure);
                 is = LoreGuiItem.build(info.displayName, ItemManager.getMaterialId(Material.EMERALD), 0, "§b" + CivSettings.localize.localizedString("money_requ", cost), "§a" + CivSettings.localize.localizedString("hammers_requ", info.hammer_cost), "§d" + CivSettings.localize.localizedString("ppoints", info.points), CivColor.Red + CivSettings.localize.localizedString("requ") + structure.displayName, "§3" + CivSettings.localize.localizedString("clicktobuild"));
                 is = LoreGuiItem.setAction(is, "WonderGuiBuild");

@@ -65,9 +65,6 @@ public class ScoutTower extends Structure {
 				range = 400.0;
 				reportrate = 120;
 			}
-			if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraRangeTown")) {
-				range += this.getTown().getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraRangeTown");
-			}
 
 			reportSeconds = reportrate;
 
@@ -104,9 +101,6 @@ public class ScoutTower extends Structure {
 		}
 		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
 			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
-		}
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
-			rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		}
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}

@@ -73,7 +73,7 @@ extends EndGameCondition {
         }
         int wonderCount = 0;
         for (Town town : top1.getTowns()) {
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.SM.getWonders()) {
                 if (wonder.getConfigId().equalsIgnoreCase("w_space_shuttle") || wonder.getConfigId().equalsIgnoreCase("w_colosseum") || wonder.getConfigId().equalsIgnoreCase("")) continue;
                 ++wonderCount;
             }

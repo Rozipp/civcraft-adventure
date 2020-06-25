@@ -8,13 +8,11 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.structure;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
@@ -50,22 +48,7 @@ public class Farm extends Structure {
 			CivGlobal.getSessionDatabase().delete_all(farmChunk.getSessionKey());
 		}
 
-		try {
-			this.undoFromTemplate();
-		} catch (IOException | CivException e1) {
-			e1.printStackTrace();
-			this.fancyDestroyConstructBlocks();
-		}
-
-		CivGlobal.removeStructure(this);
-		this.getTown().removeStructure(this);
-		this.unbindConstructBlocks();
-
-		try {
-			SQL.deleteNamedObject(this, TABLE_NAME);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		super.delete();
 	}
 
 	@Override
@@ -84,7 +67,7 @@ public class Farm extends Structure {
 	}
 
 	@Override
-	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+	public void runOnBuild(ChunkCoord cChunk) throws CivException {
 		build_farm(cChunk);
 	}
 

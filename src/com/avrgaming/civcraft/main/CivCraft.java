@@ -79,7 +79,7 @@ public final class CivCraft extends JavaPlugin {
 	private static JavaPlugin plugin;
 	public static boolean isDisable = false;
 	public static Random civRandom = new Random();
-	public static double minDamage = 0.2; //FIXME Зделать константой в файле civ.yml
+	public static double minDamage = 0.2; //FIXME Сделать константой в файле civ.yml
 	public static World mainWorld;
 	public static World cavesWorld;
 
@@ -235,7 +235,6 @@ public final class CivCraft extends JavaPlugin {
 		final PluginManager pluginManager = getServer().getPluginManager();
 		pluginManager.registerEvents(new BlockListener(), this);
 		pluginManager.registerEvents(new ChatListener(), this);
-		pluginManager.registerEvents(new BonusGoodieManager(), this);
 		pluginManager.registerEvents(new MarkerPlacementManager(), this);
 		pluginManager.registerEvents(new CustomItemListener(), this);
 		pluginManager.registerEvents(new UnitInventoryListener(), this);

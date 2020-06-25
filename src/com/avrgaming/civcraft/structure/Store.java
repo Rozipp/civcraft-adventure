@@ -49,7 +49,7 @@ public class Store extends Structure {
 		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
-		setLevel(town.saved_store_level);
+		setLevel(town.SM.saved_store_level);
 	}
 	
 	public Store(ResultSet rs) throws SQLException, CivException {

@@ -27,6 +27,7 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
 
@@ -34,7 +35,7 @@ public class BuildCommand extends CommandBase {
 
 	@Override
 	public void init() {
-		
+
 		command = "/build";
 		displayName = CivSettings.localize.localizedString("cmd_build_Desc");
 		cs.sendUnknownToDefault = true;
@@ -52,23 +53,22 @@ public class BuildCommand extends CommandBase {
 		info = info.replace("]", ">§f");
 		info = info.replace("(", "§2(");
 		info = info.replace(")", ")§f");
-		CivMessage.send((Object) this.sender, (String) ("§e" + this.command + "§f" + ": " + info));
+		CivMessage.send(this.sender, (String) ("§e" + this.command + "§f" + ": " + info));
 	}
+
 	public void calc_cmd() throws CivException {
 		Town town = this.getSelectedTown();
-		if (town.build_tasks.size() != 0 && !town.build_tasks.isEmpty()) {
+		if (town.SM.buildTaskSize() != 0) {
 			CivGlobal.dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Moscow"));
-			town.build_tasks.stream().map((task) -> {
+			town.SM.getBuildTasks().stream().map((task) -> {
 				return task.buildable;
 			}).forEachOrdered((b) -> {
 				double mins = (b.getHammerCost() - b.getHammersCompleted()) / 2.0D / town.getHammers().total * 60.0D;
 				long timeNow = Calendar.getInstance().getTimeInMillis();
 				double seconds = mins * 60.0D;
 				long end = (long) ((double) timeNow + 1000.0D * seconds);
-				String messageSender = "§a" + CivSettings.localize.localizedString("cmd_build_calc_result", "§2" + b.getDisplayName() + "§a",
-						"§c" + CivGlobal.dateFormat.format(end) + "§a");
-				String messageTown = CivSettings.localize.localizedString("cmd_build_calc_result", "§2" + b.getDisplayName() + CivColor.RESET,
-						"§c" + CivGlobal.dateFormat.format(end) + CivColor.RESET);
+				String messageSender = "§a" + CivSettings.localize.localizedString("cmd_build_calc_result", "§2" + b.getDisplayName() + "§a", "§c" + CivGlobal.dateFormat.format(end) + "§a");
+				String messageTown = CivSettings.localize.localizedString("cmd_build_calc_result", "§2" + b.getDisplayName() + CivColor.RESET, "§c" + CivGlobal.dateFormat.format(end) + CivColor.RESET);
 				CivMessage.send((Object) this.sender, (String) messageSender);
 				CivMessage.sendTown(town, messageTown);
 			});
@@ -82,60 +82,40 @@ public class BuildCommand extends CommandBase {
 		Resident resident = getResident();
 		Buildable buildable = CivGlobal.getNearestBuildable(player.getLocation());
 
-		if (buildable.getTown() != resident.getTown()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
-		}
+		if (buildable.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_build_validatenearestNotDuringWar"));
+		if (buildable.isIgnoreFloating()) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_validateNearestExempt", buildable.getDisplayName()));
 
-		if (War.isWarTime()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_build_validatenearestNotDuringWar"));
-		}
-
-		if (buildable.isIgnoreFloating()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_build_validateNearestExempt", buildable.getDisplayName()));
-		}
-
-		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_build_validateNearestSuccess", buildable.getDisplayName(),
-				buildable.getCenterLocation().toVector()));
+		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_build_validateNearestSuccess", buildable.getDisplayName(), buildable.getCenterLocation().toVector()));
 		buildable.validateAsyncTask(player);
 	}
 
 	public void refreshnearest_cmd() throws CivException {
 		Town town = getSelectedTown();
 		Resident resident = getResident();
-		town.refreshNearestBuildable(resident);
+		if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorNotMayor"));
+		town.SM.refreshNearestBuildable(resident);
 	}
 
 	public void repairnearest_cmd() throws CivException {
 		Town town = getSelectedTown();
 		Player player = getPlayer();
 
-		if (War.isWarTime()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_build_repairNotDuringWar"));
-		}
+		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_build_repairNotDuringWar"));
 
-		Structure nearest = town.getNearestStrucutre(player.getLocation());
-
-		if (nearest == null) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
-		}
-
-		if (!nearest.isDestroyed()) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairNotDestroyed", nearest.getDisplayName(), nearest.getCorner()));
-		}
-
-		if (!town.getCiv().hasTechnology(nearest.getRequiredTechnology())) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairMissingTech", nearest.getDisplayName(), nearest.getCorner()));
-		}
+		Structure nearest = (Structure) CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
+		if (nearest == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
+		if (!nearest.isDestroyed()) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairNotDestroyed", nearest.getDisplayName(), nearest.getCorner()));
+		if (!town.getCiv().hasTechnology(nearest.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairMissingTech", nearest.getDisplayName(), nearest.getCorner()));
 
 		if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
-			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_repairConfirmPrompt",
-					CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen, CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen,
-					CivColor.Yellow + nearest.getRepairCost() + CivColor.LightGreen, CivColor.Yellow + CivSettings.CURRENCY_NAME + CivColor.LightGreen));
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_repairConfirmPrompt", CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen,
+					CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen, CivColor.Yellow + nearest.getRepairCost() + CivColor.LightGreen, CivColor.Yellow + CivSettings.CURRENCY_NAME + CivColor.LightGreen));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_repairConfirmPrompt2"));
 			return;
 		}
 
-		town.repairStructure(nearest);
+		nearest.repairStructure();
 		CivMessage.sendSuccess(player, nearest.getDisplayName() + " " + CivSettings.localize.localizedString("Repaired"));
 	}
 
@@ -143,24 +123,20 @@ public class BuildCommand extends CommandBase {
 		Town town = getSelectedTown();
 		Player player = getPlayer();
 
-		Structure nearest = town.getNearestStrucutre(player.getLocation());
-
-		if (nearest == null) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
-		}
+		Structure nearest = (Structure) CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
+		if (nearest == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
 
 		if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
-			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_demolishNearestConfirmPrompt",
-					CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen, CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen));
+			CivMessage.send(player, CivColor.LightGreen
+					+ CivSettings.localize.localizedString("var_cmd_build_demolishNearestConfirmPrompt", CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen, CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen));
 			CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_demolishNearestConfirmPrompt2"));
 
 			nearest.flashConstructBlocks();
 			return;
 		}
 
-		town.demolish(nearest, false);
-		CivMessage.sendSuccess(player,
-				nearest.getDisplayName() + " at " + nearest.getCorner() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
+		town.SM.demolish(nearest, false);
+		CivMessage.sendSuccess(player, nearest.getDisplayName() + " at " + nearest.getCorner() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
 	}
 
 	public void demolish_cmd() throws CivException {
@@ -168,21 +144,20 @@ public class BuildCommand extends CommandBase {
 
 		if (args.length < 2) {
 			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_demolishHeader"));
-			for (Structure struct : town.getStructures()) {
-				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_build_demolish", struct.getDisplayName(),
-						CivColor.Yellow + struct.getCorner().toString() + CivColor.White));
+			for (Structure struct : town.SM.getStructures()) {
+				CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_build_demolish", struct.getDisplayName(), CivColor.Yellow + struct.getCorner().toString() + CivColor.White));
 			}
 			return;
 		}
 
 		try {
 			BlockCoord coord = new BlockCoord(args[1]);
-			Structure struct = town.getStructure(coord);
+			Structure struct = town.SM.getStructure(coord);
 			if (struct == null) {
 				CivMessage.send(sender, CivColor.Rose + " " + CivSettings.localize.localizedString("NoStructureAt") + " " + args[1]);
 				return;
 			}
-			struct.getTown().demolish(struct, false);
+			struct.getTown().SM.demolish(struct, false);
 			CivMessage.sendTown(struct.getTown(), struct.getDisplayName() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
 		} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 			CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_build_demolishFormatError"));
@@ -192,7 +167,7 @@ public class BuildCommand extends CommandBase {
 	public void progress_cmd() throws CivException {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_undoHeader"));
 		Town town = getSelectedTown();
-		for (BuildAsyncTask task : town.build_tasks) {
+		for (BuildAsyncTask task : town.SM.getBuildTasks()) {
 			Buildable b = task.buildable;
 			DecimalFormat df = new DecimalFormat();
 			double total = b.getHammerCost();
@@ -200,11 +175,11 @@ public class BuildCommand extends CommandBase {
 			double builtPercentage = current / total;
 			builtPercentage = Math.round(builtPercentage * 100);
 
-			CivMessage.send(sender, CivColor.LightPurple + b.getDisplayName() + ": " + CivColor.Yellow + builtPercentage + "% (" + df.format(current) + "/"
-					+ total + ")" + CivColor.LightPurple + " Blocks " + CivColor.Yellow + "(" + b.blocksCompleted + "/" + b.getTotalBlock() + ")");
+			CivMessage.send(sender, CivColor.LightPurple + b.getDisplayName() + ": " + CivColor.Yellow + builtPercentage + "% (" + df.format(current) + "/" + total + ")" + CivColor.LightPurple + " Blocks " + CivColor.Yellow + "("
+					+ b.blocksCompleted + "/" + b.getTotalBlock() + ")");
 
-			//CivMessage.send(sender, CivColor.LightPurple+b.getDisplayName()+" "+CivColor.Yellow+"("+
-			//	b.builtBlockCount+" / "+b.getTotalBlockCount()+")");
+			// CivMessage.send(sender, CivColor.LightPurple+b.getDisplayName()+" "+CivColor.Yellow+"("+
+			// b.builtBlockCount+" / "+b.getTotalBlockCount()+")");
 		}
 
 	}
@@ -218,13 +193,11 @@ public class BuildCommand extends CommandBase {
 				if (sinfo.limit == 0) {
 					leftString = CivSettings.localize.localizedString("Unlimited");
 				} else {
-					leftString = "" + (sinfo.limit - town.getBuildableTypeCount(sinfo.id));
+					leftString = "" + (sinfo.limit - town.SM.getBuildableByIdCount(sinfo.id));
 				}
 
-				CivMessage.send(sender,
-						CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " "
-								+ CivSettings.localize.localizedString("Upkeep") + " " + sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers")
-								+ " " + sinfo.hammer_cost + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
+				CivMessage.send(sender, CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " " + CivSettings.localize.localizedString("Upkeep") + " "
+						+ sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
 			}
 		}
 	}
@@ -238,7 +211,7 @@ public class BuildCommand extends CommandBase {
 				if (sinfo.limit == 0) {
 					leftString = CivSettings.localize.localizedString("Unlimited");
 				} else {
-					leftString = "" + (sinfo.limit - town.getBuildableTypeCount(sinfo.id));
+					leftString = "" + (sinfo.limit - (town.SM.getBuildableByIdCount(sinfo.id)));
 				}
 
 				if (Wonder.isWonderAvailable(sinfo.id)) {
@@ -246,15 +219,12 @@ public class BuildCommand extends CommandBase {
 					rate -= town.getBuffManager().getEffectiveDouble("buff_rush");
 					rate -= town.getBuffManager().getEffectiveDouble("buff_grandcanyon_rush");
 					rate -= town.getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
-					CivMessage.send(sender,
-							CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost
-									+ " " + CivSettings.localize.localizedString("Upkeep") + " " + sinfo.upkeep + " "
-									+ CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost * rate + " "
-									+ CivSettings.localize.localizedString("Remaining") + " " + leftString);
+					CivMessage.send(sender, CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " " + CivSettings.localize.localizedString("Upkeep") + " "
+							+ sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost * rate + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
 				} else {
 					Wonder wonder = CivGlobal.getWonderByConfigId(sinfo.id);
-					CivMessage.send(sender, CivColor.LightGray + sinfo.displayName + " Cost: " + sinfo.cost + " - " + CivSettings.localize
-							.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTown().getName(), wonder.getTown().getCiv().getName()));
+					CivMessage.send(sender, CivColor.LightGray + sinfo.displayName + " Cost: " + sinfo.cost + " - "
+							+ CivSettings.localize.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTown().getName(), wonder.getTown().getCiv().getName()));
 				}
 			}
 		}
@@ -285,14 +255,13 @@ public class BuildCommand extends CommandBase {
 	private void buildByName(String fullArgs) throws CivException {
 		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + fullArgs);
-		new BuildCallback(getPlayer(), sinfo, getSelectedTown()); 
+		new BuildCallback(getPlayer(), sinfo, getSelectedTown());
 	}
 
 	@Override
 	public void showHelp() {
 		showBasicHelp();
-		CivMessage.send(sender, CivColor.LightPurple + command + " " + CivColor.Yellow + CivSettings.localize.localizedString("cmd_build_help1") + " "
-				+ CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_help2"));
+		CivMessage.send(sender, CivColor.LightPurple + command + " " + CivColor.Yellow + CivSettings.localize.localizedString("cmd_build_help1") + " " + CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_help2"));
 	}
 
 	@Override

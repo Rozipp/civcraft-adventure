@@ -11,6 +11,7 @@ package com.avrgaming.civcraft.structure;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -19,15 +20,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
-import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
@@ -37,9 +36,9 @@ import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.construct.CannonProjectile;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -49,13 +48,10 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.threading.tasks.UpdateTechBar;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
-import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
@@ -66,66 +62,44 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class Townhall extends Structure implements RespawnLocationHolder {
+public class Cityhall extends Structure implements RespawnLocationHolder {
 
-	// TODO make this configurable.
-	public static int MAX_GOODIE_FRAMES = 8;
+	private BlockCoord[] granarybar = new BlockCoord[10];
+	private ConstructSign technameSign;
+	private ConstructSign techdataSign;
 
-	private BlockCoord[] techbar = new BlockCoord[10];
-
-	private BlockCoord technameSign;
-	private byte technameSignData; // Hold the sign's orientation
-
-	private BlockCoord techdataSign;
-	private byte techdataSignData; // Hold the sign's orientation
-
-	private ArrayList<ItemFrameStorage> goodieFrames = new ArrayList<ItemFrameStorage>();
 	private ArrayList<BlockCoord> respawnPoints = new ArrayList<BlockCoord>();
 	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
+
+	private ConstructSign respawnSign;
+	private int index = 0;
+
 	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
 
 	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
 
-	public ArrayList<BlockCoord> nextGoodieFramePoint = new ArrayList<BlockCoord>();
-	public ArrayList<Integer> nextGoodieFrameDirection = new ArrayList<Integer>();
-
-	public Townhall(String id, Town town) throws CivException {
+	public Cityhall(String id, Town town) throws CivException {
 		super(id, town);
 	}
 
-	public Townhall(ResultSet rs) throws SQLException, CivException {
+	public Cityhall(ResultSet rs) throws SQLException, CivException {
 		super(rs);
-	}
-
-	@Override
-	public void delete() {
-		if (this.getTown() != null) {
-			/* Remove any protected item frames. */
-			for (ItemFrameStorage framestore : goodieFrames) {
-				BonusGoodie goodie = CivGlobal.getBonusGoodie(framestore.getItem());
-				if (goodie != null) goodie.replenish();
-
-				CivGlobal.removeProtectedItemFrame(framestore.getFrameID());
-			}
-		}
-		super.delete();
 	}
 
 	// ------------ build
 	@Override
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
+		ConstructSign structSign;
 		switch (sb.command) {
 		case "/techbar":
 			String strvalue = sb.keyvalues.get("id");
-			if (strvalue != null) this.addTechBarBlock(absCoord, Integer.valueOf(strvalue));
+			if (strvalue != null) granarybar[Integer.valueOf(strvalue)] = absCoord;
 			break;
 		case "/techname":
-			this.setTechnameSign(absCoord);
-			this.setTechnameSignData((byte) sb.getData());
+			this.technameSign = new ConstructSign(absCoord, this);
 			break;
 		case "/techdata":
-			this.setTechdataSign(absCoord);
-			this.setTechdataSignData((byte) sb.getData());
+			this.techdataSign = new ConstructSign(absCoord, this);
 			break;
 		// case "/itemframe":
 		// strvalue = sb.keyvalues.get("id");
@@ -135,10 +109,10 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		// }
 		// break;
 		case "/respawn":
-			this.addRespawnPoint(absCoord);
+			this.respawnPoints.add(absCoord);
 			break;
 		case "/revive":
-			this.addRevivePoint(absCoord);
+			this.revivePoints.add(absCoord);
 			break;
 		case "/control":
 			this.createControlPoint(absCoord, "");
@@ -146,7 +120,6 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		case "/towerfire":
 			String id = sb.keyvalues.get("id");
 			Integer towerID = Integer.valueOf(id);
-
 			if (!arrowTowers.containsKey(towerID)) {
 				ProjectileArrowComponent arrowTower = new ProjectileArrowComponent(this);
 				arrowTower.createComponent(this);
@@ -154,81 +127,178 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 				arrowTowers.put(towerID, arrowTower);
 			}
 			break;
+		case "/next":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("capitol_sign_nextLocation"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("next");
+			structSign.update();
+			this.addConstructSign(structSign);
+			break;
+		case "/prev":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("capitol_sign_previousLocation"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("prev");
+			structSign.update();
+			this.addConstructSign(structSign);
+			break;
+		case "/respawndata":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText(CivSettings.localize.localizedString("capitol_sign_Capitol"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("respawn");
+			structSign.update();
+			this.addConstructSign(structSign);
+			this.respawnSign = structSign;
+			changeIndex(index);
+			break;
 		}
 	}
 
 	@Override
 	public void onPostBuild() {
-		(new UpdateTechBar(this.getCiv())).run();
+		// (new UpdateTechBar(this.getCiv())).run();
 	}
 
-	// ------------- TechBar
-	public void addTechBarBlock(BlockCoord coord, int index) {
-		techbar[index] = coord;
+	@Override
+	public void runOnBuild(ChunkCoord cCoord) throws CivException {
+		// Cityhall oldTownHall = this.getTown().getTownHall();
+		// if (oldTownHall != null) {
+		// TownChunk tc = CivGlobal.getTownChunk(cCoord);
+		// if (tc == null || tc.getTown() != this.getTown()) throw new
+		// CivException(CivSettings.localize.localizedString("townHall_preBuild_outsideBorder"));
+		//
+		// if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("townHall_preBuild_duringWar"));
+		//
+		// this.getTown().clearBonusGoods();
+		//
+		// try {
+		// this.getTown().demolish(oldTownHall, true);
+		// } catch (CivException e) {
+		// e.printStackTrace();
+		// }
+		// CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_townHall_preBuild_Success", this.getDisplayName()));
+		// }
 	}
 
-	public BlockCoord getTechBarBlock(int i) {
-		return techbar[i];
-	}
+	@Override
+	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
+		// int special_id = Integer.valueOf(sign.getAction());
+		Resident resident = CivGlobal.getResident(player);
+		if (resident == null) return;
+		if (!War.isWarTime()) return;
 
-	public int getTechBarSize() {
-		return techbar.length;
-	}
-	// ------------------ ItemFrame
+		Boolean hasPermission = false;
+		if ((resident.getTown().GM.isMayorOrAssistant(resident)) || (resident.getCiv().GM.isLeaderOrAdviser(resident))) hasPermission = true;
 
-	public void createGoodieItemFrame(BlockCoord absCoord, int slotId, int direction) {
-		if (slotId >= MAX_GOODIE_FRAMES) return;
-		/* Make sure there isn't another frame here. We have the position of the sign, but the entity's position is the block it's attached to.
-		 * We'll use the direction from the sign data to determine which direction to look for the entity. */
-		Block attachedBlock = absCoord.getBlock();
-		BlockFace facingDirection;
-		switch (direction) {
-		case CivData.DATA_SIGN_EAST:
-			facingDirection = BlockFace.EAST;
+		switch (sign.getAction()) {
+		case "prev":
+			if (hasPermission)
+				changeIndex((index - 1));
+			else
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
 			break;
-		case CivData.DATA_SIGN_WEST:
-			facingDirection = BlockFace.WEST;
+		case "next":
+			if (hasPermission)
+				changeIndex((index + 1));
+			else
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
 			break;
-		case CivData.DATA_SIGN_NORTH:
-			facingDirection = BlockFace.NORTH;
-			break;
-		case CivData.DATA_SIGN_SOUTH:
-			facingDirection = BlockFace.SOUTH;
-			break;
-		default:
-			CivLog.error("Bad sign data for /itemframe sign in town hall.");
-			return;
-		}
-
-		Block itemFrameBlock = absCoord.getBlock();
-		if (ItemManager.getTypeId(itemFrameBlock) != CivData.AIR) ItemManager.setTypeId(itemFrameBlock, CivData.AIR);
-
-		ItemFrameStorage itemStore;
-		Entity entity = CivGlobal.getEntityAtLocation(absCoord.getBlock().getLocation());
-		if (entity == null || (!(entity instanceof ItemFrame)))
-			itemStore = new ItemFrameStorage(attachedBlock.getLocation(), facingDirection);
-		else {
-			try {
-				itemStore = new ItemFrameStorage((ItemFrame) entity, attachedBlock.getLocation());
-			} catch (CivException e) {
-				e.printStackTrace();
+		case "respawn":
+			ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+			if (index >= respawnables.size()) {
+				index = 0;
+				changeIndex(index);
+				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_cannotRespawn"));
 				return;
 			}
+
+			RespawnLocationHolder holder = getSelectedHolder();
+			int respawnTimeSeconds = this.getRespawnTime();
+			Date now = new Date();
+
+			if (resident.getLastKilledTime() != null) {
+				long secondsLeft = (resident.getLastKilledTime().getTime() + (respawnTimeSeconds * 1000)) - now.getTime();
+				if (secondsLeft > 0) {
+					secondsLeft /= 1000;
+					CivMessage.sendError(resident, CivColor.Rose + CivSettings.localize.localizedString("var_capitol_secondsLeftTillRespawn", secondsLeft));
+					return;
+				}
+			}
+
+			BlockCoord revive = holder.getRandomRevivePoint();
+			Location loc;
+			if (revive == null) {
+				loc = player.getBedSpawnLocation();
+			} else {
+				loc = revive.getLocation();
+			}
+
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
+			player.teleport(loc);
+			break;
 		}
-		itemStore.setBuildable(this);
-		goodieFrames.add(itemStore);
 	}
 
 	// --------------- RespawnPoint and RevivePoint
-
-	public void addRespawnPoint(BlockCoord absCoord) {
-		this.respawnPoints.add(absCoord);
-	}
 
 	public BlockCoord getRandomRespawnPoint() {
 		if (this.respawnPoints.size() == 0) return null;
 		Random rand = new Random();
 		return this.respawnPoints.get(rand.nextInt(this.respawnPoints.size()));
+	}
+
+	@Override
+	public BlockCoord getRandomRevivePoint() {
+		if (this.revivePoints.size() == 0 || !this.isComplete()) return new BlockCoord(this.getCorner());
+		Random rand = new Random();
+		int index = rand.nextInt(this.revivePoints.size());
+		return this.revivePoints.get(index);
+	}
+
+	@Override
+	public List<BlockCoord> getRespawnPoints() {
+		return this.revivePoints;
+	}
+
+	@Override
+	public String getRespawnName() {
+		return this.getDisplayName() + "\n" + this.getTown().getName();
+	}
+
+	public void updateRespawnSigns() {
+		// TODO Auto-generated method stub
+	}
+
+	private RespawnLocationHolder getSelectedHolder() {
+		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+		return respawnables.get(index);
+	}
+
+	private void changeIndex(int newIndex) {
+		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+
+		if (this.respawnSign != null) {
+			try {
+				this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(newIndex).getRespawnName());
+				index = newIndex;
+			} catch (IndexOutOfBoundsException e) {
+				if (respawnables.size() > 0) {
+					this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(0).getRespawnName());
+					index = 0;
+				}
+			}
+			this.respawnSign.update();
+		} else
+			CivLog.warning("Could not find civ spawn sign:" + this.getId() + " at " + this.getCorner());
 	}
 
 	@Override
@@ -247,14 +317,10 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 
 			int totalRespawn = baseRespawn;
 			for (ControlPoint cp : this.controlPoints.values()) {
-				if (cp.isDestroyed()) {
-					totalRespawn += controlRespawn;
-				}
+				if (cp.isDestroyed()) totalRespawn += controlRespawn;
 			}
 
-			if (this.validated && !this.isValid()) {
-				totalRespawn += invalidRespawnPenalty * 60;
-			}
+			if (this.validated && !this.isValid()) totalRespawn += invalidRespawnPenalty * 60;
 
 			// Search for any town in our civ with the medicine goodie.
 			for (Town t : this.getCiv().getTowns()) {
@@ -272,27 +338,12 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		return 60;
 	}
 
-	public void addRevivePoint(BlockCoord absCoord) {
-		this.revivePoints.add(absCoord);
-	}
-
-	public BlockCoord getRandomRevivePoint() {
-		if (this.revivePoints.size() == 0 || !this.isComplete()) {
-			return new BlockCoord(this.getCorner());
-		}
-		Random rand = new Random();
-		int index = rand.nextInt(this.revivePoints.size());
-		return this.revivePoints.get(index);
-
-	}
+	// ----------- ControlPoint
 
 	public void createControlPoint(BlockCoord absCoord, String info) {
-
-		Location centerLoc = absCoord.getLocation();
-
 		/* Build the fence block. */
 		// for (int i = 0; i < 1; i++) {
-		Block b = centerLoc.getBlock();
+		Block b = absCoord.getBlock();
 		ItemManager.setTypeId(b, CivData.FENCE);
 		ItemManager.setData(b, 0);
 
@@ -301,26 +352,23 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		// }
 
 		/* Build the control block. */
-		b = centerLoc.getBlock().getRelative(0, 1, 0);
+		b = absCoord.getBlock().getRelative(0, 1, 0);
 		ItemManager.setTypeId(b, CivData.OBSIDIAN);
 		sb = new ConstructBlock(new BlockCoord(b), this);
 		this.addConstructBlock(sb.getCoord(), true);
 
-		int townhallControlHitpoints;
+		int townhallControlHitpoints = 50;
 
-		if (this.getTown().getBuffManager().hasBuff("buff_oracle_extra_hp")) {
-			townhallControlHitpoints = 30;
-		} else
-			if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp") && this.getTown().getBuffManager().hasBuff("buff_greatlibrary_extra_beakers")) {
-				townhallControlHitpoints = 30;
-			} else {
-				townhallControlHitpoints = 20;
-			}
-		if (this.getTown().hasStructure("s_castle")) {
-			townhallControlHitpoints += 3;
-		}
+		if (this.getTown().getBuffManager().hasBuff("buff_oracle_extra_hp")) townhallControlHitpoints += 20;
+		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) townhallControlHitpoints += 20;
+		if (this.getTown().SM.hasStructure("s_castle")) townhallControlHitpoints += 5;
+
 		BlockCoord coord = new BlockCoord(b);
 		this.controlPoints.put(coord, new ControlPoint(coord, this, townhallControlHitpoints, info));
+	}
+
+	public HashMap<BlockCoord, ControlPoint> getControlPoints() {
+		return this.controlPoints;
 	}
 
 	public void onControlBlockDestroy(Player player, ControlPoint cp) {
@@ -351,60 +399,11 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		}
 		CivMessage.sendTownSound(cp.getTown(), Sound.AMBIENT_CAVE, 1.0f, 0.5f);
 
-		if (allDestroyed) {
-			Civilization civ = getTown().getCiv();
-
-			if (civ.getCapitolId() == this.getTown().getId()) {
-				CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", civ.getName()),
-						CivSettings.localize.localizedString("var_townHall_destroyed_isCap2", attacker.getCiv().getName()));
-				for (Town town : civ.getTowns()) {
-					town.defeated = true;
-				}
-
-				if (this instanceof Capitol) {
-					civ.updateReviveSigns();
-				}
-				if (civ.hasTechnology("tech_enlightenment")) {
-					civ.removeTech("tech_enlightenment");
-					final ConfigTech tech = CivSettings.techs.get("tech_enlightenment");
-					attacker.getCiv().addTech(tech);
-					CivMessage.global(CivSettings.localize.localizedString("war_defeat_loseEnlightenment", this.getTown().getCiv().getName(), attacker.getCiv().getName()));
-				}
-				if (civ.getCurrentMission() >= 2) {
-					try {
-						civ.setCurrentMission(this.getCiv().getCurrentMission() - 1);
-						civ.setMissionActive(false);
-						civ.updateMissionProgress(0.0, 0.0);
-						civ.saveNow();
-					} catch (SQLException e2) {
-						e2.printStackTrace();
-					}
-					CivMessage.global(CivSettings.localize.localizedString("war_defeat_loseMission", civ.getName(), civ.getCurrentMission()));
-				}
-
-				War.transferDefeated(this.getTown().getCiv(), attacker.getTown().getCiv());
-				WarStats.logCapturedCiv(attacker.getTown().getCiv(), this.getTown().getCiv());
-				War.saveDefeatedCiv(this.getCiv(), attacker.getTown().getCiv());
-
-				if (CivGlobal.isCasualMode()) {
-					HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(this.getCiv().getRandomLeaderSkull(CivSettings.localize.localizedString("var_townHall_victoryOverItem", this.getCiv().getName())));
-					for (ItemStack stack : leftovers.values()) {
-						player.getWorld().dropItem(player.getLocation(), stack);
-					}
-				}
-
-			} else {
-				CivMessage.global(CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_townHall_destroyed", getTown().getName(), this.getCiv().getName(), attacker.getCiv().getName()));
-				// this.getTown().onDefeat(attacker.getTown().getCiv());
-				this.getTown().defeated = true;
-				// War.defeatedTowns.put(this.getTown().getName(), attacker.getTown().getCiv());
-				WarStats.logCapturedTown(attacker.getTown().getCiv(), this.getTown());
-				War.saveDefeatedTown(this.getTown().getName(), attacker.getTown().getCiv());
-			}
-
-		} else {
+		if (allDestroyed)
+			onAllControlBlockDestroy(player);
+		else {
 			CivMessage.sendTown(cp.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
-			if (cp.getTown().hasWonder("w_neuschwanstein")) {
+			if (cp.getTown().SM.hasWonder("w_neuschwanstein")) {
 				CivMessage.sendCiv(attacker.getCiv(), CivSettings.localize.localizedString("var_townHall_didDestroyNeus", cp.getTown().getName()));
 			}
 			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB", cp.getTown().getName()));
@@ -412,55 +411,80 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		}
 	}
 
-	public void onControlBlockCannonDestroy(ControlPoint cp, Player player, ConstructBlock hit) {
-		// Should always have a resident and a town at this point.
+	public void onAllControlBlockDestroy(Player player) {
 		Resident attacker = CivGlobal.getResident(player);
+		Civilization civ = getTown().getCiv();
 
-		ItemManager.setTypeId(hit.getCoord().getLocation().getBlock(), CivData.AIR);
-
-		boolean allDestroyed = true;
-		for (ControlPoint c : this.controlPoints.values()) {
-			if (c.isDestroyed() == false) {
-				allDestroyed = false;
-				break;
-			}
-		}
-		CivMessage.sendTownSound(hit.getTown(), Sound.AMBIENT_CAVE, 1.0f, 0.5f);
-
-		if (allDestroyed) {
-
-			if (this.getTown().getCiv().getCapitolId() == this.getTown().getId()) {
-				CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", this.getTown().getCiv().getName()),
-						CivSettings.localize.localizedString("var_townHall_destroyed_isCap2", attacker.getCiv().getName()));
-				for (Town town : this.getTown().getCiv().getTowns()) {
-					town.defeated = true;
-				}
-
-				War.transferDefeated(this.getTown().getCiv(), attacker.getTown().getCiv());
-				WarStats.logCapturedCiv(attacker.getTown().getCiv(), this.getTown().getCiv());
-				War.saveDefeatedCiv(this.getCiv(), attacker.getTown().getCiv());
-
-				if (CivGlobal.isCasualMode()) {
-					HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(this.getCiv().getRandomLeaderSkull(CivSettings.localize.localizedString("var_townHall_victoryOverItem_withCannon", this.getCiv().getName())));
-					for (ItemStack stack : leftovers.values()) {
-						player.getWorld().dropItem(player.getLocation(), stack);
-					}
-				}
-
-			} else {
-				CivMessage.global(CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_townHall_destroyed", getTown().getName(), this.getCiv().getName(), attacker.getCiv().getName()));
-				// this.getTown().onDefeat(attacker.getTown().getCiv());
-				this.getTown().defeated = true;
-				// War.defeatedTowns.put(this.getTown().getName(), attacker.getTown().getCiv());
-				WarStats.logCapturedTown(attacker.getTown().getCiv(), this.getTown());
-				War.saveDefeatedTown(this.getTown().getName(), attacker.getTown().getCiv());
+		if (civ.getCapitolId() == this.getTown().getId()) {
+			CivMessage.globalTitle(CivColor.LightBlue + CivSettings.localize.localizedString("var_townHall_destroyed_isCap", civ.getName()),
+					CivSettings.localize.localizedString("var_townHall_destroyed_isCap2", attacker.getCiv().getName()));
+			for (Town town : civ.getTowns()) {
+				town.defeated = true;
 			}
 
+			civ.updateReviveSigns();
+			if (civ.hasTechnology("tech_enlightenment")) {
+				civ.removeTech("tech_enlightenment");
+				final ConfigTech tech = CivSettings.techs.get("tech_enlightenment");
+				attacker.getCiv().addTech(tech);
+				CivMessage.global(CivSettings.localize.localizedString("war_defeat_loseEnlightenment", this.getTown().getCiv().getName(), attacker.getCiv().getName()));
+			}
+			if (civ.getCurrentMission() >= 2) {
+				try {
+					civ.setCurrentMission(this.getCiv().getCurrentMission() - 1);
+					civ.setMissionActive(false);
+					civ.updateMissionProgress(0.0, 0.0);
+					civ.saveNow();
+				} catch (SQLException e2) {
+					e2.printStackTrace();
+				}
+				CivMessage.global(CivSettings.localize.localizedString("war_defeat_loseMission", civ.getName(), civ.getCurrentMission()));
+			}
+
+			War.transferDefeated(this.getTown().getCiv(), attacker.getTown().getCiv());
+			WarStats.logCapturedCiv(attacker.getTown().getCiv(), this.getTown().getCiv());
+			War.saveDefeatedCiv(this.getCiv(), attacker.getTown().getCiv());
+
+			if (CivGlobal.isCasualMode()) {
+				HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(this.getCiv().getRandomLeaderSkull(CivSettings.localize.localizedString("var_townHall_victoryOverItem", this.getCiv().getName())));
+				for (ItemStack stack : leftovers.values()) {
+					player.getWorld().dropItem(player.getLocation(), stack);
+				}
+			}
 		} else {
-			CivMessage.sendTown(hit.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
-			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB", hit.getTown().getName()));
-			CivMessage.sendCiv(hit.getTown().getCiv(), CivColor.Rose + CivSettings.localize.localizedString("var_townHall_civMsg_controlBlockDestroyed", hit.getTown().getName()));
+			CivMessage.global(CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_townHall_destroyed", getTown().getName(), this.getCiv().getName(), attacker.getCiv().getName()));
+			// this.getTown().onDefeat(attacker.getTown().getCiv());
+			this.getTown().defeated = true;
+			// War.defeatedTowns.put(this.getTown().getName(), attacker.getTown().getCiv());
+			WarStats.logCapturedTown(attacker.getTown().getCiv(), this.getTown());
+			War.saveDefeatedTown(this.getTown().getName(), attacker.getTown().getCiv());
 		}
+	}
+
+	public void onControlBlockCannonDestroy(ControlPoint cp, Player player, ConstructBlock hit) {
+		// // Should always have a resident and a town at this point.
+		// Resident attacker = CivGlobal.getResident(player);
+		//
+		// ItemManager.setTypeId(hit.getCoord().getLocation().getBlock(), CivData.AIR);
+		//
+		// boolean allDestroyed = true;
+		// for (ControlPoint c : this.controlPoints.values()) {
+		// if (c.isDestroyed() == false) {
+		// allDestroyed = false;
+		// break;
+		// }
+		// }
+		// CivMessage.sendTownSound(hit.getTown(), Sound.AMBIENT_CAVE, 1.0f, 0.5f);
+		//
+		// if (allDestroyed) {
+		// onAllControlBlockDestroy(player);
+		// } else {
+		// CivMessage.sendTown(hit.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
+		// CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB",
+		// hit.getTown().getName()));
+		// CivMessage.sendCiv(hit.getTown().getCiv(), CivColor.Rose +
+		// CivSettings.localize.localizedString("var_townHall_civMsg_controlBlockDestroyed", hit.getTown().getName()));
+		// }
 	}
 
 	public void onControlBlockHit(Player player, ControlPoint cp) {
@@ -471,18 +495,19 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		CivMessage.sendTown(cp.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("townHall_cbUnderAttack"));
 	}
 
+	// --------------- Damage regen
+
 	@Override
 	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
 
 		ControlPoint cp = this.controlPoints.get(hit.getCoord());
 		Resident resident = CivGlobal.getResident(player);
-
-		if (!resident.canDamageControlBlock()) {
-			CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_invalid"));
-			return;
-		}
-
 		if (cp != null) {
+			if (!resident.canDamageControlBlock()) {
+				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_invalid"));
+				return;
+			}
+
 			if (!cp.isDestroyed()) {
 				if (resident.isSBPermOverride())
 					cp.damage(cp.getHitpoints());
@@ -494,13 +519,10 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 				else
 					onControlBlockHit(player, cp);
 
-			} else {
+			} else
 				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_destroyed"));
-			}
-
-		} else {
+		} else
 			CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_townHall_damage_notCB", this.getDisplayName()));
-		}
 	}
 
 	public void regenControlBlocks() {
@@ -509,32 +531,6 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 
 			ControlPoint cp = this.controlPoints.get(coord);
 			cp.setHitpoints(cp.getMaxHitpoints());
-		}
-	}
-
-	@Override
-	public void onLoad() {
-		// We must load goodies into the frame as we find them from the trade outpost's
-		// onLoad() function, otherwise we run into timing issues over which loads first.
-	}
-
-	@Override
-	public void runOnBuild(ChunkCoord cCoord) throws CivException {
-		Townhall oldTownHall = this.getTown().getTownHall();
-		if (oldTownHall != null) {
-			TownChunk tc = CivGlobal.getTownChunk(cCoord);
-			if (tc == null || tc.getTown() != this.getTown()) throw new CivException(CivSettings.localize.localizedString("townHall_preBuild_outsideBorder"));
-
-			if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("townHall_preBuild_duringWar"));
-
-			this.getTown().clearBonusGoods();
-
-			try {
-				this.getTown().demolish(oldTownHall, true);
-			} catch (CivException e) {
-				e.printStackTrace();
-			}
-			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_townHall_preBuild_Success", this.getDisplayName()));
 		}
 	}
 
@@ -551,48 +547,29 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 		CivMessage.sendTown(this.getTown(), CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("var_townHall_invalidPunish", invalid_respawn_penalty));
 	}
 
-	@Override
-	public List<BlockCoord> getRespawnPoints() {
-		return this.revivePoints;
-	}
-
-	@Override
-	public String getRespawnName() {
-		return this.getDisplayName() + "\n" + this.getTown().getName();
-	}
-
-	public HashMap<BlockCoord, ControlPoint> getControlPoints() {
-		return this.controlPoints;
-	}
-
 	public void onCannonDamage(int damage, CannonProjectile projectile) {
-		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
-			return;
-		}
+		if (!this.getCiv().getDiplomacyManager().isAtWar()) return;
 		this.setHitpoints(getHitpoints() - damage);
 
 		// Resident resident = projectile.whoFired;
 		if (getHitpoints() <= 0) {
-			for (ControlPoint cp : this.controlPoints.values()) {
+			for (BlockCoord coord : this.controlPoints.keySet()) {
+				ControlPoint cp = this.controlPoints.get(coord);
 				if (cp != null) {
 					if (cp.getHitpoints() > CannonProjectile.controlBlockHP) {
-						cp.damage(cp.getHitpoints() - CannonProjectile.controlBlockHP);
+						cp.damage(cp.getHitpoints() - 1);
 						this.setHitpoints(this.getMaxHitPoints() / 2);
 						// StructureBlock hit = CivGlobal.getStructureBlock(coord);
 						// onControlBlockCannonDestroy(cp, CivGlobal.getPlayer(resident), hit);
 						CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_cannonHit_destroyCB", this.getDisplayName(), CannonProjectile.controlBlockHP));
 						CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_cannonHit_regen", this.getDisplayName(), this.getMaxHitPoints() / 2));
 						return;
-
 					}
-
 				}
 			}
-
 			CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_cannonHit_destroyed", this.getDisplayName()));
 			setHitpoints(0);
 		}
-
 		CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_cannonHit", this.getDisplayName(), ("(" + this.getHitpoints() + "/" + this.getMaxHitPoints() + ")")));
 	}
 
@@ -605,6 +582,16 @@ public class Townhall extends Structure implements RespawnLocationHolder {
 			CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_tntHit", this.getDisplayName(), ("(" + this.getHitpoints() + "/" + this.getMaxHitPoints() + ")")));
 		}
 
+	}
+
+	// ------------- changeIndex respawn
+
+	// ------------- other
+
+	@Override
+	public void onLoad() {
+		// We must load goodies into the frame as we find them from the trade outpost's
+		// onLoad() function, otherwise we run into timing issues over which loads first.
 	}
 
 	@Override

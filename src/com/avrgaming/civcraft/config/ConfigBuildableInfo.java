@@ -62,19 +62,11 @@ public class ConfigBuildableInfo {
 	}
 
 	public boolean isAvailable(Town town) {
-		if (town.hasTechnology(require_tech)) {
-			if (town.hasUpgrade(require_upgrade)) {
-				if (town.hasStructure(require_structure)) {
-					if (limit == 0 || town.getBuildableTypeCount(id) < limit) {
-						boolean isCapitol = town.isCapitol();
-						if (id.equals("s_townhall") && isCapitol) return false;
-						if (id.equals("s_capitol") && !isCapitol) return false;
-						return true;
-					}
-				}
-			}
-		}
-		return false;
+		if (!town.hasTechnology(require_tech)) return false;
+		if (!town.hasUpgrade(require_upgrade)) return false;
+		if (!town.SM.hasStructure(require_structure)) return false;
+		if (limit != 0 && town.SM.getAllStructuresById(id).size() >= limit) return false;
+		return true;
 	}
 
 	public static void loadConfig(FileConfiguration cfg, String path, Map<String, ConfigBuildableInfo> structureMap, boolean isWonder) {

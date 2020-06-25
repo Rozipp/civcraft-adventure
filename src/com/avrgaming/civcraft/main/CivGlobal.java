@@ -29,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.avrgaming.civcraft.object.*;
-//XXX economy import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -66,7 +65,6 @@ import com.avrgaming.civcraft.structure.Bank;
 import com.avrgaming.civcraft.structure.Buildable;
 import com.avrgaming.civcraft.structure.Market;
 import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.Townhall;
 import com.avrgaming.civcraft.structure.farm.FarmChunk;
 import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
@@ -826,17 +824,17 @@ public class CivGlobal {
 
 	/* Gets a TreeMap of the civilizations sorted based on the distance to the provided town. Ignores the civilization the town belongs to. */
 	public static TreeMap<Double, Civilization> findNearestCivilizations(Town town) {
-		Townhall townhall = town.getTownHall();
+		Location townLoc = town.getLocation();
 		TreeMap<Double, Civilization> returnMap = new TreeMap<Double, Civilization>();
-		if (townhall == null) return returnMap;
+		if (townLoc == null) return returnMap;
 		for (Civilization civ : CivGlobal.getCivs()) {
 			if (civ == town.getCiv()) continue;
 			// Get shortest distance of any of this civ's towns.
 			double shortestDistance = Double.MAX_VALUE;
 			for (Town t : civ.getTowns()) {
-				Townhall tempTownHall = t.getTownHall();
-				if (tempTownHall == null) continue;
-				double tmpDistance = tempTownHall.getCorner().distanceSquared(townhall.getCorner());
+				Location tempTownLoc = t.getLocation();
+				if (tempTownLoc == null) continue;
+				double tmpDistance = tempTownLoc.distanceSquared(townLoc);
 				if (tmpDistance < shortestDistance) shortestDistance = tmpDistance;
 			}
 			// Now insert the shortest distance into the tree map.
@@ -1034,23 +1032,27 @@ public class CivGlobal {
 		return constructBlocks.get(coord);
 	}
 
-	public static Set<Construct> getConstructFromChunk(ChunkCoord cc) {
+	public static Set<Construct> getConstructsFromChunk(ChunkCoord cc) {
 		if (!constructsInChunk.containsKey(cc)) return new HashSet<Construct>();
 		return constructsInChunk.get(cc);
 	}
+	public static Construct getConstructFromChunk(ChunkCoord cc) {
+		if (!constructsInChunk.containsKey(cc)) return null;
+		return constructsInChunk.get(cc).stream().iterator().next();
+	}
 
-	public static Set<Construct> getConstructFromChunk(BlockCoord coord) {
-		return getConstructFromChunk(new ChunkCoord(coord));
+	public static Set<Construct> getConstructsFromChunk(BlockCoord coord) {
+		return getConstructsFromChunk(new ChunkCoord(coord));
 	}
 
 	public static Camp getCampAt(ChunkCoord cc) {
-		for (Construct constr : getConstructFromChunk(cc))
+		for (Construct constr : getConstructsFromChunk(cc))
 			if (constr instanceof Camp) return (Camp) constr;
 		return null;
 	}
 
 	public static Buildable getBuildableAt(ChunkCoord cc) {
-		for (Construct constr : getConstructFromChunk(cc))
+		for (Construct constr : getConstructsFromChunk(cc))
 			if (constr instanceof Buildable) return (Buildable) constr;
 		return null;
 	}
@@ -1324,10 +1326,10 @@ public class CivGlobal {
 		return total;
 	}
 
-	public static int getTownHalls() {
+	public static int getCityHalls() {
 		int total = 0;
-		for (final Structure strucutre : getStructures()) {
-			if (strucutre instanceof Townhall) ++total;
+		for (Town town : getTowns()) {
+			if (town.getCityhall() != null) ++total;
 		}
 		return total;
 	}

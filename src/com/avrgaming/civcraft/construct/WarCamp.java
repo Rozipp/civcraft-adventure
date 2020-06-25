@@ -264,20 +264,14 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 	@Override
 	public boolean isTeleportReal() {
-		if (this.getTown().isCapitol()) {
-			return true;
-		}
 		for (final ControlPoint c : this.controlPoints.values()) {
-			if (c.isDestroyed()) {
-				return false;
-			}
+			if (c.isDestroyed()) return false;
 		}
 		return true;
 	}
 
 	@Override
 	public int getRegenRate() {
-		if (this.getCiv().getCapitol().getBuffManager().hasBuff("level6_wcHPTown")) return 1;
 		if (WarCamp.info.regenRate == null) return 0;
 		return info.regenRate;
 	}

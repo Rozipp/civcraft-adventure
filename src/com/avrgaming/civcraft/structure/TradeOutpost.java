@@ -25,7 +25,6 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -98,7 +97,7 @@ public class TradeOutpost extends Structure {
 	}
 
 	@Override
-	protected void runOnBuild(ChunkCoord cChunk) throws CivException {
+	public void runOnBuild(ChunkCoord cChunk) throws CivException {
 		this.build_trade_outpost(cChunk);
 	}
 
@@ -249,36 +248,36 @@ public class TradeOutpost extends Structure {
 	}
 
 	public void createTradeGood() throws CivException {
-
-		if (!this.isActive()) {
-			return;
-		}
-
-		/* Add custom item. This function is called on reload. The constructor either loads the good or creates a new one at the trade outpost if no
-		 * good could be found. */
-		try {
-			this.goodie = new BonusGoodie(this);
-
-			if (this.goodie.getFrame() == null) {
-				// goodie not in a frame, skip it.
-				return;
-			}
-
-			Townhall townhall = this.goodie.getFrame().getTown().getTownHall();
-			if (townhall != null) {
-				for (ItemFrameStorage ifs : townhall.getGoodieFrames()) {
-					if (ifs.getFrameID() == this.goodie.getFrame().getFrameID()) {
-						townhall.getTown().loadGoodiePlaceIntoFrame(townhall, goodie);
-					}
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
-		} catch (InvalidNameException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("stringFormattingError"));
-		}
+//
+//		if (!this.isActive()) {
+//			return;
+//		}
+//
+//		/* Add custom item. This function is called on reload. The constructor either loads the good or creates a new one at the trade outpost if no
+//		 * good could be found. */
+//		try {
+//			this.goodie = new BonusGoodie(this);
+//
+//			if (this.goodie.getFrame() == null) {
+//				// goodie not in a frame, skip it.
+//				return;
+//			}
+//
+//			Townhall townhall = this.goodie.getFrame().getTown().getTownHall();
+//			if (townhall != null) {
+//				for (ItemFrameStorage ifs : townhall.getGoodieFrames()) {
+//					if (ifs.getFrameID() == this.goodie.getFrame().getFrameID()) {
+//						townhall.getTown().loadGoodiePlaceIntoFrame(townhall, goodie);
+//					}
+//				}
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
+//		} catch (InvalidNameException e) {
+//			e.printStackTrace();
+//			throw new CivException(CivSettings.localize.localizedString("stringFormattingError"));
+//		}
 	}
 
 	@Override

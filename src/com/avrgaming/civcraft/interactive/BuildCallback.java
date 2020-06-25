@@ -34,7 +34,7 @@ public class BuildCallback implements CallbackInterface {
 		this.player = player;
 		resident = CivGlobal.getResident(player);
 
-		if (sinfo.id.equals("wonder_stock_exchange") && !town.canBuildStock(player)) {
+		if (sinfo.id.equals("wonder_stock_exchange") && !town.SM.canBuildStock(player)) {
 			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
 		}
 
@@ -43,7 +43,7 @@ public class BuildCallback implements CallbackInterface {
 		String repStruct = sinfo.replace_structure;
 		if (repStruct != null) {
 			Vector dir = location.getDirection();
-			replaceStructure = town.getStructureByType(repStruct);
+			replaceStructure = town.SM.getFirstStructureById(repStruct);
 			if (replaceStructure == null) throw new CivException("не найдено здание " + repStruct + " для замены");
 
 			BlockCoord bc = replaceStructure.getCorner();
@@ -121,11 +121,7 @@ public class BuildCallback implements CallbackInterface {
 			try {
 				resident.clearInteractiveMode();
 				resident.undoPreview();
-				if (buildable instanceof Wonder)
-					// FIXME Сделать универсальным для билдабле
-					buildable.getTown().buildWonder(player, (Wonder) buildable);
-				else
-					buildable.getTown().buildStructure(player, (Structure) buildable);
+				buildable.build(player);
 			} catch (CivException e) {
 				CivMessage.sendError(player, e.getMessage());
 			}

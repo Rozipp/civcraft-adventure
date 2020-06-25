@@ -56,7 +56,7 @@ public class Trommel extends Structure {
 
 	public void modifyTransmuterChance() {
 		Double chance = 1.0;
-		chance += 0.10 * getTown().saved_trommel_level;
+		chance += 0.10 * getTown().SM.saved_trommel_level;
 		double extraction = this.getTown().getBuffManager().getEffectiveDouble("buff_extraction");
 		chance += (extraction > 2) ? 2 : extraction;
 		chance += this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
@@ -73,7 +73,7 @@ public class Trommel extends Structure {
 	@Override
 	public void onPostBuild() {
 		transmuter = new Transmuter(this);
-		this.level = getTown().saved_trommel_level;
+		this.level = getTown().SM.saved_trommel_level;
 		modifyTransmuterChance();
 		this.addTromelRecipe(level);
 		if (CivGlobal.trommelsEnabled) this.transmuter.start();

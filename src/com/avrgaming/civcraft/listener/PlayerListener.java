@@ -64,8 +64,7 @@ import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Capitol;
-import com.avrgaming.civcraft.structure.Townhall;
+import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.PlayerChunkNotifyAsyncTask;
 import com.avrgaming.civcraft.threading.tasks.PlayerLoginAsyncTask;
@@ -238,9 +237,9 @@ public class PlayerListener implements Listener {
 
 		if (War.isWarTime()) {
 			if (resident.getTown().getCiv().getDiplomacyManager().isAtWar()) {
-				Capitol capitol = resident.getCiv().getCapitolStructure();
-				if (capitol != null) {
-					BlockCoord respawn = capitol.getRandomRespawnPoint();
+				Cityhall cityhall = resident.getCiv().getCapitolCityHall();
+				if (cityhall != null) {
+					BlockCoord respawn = cityhall.getRandomRespawnPoint();
 					if (respawn != null) {
 						// PlayerReviveTask reviveTask = new PlayerReviveTask(player, townhall.getRespawnTime(), townhall, event.getRespawnLocation());
 						resident.setLastKilledTime(new Date());
@@ -263,9 +262,9 @@ public class PlayerListener implements Listener {
 
 			}
 			if (resident.hasTown()) {
-				Townhall townhall = resident.getTown().getTownHall();
-				if (townhall != null) {
-					BlockCoord respawn = townhall.getRandomRevivePoint();
+				Cityhall cityhall = resident.getTown().getCityhall();
+				if (cityhall != null) {
+					BlockCoord respawn = cityhall.getRandomRevivePoint();
 					if (respawn != null) {
 						event.setRespawnLocation(respawn.getCenteredLocation());
 						CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("playerListen_repawnAtName", resident.getTown().getName()));

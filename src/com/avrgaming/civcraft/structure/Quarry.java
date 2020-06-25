@@ -17,7 +17,7 @@ public class Quarry extends Structure {
 
 	public Quarry(String id, Town town) throws CivException {
 		super(id, town);
-		this.level = town.saved_quarry_level;
+		this.level = town.SM.saved_quarry_level;
 	}
 
 	public Quarry(ResultSet rs) throws SQLException, CivException {
@@ -68,7 +68,7 @@ public class Quarry extends Structure {
 
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().saved_quarry_level;
+		this.level = getTown().SM.saved_quarry_level;
 		modifyTransmuterChance();
 		this.transmuter.clearRecipe();
 		for (int i = 1; i <= level; i++)

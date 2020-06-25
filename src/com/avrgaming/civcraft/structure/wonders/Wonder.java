@@ -90,7 +90,7 @@ public class Wonder extends Buildable {
 		this.setComplete(rs.getBoolean("complete"));
 		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
 
-		this.getTown().addWonder(this);
+		this.getTown().SM.addWonder(this);
 
 		this.startWonderOnLoad();
 
@@ -119,20 +119,23 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void delete() {
-		super.delete();
-
-		if (this.wonderBuffs != null) {
-			for (ConfigBuff buff : this.wonderBuffs.buffs) {
-				this.getTown().getBuffManager().removeBuff(buff.id);
+		if (this.getTown() != null) {
+			if (this.wonderBuffs != null) {
+				for (ConfigBuff buff : this.wonderBuffs.buffs) {
+					this.getTown().getBuffManager().removeBuff(buff.id);
+				}
 			}
 		}
+		super.delete();
 
+		if (this.getTown() != null) this.getTown().SM.removeWonder(this);
+		CivGlobal.removeWonder(this);
+		
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		CivGlobal.removeWonder(this);
 	}
 
 	@Override
@@ -182,40 +185,7 @@ public class Wonder extends Buildable {
 		this.getTown().depositDirect(refund);
 		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
 
-		this.unbindConstructBlocks();
-
-		delete();
-		getTown().removeWonder(this);
-	}
-
-	@Override
-	public void build(Player player) throws CivException {
-		Template tpl = this.getTemplate();
-		// We take the player's current position and make it the 'center' by moving the center location to the 'corner' of the structure.
-
-		BlockCoord corner = this.getCorner();
-		this.setCenterLocation(corner.getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		// Save the template x,y,z for later. This lets us know our own dimensions.
-		// this is saved in the db so it remains valid even if the template changes.
-		this.setTemplate(tpl);
-
-		checkBlockPermissionsAndRestrictions(player);
-
-		// Setup undo information
-		getTown().lastBuildableBuilt = this;
-		try {
-			tpl.saveUndoTemplate(corner.toString(), corner);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		tpl.buildScaffolding(corner);
-
-		// Player's center was converted to this building's corner, save it as such.
-		this.startBuildTask();
-
-		this.save();
-		CivGlobal.addWonder(this);
-		CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", this.getCiv().getName(), this.getDisplayName(), this.getTown().getName(), player.getName()));
+		this.deleteWithUndo();
 	}
 
 	@Override
@@ -232,10 +202,7 @@ public class Wonder extends Buildable {
 		if (!CivGlobal.isCasualMode()) {
 			// can be overriden in subclasses.
 			CivMessage.global(CivSettings.localize.localizedString("var_wonder_destroyed", this.getDisplayName(), this.getTown().getName()));
-			this.getTown().removeWonder(this);
-			this.fancyDestroyConstructBlocks();
-			this.unbindConstructBlocks();
-			this.delete();
+			this.deleteWithFancy();
 		}
 	}
 
@@ -249,7 +216,7 @@ public class Wonder extends Buildable {
 			return null;
 		}
 		wonder.initDefaultTemplate(location);
-		town.checkIsTownCanBuildWonder(wonder);
+		town.SM.checkIsTownCanBuildBuildable(wonder);
 		wonder.checkBlockPermissionsAndRestrictions(player);
 		return wonder;
 	}
@@ -522,7 +489,7 @@ public class Wonder extends Buildable {
 		int castleCount = 0;
 		for (Civilization civ : CivGlobal.getCivs()) {
 			for (Town town : civ.getTowns()) {
-				if (town.hasStructure("s_castle")) {
+				if (town.SM.hasStructure("s_castle")) {
 					++castleCount;
 				}
 			}

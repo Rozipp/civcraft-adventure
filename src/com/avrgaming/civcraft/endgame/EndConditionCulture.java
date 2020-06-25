@@ -64,7 +64,7 @@ extends EndGameCondition {
         boolean hasBurj = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.SM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals("w_burj")) continue;
                 hasBurj = true;
                 break;

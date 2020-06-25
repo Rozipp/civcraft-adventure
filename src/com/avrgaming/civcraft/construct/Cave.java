@@ -202,7 +202,6 @@ public class Cave extends Construct {
 			structSign.setAction("spawn");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 			break;
 		case "/mobspawn":
 			MobSpawner ms = new MobSpawner(absCoord.getLocation(), this.caveConfig.mobId);

@@ -144,7 +144,7 @@ public class Shipyard extends WaterStructure {
 			Town toTeleport = CivGlobal.getCultureChunk(holder.getRandomRevivePoint().getLocation()).getTown();
 			boolean hasShipyard = false;
 			Location placeToTeleport = null;
-			for (Structure structure : toTeleport.getStructures()) {
+			for (Structure structure : toTeleport.SM.getStructures()) {
 				if (!(structure instanceof Shipyard)) continue;
 				hasShipyard = true;
 				placeToTeleport = ((Shipyard) structure).respawnSign.getCoord().getLocation();
@@ -180,7 +180,6 @@ public class Shipyard extends WaterStructure {
 			structSign.setAction("next");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 			break;
 		}
 		case "/prev": {
@@ -192,7 +191,6 @@ public class Shipyard extends WaterStructure {
 			structSign.setAction("prev");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 			break;
 		}
 		case "/respawn": {
@@ -204,7 +202,6 @@ public class Shipyard extends WaterStructure {
 			structSign.setAction("respawn");
 			structSign.update();
 			this.addConstructSign(structSign);
-			CivGlobal.addConstructSign(structSign);
 			this.respawnSign = structSign;
 			this.changeIndex(this.index);
 		}

@@ -27,28 +27,31 @@ public class TownGroupManager extends GroupManager {
 	public String mayorGroupName = "Mayors";
 	public String assistantGroupName = "Assistants";
 
-	public TownGroupManager(Town town, String defaultGroupName, String mayorGroupName, String assistantGroupName) throws CivException {
+	public TownGroupManager(Town town, String defaultGroupName, String mayorGroupName, String assistantGroupName) {
 		super();
 		this.town = town;
-		this.defaultGroupName = defaultGroupName;
-		this.mayorGroupName = mayorGroupName;
-		this.assistantGroupName = assistantGroupName;
+		if (defaultGroupName != null) this.defaultGroupName = defaultGroupName;
+		if (mayorGroupName != null) this.mayorGroupName = mayorGroupName;
+		if (assistantGroupName != null) this.assistantGroupName = assistantGroupName;
 	}
 
 	@Override
 	public void delete() throws SQLException {
 		for (PermissionGroup grp : this.groups.values())
 			grp.delete();
-		defaultGroup.delete();
-		mayorGroup.delete();
-		assistantGroup.delete();
+		if (defaultGroup != null) defaultGroup.delete();
+		if (mayorGroup != null) mayorGroup.delete();
+		if (assistantGroup != null) assistantGroup.delete();
 	}
 
 	public void init() {
 		try {
-			this.defaultGroup = new PermissionGroup(town, defaultGroupName);
-			this.mayorGroup = new PermissionGroup(town, mayorGroupName);
-			this.assistantGroup = new PermissionGroup(town, assistantGroupName);
+			defaultGroup = new PermissionGroup(town, defaultGroupName);
+			defaultGroup.save();
+			mayorGroup = new PermissionGroup(town, mayorGroupName);
+			mayorGroup.save();
+			assistantGroup = new PermissionGroup(town, assistantGroupName);
+			assistantGroup.save();
 		} catch (InvalidNameException e) {}
 	}
 
@@ -75,7 +78,7 @@ public class TownGroupManager extends GroupManager {
 
 	public void addMayor(Resident res) throws CivException {
 		if (res.getTown() != town) throw new CivException("Игрок " + res.getName() + " не состоит в городе " + town.getName());
-		if (!this.mayorGroup.hasMember(res)) throw new CivException("Игрок " + res.getName() + " уже состоит в групе " + mayorGroupName);
+		if (this.mayorGroup.hasMember(res)) throw new CivException("Игрок " + res.getName() + " уже состоит в групе " + mayorGroupName);
 
 		this.mayorGroup.addMember(res);
 		this.mayorGroup.save();

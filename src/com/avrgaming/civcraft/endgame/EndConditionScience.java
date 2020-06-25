@@ -75,7 +75,7 @@ extends EndGameCondition {
         boolean hasSpaceShuttle = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.SM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals(this.wonderId)) continue;
                 hasSpaceShuttle = true;
                 break;
@@ -102,7 +102,7 @@ extends EndGameCondition {
         boolean hasSpaceShuttle = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.SM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals(this.wonderId)) continue;
                 hasSpaceShuttle = true;
                 break;

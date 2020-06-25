@@ -51,7 +51,7 @@ public class Arrowpost extends Construct {
 
 	public static void cleanupAll() {
 		for (Construct arrowpost : arrowposts.values()) {
-			arrowpost.delete();
+			arrowpost.deleteWithUndo();
 		}
 	}
 

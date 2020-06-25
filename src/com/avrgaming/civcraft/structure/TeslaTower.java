@@ -52,7 +52,6 @@ public class TeslaTower extends Structure {
 		double rate = 1.0;
 		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
 		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
@@ -70,7 +69,7 @@ public class TeslaTower extends Structure {
 		try {
 			double build_distanceSqr = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.build_distance");
 			for (Town town : this.getTown().getCiv().getTowns()) {
-				for (Structure struct : town.getStructures()) {
+				for (Structure struct : town.SM.getStructures()) {
 					if (struct instanceof TeslaTower) {
 						Location center = struct.getCenterLocation();
 						double distanceSqr = center.distanceSquared(this.getCenterLocation());

@@ -46,7 +46,7 @@ public class Grocer extends Structure {
 		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
-		setLevel(town.saved_grocer_levels);
+		setLevel(town.SM.saved_grocer_levels);
 	}
 
 	public Grocer(ResultSet rs) throws SQLException, CivException {

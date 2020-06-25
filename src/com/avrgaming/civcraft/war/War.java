@@ -366,9 +366,7 @@ public class War {
 		for (Town town : CivGlobal.getTowns()) {
 			try {
 				WarRegen.restoreBlocksFor(town.getName());
-				if (town.getTownHall() != null && town.getTownHall().isActive()) {
-					town.getTownHall().regenControlBlocks();
-				}
+				if (town.isValid() && town.getCityhall().isActive()) town.getCityhall().regenControlBlocks();
 			} catch (Exception e) {
 				CivLog.error("Error encountered while restoring town:" + town.getName());
 				e.printStackTrace();

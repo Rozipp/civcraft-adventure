@@ -105,14 +105,14 @@ public class ChunkCoord {
 	}
 
 	public static int getCoordInChunk(int x) {
-		return (x >= 0 ? x % 16 : 15 + (x + 1) % 16);
+		return Math.floorMod(x, 16);
 	}
 
 	public static int castCoordToChunkCoord(int x) {
-		return x / 16 - (x < 0 ? 1 : 0);
+		return Math.floorDiv(x, 16);
 	}
 
 	public static int castSizeInChunkSize(int size_x) {
-		return 1 + (Math.abs(size_x) - 1) / 16;
+		return Math.floorDiv(Math.abs(size_x)-1, 16) + 1;
 	}
 }

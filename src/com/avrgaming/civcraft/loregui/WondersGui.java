@@ -39,9 +39,6 @@ public class WondersGui implements GuiAction {
 
 		for (ConfigBuildableInfo info : CivSettings.wonders.values()) {
 			double cost = info.cost;
-			if (res.getCiv().getCapitol() != null && res.getCiv().getCapitol().getBuffManager().hasBuff("level10_architectorTown")) {
-				cost *= 0.9;
-			}
 			double hammer_cost = Math.round(info.hammer_cost * rate);
 
 			String money_requ = "§b" + CivSettings.localize.localizedString("money_requ", cost);
@@ -71,7 +68,7 @@ public class WondersGui implements GuiAction {
 				inv.addItem(is);
 				continue;
 			}
-			if (!town.hasStructure(info.require_structure)) {
+			if (!town.SM.hasStructure(info.require_structure)) {
 				ConfigBuildableInfo structure = CivSettings.structures.get(info.require_structure);
 				is = LoreGuiItem.build(info.displayName, Material.EMERALD, //
 						money_requ, hammers_requ, ppoints, //

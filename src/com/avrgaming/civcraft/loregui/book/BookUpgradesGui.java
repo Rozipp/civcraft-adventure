@@ -53,7 +53,7 @@ implements GuiAction {
                 is = LoreGuiItem.build(upgrade.name, ItemManager.getMaterialId(Material.EMERALD_BLOCK), 0, "§b" + CivSettings.localize.localizedString("money_requ", Math.round(cost)), "§6" + CivSettings.localize.localizedString("tutorial_lore_clicktoView"));
                 is = LoreGuiItem.setAction(is, "UpgradeGuiBuy");
                 is = LoreGuiItem.setActionData(is, "info", upgrade.name);
-            } else if (!town.hasStructure(upgrade.require_structure)) {
+            } else if (!town.SM.hasStructure(upgrade.require_structure)) {
                 ConfigBuildableInfo structure = CivSettings.structures.get(upgrade.require_structure);
                 is = LoreGuiItem.build(upgrade.name, ItemManager.getMaterialId(Material.EMERALD), 0, "§b" + CivSettings.localize.localizedString("money_requ", Math.round(cost)), CivColor.Red + CivSettings.localize.localizedString("requ") + structure.displayName, "§3" + CivSettings.localize.localizedString("clicktobuild"));
                 is = LoreGuiItem.setAction(is, "WonderGuiBuild");

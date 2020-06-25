@@ -87,7 +87,7 @@ public class SyncGrowTask implements Runnable {
 
 				// increment any farms that were not loaded.
 				for (ChunkCoord ccoord : unloadedChunk) {
-					for (Construct construct : CivGlobal.getConstructFromChunk(ccoord)) {
+					for (Construct construct : CivGlobal.getConstructsFromChunk(ccoord)) {
 						FarmChunk farmChunk = null;
 						if (construct instanceof Farm) farmChunk = ((Farm) construct).farmChunk;
 						if (construct instanceof Camp) farmChunk = ((Camp) construct).farmChunk;

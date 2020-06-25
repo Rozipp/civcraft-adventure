@@ -92,9 +92,7 @@ public class TagManager {
 		try {
 			player = CivGlobal.getPlayer(resident);
 			editNameTag(player);
-		} catch (CivException e) {
-			e.printStackTrace();
-		}
+		} catch (CivException e) {}
 	}
 
 	private static boolean isCurator(Player var1) {

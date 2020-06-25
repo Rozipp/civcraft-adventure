@@ -117,7 +117,7 @@ public class ConfigUnit {
 	public boolean isAvailable(Town town) {
 		if (town.hasTechnology(require_tech)) {
 			if (town.hasUpgrade(require_upgrade)) {
-				if (town.hasStructure(require_struct)) {
+				if (town.SM.hasStructure(require_struct)) {
 //TODO Поменять лимит юнитов					if (limit == 0 || town.getUnitTypeCount(id) < limit) 
 						return true;
 				}

@@ -122,7 +122,7 @@ public class Cottage extends Structure {
 		/* Build a multi-inv from granaries. */
 		MultiInventory multiInv = new MultiInventory();
 
-		for (Structure struct : this.getTown().getStructures()) {
+		for (Structure struct : this.getTown().SM.getStructures()) {
 			if (struct instanceof Granary) {
 				ArrayList<ConstructChest> chests = struct.getAllChestsById("1");
 
@@ -216,9 +216,6 @@ public class Cottage extends Structure {
 		}
 		if (this.getTown().getBuffManager().hasBuff("buff_hotel")) {
 			total_coins = (int) ((double) total_coins * this.getTown().getBuffManager().getEffectiveDouble("buff_hotel"));
-		}
-		if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level4_extraCottageTown")) {
-			total_coins = (int) ((double) total_coins * this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level4_extraCottageTown"));
 		}
 		if (this.getCiv().getStockExchangeLevel() >= 1) {
 			total_coins = (int) ((double) total_coins * 1.3);

@@ -273,7 +273,7 @@ public class CustomItemListener implements Listener {
 		if (event.isCancelled()) return;
 		Player attacker = null;
 		if (event.getDamager() instanceof Player) {
-
+			attacker = (Player) event.getDamager();
 		} else
 			if (event.getDamager() instanceof Arrow) {
 				Arrow arrow = (Arrow) event.getDamager();
@@ -303,12 +303,12 @@ public class CustomItemListener implements Listener {
 					for (MetadataValue dd : arrow.getMetadata("civ_arrow_effect")) {
 						// if (dd.equals(ArrowComponent.arrow_fire)) defendingPlayer.set);
 						PotionEffect pe = null;
-						if (dd.equals(ArrowComponent.arrow_frost1)) pe = new PotionEffect(PotionEffectType.SLOW, 20, 1);
-						if (dd.equals(ArrowComponent.arrow_frost2)) pe = new PotionEffect(PotionEffectType.SLOW, 40, 1);
-						if (dd.equals(ArrowComponent.arrow_frost3)) pe = new PotionEffect(PotionEffectType.SLOW, 60, 1);
-						if (dd.equals(ArrowComponent.arrow_poison1)) pe = new PotionEffect(PotionEffectType.POISON, 20, 1);
-						if (dd.equals(ArrowComponent.arrow_poison2)) pe = new PotionEffect(PotionEffectType.POISON, 40, 1);
-						if (dd.equals(ArrowComponent.arrow_poison3)) pe = new PotionEffect(PotionEffectType.POISON, 60, 1);
+						if (dd.equals(ArrowComponent.arrow_frost1)) pe = new PotionEffect(PotionEffectType.SLOW, 40, 1);
+						if (dd.equals(ArrowComponent.arrow_frost2)) pe = new PotionEffect(PotionEffectType.SLOW, 80, 1);
+						if (dd.equals(ArrowComponent.arrow_frost3)) pe = new PotionEffect(PotionEffectType.SLOW, 120, 1);
+						if (dd.equals(ArrowComponent.arrow_poison1)) pe = new PotionEffect(PotionEffectType.POISON, 40, 1);
+						if (dd.equals(ArrowComponent.arrow_poison2)) pe = new PotionEffect(PotionEffectType.POISON, 80, 1);
+						if (dd.equals(ArrowComponent.arrow_poison3)) pe = new PotionEffect(PotionEffectType.POISON, 120, 1);
 
 						if (pe != null) ((LivingEntity) event.getEntity()).addPotionEffect(pe);
 					}
