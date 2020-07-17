@@ -54,9 +54,6 @@ extends Wonder {
         if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
             rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
         }
-        if (this.getCiv().getCapitol() != null && this.getCiv().getCapitol().getBuffManager().hasBuff("level5_extraTowerHPTown")) {
-            rate *= this.getCiv().getCapitol().getBuffManager().getEffectiveDouble("level5_extraTowerHPTown");
-        }
         return (int)((double)this.getInfo().max_hitpoints * rate);
     }
 
@@ -89,7 +86,7 @@ extends Wonder {
         }
         if (totalCoins != 0) {
             this.getTown().getTreasury().deposit(totalCoins);
-            this.getTown().addAccumulatedCulture(totalCulture);
+            this.getTown().SM.addCulture(totalCulture);
             int captured = totalCulture / culture;
             CivMessage.sendCiv(this.getCiv(), CivSettings.localize.localizedString("var_statue_of_zeus_addedCoinsAndCulture",
             		CivColor.LightGreen + totalCulture + CivColor.RESET, CivColor.Gold + totalCoins + " " + CivSettings.CURRENCY_NAME + CivColor.RESET, CivColor.Rose + captured + CivColor.RESET,

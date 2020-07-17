@@ -49,7 +49,7 @@ public class InteractiveConfirmScroll implements InteractiveResponse {
 		List<String> lore = new AttributeUtil(itemStack).getLore();
 		String nd = lore.get(1);
 		if (lore.get(0).contains("500 Culture")) {
-			town.addAccumulatedCulture(500.0);
+			town.SM.addCulture(500);
 			CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_processScroll_addedCulture", player.getDisplayName(), CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
 		} else
 			if (lore.get(0).contains("Bonus")) {
@@ -67,12 +67,12 @@ public class InteractiveConfirmScroll implements InteractiveResponse {
 							CivColor.RoseBold + sdf.format(time + Calendar.getInstance().getTimeInMillis()) + CivColor.RESET));
 				} else
 					if (nd.contains("Settler")) {
-						if (town.SM.hasStructure("s_barracks")) {
+						if (town.BM.hasStructure("s_barracks")) {
 							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noBarracks", CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
 							resident.clearInteractiveMode();
 							return;
 						}
-						Barracks barracks = (Barracks) town.SM.getFirstStructureById("s_barracks");
+						Barracks barracks = (Barracks) town.BM.getFirstStructureById("s_barracks");
 						if (barracks.getTrainingUnit() == null) {
 							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noBarracksInProgress", CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
 							resident.clearInteractiveMode();
@@ -102,7 +102,7 @@ public class InteractiveConfirmScroll implements InteractiveResponse {
 							return;
 						}
 						double beakers = civ.getResearchTech().beaker_cost * ((double) percent / 100.0);
-						civ.addBeakers(beakers);
+						civ.processTech(beakers);
 						CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_processScroll_addedTech", player.getDisplayName(), CivColor.LightGreenBold + new DecimalFormat("#.##").format(beakers) + CivColor.RESET,
 								CivColor.YellowBold + techName + CivColor.RESET));
 					}
@@ -113,7 +113,7 @@ public class InteractiveConfirmScroll implements InteractiveResponse {
 					ArrayList<ConfigTownUpgrade> upgradeList = new ArrayList<ConfigTownUpgrade>();
 					if (st.contains("bank")) {
 						String upgrade = "upgrade_bank_level" + level;
-						if (!town.SM.hasStructure("s_bank")) {
+						if (!town.BM.hasStructure("s_bank")) {
 							CivMessage.sendError(resident,
 									CivSettings.localize.localizedString("var_processScroll_upgradeBankArleadyNo", CivColor.LightGreenBold + level + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
 							resident.clearInteractiveMode();

@@ -124,7 +124,7 @@ public class Barracks extends Structure {
 		this.currentHammers = 0.0;
 		this.trainingUnit = unit;
 		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_barracks_begin", unit.name));
-		this.updateTraining();
+		this.onSecondUpdate();
 		this.onTechUpdate();
 	}
 
@@ -478,10 +478,10 @@ public class Barracks extends Structure {
 		}
 	}
 
-	public void updateTraining() {
+	public void onSecondUpdate() {
 		if (this.trainingUnit != null) {
 			// Hammers are per hour, this runs per min. We need to adjust the hammers we add.
-			double addedHammers = (getTown().getHammers().total / 60) / 60;
+			double addedHammers = (getTown().SM.getAttrHammer().total / 60) / 60;
 			this.currentHammers += addedHammers;
 
 			this.updateProgressBar();
@@ -495,7 +495,6 @@ public class Barracks extends Structure {
 				this.currentHammers = this.trainingUnit.hammer_cost;
 				this.createUnit(this.trainingUnit);
 			}
-
 		}
 	}
 

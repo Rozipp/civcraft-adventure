@@ -34,7 +34,7 @@ public class ConfigBuildableInfo {
 	public ArrayList<String> signs = new ArrayList<String>();
 	public double cost = 0;
 	public double upkeep = 0;
-	public double hammer_cost = 0;
+	public int hammer_cost = 0;
 	public int max_hitpoints = 0;
 	public Boolean destroyable = false;
 	public Boolean allow_outside_town = false;
@@ -64,8 +64,8 @@ public class ConfigBuildableInfo {
 	public boolean isAvailable(Town town) {
 		if (!town.hasTechnology(require_tech)) return false;
 		if (!town.hasUpgrade(require_upgrade)) return false;
-		if (!town.SM.hasStructure(require_structure)) return false;
-		if (limit != 0 && town.SM.getAllStructuresById(id).size() >= limit) return false;
+		if (!town.BM.hasStructure(require_structure)) return false;
+		if (limit != 0 && town.BM.getAllStructuresById(id).size() >= limit) return false;
 		return true;
 	}
 
@@ -89,7 +89,7 @@ public class ConfigBuildableInfo {
 			sinfo.limit = ((obj = struct.get("limit")) == null) ? 1 : (Integer) obj;
 			sinfo.cost = (Double) struct.get("cost");
 			sinfo.upkeep = (Double) struct.get("upkeep");
-			sinfo.hammer_cost = (Double) struct.get("hammer_cost");
+			sinfo.hammer_cost = (Integer) struct.get("hammer_cost");
 			sinfo.max_hitpoints = (Integer) struct.get("max_hitpoints");
 			sinfo.destroyable = (Boolean) struct.get("destroyable");
 			sinfo.allow_outside_town = (Boolean) struct.get("allow_outside_town");

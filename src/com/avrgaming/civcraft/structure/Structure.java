@@ -30,6 +30,7 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -99,7 +100,7 @@ public class Structure extends Buildable {
 		}
 		structure.initDefaultTemplate(location);
 		if (checkPerm) {
-			if (town != null) town.SM.checkIsTownCanBuildBuildable(structure);
+			if (town != null) town.BM.checkIsTownCanBuildBuildable(structure);
 			structure.checkBlockPermissionsAndRestrictions(player);
 		}
 		return structure;
@@ -113,7 +114,7 @@ public class Structure extends Buildable {
 					+ "`type_id` mediumtext NOT NULL," //
 					+ "`town_id` int(11) DEFAULT NULL," //
 					+ "`complete` bool NOT NULL DEFAULT '0'," //
-					+ "`builtBlockCount` int(11) DEFAULT NULL, " //
+					+ "`hammersCompleted` int(11) DEFAULT NULL, " //
 					+ "`cornerBlockHash` mediumtext DEFAULT NULL," //
 					+ "`template_name` mediumtext DEFAULT NULL, " //
 					+ "`hitpoints` int(11) DEFAULT '100'," //
@@ -130,40 +131,41 @@ public class Structure extends Buildable {
 	public void load(ResultSet rs) throws CivException, SQLException {
 		this.setId(rs.getInt("id"));
 		this.setInfo(CivSettings.structures.get(rs.getString("type_id")));
-		this.setSQLOwner(CivGlobal.getTownFromId(rs.getInt("town_id")));
+		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
 
-		if (this.getTown() == null) {
-			this.deleteWithUndo();
-			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
-		}
 		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
 		this.setHitpoints(rs.getInt("hitpoints"));
 
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 
+		if (this.getTown() == null) {
+			this.deleteWithUndo();
+			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
+		}
+		
 		this.setComplete(rs.getBoolean("complete"));
-		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
-		this.getTown().SM.addStructure(this);
+		this.setHammersCompleted(rs.getInt("hammersCompleted"));
+		this.getTown().BM.addStructure(this);
 
 		Structure struct = this;
-		TaskMaster.syncTask(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					struct.onLoad();
-				} catch (Exception e) {
-					CivLog.error(e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		}, 2000);
 		if (!this.isComplete()) {
 			try {
 				this.startBuildTask();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
+		} else
+			TaskMaster.syncTask(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						struct.onLoad();
+					} catch (Exception e) {
+						CivLog.error(e.getMessage());
+						e.printStackTrace();
+					}
+				}
+			}, 2000);
 		this.bindBlocks();
 	}
 
@@ -173,7 +175,7 @@ public class Structure extends Buildable {
 		hashmap.put("type_id", this.getConfigId());
 		hashmap.put("town_id", this.getTown().getId());
 		hashmap.put("complete", this.isComplete());
-		hashmap.put("builtBlockCount", this.getBlocksCompleted());
+		hashmap.put("hammersCompleted", this.getHammersCompleted());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
 		hashmap.put("template_name", this.getTemplate().getFilepath());
@@ -184,10 +186,10 @@ public class Structure extends Buildable {
 	@Override
 	public void delete() {
 		super.delete();
-		
-		if (this.getTown() != null) this.getTown().SM.removeStructure(this);
+
+		if (this.getTown() != null) this.getTown().BM.removeStructure(this);
 		CivGlobal.removeStructure(this);
-		
+
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
@@ -203,7 +205,7 @@ public class Structure extends Buildable {
 			struct_hm.put("id", this.getId());
 			struct_hm.put("type_id", this.getConfigId());
 			struct_hm.put("complete", this.isComplete());
-			struct_hm.put("builtBlockCount", this.savedBlockCount);
+			struct_hm.put("hammersCompleted", this.getHammersCompleted());
 
 			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
 		}
@@ -261,10 +263,6 @@ public class Structure extends Buildable {
 		return "bighouse";
 	}
 
-	public void onBonusGoodieUpdate() {
-		/* Override in children */
-	}
-
 	public void onMarkerPlacement(Player player, Location next, ArrayList<Location> locs) throws CivException {
 		/* Override in children */
 	}
@@ -292,5 +290,27 @@ public class Structure extends Buildable {
 	@Override
 	public void onPostBuild() {
 		/* Override in children */
+	}
+
+	@Override
+	public void validCanProgressBuild() throws CivException {
+		if (!getTown().isValid()) {
+			this.setNextProgressBuild(10);
+			throw new CivException("Город " + getTown().getName() + " неактивен");
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj instanceof Structure) {
+			Structure struct = (Structure) obj;
+			if (struct.getId() == this.getId()) return true;
+		}
+		return false;
+	}
+	public void finished() {
+		CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completed", getTown().getName(), "§2" + getDisplayName() + CivColor.RESET));
+		super.finished();
 	}
 }

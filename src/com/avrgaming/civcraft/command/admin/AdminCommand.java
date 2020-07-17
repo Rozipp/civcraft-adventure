@@ -12,38 +12,27 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.command.ReportChestsTask;
 import com.avrgaming.civcraft.command.ReportPlayerInventoryTask;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
-import com.avrgaming.civcraft.config.ConfigMaterial;
-import com.avrgaming.civcraft.config.ConfigMaterialCategory;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
-import com.avrgaming.civcraft.event.GoodieRepoEvent;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.items.BonusGoodie;
-import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -54,7 +43,6 @@ import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.sls.SLSManager;
 
 public class AdminCommand extends CommandBase {
@@ -91,11 +79,9 @@ public class AdminCommand extends CommandBase {
 		cs.add("perk", CivSettings.localize.localizedString("adcmd_perkDesc"));
 		cs.add("reloadgov", CivSettings.localize.localizedString("adcmd_reloadgovDesc"));
 		cs.add("heartbeat", CivSettings.localize.localizedString("adcmd_heartbeatDesc"));
-		cs.add("goodierepo", CivSettings.localize.localizedString("cmd_servak"));
 		cs.add("clearchat", CivSettings.localize.localizedString("clearchat"));
 		cs.add("newspaper", CivSettings.localize.localizedString("adcmd_newspaper"));
 		cs.add("startMission", CivSettings.localize.localizedString("adcmd_startMission"));
-		cs.add("replenish", CivSettings.localize.localizedString("adcmd_replenish"));
 		cs.add("count", CivSettings.localize.localizedString("adcmd_count"));
 		cs.add("globalwar", CivSettings.localize.localizedString("adcmd_globalWar"));
 		cs.add("gc", CivSettings.localize.localizedString("cmd_gc"));
@@ -110,8 +96,7 @@ public class AdminCommand extends CommandBase {
 	public void gc_cmd() {
 		final long start = System.nanoTime();
 		System.gc();
-		CivMessage.sendSuccess(this.sender, CivColor.LightGreenBold + CivSettings.localize.localizedString("cmd_gc_result",
-				CivColor.GoldBold + this.formatFloat((System.nanoTime() - start) / 1000000L, 2) + CivColor.LightGreenBold));
+		CivMessage.sendSuccess(this.sender, CivColor.LightGreenBold + CivSettings.localize.localizedString("cmd_gc_result", CivColor.GoldBold + this.formatFloat((System.nanoTime() - start) / 1000000L, 2) + CivColor.LightGreenBold));
 	}
 
 	public String formatFloat(float num, final int pr) {
@@ -145,47 +130,6 @@ public class AdminCommand extends CommandBase {
 		Bukkit.dispatchCommand(this.sender, "ad war start");
 	}
 
-	public void replenish_cmd() {
-		for (final Civilization civ : CivGlobal.getCivs()) {
-			if (civ.tradeGoods.isEmpty()) {
-				civ.tradeGoods = "";
-				try {
-					civ.saveNow();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			for (final Town town : civ.getTowns()) {
-				if (!civ.tradeGoods.isEmpty()) {
-					town.tradeGoods = "";
-					try {
-						town.saveNow();
-					} catch (SQLException e2) {
-						e2.printStackTrace();
-					}
-					final ArrayList<String> keysToRemove = new ArrayList<String>();
-					for (final Buff buff : town.getBuffManager().getAllBuffs()) {
-						if (buff.getKey().contains("tradegood")) {
-							keysToRemove.add(buff.getKey());
-						}
-					}
-					for (final String key : keysToRemove) {
-						town.getBuffManager().removeBuff(key);
-					}
-				}
-			}
-		}
-		for (final BonusGoodie goodie : CivGlobal.getBonusGoodies()) {
-			try {
-				goodie.replenish();
-			} catch (Exception e3) {
-				e3.printStackTrace();
-			}
-		}
-		CivMessage.global(CivSettings.localize.localizedString("goodieRepoBroadcast"));
-		CivMessage.globalTitle(CivSettings.localize.localizedString("goodieRepoBroadcast"), "");
-	}
-
 	public void newspaper_cmd() throws IOException, InvalidConfigurationException {
 		CivSettings.reloadNewspaperConfigFiles();
 		CivMessage.send(this.sender, CivColor.Gold + CivSettings.localize.localizedString("adcmd_newspaper_done"));
@@ -198,12 +142,6 @@ public class AdminCommand extends CommandBase {
 		}
 		final Player player = this.getPlayer();
 		CivMessage.global(CivSettings.localize.localizedString("chatcleared", player.getName()));
-	}
-
-	public void goodierepo_cmd() {
-		CivLog.info("TimerEvent: GoodieRepo -------------------------------------");
-		GoodieRepoEvent.repoProcess();
-		CivMessage.globalTitle(CivSettings.localize.localizedString("goodieRepoBroadcast"), "");
 	}
 
 	public void reloadgov_cmd() throws FileNotFoundException, IOException, InvalidConfigurationException, InvalidConfiguration {
@@ -224,7 +162,7 @@ public class AdminCommand extends CommandBase {
 		AdminUnitCommand cmd = new AdminUnitCommand();
 		cmd.onCommand(sender, null, "unit", this.stripArgs(args, 1));
 	}
-	
+
 	public void mob_cmd() {
 		AdminMobCommand cmd = new AdminMobCommand();
 		cmd.onCommand(sender, null, "mob", this.stripArgs(args, 1));
@@ -261,69 +199,20 @@ public class AdminCommand extends CommandBase {
 		}
 	}
 
-	public static Inventory spawnInventory = null;
+	public static GuiInventory spawnInventory = null;
+
 	public void items_cmd() throws CivException {
-		Player player = getPlayer();
-
-		if (spawnInventory == null) {
-			spawnInventory = Bukkit.createInventory(player, LoreGuiItem.MAX_INV_SIZE, CivSettings.localize.localizedString("adcmd_itemsHeader"));
-
-			/* Build the Category Inventory. */
-			for (ConfigMaterialCategory cat : ConfigMaterialCategory.getCategories()) {
-				int identifier;
-				if (cat.name.contains("Fish")) {
-					identifier = ItemManager.getMaterialId(Material.RAW_FISH);
-				} else
-					if (cat.name.contains("Catalyst")) {
-						identifier = ItemManager.getMaterialId(Material.BOOK);
-					} else
-						if (cat.name.contains("Gear")) {
-							identifier = ItemManager.getMaterialId(Material.IRON_SWORD);
-						} else
-							if (cat.name.contains("Materials")) {
-								identifier = ItemManager.getMaterialId(Material.WOOD_STEP);
-							} else
-								if (cat.name.contains("Tools")) {
-									identifier = ItemManager.getMaterialId(Material.IRON_SPADE);
-								} else
-									if (cat.name.contains("Eggs")) {
-										identifier = ItemManager.getMaterialId(Material.MONSTER_EGG);
-									} else {
-										identifier = ItemManager.getMaterialId(Material.WRITTEN_BOOK);
-									}
-				ItemStack infoRec = LoreGuiItem.build(cat.name, identifier, 0, CivColor.LightBlue + cat.materials.size() + " Items",
-						CivColor.Gold + "<Click To Open>");
-				infoRec = LoreGuiItem.setAction(infoRec, "OpenInventory");
-				infoRec = LoreGuiItem.setActionData(infoRec, "invType", "showGuiInv");
-				infoRec = LoreGuiItem.setActionData(infoRec, "invName", cat.name + " Spawn");
-				spawnInventory.addItem(infoRec);
-
-				/* Build a new GUI Inventory. */
-				Inventory inv = Bukkit.createInventory(player, LoreGuiItem.MAX_INV_SIZE, cat.name + " Spawn");
-				for (ConfigMaterial mat : cat.materials.values()) {
-					CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(mat.id);
-					if (craftMat == null) continue;
-					ItemStack stack = CustomMaterial.spawn(craftMat);
-					stack = LoreGuiItem.asGuiItem(stack);
-					stack = LoreGuiItem.setAction(stack, "SpawnItem");
-					inv.addItem(stack);
-					LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-				}
-			}
-
-		}
-
-		player.openInventory(spawnInventory);
+		GuiInventory.getGuiInventory(getPlayer(), "ItemsSpawn", null).openInventory();
 	}
 
 	public void item_cmd() {
 		AdminItemCommand cmd = new AdminItemCommand();
-		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
+		cmd.onCommand(sender, null, "item", this.stripArgs(args, 1));
 	}
 
 	public void timer_cmd() {
 		AdminTimerCommand cmd = new AdminTimerCommand();
-		cmd.onCommand(sender, null, "camp", this.stripArgs(args, 1));
+		cmd.onCommand(sender, null, "timer", this.stripArgs(args, 1));
 	}
 
 	public void camp_cmd() {
@@ -376,23 +265,22 @@ public class AdminCommand extends CommandBase {
 		Player player = getPlayer();
 		Town town = getNamedTown(2);
 
-//		if (args.length > 2) {
-//			try {
-//				player = CivGlobal.getPlayer(args[2]);
-//			} catch (CivException e) {
-//				throw new CivException("Player "+args[2]+" is not online.");
-//			}
-//		} else {
-//			player = getPlayer();
-//		}
+		// if (args.length > 2) {
+		// try {
+		// player = CivGlobal.getPlayer(args[2]);
+		// } catch (CivException e) {
+		// throw new CivException("Player "+args[2]+" is not online.");
+		// }
+		// } else {
+		// player = getPlayer();
+		// }
 
 		Class<?> c;
 		try {
 			c = Class.forName(unit.class_name);
 			Method m = c.getMethod("spawn", Inventory.class, Town.class);
 			m.invoke(null, player.getInventory(), town);
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new CivException(e.getMessage());
 		}
 

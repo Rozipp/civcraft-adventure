@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Effect;
 import org.bukkit.FireworkEffect;
@@ -52,7 +51,6 @@ import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.Config;
 
@@ -293,32 +291,8 @@ public abstract class Construct extends SQLObject {
 
 	public void repairFromTemplate() {
 		Template tpl = this.getTemplate();
-		HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
-		Block centerBlock = this.getCorner().getBlock();
-
-		for (int x = 0; x < tpl.size_x; x++) {
-			for (int y = 0; y < tpl.size_y; y++) {
-				for (int z = 0; z < tpl.size_z; z++) {
-					Block b = centerBlock.getRelative(x, y, z);
-					SimpleBlock sb = tpl.blocks[x][y][z];
-					if (sb.specialType == Type.COMMAND)
-						ItemManager.setTypeIdAndData(b, CivData.AIR, (byte) 0, false);
-					else
-						ItemManager.setTypeIdAndData(b, sb.getType(), (byte) sb.getData(), false);
-
-					chunkUpdates.put(b.getChunk(), b.getChunk());
-
-					if (ItemManager.getTypeId(b) == CivData.WALL_SIGN || ItemManager.getTypeId(b) == CivData.SIGN) {
-						Sign s2 = (Sign) b.getState();
-						s2.setLine(0, sb.message[0]);
-						s2.setLine(1, sb.message[1]);
-						s2.setLine(2, sb.message[2]);
-						s2.setLine(3, sb.message[3]);
-						s2.update();
-					}
-				}
-			}
-		}
+		tpl.buildTemplate(getCorner());
+		tpl.buildAirBlocks(getCorner());
 	}
 
 	// ------------ abstract metods
@@ -328,7 +302,7 @@ public abstract class Construct extends SQLObject {
 	public void onHourlyUpdate(CivAsyncTask task) {
 	}
 
-	public void onMinuteUpdate() {
+	public void onCivtickUpdate() {
 	}
 
 	public void onSecondUpdate() {
@@ -344,6 +318,7 @@ public abstract class Construct extends SQLObject {
 			var8.printStackTrace();
 		}
 		this.getTemplate().buildTemplate(corner);
+		this.getTemplate().buildAirBlocks(corner);
 		this.bindBlocks();
 		try {
 			this.saveNow();
@@ -420,20 +395,17 @@ public abstract class Construct extends SQLObject {
 				Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
 				BlockCoord corner = construct.getCorner();
 				for (int y = 0; y < tpl.size_y; y++) {
-					for (int z = 0; z < tpl.size_z; z++) {
-						for (int x = 0; x < tpl.size_x; x++) {
-							SimpleBlock sb = tpl.blocks[x][y][z];
-							if (sb.getType() == CivData.AIR) continue;
-							if (sb.specialType == SimpleBlock.Type.COMMAND) continue;
-							sbs.add(new SimpleBlock(corner, sb));
+					for (SimpleBlock sb : tpl.blocks.get(y)) {
+						if (sb.getType() == CivData.AIR) continue;
+						if (sb.specialType == SimpleBlock.Type.COMMAND) continue;
+						sbs.add(new SimpleBlock(corner, sb));
 
-							BlockCoord bc = corner.getRelative(x, y, z);
-							construct.addConstructBlock(new BlockCoord(bc), (y != 0));
-						}
+						BlockCoord bc = corner.getRelative(sb.getX(), y, sb.getZ());
+						construct.addConstructBlock(new BlockCoord(bc), (y != 0));
 					}
+					/* Re-run the post build on the command blocks we found. */
+					if (construct.isActive()) construct.postBuildSyncTask();
 				}
-				/* Re-run the post build on the command blocks we found. */
-				if (construct.isActive()) construct.postBuildSyncTask();
 			}
 		}, 100);
 	}
@@ -600,7 +572,7 @@ public abstract class Construct extends SQLObject {
 					e.printStackTrace();
 					return;
 				}
-				BuildTemplateTask btt = new BuildTemplateTask(tpl, constr.getCorner());
+				BuildTemplateTask btt = new BuildTemplateTask(tpl, constr.getCorner(), true);
 				TaskMaster.asyncTask(btt, 0);
 				while (!BuildTemplateTask.isFinished(btt)) {
 					try {

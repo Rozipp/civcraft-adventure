@@ -59,6 +59,14 @@ public class SimpleBlock {
 	}
 
 	public SimpleBlock(BlockCoord bc, SimpleBlock sb) {
+		if (sb == null) {
+			this.x = bc.getX();
+			this.y = bc.getY();
+			this.z = bc.getZ();
+			this.worldname = bc.getWorld().getName();
+			this.type = 0;
+			this.data = 0;
+		}
 		this.x = bc.getX() + sb.x;
 		this.y = bc.getY() + sb.y;
 		this.z = bc.getZ() + sb.z;
@@ -89,8 +97,8 @@ public class SimpleBlock {
 		this.specialType = Type.NORMAL;
 	}
 
-	public SimpleBlock(String world, int x, int y, int z, int type, int data) {
-		this.worldname = world;
+	public SimpleBlock(String worldname, int x, int y, int z, int type, int data) {
+		this.worldname = worldname;
 		this.x = x;
 		this.y = y;
 		this.z = z;

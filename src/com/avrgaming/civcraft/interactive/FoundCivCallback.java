@@ -4,10 +4,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.town.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
@@ -41,7 +41,7 @@ public class FoundCivCallback implements CallbackInterface {
 		civ = new Civilization();
 		civ.checkCanCreatedCiv(player);
 
-		new ChoiseTemplate(player, cityhall.getInfo(), this);
+		GuiInventory.getGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
 	}
 
 	private String templateTheme = null;
@@ -98,7 +98,7 @@ public class FoundCivCallback implements CallbackInterface {
 		if (civName == null) {
 			civName = strings[0];
 			try {
-				if (CivGlobal.getCiv(civName) != null || CivGlobal.getConqueredCiv(civName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_civ_found_civExists", civName));
+				if (CivGlobal.getCivFromName(civName) != null || CivGlobal.getConqueredCiv(civName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_civ_found_civExists", civName));
 				civ.setName(civName);
 				tagName = civName.substring(0, Math.min(5, civName.length()-1));
 				if (!player.isOp() && (tagName.length() < 2 || tagName.length() > 5)) throw new InvalidNameException("§c" + CivSettings.localize.localizedString("cmd_prefix_illegalArgument"));
@@ -164,7 +164,7 @@ public class FoundCivCallback implements CallbackInterface {
 				return;
 			}
 			try {
-				if (CivGlobal.getTown(townName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_town_found_errorNameExists", townName));
+				if (CivGlobal.getTownFromName(townName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_town_found_errorNameExists", townName));
 				town.setName(townName);
 			} catch (InvalidNameException e) {
 				townName = null;

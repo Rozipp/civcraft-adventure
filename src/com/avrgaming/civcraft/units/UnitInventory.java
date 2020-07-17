@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.listener.UnitInventoryListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
 

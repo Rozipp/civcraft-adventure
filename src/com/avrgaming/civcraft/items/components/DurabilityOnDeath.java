@@ -23,7 +23,7 @@ import gpl.AttributeUtil;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
+import com.avrgaming.civcraft.items.ItemChangeResult;
 
 public class DurabilityOnDeath extends ItemComponent {
 

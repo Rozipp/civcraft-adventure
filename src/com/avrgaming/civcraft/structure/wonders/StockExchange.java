@@ -18,7 +18,7 @@ extends Wonder {
 
     public StockExchange(String id, Town town) throws CivException {
         super(id, town);
-        this.setLevel(town.SM.saved_stock_exchange_level);
+        this.setLevel(town.BM.saved_stock_exchange_level);
     }
 
     @Override
@@ -46,7 +46,7 @@ extends Wonder {
 
     @Override
     public void onPostBuild() {
-        this.level = this.getTown().SM.saved_stock_exchange_level;
+        this.level = this.getTown().BM.saved_stock_exchange_level;
     }
 }
 

@@ -28,6 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.util.CivColor;
 
+@Deprecated
 public class LoreStoreage {
 
 	public static void setMatID(int id, ItemStack stack) {

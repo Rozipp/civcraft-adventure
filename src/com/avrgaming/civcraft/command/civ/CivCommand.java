@@ -76,7 +76,6 @@ public class CivCommand extends CommandBase {
 		cs.add("location", CivSettings.localize.localizedString("cmd_civ_locationDesc"));
 		cs.add("members", CivSettings.localize.localizedString("cmd_civ_membersDesc"));
 		cs.add("space", CivSettings.localize.localizedString("cmd_civ_space_name"));
-		cs.add("trade", CivSettings.localize.localizedString("cmd_civ_trade_name"));
 		cs.add("culture", CivSettings.localize.localizedString("cmd_civ_culture_name"));
 		cs.add("caves", "[all,founded,available,captured,lost,updated,used] Показать информаци о пещерах");
 	}
@@ -99,8 +98,8 @@ public class CivCommand extends CommandBase {
 		boolean hasBurj = false;
 		int cultureSummary = 0;
 		for (final Town town : civ.getTowns()) {
-			if (town.getMotherCiv() == null) cultureSummary += town.getAccumulatedCulture();
-			if (town.SM.hasWonder("w_burj")) hasBurj = true;
+			if (town.getMotherCiv() == null) cultureSummary += town.SM.getCulture();
+			if (town.BM.hasWonder("w_burj")) hasBurj = true;
 		}
 		final boolean culturePassed = cultureSummary > 16500000;
 		CivMessage.sendHeading(this.sender, CivSettings.localize.localizedString("cmd_civ_culture_heading"));
@@ -115,11 +114,6 @@ public class CivCommand extends CommandBase {
 		if (!hasBurj) {
 			CivMessage.send(this.sender, "§2" + CivSettings.localize.localizedString("cmd_civ_culture_burjRequired", CivColor.LightGreenBold + "Burj Kalifa"));
 		}
-	}
-
-	public void trade_cmd() throws CivException {
-		final CivTradeCommand cmd = new CivTradeCommand();
-		cmd.onCommand(this.sender, null, "trade", this.stripArgs(this.args, 1));
 	}
 
 	public void space_cmd() {
@@ -163,9 +157,7 @@ public class CivCommand extends CommandBase {
 		Civilization civ = getSenderCiv();
 		Resident resident = getResident();
 
-		if (!civ.areLeadersInactive()) {
-			throw new CivException(CivSettings.localize.localizedString("cmd_civ_claimleaderStillActive"));
-		}
+		if (!civ.GM.areLeaderInactive()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_claimleaderStillActive"));
 
 		civ.GM.addLeader(resident);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_claimLeaderSuccess", civ.getName()));
@@ -227,9 +219,6 @@ public class CivCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_revolutionErrorNotCapitol", motherCiv.getCapitol().getName()));
 		}
 
-		if (town.getCiv().getCapitol() != null && town.getCiv().getCapitol().getBuffManager().hasBuff("level10_dominatorTown")) {
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_revolutionErrorDominator", town.getCiv().getName()));
-		}
 		try {
 			int revolution_cooldown = CivSettings.getInteger(CivSettings.civConfig, "civ.revolution_cooldown");
 
@@ -279,7 +268,7 @@ public class CivCommand extends CommandBase {
 		}
 
 		for (String warCivName : warCivs) {
-			Civilization civ = CivGlobal.getCiv(warCivName);
+			Civilization civ = CivGlobal.getCivFromName(warCivName);
 			if (civ != null) {
 				CivGlobal.setRelation(civ, motherCiv, Status.WAR);
 				/* THEY are the aggressor in a revolution. */
@@ -377,12 +366,6 @@ public class CivCommand extends CommandBase {
 
 		cal.setTime(CivGlobal.getNextHourlyTickDate());
 		out.add(CivColor.Green + CivSettings.localize.localizedString("cmd_civ_timeHourly") + " " + CivColor.LightGreen + sdf.format(cal.getTime()));
-
-		cal.setTime(CivGlobal.getNextRepoTime());
-		out.add(CivColor.Green + CivSettings.localize.localizedString("cmd_civ_timeRepo") + " " + CivColor.LightGreen + sdf.format(cal.getTime()));
-
-		cal.setTimeInMillis(CivGlobal.cantDemolishFrom);
-		out.add("§2" + CivSettings.localize.localizedString("cmd_civ_timeCantDemolish", "§6" + sdf.format(cal.getTime()) + "§a", "§c" + sdf.format(cal.getTimeInMillis() + 18000000L) + "§a", "§a"));
 
 		if (War.isWarTime()) {
 			out.add(CivColor.Yellow + CivSettings.localize.localizedString("cmd_civ_timeWarNow"));
@@ -542,7 +525,7 @@ public class CivCommand extends CommandBase {
 				return;
 			}
 
-			Civilization civ = CivGlobal.getCiv(args[1]);
+			Civilization civ = CivGlobal.getCivFromName(args[1]);
 			if (civ == null) {
 				CivMessage.sendError(sender, CivSettings.localize.localizedString("var_cmd_civ_voteInvalidCiv", args[1]));
 				return;

@@ -18,10 +18,10 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.items.ItemChangeResult;
 import com.avrgaming.civcraft.items.components.ArrowComponent;
 import com.avrgaming.civcraft.listener.armor.ArmorType;
-import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
+import com.avrgaming.civcraft.lorestorage.GuiItems;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -50,6 +50,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.Event.Result;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -130,11 +131,8 @@ public class CustomItemListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		ItemStack stack = null;
-		if (event.getHand() == EquipmentSlot.OFF_HAND)
-			stack = event.getPlayer().getInventory().getItemInOffHand();
-		else
-			stack = event.getPlayer().getInventory().getItemInMainHand();
+		if (event.getAction() == Action.PHYSICAL) return;
+		ItemStack stack = (event.getHand() == EquipmentSlot.OFF_HAND) ? event.getPlayer().getInventory().getItemInOffHand() : event.getPlayer().getInventory().getItemInMainHand();
 		if (stack == null) return;
 		CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
 		if (material != null) material.onInteract(event);
@@ -184,7 +182,7 @@ public class CustomItemListener implements Listener {
 
 	private static String isCustomDrop(ItemStack stack) {
 		if (stack == null || ItemManager.getTypeId(stack) != 166) return null;
-		if (LoreGuiItem.isGUIItem(stack)) return null;
+		if (GuiItems.isGUIItem(stack)) return null;
 		return stack.getItemMeta().getDisplayName();
 	}
 
@@ -857,7 +855,7 @@ public class CustomItemListener implements Listener {
 		if (stack == null) return false;
 		final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(stack);
 		if (craftMat != null) return false;
-		if (LoreGuiItem.isGUIItem(stack)) return false;
+		if (GuiItems.isGUIItem(stack)) return false;
 
 		return CivSettings.removedRecipies.contains(stack.getType()) || stack.getType().equals(Material.ENCHANTED_BOOK);
 	}

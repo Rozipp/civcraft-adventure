@@ -7,8 +7,10 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.lorestorage.GuiItemAction;
 
-public class SpawnItem implements GuiAction {
+
+public class SpawnItem implements GuiItemAction {
 
 	@SuppressWarnings("deprecation")
 	@Override

@@ -69,7 +69,7 @@ public class TeslaTower extends Structure {
 		try {
 			double build_distanceSqr = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.build_distance");
 			for (Town town : this.getTown().getCiv().getTowns()) {
-				for (Structure struct : town.SM.getStructures()) {
+				for (Structure struct : town.BM.getStructures()) {
 					if (struct instanceof TeslaTower) {
 						Location center = struct.getCenterLocation();
 						double distanceSqr = center.distanceSquared(this.getCenterLocation());

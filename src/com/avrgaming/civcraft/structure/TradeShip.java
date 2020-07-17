@@ -46,7 +46,7 @@ public class TradeShip extends WaterStructure {
 
 	public TradeShip(String id, Town town) throws CivException {
 		super(id, town);
-		setUpgradeLvl(town.SM.saved_tradeship_upgrade_levels);
+		setUpgradeLvl(town.BM.saved_tradeship_upgrade_levels);
 		this.lastConsume = 128;
 	}
 
@@ -297,7 +297,7 @@ public class TradeShip extends WaterStructure {
 			if (tradeResult.getCulture() >= 1) {
 				int total_culture = (int) Math.round(tradeResult.getCulture());
 
-				this.getTown().addAccumulatedCulture(total_culture);
+				this.getTown().SM.addCulture(total_culture);
 				this.getTown().save();
 			}
 			if (tradeResult.getMoney() >= 1) {
@@ -309,7 +309,7 @@ public class TradeShip extends WaterStructure {
 				if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) {
 					total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_great_lighthouse_trade_ship_income");
 				}
-				if (this.getTown().SM.hasStructure("s_lighthouse")) {
+				if (this.getTown().BM.hasStructure("s_lighthouse")) {
 					try {
 						total_coins *= CivSettings.getDouble(CivSettings.townConfig, "town.lighthouse_trade_ship_boost");
 					} catch (InvalidConfiguration e) {
@@ -358,7 +358,7 @@ public class TradeShip extends WaterStructure {
 	}
 
 	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
-		this.upgradeLevel = getTown().SM.saved_tradeship_upgrade_levels;
+		this.upgradeLevel = getTown().BM.saved_tradeship_upgrade_levels;
 		this.reprocessCommandSigns();
 	}
 
@@ -417,7 +417,7 @@ public class TradeShip extends WaterStructure {
 		if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) {
 			rate *= 1.2;
 		}
-		if (this.getTown().SM.hasStructure("s_lighthouse")) {
+		if (this.getTown().BM.hasStructure("s_lighthouse")) {
 			rate *= 1.2;
 		}
 		if (this.getTown().getCiv().getGovernment().id.equalsIgnoreCase("gov_theocracy")) {

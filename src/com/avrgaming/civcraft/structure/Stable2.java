@@ -125,7 +125,7 @@ public class Stable2 extends Structure {
 			Town toTeleport = CivGlobal.getCultureChunk(holder.getRandomRevivePoint().getLocation()).getTown();
 			boolean hasStable = false;
 			Location placeToTeleport = null;
-			for (Structure structure : toTeleport.SM.getStructures()) {
+			for (Structure structure : toTeleport.BM.getStructures()) {
 				if (!(structure instanceof Stable2)) continue;
 				hasStable = true;
 				placeToTeleport = ((Stable2) structure).respawnSign.getCoord().getLocation();

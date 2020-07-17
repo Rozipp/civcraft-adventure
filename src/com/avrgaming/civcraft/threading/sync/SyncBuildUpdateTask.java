@@ -92,7 +92,6 @@ public class SyncBuildUpdateTask implements Runnable {
 					default:
 						break;
 					}
-					if (sb.buildable != null) sb.buildable.savedBlockCount++;
 				}
 			} finally {
 				buildBlockLock.unlock();

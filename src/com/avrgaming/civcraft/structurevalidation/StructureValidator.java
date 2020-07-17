@@ -189,7 +189,7 @@ public class StructureValidator implements Runnable {
 		validationLock.lock();
 
 		try {
-			List<SimpleBlock> bottomLayer = tpl.getBlocksForLayer(0);
+			List<SimpleBlock> bottomLayer = tpl.blocks.get(0);
 
 			/* Launch sync layer load task. */
 			layerLoadTask.bottomLayer = bottomLayer;

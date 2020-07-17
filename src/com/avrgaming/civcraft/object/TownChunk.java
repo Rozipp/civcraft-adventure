@@ -54,7 +54,7 @@ public class TownChunk extends SQLObject {
 			this.load(rs);
 		} catch (CivException e) {
 			this.delete();
-			throw new CivException(e.getMessage());
+			CivLog.error(e.getMessage());
 		}
 	}
 
@@ -98,7 +98,7 @@ public class TownChunk extends SQLObject {
 	@Override
 	public void load(ResultSet rs) throws SQLException, CivException {
 		this.setId(rs.getInt("id"));
-		this.town = CivGlobal.getTownFromId(rs.getInt("town_id"));
+		this.town = CivGlobal.getTown(rs.getInt("town_id"));
 		if (this.getTown() == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
 			if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {

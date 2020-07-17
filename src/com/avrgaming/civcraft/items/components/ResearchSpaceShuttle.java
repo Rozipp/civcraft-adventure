@@ -60,7 +60,7 @@ public class ResearchSpaceShuttle extends ItemComponent implements CallbackInter
 			CivMessage.sendError((Object) player, CivSettings.localize.localizedString("researchSpaceShuttle_lore4", civ.getName()));
 			return;
 		}
-		if (civ.hasTechnology("tech_space_shuttle")) {
+		if (civ.hasTechnologys("tech_space_shuttle")) {
 			CivMessage.sendError((Object) player, CivSettings.localize.localizedString("researchSpaceShuttle_lore5"));
 			return;
 		}

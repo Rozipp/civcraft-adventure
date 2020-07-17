@@ -29,7 +29,6 @@ import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.command.ReportChestsTask;
 import com.avrgaming.civcraft.command.town.TownInfoCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigTradeGood;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
@@ -77,25 +76,22 @@ public class AdminTownCommand extends CommandBase {
 		cs.add("event", CivSettings.localize.localizedString("adcmd_town_eventDesc"));
 		cs.add("rename", CivSettings.localize.localizedString("adcmd_town_renameDesc"));
 		cs.add("eventcancel", CivSettings.localize.localizedString("adcmd_town_eventcancelDesc"));
-		cs.add("tradegoods", CivSettings.localize.localizedString("adcmd_town_tradegoodsDesc"));
+		cs.add("addpeoples", "[город][количесвто] Добавить в городе жителей");
+		cs.add("removepeoples", "[город][количество] Удалить из города жителей");
 	}
-
-	public void tradegoods_cmd() throws CivException {
-		String result = "";
-		for (Town town : CivGlobal.getTowns()) {
-			String tradegoods = town.tradeGoods;
-			if (town == null || tradegoods.isEmpty()) continue;
-			result = result + "§2" + town.getName() + ": ";
-			for (String good : tradegoods.split(", ")) {
-				ConfigTradeGood configTradeGood = CivSettings.goods.get(good);
-				if (configTradeGood == null) continue;
-				result = result + "§6" + configTradeGood.name + ", ";
-			}
-		}
-		if (result.equalsIgnoreCase("")) {
-			throw new CivException(CivSettings.localize.localizedString("adcmd_town_tradegoods_noTradeGoods"));
-		}
-		CivMessage.send((Object) this.sender, "§a" + CivSettings.localize.localizedString("adcmd_town_tradegoods_result", result));
+	
+	public void removepeoples_cmd() throws CivException {
+		Town town = this.getNamedTown(1);
+		int count = this.getNamedInteger(2);
+		
+		town.PM.deadPeoples(count);
+	}
+	
+	public void addpeoples_cmd() throws CivException {
+		Town town = this.getNamedTown(1);
+		int count = this.getNamedInteger(2);
+		
+		town.PM.bornPeoples(count);
 	}
 
 	public void eventcancel_cmd() throws CivException {
@@ -146,10 +142,10 @@ public class AdminTownCommand extends CommandBase {
 
 	public void setunhappy_cmd() throws CivException {
 		Town town = getNamedTown(1);
-		double happy = getNamedDouble(2);
+		double unhappy = getNamedDouble(2);
 
-		town.setBaseUnhappy(happy);
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_setunhappySuccess", happy));
+		town.SM.baseUnhappy = unhappy;
+		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_setunhappySuccess", unhappy));
 
 	}
 
@@ -157,7 +153,7 @@ public class AdminTownCommand extends CommandBase {
 		Town town = getNamedTown(1);
 		double happy = getNamedDouble(2);
 
-		town.setBaseHappiness(happy);
+		town.SM.baseHappy = happy;
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_sethappySuccess", happy));
 
 	}
@@ -330,7 +326,7 @@ public class AdminTownCommand extends CommandBase {
 		Town town = getNamedTown(1);
 		Integer culture = getNamedInteger(2);
 
-		town.addAccumulatedCulture(culture);
+		town.SM.addCulture(culture);
 		town.save();
 
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_var_adcmd_town_cultureSuccess", town.getName(), culture));
@@ -418,7 +414,7 @@ public class AdminTownCommand extends CommandBase {
 		Town town = getNamedTown(1);
 
 		try {
-			town.setHammerRate(Double.valueOf(args[2]));
+			town.SM.setBaseHammers(Double.valueOf(args[2]));
 			CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_town_hammerrateSuccess", args[1], args[2]));
 		} catch (NumberFormatException e) {
 			throw new CivException(args[2] + " " + CivSettings.localize.localizedString("cmd_enterNumerError"));

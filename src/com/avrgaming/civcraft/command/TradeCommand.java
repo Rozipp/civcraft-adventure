@@ -48,7 +48,7 @@ public class TradeCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_trade_tooFarError",resident.getName()));
 		}
 		
-		if (TradeInventoryListener.tradeInventories.containsKey(TradeInventoryListener.getTradeInventoryKey(resident))) {
+		if (TradeInventoryListener.tradeInventories.containsKey(TradeInventoryListener.getTradeInventoryKey(getPlayer()))) {
 			throw new CivException(CivSettings.localize.localizedString("var_cmd_trade_alreadyTradingError",resident.getName()));
 		}
 		

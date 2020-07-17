@@ -82,7 +82,7 @@ public class MissionLogger {
 				SimpleDateFormat sdf = CivGlobal.dateFormat;
 				while (rs.next()) {
 					Date date = new Date(rs.getLong("time"));
-					Town target = CivGlobal.getTownFromId(rs.getInt("target_id"));
+					Town target = CivGlobal.getTown(rs.getInt("target_id"));
 					if (target == null) {
 						continue;
 					}

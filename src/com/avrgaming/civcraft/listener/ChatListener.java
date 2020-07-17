@@ -33,10 +33,7 @@ public class ChatListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	void OnPlayerAsyncChatEvent(AsyncPlayerChatEvent event) {
 		Resident resident = CivGlobal.getResident(event.getPlayer());
-		if (resident == null) {
-			/* resident not found, I guess just let the chat through. */
-			return;
-		}
+		if (resident == null) return; /* resident not found, I guess just let the chat through. */
 
 		if (resident.isCampChat()) {
 			event.setCancelled(true);
@@ -45,11 +42,10 @@ public class ChatListener implements Listener {
 
 		if (resident.isTownChat()) {
 			event.setCancelled(true);
-			if (resident.getTownChatOverride() == null) {
+			if (resident.getTownChatOverride() == null)
 				CivMessage.sendTownChat(resident.getTown(), resident, event.getFormat(), event.getMessage());
-			} else {
+			else
 				CivMessage.sendTownChat(resident.getTownChatOverride(), resident, event.getFormat(), event.getMessage());
-			}
 		}
 
 		if (resident.isCivChat()) {
@@ -57,20 +53,15 @@ public class ChatListener implements Listener {
 			event.setCancelled(true);
 			civ = resident.getCiv();
 
-			if (resident.getCivChatOverride() == null) {
+			if (resident.getCivChatOverride() == null)
 				CivMessage.sendCivChat(civ, resident, event.getFormat(), event.getMessage());
-			} else {
+			else
 				CivMessage.sendCivChat(resident.getCivChatOverride(), resident, event.getFormat(), event.getMessage());
-			}
 		}
 
 		if (resident.isInteractiveMode()) {
 			resident.getInteractiveResponse().respond(event.getMessage(), event.getPlayer());
 			event.setCancelled(true);
 		}
-
-		// CivLog.debug("Got message:"+event.getMessage());
-		// event.setFormat("[[[%s %s]]]");
 	}
-
 }

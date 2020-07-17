@@ -3,7 +3,9 @@ package com.avrgaming.civcraft.loregui;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class BuildStructureGui implements GuiAction {
+import com.avrgaming.civcraft.lorestorage.GuiItemAction;
+
+public class BuildStructureGui implements GuiItemAction {
 
 	@Override
 	public void performAction(InventoryClickEvent event, ItemStack stack) {

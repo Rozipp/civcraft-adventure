@@ -96,7 +96,7 @@ public class UnitObject extends SQLObject {
 		this.setId(rs.getInt("id"));
 		this.configUnitId = rs.getString("configUnitId");
 		this.configUnit = UnitStatic.configUnits.get(this.configUnitId);
-		this.townOwner = CivGlobal.getTownFromId(rs.getInt("town_id"));
+		this.townOwner = CivGlobal.getTown(rs.getInt("town_id"));
 		if (this.townOwner == null) {
 			CivLog.warning("TownChunk tried to load without a town...");
 			if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {

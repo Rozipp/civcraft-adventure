@@ -77,7 +77,7 @@ public class CivInfoCommand extends CommandBase {
 		}
 
 		out.add(CivColor.LightBlue + "------------------------------------");
-		out.add(CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.LightGreen + df.format(civ.getBeakers()));
+		out.add(CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.LightGreen + df.format(civ.getBeakersCivtick()));
 		CivMessage.send(sender, out);
 	}
 
@@ -191,7 +191,7 @@ public class CivInfoCommand extends CommandBase {
 		if (resident == null || civ.hasResident(resident)) {
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_civ_info_showTax") + " " + CivColor.LightGreen + civ.getIncomeTaxRateString() + CivColor.Green + " "
 					+ CivSettings.localize.localizedString("cmd_civ_info_showScience") + " " + CivColor.LightGreen + DecimalHelper.formatPercentage(civ.getSciencePercentage()));
-			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + civ.getBeakers() + CivColor.Green + " " + CivSettings.localize.localizedString("Online") + " "
+			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + civ.getBeakersCivtick() + CivColor.Green + " " + CivSettings.localize.localizedString("Online") + " "
 					+ CivColor.LightGreen + civ.getOnlineResidents().size());
 		}
 

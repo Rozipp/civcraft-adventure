@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.TownChunk;
@@ -48,6 +47,12 @@ public class MobAsynckSpawnTimer implements Runnable {
 		}
 	}
 
+	private World world; // Мир в котором спавняться мобы вокруг игрока
+	
+	public MobAsynckSpawnTimer(World world) {
+		this.world = world;
+	}
+	
 	@Override
 	public void run() {
 		for (MobSpawner msr : updateSpawns) {
@@ -62,7 +67,7 @@ public class MobAsynckSpawnTimer implements Runnable {
 				if (lastSpawn + SPAWN_COOLDOWN > now) continue;
 			}
 			for (int j = 0; j < SPAWN_FOR_PLAYER_LIMIT; j++) {
-				if (!player.getWorld().equals(CivCraft.mainWorld)) continue;
+				if (!player.getWorld().equals(world)) continue;
 				// Сколько возле игрока в радиусе rmax мобов.
 				int rmax = MAX_SPAWN_DISTANCE / 16;
 				int rMaxSqr = rmax * (rmax + 1);
@@ -92,7 +97,6 @@ public class MobAsynckSpawnTimer implements Runnable {
 				double fi = 2 * civRandom.nextDouble() * Math.PI;
 				int x = (int) Math.round(radius * Math.cos(fi)) + player.getLocation().getBlockX();
 				int z = (int) Math.round(radius * Math.sin(fi)) + player.getLocation().getBlockZ();
-				World world = player.getWorld();
 				int y = world.getHighestBlockYAt(x, z) + Y_SHIFT;
 				Location mobLoc = new Location(world, x, y, z);
 
@@ -122,7 +126,7 @@ public class MobAsynckSpawnTimer implements Runnable {
 				}
 				if (isNearbyPlayer) continue;
 
-				MobPoolSpawnSyncTimer.addSpawnMobTask(null, mobLoc, null);
+				SyncMobSpawnTimer.addSpawnMobTask(null, mobLoc, null);
 			}
 		}
 	}

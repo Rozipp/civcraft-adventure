@@ -63,8 +63,15 @@ public class Wonder extends Buildable {
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
 			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" //
-					+ "`id` int(11) unsigned NOT NULL auto_increment," + "`type_id` mediumtext NOT NULL," + "`town_id` int(11) DEFAULT NULL," + "`complete` bool NOT NULL DEFAULT '0'," + "`builtBlockCount` int(11) DEFAULT NULL, "
-					+ "`cornerBlockHash` mediumtext DEFAULT NULL," + "`template_name` mediumtext DEFAULT NULL, " + "`hitpoints` int(11) DEFAULT '100'," + "PRIMARY KEY (`id`)" + ")";
+					+ "`id` int(11) unsigned NOT NULL auto_increment,"//
+					+ "`type_id` mediumtext NOT NULL,"//
+					+ "`town_id` int(11) DEFAULT NULL,"//
+					+ "`complete` bool NOT NULL DEFAULT '0',"//
+					+ "`hammersCompleted` int(11) DEFAULT NULL, "//
+					+ "`cornerBlockHash` mediumtext DEFAULT NULL,"//
+					+ "`template_name` mediumtext DEFAULT NULL, " //
+					+ "`hitpoints` int(11) DEFAULT '100'," //
+					+ "PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
 			CivLog.info("Created " + TABLE_NAME + " table");
@@ -77,7 +84,7 @@ public class Wonder extends Buildable {
 	public void load(ResultSet rs) throws SQLException, CivException {
 		this.setId(rs.getInt("id"));
 		this.setInfo(CivSettings.wonders.get(rs.getString("type_id")));
-		this.setSQLOwner(CivGlobal.getTownFromId(rs.getInt("town_id")));
+		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
 		if (this.getTown() == null) {
 			// CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder
 			// "+this.getDisplayName()+" ID:"+this.getId());
@@ -88,9 +95,9 @@ public class Wonder extends Buildable {
 		this.setHitpoints(rs.getInt("hitpoints"));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 		this.setComplete(rs.getBoolean("complete"));
-		this.setBlocksCompleted(rs.getInt("builtBlockCount"));
+		this.setHammersCompleted(rs.getInt("hammersCompleted"));
 
-		this.getTown().SM.addWonder(this);
+		this.getTown().BM.addWonder(this);
 
 		this.startWonderOnLoad();
 
@@ -110,7 +117,7 @@ public class Wonder extends Buildable {
 		hashmap.put("type_id", this.getConfigId());
 		hashmap.put("town_id", this.getTown().getId());
 		hashmap.put("complete", this.isComplete());
-		hashmap.put("builtBlockCount", this.getBlocksCompleted());
+		hashmap.put("hammersCompleted", this.getHammersCompleted());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
 		hashmap.put("hitpoints", this.getHitpoints());
 		hashmap.put("template_name", this.getTemplate().getFilepath());
@@ -128,9 +135,9 @@ public class Wonder extends Buildable {
 		}
 		super.delete();
 
-		if (this.getTown() != null) this.getTown().SM.removeWonder(this);
+		if (this.getTown() != null) this.getTown().BM.removeWonder(this);
 		CivGlobal.removeWonder(this);
-		
+
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
@@ -145,7 +152,7 @@ public class Wonder extends Buildable {
 			struct_hm.put("id", this.getId());
 			struct_hm.put("type_id", this.getConfigId());
 			struct_hm.put("complete", this.isComplete());
-			struct_hm.put("builtBlockCount", this.savedBlockCount);
+			struct_hm.put("hammersCompleted", this.getHammersCompleted());
 			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
 		}
 	}
@@ -216,7 +223,7 @@ public class Wonder extends Buildable {
 			return null;
 		}
 		wonder.initDefaultTemplate(location);
-		town.SM.checkIsTownCanBuildBuildable(wonder);
+		town.BM.checkIsTownCanBuildBuildable(wonder);
 		wonder.checkBlockPermissionsAndRestrictions(player);
 		return wonder;
 	}
@@ -489,7 +496,7 @@ public class Wonder extends Buildable {
 		int castleCount = 0;
 		for (Civilization civ : CivGlobal.getCivs()) {
 			for (Town town : civ.getTowns()) {
-				if (town.SM.hasStructure("s_castle")) {
+				if (town.BM.hasStructure("s_castle")) {
 					++castleCount;
 				}
 			}
@@ -509,4 +516,67 @@ public class Wonder extends Buildable {
 		// TODO Автоматически созданная заглушка метода
 
 	}
+
+	@Override
+	public void validCanProgressBuild() throws CivException {
+		if (getTown().getMotherCiv() != null) {
+			this.setNextProgressBuild(30); // 30 min notify.
+			throw new CivException(CivSettings.localize.localizedString("var_buildAsync_wonderHaltedConquered", getTown().getCiv().getName()));
+		}
+		Buildable inProgress = getTown().BM.getBuildablePoolInProgress().get(0);
+		if (inProgress != null && inProgress != this) {
+			this.setNextProgressBuild(1);
+			throw new CivException(CivSettings.localize.localizedString("var_buildAsync_wonderHaltedOtherConstruction", inProgress.getDisplayName()));
+		}
+		if (!getTown().isValid()) {
+			this.setNextProgressBuild(10);
+			throw new CivException(CivSettings.localize.localizedString("buildAsync_wonderHaltedNoTownHall"));
+		}
+
+		if (checkOtherWonderAlreadyBuilt()) {
+			abortBuild();
+			return; // wonder aborted via function above, no need to abort again.
+		}
+		if (isDestroyed()) {
+			CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_buildAsync_destroyed", getDisplayName()));
+			abortBuild();
+			return;
+		}
+		if (getTown().getMotherCiv() != null) {
+			// Can't build wonder while we're conquered.
+			// TODO continue;
+		}
+	}
+
+	public boolean checkOtherWonderAlreadyBuilt() {
+		if (isComplete()) return false; // We are completed, other wonders are not already built.
+		return (!Wonder.isWonderAvailable(getConfigId()));
+	}
+
+	public void finished() {
+		if (this.checkOtherWonderAlreadyBuilt()) {
+			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_buildAsync_wonderFarAway", getDisplayName()));
+
+			// Refund the town half the cost of the wonder.
+			double refund = (int) (getCost() / 2);
+			getTown().depositDirect(refund);
+
+			CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_wonderRefund", refund, CivSettings.CURRENCY_NAME));
+			abortBuild();
+			return;
+		}
+		CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completedWonder", CivColor.Red + getCiv().getName() + CivColor.RESET, "§6" + getTown().getName() + CivColor.RESET, "§a" + getDisplayName() + CivColor.RESET));
+		super.finished();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj instanceof Wonder) {
+			Wonder struct = (Wonder) obj;
+			if (struct.getId() == this.getId()) return true;
+		}
+		return false;
+	}
+
 }

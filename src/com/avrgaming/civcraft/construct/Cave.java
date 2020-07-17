@@ -104,7 +104,7 @@ public class Cave extends Construct {
 		this.setId(rs.getInt("id"));
 		this.setName(rs.getString("name"));
 		this.setCaveConfig(CivSettings.caves.get(rs.getString("config_id")));
-		this.setSQLOwner(CivGlobal.getCivFromId(rs.getInt("owner_civ_id")));
+		this.setSQLOwner(CivGlobal.getCiv(rs.getInt("owner_civ_id")));
 		this.corner = new BlockCoord(rs.getString("coord"));
 		this.setCornerEntrance(new BlockCoord(rs.getString("corner_entrance")));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
@@ -382,7 +382,7 @@ public class Cave extends Construct {
 		String[] split = this.caveConfig.require_techs.split(",");
 		for (String tech : split) {
 			tech = tech.replace(" ", "");
-			if (!resident.getCiv().hasTechnology(tech)) return false;
+			if (!resident.getCiv().hasTechnologys(tech)) return false;
 		}
 		return true;
 	}

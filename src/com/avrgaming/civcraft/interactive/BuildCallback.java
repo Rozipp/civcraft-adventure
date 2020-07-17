@@ -7,9 +7,9 @@ import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
-import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -34,7 +34,7 @@ public class BuildCallback implements CallbackInterface {
 		this.player = player;
 		resident = CivGlobal.getResident(player);
 
-		if (sinfo.id.equals("wonder_stock_exchange") && !town.SM.canBuildStock(player)) {
+		if (sinfo.id.equals("wonder_stock_exchange") && !town.BM.canBuildStock(player)) {
 			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
 		}
 
@@ -43,7 +43,7 @@ public class BuildCallback implements CallbackInterface {
 		String repStruct = sinfo.replace_structure;
 		if (repStruct != null) {
 			Vector dir = location.getDirection();
-			replaceStructure = town.SM.getFirstStructureById(repStruct);
+			replaceStructure = town.BM.getFirstStructureById(repStruct);
 			if (replaceStructure == null) throw new CivException("не найдено здание " + repStruct + " для замены");
 
 			BlockCoord bc = replaceStructure.getCorner();
@@ -56,7 +56,7 @@ public class BuildCallback implements CallbackInterface {
 		else
 			buildable = Structure.newStructure(player, location, sinfo.id, town, true);
 		buildable.replaceStructure = replaceStructure;
-		new ChoiseTemplate(player, buildable.getInfo(), this);
+		GuiInventory.getGuiInventory(player, "ChoiseTemplate", buildable.getInfo().id).openInventory();
 	}
 
 	private String templateTheme = null;

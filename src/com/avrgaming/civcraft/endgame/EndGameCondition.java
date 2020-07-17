@@ -193,7 +193,7 @@ public abstract class EndGameCondition {
 	
 	public static Civilization getCivFromSessionData(String data) {
 		String[] split = data.split(":");
-		return CivGlobal.getCivFromId(Integer.valueOf(split[0]));
+		return CivGlobal.getCiv(Integer.valueOf(split[0]));
 	}
 	
 	public Integer getDaysHeldFromSessionData(String data) {

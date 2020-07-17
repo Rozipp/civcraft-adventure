@@ -59,20 +59,20 @@ public class War {
 
 	private static boolean onlyWarriors = false;
 
-	private static HashMap<String, Civilization> defeatedTowns = new HashMap<String, Civilization>();
-	private static HashMap<String, Civilization> defeatedCivs = new HashMap<String, Civilization>();
+	private static HashMap<Integer, Civilization> defeatedTowns = new HashMap<>();
+	private static HashMap<Integer, Civilization> defeatedCivs = new HashMap<>();
 
-	public static void saveDefeatedTown(String townName, Civilization master) {
-		defeatedTowns.put(townName, master);
+	public static void saveDefeatedTown(Town town, Civilization master) {
+		defeatedTowns.put(town.getId(), master);
 		/* Save in the SessionDB just in case the server goes down. */
 		String key = "capturedTown";
-		String value = townName + ":" + master.getId();
+		String value = town.getName() + ":" + master.getId();
 
 		CivGlobal.getSessionDatabase().add(key, value, master.getId(), 0, 0);
 	}
 
 	public static void saveDefeatedCiv(Civilization defeated, Civilization master) {
-		defeatedCivs.put(defeated.getName(), master);
+		defeatedCivs.put(defeated.getId(), master);
 		/* Save in the SessionDB just in case the server goes down. */
 		String key = "capturedCiv";
 		String value = defeated.getName() + ":" + master.getId();
@@ -85,18 +85,18 @@ public class War {
 	public static void resaveAllDefeatedCivs() {
 		CivGlobal.getSessionDatabase().delete_all("capturedCiv");
 
-		for (String civName : defeatedCivs.keySet()) {
-			Civilization master = defeatedCivs.get(civName);
-			saveDefeatedCiv(CivGlobal.getCiv(civName), master);
+		for (Integer civId : defeatedCivs.keySet()) {
+			Civilization master = defeatedCivs.get(civId);
+			saveDefeatedCiv(CivGlobal.getCiv(civId), master);
 		}
 	}
 
 	public static void resaveAllDefeatedTowns() {
 		CivGlobal.getSessionDatabase().delete_all("capturedTown");
 
-		for (String townName : defeatedTowns.keySet()) {
-			Civilization master = defeatedTowns.get(townName);
-			saveDefeatedTown(townName, master);
+		for (Integer townId : defeatedTowns.keySet()) {
+			Civilization master = defeatedTowns.get(townId);
+			saveDefeatedTown(CivGlobal.getTown(townId), master);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class War {
 
 		for (SessionEntry entry : entries) {
 			String[] split = entry.value.split(":");
-			defeatedTowns.put(split[0], CivGlobal.getCivFromId(Integer.valueOf(split[1])));
+			defeatedTowns.put(Integer.parseInt(split[0]), CivGlobal.getCiv(Integer.valueOf(split[1])));
 		}
 	}
 
@@ -114,7 +114,7 @@ public class War {
 
 		for (SessionEntry entry : entries) {
 			String[] split = entry.value.split(":");
-			defeatedCivs.put(split[0], CivGlobal.getCivFromId(Integer.valueOf(split[1])));
+			defeatedCivs.put(Integer.parseInt(split[0]), CivGlobal.getCiv(Integer.valueOf(split[1])));
 		}
 	}
 
@@ -247,32 +247,32 @@ public class War {
 	public static void transferDefeated(Civilization loser, Civilization winner) {
 
 		/* Transfer any defeated towns */
-		ArrayList<String> removeUs = new ArrayList<String>();
+		ArrayList<Integer> removeUs = new ArrayList<Integer>();
 
-		for (String townName : defeatedTowns.keySet()) {
-			Civilization civ = defeatedTowns.get(townName);
+		for (Integer townId : defeatedTowns.keySet()) {
+			Civilization civ = defeatedTowns.get(townId);
 			if (civ == loser) {
-				Town town = CivGlobal.getTown(townName);
+				Town town = CivGlobal.getTown(townId);
 				if (town.getCiv() == winner) {
-					removeUs.add(townName);
+					removeUs.add(townId);
 				} else {
-					defeatedTowns.put(townName, winner);
+					defeatedTowns.put(townId, winner);
 				}
 			}
 		}
 
-		for (String townName : removeUs) {
-			defeatedTowns.remove(townName);
+		for (Integer townId : removeUs) {
+			defeatedTowns.remove(townId);
 		}
 		resaveAllDefeatedTowns();
 
 		/* Transfer any defeated civs */
-		for (String civName : defeatedCivs.keySet()) {
-			Civilization civ = defeatedCivs.get(civName);
+		for (Integer civId : defeatedCivs.keySet()) {
+			Civilization civ = defeatedCivs.get(civId);
 
 			/* Defeated civs should never be our own, always transfer. */
 			if (civ == loser) {
-				defeatedCivs.put(civName, winner);
+				defeatedCivs.put(civId, winner);
 			}
 		}
 		resaveAllDefeatedCivs();
@@ -282,14 +282,14 @@ public class War {
 	private static void processDefeated() {
 
 		if (!CivGlobal.isCasualMode()) {
-			for (String townName : defeatedTowns.keySet()) {
+			for (Integer townId : defeatedTowns.keySet()) {
 				try {
-					Town town = CivGlobal.getTown(townName);
+					Town town = CivGlobal.getTown(townId);
 					if (town == null) {
 						continue;
 					}
 
-					Civilization winner = defeatedTowns.get(townName);
+					Civilization winner = defeatedTowns.get(townId);
 
 					town.onDefeat(winner);
 					CivMessage.sendTown(town, CivColor.LightBlue + CivSettings.localize.localizedString("var_war_overlordAnnounce", winner.getName()));
@@ -298,16 +298,16 @@ public class War {
 				}
 			}
 
-			for (String civName : defeatedCivs.keySet()) {
+			for (Integer civId : defeatedCivs.keySet()) {
 				try {
-					Civilization civ = CivGlobal.getCiv(civName);
+					Civilization civ = CivGlobal.getCiv(civId);
 					if (civ == null) {
 						/* Civ is no longer on the list of active civs. Which means it's already been conquered? */
-						CivLog.error("Couldn't find civilization named " + civName + " in civ hash table while trying to process it's defeat.");
+						CivLog.error("Couldn't find civilization named " + civId + " in civ hash table while trying to process it's defeat.");
 						continue;
 					}
 
-					Civilization winner = defeatedCivs.get(civName);
+					Civilization winner = defeatedCivs.get(civId);
 					CivMessage.sendCiv(civ, CivColor.LightBlue + CivColor.LightBlue + CivSettings.localize.localizedString("var_war_overlordAnnounce", winner.getName()));
 					civ.onDefeat(winner);
 				} catch (Exception e) {
@@ -320,16 +320,16 @@ public class War {
 			/* Nothing happens for defeated towns. */
 
 			/* Defeated Civs cause the war to 'reset' */
-			for (String civName : defeatedCivs.keySet()) {
+			for (Integer civId : defeatedCivs.keySet()) {
 				try {
-					Civilization civ = CivGlobal.getCiv(civName);
+					Civilization civ = CivGlobal.getCiv(civId);
 					if (civ == null) {
 						/* Civ is no longer on the list of active civs. Which means it's already been conquered? */
-						CivLog.error("Couldn't find civilization named " + civName + " in civ hash table while trying to process it's defeat.");
+						CivLog.error("Couldn't find civilization named " + civId + " in civ hash table while trying to process it's defeat.");
 						continue;
 					}
 
-					Civilization winner = defeatedCivs.get(civName);
+					Civilization winner = defeatedCivs.get(civId);
 					CivMessage.global(CivSettings.localize.localizedString("var_war_defeatedMsg1", winner, civ));
 					CivGlobal.setRelation(winner, civ, Status.NEUTRAL);
 				} catch (Exception e) {

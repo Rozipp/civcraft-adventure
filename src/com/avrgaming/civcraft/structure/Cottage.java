@@ -122,7 +122,7 @@ public class Cottage extends Structure {
 		/* Build a multi-inv from granaries. */
 		MultiInventory multiInv = new MultiInventory();
 
-		for (Structure struct : this.getTown().SM.getStructures()) {
+		for (Structure struct : this.getTown().BM.getStructures()) {
 			if (struct instanceof Granary) {
 				ArrayList<ConstructChest> chests = struct.getAllChestsById("1");
 
@@ -220,8 +220,7 @@ public class Cottage extends Structure {
 		if (this.getCiv().getStockExchangeLevel() >= 1) {
 			total_coins = (int) ((double) total_coins * 1.3);
 		}
-		total_coins = (int) ((double) total_coins * this.getTown().getBonusCottageRate());
-		if (this.getCiv().hasTechnology("tech_taxation")) {
+		if (this.getCiv().hasTechnologys("tech_taxation")) {
 			double taxation_bonus;
 			try {
 				taxation_bonus = CivSettings.getDouble(CivSettings.techsConfig, "taxation_cottage_buff");

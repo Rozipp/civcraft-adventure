@@ -76,7 +76,7 @@ public class BuildableStatic {
 		}
 
 		for (Civilization civ : CivGlobal.getAdminCivs()) {
-			Location cityHallLoc = civ.getCapitolCityHallLocation();
+			Location cityHallLoc = civ.getCapitolLocation();
 			if (cityHallLoc == null) continue;
 			double distance = cityHallLoc.distance(loc);
 			if (distance < requiredDistance) {

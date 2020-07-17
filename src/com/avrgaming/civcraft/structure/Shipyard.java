@@ -144,7 +144,7 @@ public class Shipyard extends WaterStructure {
 			Town toTeleport = CivGlobal.getCultureChunk(holder.getRandomRevivePoint().getLocation()).getTown();
 			boolean hasShipyard = false;
 			Location placeToTeleport = null;
-			for (Structure structure : toTeleport.SM.getStructures()) {
+			for (Structure structure : toTeleport.BM.getStructures()) {
 				if (!(structure instanceof Shipyard)) continue;
 				hasShipyard = true;
 				placeToTeleport = ((Shipyard) structure).respawnSign.getCoord().getLocation();

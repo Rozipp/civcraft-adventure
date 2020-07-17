@@ -1,8 +1,10 @@
 package com.avrgaming.civcraft.object;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
@@ -27,14 +29,24 @@ public class TownGroupManager extends GroupManager {
 	public String mayorGroupName = "Mayors";
 	public String assistantGroupName = "Assistants";
 
-	public TownGroupManager(Town town, String defaultGroupName, String mayorGroupName, String assistantGroupName) {
+	public TownGroupManager(Town town) {
 		super();
 		this.town = town;
-		if (defaultGroupName != null) this.defaultGroupName = defaultGroupName;
-		if (mayorGroupName != null) this.mayorGroupName = mayorGroupName;
-		if (assistantGroupName != null) this.assistantGroupName = assistantGroupName;
 	}
-
+	
+	public TownGroupManager(Town town, ResultSet rs) throws SQLException {
+		super();
+		this.town = town;
+		defaultGroupName = rs.getString("defaultGroupName");
+		mayorGroupName = rs.getString("mayorGroupName");
+		assistantGroupName = rs.getString("assistantGroupName");
+	}
+	
+	public void saveNow(HashMap<String, Object> hashmap) {
+		hashmap.put("defaultGroupName", defaultGroupName);
+		hashmap.put("mayorGroupName", mayorGroupName);
+		hashmap.put("assistantGroupName", assistantGroupName);
+	}
 	@Override
 	public void delete() throws SQLException {
 		for (PermissionGroup grp : this.groups.values())

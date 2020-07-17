@@ -1,5 +1,6 @@
 package com.avrgaming.civcraft.object;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +22,16 @@ public class CivGroupManager extends GroupManager {
 	public String leaderGroupName = "Leaders";
 	public String advisersGroupName = "Advisers";
 
-	public CivGroupManager(Civilization civ, String leaderGroupName, String advisersGroupName) {
+	public CivGroupManager(Civilization civ) {
 		super();
 		this.civ = civ;
-		if (leaderGroupName != null) this.leaderGroupName = leaderGroupName;
-		if (advisersGroupName != null) this.advisersGroupName = advisersGroupName;
+	}
+	
+	public CivGroupManager(Civilization civ, ResultSet rs) throws SQLException {
+		super();
+		this.civ = civ;
+		this.leaderGroupName = rs.getString("leaderGroupName");
+		this.advisersGroupName = rs.getString("advisersGroupName");
 	}
 
 	@Override

@@ -54,7 +54,7 @@ public class InteractiveRenameCivOrTown implements InteractiveResponse {
 				if (oldName == null) {
 					oldName = message;
 					if (selection.equals("town")) {
-						Town town = CivGlobal.getTown(oldName);
+						Town town = CivGlobal.getTownFromName(oldName);
 						if (town == null) {
 							throw new CivException(CivSettings.localize.localizedString("var_interactive_rename_townNoTown", oldName));
 						}
@@ -67,7 +67,7 @@ public class InteractiveRenameCivOrTown implements InteractiveResponse {
 						CivMessage.send(resident, CivColor.Green + CivSettings.localize.localizedString("interactive_rename_newtownPrompt"));
 					} else
 						if (selection.equals("civ")) {
-							Civilization civ = CivGlobal.getCiv(oldName);
+							Civilization civ = CivGlobal.getCivFromName(oldName);
 							if (civ == null) {
 								civ = CivGlobal.getConqueredCiv(oldName);
 								if (civ == null) throw new CivException(CivSettings.localize.localizedString("var_interactive_rename_civNone", oldName));

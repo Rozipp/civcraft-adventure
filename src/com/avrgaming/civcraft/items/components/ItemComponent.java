@@ -35,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
+import com.avrgaming.civcraft.items.ItemChangeResult;
 
 import gpl.AttributeUtil;
 

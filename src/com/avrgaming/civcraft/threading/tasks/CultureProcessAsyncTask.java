@@ -20,7 +20,6 @@ package com.avrgaming.civcraft.threading.tasks;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,10 +42,8 @@ public class CultureProcessAsyncTask extends CivAsyncTask {
 	public static boolean cultureProcessedSinceStartup = false;
 
 	private void processTownCulture(Town town) {
-		ChunkCoord origin;
-		try {
-			origin = town.getTownCultureOrigin();
-		} catch (NoSuchElementException e) {
+		ChunkCoord origin = town.getTownCultureCenter();
+		if (origin == null) {
 			CivLog.error("Couldn't find town chunks for town:" + town.getName() + " could not process it's culture.");
 			return;
 		}
@@ -73,7 +70,7 @@ public class CultureProcessAsyncTask extends CivAsyncTask {
 
 		Queue<CultureChunk> openList = new LinkedBlockingQueue<CultureChunk>();
 		HashMap<ChunkCoord, CultureChunk> closedChunks = new HashMap<ChunkCoord, CultureChunk>();
-		ConfigCultureLevel clc = CivSettings.cultureLevels.get(town.getCultureLevel());
+		ConfigCultureLevel clc = CivSettings.cultureLevels.get(town.SM.getLevel());
 
 		openList.add(starting);
 		if (starting.getTown() != town) {
@@ -140,7 +137,7 @@ public class CultureProcessAsyncTask extends CivAsyncTask {
 							if (nodePower == neighborPower) {
 								// This should be fairly unlikey, but if it happens, give the plot
 								// to whatever town has the most total culture.
-								if (node.getTown().getAccumulatedCulture() > neighbor.getTown().getAccumulatedCulture()) {
+								if (node.getTown().SM.getCulture() > neighbor.getTown().SM.getCulture()) {
 									switchOwners = true;
 								}
 							}
@@ -235,7 +232,7 @@ public class CultureProcessAsyncTask extends CivAsyncTask {
 		}
 
 		for (Town t : CivGlobal.getTowns()) {
-			t.SM.processStructureFlipping(centerCoords);
+			t.BM.processStructureFlipping(centerCoords);
 		}
 	}
 

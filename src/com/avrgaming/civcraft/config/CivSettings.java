@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,9 +29,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -52,7 +52,6 @@ import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.units.UnitStatic;
-import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.global.perks.Perk;
 
 import ua.rozipp.sound.SoundManager;
@@ -78,15 +77,14 @@ public class CivSettings {
 	// public static float metal_speed;
 
 	public static FileConfiguration townConfig; /* town.yml */
-	public static Map<Integer, ConfigTownLevel> townLevels = new HashMap<Integer, ConfigTownLevel>();
+	public static Map<Integer, ConfigCultureLevel> cultureLevels = new HashMap<Integer, ConfigCultureLevel>();
 	public static Map<String, ConfigTownUpgrade> townUpgrades = new TreeMap<String, ConfigTownUpgrade>();
 
 	public static FileConfiguration civConfig; /* civ.yml */
 	public static Map<String, ConfigEndCondition> endConditions = new HashMap<String, ConfigEndCondition>();
 
 	public static FileConfiguration cultureConfig; /* culture.yml */
-	public static Map<Integer, ConfigCultureLevel> cultureLevels = new HashMap<Integer, ConfigCultureLevel>();
-	private static Map<String, ConfigCultureBiomeInfo> cultureBiomes = new HashMap<String, ConfigCultureBiomeInfo>();
+	private static EnumMap<Biome, ConfigBiomeInfo> cultureBiomes = new EnumMap<>(Biome.class);
 
 	public static FileConfiguration structureConfig; /* structures.yml */
 	public static Map<String, ConfigBuildableInfo> structures = new HashMap<String, ConfigBuildableInfo>();
@@ -105,12 +103,6 @@ public class CivSettings {
 	public static Map<String, ConfigTech> techs = new HashMap<String, ConfigTech>();
 	public static Map<Integer, ConfigTechItem> techItems = new HashMap<Integer, ConfigTechItem>();
 	public static Map<String, ConfigTechPotion> techPotions = new HashMap<String, ConfigTechPotion>();
-
-	public static FileConfiguration goodsConfig; /* goods.yml */
-	public static Map<String, ConfigTradeGood> goods = new HashMap<String, ConfigTradeGood>();
-	public static Map<String, ConfigTradeGood> landGoods = new HashMap<String, ConfigTradeGood>();
-	public static Map<String, ConfigTradeGood> waterGoods = new HashMap<String, ConfigTradeGood>();
-	public static Map<String, ConfigHemisphere> hemispheres = new HashMap<String, ConfigHemisphere>();
 
 	public static FileConfiguration caveConfig; /* cave.yml */
 	public static Map<String, ConfigCave> caves = new HashMap<String, ConfigCave>();
@@ -163,7 +155,6 @@ public class CivSettings {
 
 	public static FileConfiguration happinessConfig; /* happiness.yml */
 	public static HashMap<Integer, ConfigTownHappinessLevel> townHappinessLevels = new HashMap<Integer, ConfigTownHappinessLevel>();
-	public static HashMap<Integer, ConfigHappinessState> happinessStates = new HashMap<Integer, ConfigHappinessState>();
 
 	public static FileConfiguration craftableMaterialsConfig; /* materials.yml */
 	public static HashMap<String, ConfigCraftableMaterial> craftableMaterials = new HashMap<String, ConfigCraftableMaterial>();
@@ -285,7 +276,6 @@ public class CivSettings {
 		alwaysCrumble.add(CivData.BEACON);
 
 		(new File("templates/undo")).mkdirs();
-		(new File("templates/inprogress/")).mkdirs();
 
 		if (CivSettings.plugin.hasPlugin("HolographicDisplays")) {
 			CivSettings.hasHoloDisp = true;
@@ -423,7 +413,6 @@ public class CivSettings {
 		cultureConfig = loadCivConfig("culture.yml");
 		structureConfig = loadCivConfig("structures.yml");
 		techsConfig = loadCivConfig("techs.yml");
-		goodsConfig = loadCivConfig("goods.yml");
 		caveConfig = loadCivConfig("cave.yml");
 		buffConfig = loadCivConfig("buffs.yml");
 		mobsConfig = loadCivConfig("mobs.yml");
@@ -454,19 +443,16 @@ public class CivSettings {
 
 	private static void loadConfigObjects() throws InvalidConfiguration {
 		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
-		ConfigTownLevel.loadConfig(townConfig, townLevels);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
-		ConfigCultureLevel.loadConfig(cultureConfig, cultureLevels);
+		ConfigCultureLevel.loadConfig(townConfig, cultureLevels);
 		ConfigBuildableInfo.loadConfig(structureConfig, "structures", structures, false);
 		ConfigBuildableInfo.loadConfig(wonderConfig, "wonders", wonders, true);
 		ConfigTech.loadConfig(techsConfig, techs);
 		ConfigTechItem.loadConfig(techsConfig, techItems);
 		ConfigTechPotion.loadConfig(techsConfig, techPotions);
-		ConfigHemisphere.loadConfig(goodsConfig, hemispheres);
 		ConfigBuff.loadConfig(buffConfig, buffs);
 		ConfigMobs.loadConfig(mobsConfig, mobs);
 		ConfigWonderBuff.loadConfig(wonderConfig, wonderBuffs);
-		ConfigTradeGood.loadConfig(goodsConfig, goods, landGoods, waterGoods);
 		ConfigCave.loadConfig(caveConfig, caves);
 		ConfigGrocerLevel.loadConfig(structureConfig, grocerLevels);
 		ConfigAlchLevel.loadConfig(structureConfig, alchLevels);
@@ -486,8 +472,7 @@ public class CivSettings {
 		ConfigStableItem.loadConfig(structureConfig, stableItems);
 		ConfigStableHorse.loadConfig(structureConfig, horses);
 		ConfigTownHappinessLevel.loadConfig(happinessConfig, townHappinessLevels);
-		ConfigHappinessState.loadConfig(happinessConfig, happinessStates);
-		ConfigCultureBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
+		ConfigBiomeInfo.loadConfig(cultureConfig, cultureBiomes);
 
 		ConfigCraftableMaterial.removeRecipes(craftableMaterialsConfig, removedRecipies);
 		ConfigCraftableMaterial.loadConfigCraftable(craftableMaterialsConfig, craftableMaterials);
@@ -680,9 +665,7 @@ public class CivSettings {
 	}
 
 	public static Integer getInteger(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) {
-			throw new InvalidConfiguration("Could not get configuration integer " + path);
-		}
+		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration integer " + path);
 
 		int data = cfg.getInt(path);
 		return data;
@@ -690,25 +673,19 @@ public class CivSettings {
 
 	public static String getString(FileConfiguration cfg, String path) throws InvalidConfiguration {
 		String data = cfg.getString(path);
-		if (data == null) {
-			throw new InvalidConfiguration("Could not get configuration string " + path);
-		}
+		if (data == null) throw new InvalidConfiguration("Could not get configuration string " + path);
 		return data;
 	}
 
 	public static double getDouble(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) {
-			throw new InvalidConfiguration("Could not get configuration double " + path);
-		}
+		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration double " + path);
 
 		double data = cfg.getDouble(path);
 		return data;
 	}
 
 	public static boolean getBoolean(FileConfiguration cfg, String path) throws InvalidConfiguration {
-		if (!cfg.contains(path)) {
-			throw new InvalidConfiguration("Could not get configuration boolean " + path);
-		}
+		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration boolean " + path);
 
 		boolean data = cfg.getBoolean(path);
 		return data;
@@ -728,55 +705,30 @@ public class CivSettings {
 
 	public static ConfigTownUpgrade getUpgradeByName(String name) {
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (upgrade.name.equalsIgnoreCase(name)) {
-				return upgrade;
-			}
+			if (upgrade.name.equalsIgnoreCase(name)) return upgrade;
 		}
 		return null;
 	}
 
 	public static ConfigTownUpgrade getUpgradeById(String id) {
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (upgrade.id.equalsIgnoreCase(id)) {
-				return upgrade;
-			}
+			if (upgrade.id.equalsIgnoreCase(id)) return upgrade;
 		}
 		return null;
 	}
 
 	public static ConfigTech getTechById(final String id) {
 		for (final ConfigTech tech : CivSettings.techs.values()) {
-			if (tech.id.equalsIgnoreCase(id)) {
-				return tech;
-			}
+			if (tech.id.equalsIgnoreCase(id)) return tech;
 		}
 		return null;
-	}
-
-	public static ConfigHappinessState getHappinessState(double amount) {
-		ConfigHappinessState closestState = happinessStates.get(0);
-
-		for (int i = 0; i < happinessStates.size(); i++) {
-			ConfigHappinessState state = happinessStates.get(i);
-			amount = (double) Math.round(amount * 100) / 100;
-			if (amount >= state.amount) {
-				closestState = state;
-			}
-		}
-
-		return closestState;
 	}
 
 	public static ConfigTownUpgrade getUpgradeByNameRegex(Town town, String name) throws CivException {
 		ConfigTownUpgrade returnUpgrade = null;
 		for (ConfigTownUpgrade upgrade : townUpgrades.values()) {
-			if (!upgrade.isAvailable(town)) {
-				continue;
-			}
-
-			if (name.equalsIgnoreCase(upgrade.name)) {
-				return upgrade;
-			}
+			if (!upgrade.isAvailable(town)) continue;
+			if (name.equalsIgnoreCase(upgrade.name)) return upgrade;
 
 			String loweredUpgradeName = upgrade.name.toLowerCase();
 			String loweredName = name.toLowerCase();
@@ -795,13 +747,8 @@ public class CivSettings {
 	public static ConfigCampUpgrade getCampUpgradeByNameRegex(Camp camp, String name) throws CivException {
 		ConfigCampUpgrade returnUpgrade = null;
 		for (ConfigCampUpgrade upgrade : campUpgrades.values()) {
-			if (!upgrade.isAvailable(camp)) {
-				continue;
-			}
-
-			if (name.equalsIgnoreCase(upgrade.name)) {
-				return upgrade;
-			}
+			if (!upgrade.isAvailable(camp)) continue;
+			if (name.equalsIgnoreCase(upgrade.name)) return upgrade;
 
 			String loweredUpgradeName = upgrade.name.toLowerCase();
 			String loweredName = name.toLowerCase();
@@ -819,15 +766,11 @@ public class CivSettings {
 
 	public static ConfigBuildableInfo getBuildableInfoByName(String fullArgs) {
 		for (ConfigBuildableInfo sinfo : structures.values()) {
-			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) {
-				return sinfo;
-			}
+			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) return sinfo;
 		}
 
 		for (ConfigBuildableInfo sinfo : wonders.values()) {
-			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) {
-				return sinfo;
-			}
+			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) return sinfo;
 		}
 
 		return null;
@@ -835,9 +778,7 @@ public class CivSettings {
 
 	public static ConfigTech getTechByName(String techname) {
 		for (ConfigTech tech : techs.values()) {
-			if (tech.name.equalsIgnoreCase(techname)) {
-				return tech;
-			}
+			if (tech.name.equalsIgnoreCase(techname)) return tech;
 		}
 		return null;
 	}
@@ -845,9 +786,7 @@ public class CivSettings {
 	public static int getCottageMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : cottageLevels.keySet()) {
-			if (returnLevel < level) {
-				returnLevel = level;
-			}
+			if (returnLevel < level) returnLevel = level;
 		}
 
 		return returnLevel;
@@ -856,9 +795,7 @@ public class CivSettings {
 	public static int getTempleMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : templeLevels.keySet()) {
-			if (returnLevel < level) {
-				returnLevel = level;
-			}
+			if (returnLevel < level) returnLevel = level;
 		}
 		return returnLevel;
 	}
@@ -866,9 +803,7 @@ public class CivSettings {
 	public static int getMineMaxLevel() {
 		int returnLevel = 0;
 		for (Integer level : mineLevels.keySet()) {
-			if (returnLevel < level) {
-				returnLevel = level;
-			}
+			if (returnLevel < level) returnLevel = level;
 		}
 
 		return returnLevel;
@@ -877,45 +812,18 @@ public class CivSettings {
 	public static int getMaxCultureLevel() {
 		int returnLevel = 0;
 		for (Integer level : cultureLevels.keySet()) {
-			if (returnLevel < level) {
-				returnLevel = level;
-			}
+			if (returnLevel < level) returnLevel = level;
 		}
 
 		return returnLevel;
 
 	}
 
-	public static ConfigCultureBiomeInfo getCultureBiome(String name) {
-		ConfigCultureBiomeInfo biomeInfo = cultureBiomes.get(name);
-		if (biomeInfo == null) {
-			biomeInfo = cultureBiomes.get("UNKNOWN");
-		}
+	public static ConfigBiomeInfo getCultureBiome(Biome biome) {
+		ConfigBiomeInfo biomeInfo = cultureBiomes.get(biome);
+		if (biomeInfo == null) biomeInfo = cultureBiomes.get(Biome.VOID);
 
 		return biomeInfo;
-	}
-
-	public static String getBonusDisplayString(ConfigTradeGood configTradeGood, String addText) {
-		StringBuilder out = new StringBuilder();
-		out.append(CivColor.PurpleItalic + CivSettings.localize.localizedString("var_tradeGood_heading"));
-		out.append(";");
-		for (ConfigBuff cBuff : configTradeGood.buffs.values()) {
-			out.append((Object) ChatColor.UNDERLINE).append(cBuff.name);
-			out.append(";");
-			out.append("§f" + (Object) ChatColor.ITALIC).append(cBuff.description);
-			out.append(";");
-		}
-		if (configTradeGood.water) {
-			out.append("§b" + CivSettings.localize.localizedString("var_tradegood_water"));
-		} else {
-			out.append("§a" + CivSettings.localize.localizedString("var_tradegood_earth"));
-		}
-		out.append(";");
-		if (!StringUtils.isBlank((String) addText)) {
-			out.append(addText);
-			out.append(";");
-		}
-		return out.toString();
 	}
 
 }

@@ -36,10 +36,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Cave;
@@ -54,10 +52,8 @@ import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.items.BonusGoodie;
 import com.avrgaming.civcraft.object.Relation.Status;
 import com.avrgaming.civcraft.permission.PermissionGroup;
-import com.avrgaming.civcraft.populators.TradeGoodPreGenerate;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
@@ -75,8 +71,6 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemFrameStorage;
-import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.TagManager;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarRegen;
@@ -97,8 +91,8 @@ public class CivGlobal {
 	private static Map<UUID, Resident> residentsViaUUID = new ConcurrentHashMap<UUID, Resident>();
 	private static Map<Integer, UnitObject> unitObjects = new ConcurrentHashMap<Integer, UnitObject>();
 
-	private static Map<String, Town> towns = new ConcurrentHashMap<String, Town>();
-	private static Map<String, Civilization> civs = new ConcurrentHashMap<String, Civilization>();
+	private static Map<Integer, Town> towns = new ConcurrentHashMap<Integer, Town>();
+	private static Map<Integer, Civilization> civs = new ConcurrentHashMap<Integer, Civilization>();
 	private static Map<Integer, Coalition> coalitions = new ConcurrentHashMap<Integer, Coalition>();
 	private static Map<String, Civilization> conqueredCivs = new ConcurrentHashMap<String, Civilization>();
 	private static Map<String, Civilization> adminCivs = new ConcurrentHashMap<String, Civilization>();
@@ -111,19 +105,13 @@ public class CivGlobal {
 	private static Map<ChunkCoord, HashSet<Construct>> constructsInChunk = new ConcurrentHashMap<ChunkCoord, HashSet<Construct>>();
 	private static Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
 	private static Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
-	private static Map<BlockCoord, TradeGood> tradeGoods = new ConcurrentHashMap<BlockCoord, TradeGood>();
 	private static Map<ChunkCoord, FarmChunk> farmChunks = new ConcurrentHashMap<ChunkCoord, FarmChunk>();
-	private static Map<UUID, ItemFrameStorage> protectedItemFrames = new ConcurrentHashMap<UUID, ItemFrameStorage>();
-	private static Map<BlockCoord, BonusGoodie> bonusGoodies = new ConcurrentHashMap<BlockCoord, BonusGoodie>();
 	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
 	private static Map<BlockCoord, CustomMapMarker> customMapMarkers = new ConcurrentHashMap<BlockCoord, CustomMapMarker>();
 	private static Map<String, Camp> camps = new ConcurrentHashMap<String, Camp>();
 	private static Map<BlockCoord, Market> markets = new ConcurrentHashMap<BlockCoord, Market>();
 	public static HashSet<String> researchedTechs = new HashSet<String>();
 	private static Map<Integer, Report> reports = new HashMap<Integer, Report>();
-
-	public static long cantDemolishFrom;
-	public static long cantDemolishUntil;
 
 	public static void addReport(final Report report) {
 		CivGlobal.reports.put(report.getId(), report);
@@ -133,7 +121,6 @@ public class CivGlobal {
 	public static boolean useUUID = true;
 
 	public static Map<Integer, Boolean> CivColorInUse = new ConcurrentHashMap<Integer, Boolean>();
-	public static TradeGoodPreGenerate tradeGoodPreGenerator = new TradeGoodPreGenerate();
 
 	// TODO fix the duplicate score issue...
 	public static TreeMap<Integer, Civilization> civilizationScores = new TreeMap<Integer, Civilization>();
@@ -180,8 +167,6 @@ public class CivGlobal {
 	public static boolean installMode = false;
 
 	public static int highestCivEra = 0;
-
-	public static TradeGoodPreGenerate preGenerator;
 
 	public static int ruinsGenerated = 0;
 
@@ -248,7 +233,6 @@ public class CivGlobal {
 		loadWonders();
 		loadStructures();
 		loadCaves();
-		loadTradeGoodies();
 		loadRandomEvents();
 		loadUnitObjects();
 		loadReports();
@@ -280,9 +264,6 @@ public class CivGlobal {
 			speedChunks = false;
 			e.printStackTrace();
 		}
-
-		cantDemolishFrom = getNextRepoTime().getTime() - 3600000L;
-		cantDemolishUntil = getNextRepoTime().getTime() + 14400000L;
 
 		loadCompleted = true;
 	}
@@ -366,32 +347,6 @@ public class CivGlobal {
 			}
 
 			CivLog.info("Loaded " + caves.size() + " Caves");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
-
-	private static void loadTradeGoodies() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + TradeGood.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				TradeGood good;
-				try {
-					good = new TradeGood(rs);
-					tradeGoods.put(good.getCoord(), good);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + tradeGoods.size() + " Trade Goods");
 		} finally {
 			SQL.close(rs, ps, context);
 		}
@@ -527,7 +482,7 @@ public class CivGlobal {
 			while (rs.next()) {
 				try {
 					Town town = new Town(rs);
-					towns.put(town.getName().toLowerCase(), town);
+					towns.put(town.getId(), town);
 					WarRegen.restoreBlocksFor(town.getName());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -677,10 +632,7 @@ public class CivGlobal {
 			while (rs.next()) {
 				try {
 					UnitObject uo = new UnitObject(rs);
-					if (uo.getTownOwner() == null)
-						uo.delete();
-					else
-						CivGlobal.addUnitObject(uo);
+					CivGlobal.addUnitObject(uo);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -693,16 +645,20 @@ public class CivGlobal {
 
 	public static Player getPlayer(Resident resident) throws CivException {
 		Player player = Bukkit.getPlayer(resident.getUuid());
-		if (player == null) throw new CivException("No player named" + " " + resident.getName());
+		if (player == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noPlayer", resident.getName()));
+		return player;
+	}
+
+	public static Player getPlayer(UUID uuid) throws CivException {
+		Player player = Bukkit.getPlayer(uuid);
+		if (player == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noPlayer", uuid.toString()));
 		return player;
 	}
 
 	public static Player getPlayer(String name) throws CivException {
 		Resident res = CivGlobal.getResident(name);
 		if (res == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noResident", name));
-		Player player = Bukkit.getPlayer(res.getUuid());
-		if (player == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noPlayer", name));
-		return player;
+		return getPlayer(res);
 	}
 
 	// ---------- Resident
@@ -722,6 +678,14 @@ public class CivGlobal {
 
 	public static Resident getResident(String name) {
 		return residents.get(name);
+	}
+
+	public static Resident getResident(UUID uuid) {
+		Player player = Bukkit.getPlayer(uuid);
+		if (player == null)
+			return getResident(player);
+		else
+			return null;
 	}
 
 	public static Resident getResident(Player player) {
@@ -746,28 +710,26 @@ public class CivGlobal {
 
 	// --------------- Town
 	public static void addTown(Town town) {
-		towns.put(town.getName().toLowerCase(), town);
+		towns.put(town.getId(), town);
 	}
 
 	public static void removeTown(Town town) {
-		towns.remove(town.getName().toLowerCase());
+		towns.remove(town.getId());
 	}
 
-	public static Town getTown(String name) {
-		if (name == null) return null;
-		return towns.get(name.toLowerCase());
+	public static Town getTownFromName(String name) {
+		if (name == null || name.isEmpty()) return null;
+		for (Town town : towns.values())
+			if (town.getName().equalsIgnoreCase(name)) return town;
+		return null;
 	}
 
 	public static Collection<Town> getTowns() {
 		return towns.values();
 	}
 
-	/** Use only load. Make lookup via ID faster(use hashtable) */
-	public static Town getTownFromId(int id) {
-		for (Town t : towns.values()) {
-			if (t.getId() == id) return t;
-		}
-		return null;
+	public static Town getTown(int id) {
+		return towns.get(id);
 	}
 
 	// -------------- TownChunk
@@ -795,27 +757,27 @@ public class CivGlobal {
 
 	// ------------ Civilization
 	public static void addCiv(Civilization civ) {
-		civs.put(civ.getName().toLowerCase(), civ);
+		civs.put(civ.getId(), civ);
 		if (civ.isAdminCiv()) addAdminCiv(civ);
 	}
 
-	public static void removeCiv(Civilization civilization) {
-		civs.remove(civilization.getName().toLowerCase());
+	public static void removeCiv(Civilization civ) {
+		civs.remove(civ.getId());
 		// TODO протестить надо
-		int cid = civilization.getDiplomacyManager().getCoalitionId();
+		int cid = civ.getDiplomacyManager().getCoalitionId();
 		if (cid != 0) coalitions.get(cid).removeCiv(cid);
-		if (civilization.isAdminCiv()) removeAdminCiv(civilization);
+		if (civ.isAdminCiv()) removeAdminCiv(civ);
 	}
 
-	public static Civilization getCiv(String name) {
-		return civs.get(name.toLowerCase());
-	}
-
-	public static Civilization getCivFromId(int id) {
-		for (Civilization civ : civs.values()) {
-			if (civ.getId() == id) return civ;
-		}
+	public static Civilization getCivFromName(String name) {
+		if (name == null || name.isEmpty()) return null;
+		for (Civilization civ : civs.values())
+			if (civ.getName().equalsIgnoreCase(name)) return civ;
 		return null;
+	}
+
+	public static Civilization getCiv(int id) {
+		return civs.get(id);
 	}
 
 	public static Collection<Civilization> getCivs() {
@@ -1036,6 +998,7 @@ public class CivGlobal {
 		if (!constructsInChunk.containsKey(cc)) return new HashSet<Construct>();
 		return constructsInChunk.get(cc);
 	}
+
 	public static Construct getConstructFromChunk(ChunkCoord cc) {
 		if (!constructsInChunk.containsKey(cc)) return null;
 		return constructsInChunk.get(cc).stream().iterator().next();
@@ -1087,19 +1050,6 @@ public class CivGlobal {
 		return constructChests.get(coord);
 	}
 
-	// ----------- TradeGood
-	public static void addTradeGood(TradeGood good) {
-		tradeGoods.put(good.getCoord(), good);
-	}
-
-	public static TradeGood getTradeGood(BlockCoord coord) {
-		return tradeGoods.get(coord);
-	}
-
-	public static Collection<TradeGood> getTradeGoods() {
-		return tradeGoods.values();
-	}
-
 	// ------------ FarmChunk
 	public static void addFarmChunk(ChunkCoord coord, FarmChunk fc) {
 		farmChunks.put(coord, fc);
@@ -1139,78 +1089,6 @@ public class CivGlobal {
 
 	public static Collection<UnitObject> getUnitObjects() {
 		return unitObjects.values();
-	}
-
-	// -------------- BonusGoodie and ProtectedItemFrame
-	public static void addBonusGoodie(BonusGoodie goodie) {
-		bonusGoodies.put(goodie.getOutpost().getCorner(), goodie);
-	}
-
-	public static BonusGoodie getBonusGoodie(BlockCoord bcoord) {
-		return bonusGoodies.get(bcoord);
-	}
-
-	public static boolean isBonusGoodie(ItemStack item) {
-		if (item == null) return false;
-		if (ItemManager.getTypeId(item) == CivData.AIR) return false;
-		ItemMeta meta = item.getItemMeta();
-		if (meta == null) return false;
-		if (!meta.hasLore() || meta.getLore().size() < BonusGoodie.LoreIndex.values().length) return false;
-		if (!meta.getLore().get(BonusGoodie.LoreIndex.TYPE.ordinal()).equals(BonusGoodie.LORE_TYPE)) return false;
-		return true;
-	}
-
-	public static BonusGoodie getBonusGoodie(ItemStack item) {
-		if (!isBonusGoodie(item)) return null;
-		ItemMeta meta = item.getItemMeta();
-		String outpostLocation = meta.getLore().get(BonusGoodie.LoreIndex.OUTPOSTLOCATION.ordinal());
-		BlockCoord bcoord = new BlockCoord(outpostLocation);
-		return getBonusGoodie(bcoord);
-	}
-
-	public static Collection<BonusGoodie> getBonusGoodies() {
-		return bonusGoodies.values();
-	}
-
-	public static void addProtectedItemFrame(ItemFrameStorage framestore) {
-		protectedItemFrames.put(framestore.getUUID(), framestore);
-		ItemFrameStorage.attachedBlockMap.put(framestore.getAttachedBlock(), framestore);
-	}
-
-	public static ItemFrameStorage getProtectedItemFrame(UUID id) {
-		return protectedItemFrames.get(id);
-	}
-
-	public static void removeProtectedItemFrame(UUID id) {
-		if (id == null) return;
-		ItemFrameStorage store = getProtectedItemFrame(id);
-		if (store == null) return;
-		ItemFrameStorage.attachedBlockMap.remove(store.getAttachedBlock());
-		protectedItemFrames.remove(id);
-	}
-
-	public static void checkForDuplicateGoodies() {
-		// Look through protected item frames and repo and duplicates we find.
-		HashMap<String, Boolean> outpostsInFrames = new HashMap<String, Boolean>();
-		for (ItemFrameStorage fs : protectedItemFrames.values()) {
-			try {
-				if (fs.noFrame() || fs.isEmpty()) continue;
-			} catch (CivException e) {
-				e.printStackTrace();
-				continue;
-			}
-			BonusGoodie goodie = getBonusGoodie(fs.getItem());
-			if (goodie == null) continue;
-			if (outpostsInFrames.containsKey(goodie.getOutpost().getCorner().toString())) {
-				// CivMessage.sendTown(goodie.getOutpost().getTown(), CivColor.Rose+"WARNING:
-				// "+CivColor.Yellow+"Duplicate goodie item detected for good "+
-				// goodie.getDisplayName()+" at outpost
-				// "+goodie.getOutpost().getCorner().toString()+
-				// ". Item was reset back to outpost.");
-				fs.clearItem();
-			} else
-				outpostsInFrames.put(goodie.getOutpost().getCorner().toString(), true);
-		}
 	}
 
 	// ------------ Cave
@@ -1261,25 +1139,6 @@ public class CivGlobal {
 		return camps.values();
 	}
 
-	// // ------------- CampBlock
-	// public static void addCampBlock(CampBlock cb) {
-	// campBlocks.put(cb.getCoord(), cb);
-	// ChunkCoord coord = new ChunkCoord(cb.getCoord());
-	// campChunks.put(coord, cb.getCamp());
-	// }
-	// public static CampBlock getCampBlock(BlockCoord bcoord) {
-	// return campBlocks.get(bcoord);
-	// }
-	// public static void removeCampBlock(BlockCoord bcoord) {
-	// campBlocks.remove(bcoord);
-	// }
-	// public static Camp getCampFromChunk(ChunkCoord coord) {
-	// return campChunks.get(coord);
-	// }
-	// public static void removeCampChunk(ChunkCoord coord) {
-	// campChunks.remove(coord);
-	// }
-
 	// ------------- Market
 	public static void addMarket(Market market) {
 		markets.put(market.getCorner(), market);
@@ -1295,11 +1154,7 @@ public class CivGlobal {
 
 	// ---------- Total count function
 	public static int getTotalCamps() {
-		int total = 0;
-		for (final Camp camp : getCamps()) {
-			if (camp != null) ++total;
-		}
-		return total;
+		return getCamps().size();
 	}
 
 	public static int getTotalCivs() {
@@ -1311,11 +1166,7 @@ public class CivGlobal {
 	}
 
 	public static int getTotalTowns() {
-		int total = 0;
-		for (final Town town : getTowns()) {
-			if (town != null) ++total;
-		}
-		return total;
+		return getTowns().size();
 	}
 
 	public static int getTotalBanks() {
@@ -1465,45 +1316,6 @@ public class CivGlobal {
 		return hourly.getNext().getTime();
 	}
 
-	/* Empty, duplicate frames can cause endless headaches by making item frames show items that are unobtainable. This function attempts to
-	 * correct the issue by finding any duplicate, empty frames and removing them. */
-	public static void checkForEmptyDuplicateFrames(ItemFrameStorage frame) {
-		if (frame.noFrame()) return;
-		Chunk chunk = frame.getLocation().getChunk();
-		ArrayList<Entity> removed = new ArrayList<Entity>();
-		HashMap<Integer, Boolean> droppedItems = new HashMap<Integer, Boolean>();
-
-		try {
-			if (!frame.isEmpty()) droppedItems.put(ItemManager.getTypeId(frame.getItem()), true);
-		} catch (CivException e1) {
-			e1.printStackTrace();
-		}
-		for (Entity entity : chunk.getEntities()) {
-			if (entity instanceof ItemFrame) {
-				if (frame.isOurEntity(entity)) continue;
-				int x = frame.getLocation().getBlockX();
-				int y = frame.getLocation().getBlockY();
-				int z = frame.getLocation().getBlockZ();
-				if (x == entity.getLocation().getBlockX() && y == entity.getLocation().getBlockY() && z == entity.getLocation().getBlockZ()) {
-					// We have found a duplicate item frame here.
-					ItemFrame eFrame = (ItemFrame) entity;
-					boolean eFrameEmpty = (eFrame.getItem() == null || eFrame.getItem().getType().equals(Material.AIR));
-					if (!eFrameEmpty) {
-						Boolean droppedAlready = droppedItems.get(ItemManager.getTypeId(eFrame.getItem()));
-						if (droppedAlready == null || droppedAlready == false) {
-							droppedItems.put(ItemManager.getTypeId(eFrame.getItem()), true);
-							eFrame.getLocation().getWorld().dropItemNaturally(eFrame.getLocation(), eFrame.getItem());
-						}
-					}
-					removed.add(eFrame);
-				}
-			}
-		}
-		for (Entity e : removed) {
-			e.remove();
-		}
-	}
-
 	public static Entity getEntityAtLocation(Location loc) {
 		Chunk chunk = loc.getChunk();
 		for (Entity entity : chunk.getEntities()) {
@@ -1524,16 +1336,6 @@ public class CivGlobal {
 	public static Date getNextRandomEventTime() {
 		EventTimer repo = EventTimer.timers.get("random");
 		return repo.getNext().getTime();
-	}
-
-	public static Date getNextRepoTime() {
-		EventTimer repo = EventTimer.timers.get("repo-goodies");
-		return repo.getNext().getTime();
-	}
-
-	public static boolean allowDemolishOutPost() {
-		final long now = Calendar.getInstance().getTimeInMillis();
-		return now < CivGlobal.cantDemolishFrom || now > CivGlobal.cantDemolishUntil;
 	}
 
 	public static void setAggressor(Civilization civ, Civilization otherCiv, Civilization aggressor) {
@@ -1918,7 +1720,7 @@ public class CivGlobal {
 
 	public static String getDynmapLink(final String server) {
 		if ("Columba".equals(server)) {
-			return "FIXME"; //FIXME
+			return "FIXME"; // FIXME
 		}
 		return "FIXME";
 	}

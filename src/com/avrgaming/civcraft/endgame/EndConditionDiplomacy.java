@@ -60,7 +60,7 @@ public class EndConditionDiplomacy extends EndGameCondition {
 		boolean hasCouncil = false;
 		for (Town town : civ.getTowns()) {
 			if (town.getMotherCiv() != null) continue;
-			for (Wonder wonder : town.SM.getWonders()) {
+			for (Wonder wonder : town.BM.getWonders()) {
 				if (!wonder.isActive() || !wonder.getConfigId().equals("w_council_of_eight")) continue;
 				hasCouncil = true;
 				break;
@@ -91,7 +91,7 @@ public class EndConditionDiplomacy extends EndGameCondition {
 	protected void onWarDefeat(Civilization civ) {
 		block2: for (Town town : civ.getTowns()) {
 			if (town.getMotherCiv() != null) continue;
-			for (Wonder wonder : town.SM.getWonders()) {
+			for (Wonder wonder : town.BM.getWonders()) {
 				if (!wonder.getConfigId().equals("w_council_of_eight")) continue;
 				if (!wonder.isActive()) continue block2;
 				wonder.deleteWithFancy();

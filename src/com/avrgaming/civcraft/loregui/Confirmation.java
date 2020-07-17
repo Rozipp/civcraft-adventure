@@ -1,39 +1,37 @@
 
 package com.avrgaming.civcraft.loregui;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.loregui.GuiAction;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
-import com.avrgaming.civcraft.util.ItemManager;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.lorestorage.GuiItem;
+import com.avrgaming.civcraft.lorestorage.GuiItemAction;
+import com.avrgaming.civcraft.lorestorage.GuiItems;
 
-public class Confirmation
-implements GuiAction {
-    @Override
-    public void performAction(InventoryClickEvent event, ItemStack stack) {
-        Inventory inv = Bukkit.createInventory((InventoryHolder)event.getWhoClicked(), (int)27, (String)"§a"+CivSettings.localize.localizedString("resident_tradeNotconfirmed"));
-        String fields = LoreGuiItem.getActionData(stack, "passFields");
-        String action = LoreGuiItem.getActionData(stack, "passAction");
-        String confirmText = LoreGuiItem.getActionData(stack, "confirmText");
-        ItemStack confirm = LoreGuiItem.build("§a" + confirmText, ItemManager.getMaterialId(Material.EMERALD_BLOCK), 0, new String[0]);
-        confirm = LoreGuiItem.setAction(confirm, action);
-        for (String field : fields.split(",")) {
-            confirm = LoreGuiItem.setActionData(confirm, field, LoreGuiItem.getActionData(stack, field));
-        }
-        inv.setItem(11, confirm);
-        ItemStack cancel = LoreGuiItem.build("§c"+CivSettings.localize.localizedString("loregui_cancel"), ItemManager.getMaterialId(Material.REDSTONE_BLOCK), 0, new String[0]);
-        cancel = LoreGuiItem.setAction(cancel, "CloseInventory");
-        inv.setItem(15, cancel);
-        LoreGuiItemListener.guiInventories.put(inv.getName(), inv);
-        ((Player)event.getWhoClicked()).openInventory(inv);
-    }
+public class Confirmation implements GuiItemAction {
+	@Override
+	public void performAction(InventoryClickEvent event, ItemStack stack) {
+		if (event.getWhoClicked() instanceof Player) {
+			Player player = (Player) event.getWhoClicked();
+			GuiInventory inv = new GuiInventory(player, null).setRow(3)//
+					.setTitle("§a" + CivSettings.localize.localizedString("resident_tradeNotconfirmed"));
+			String fields = GuiItems.getActionData(stack, "passFields");
+			String action = GuiItems.getActionData(stack, "passAction");
+			String confirmText = GuiItems.getActionData(stack, "confirmText");
+			GuiItem confirm = GuiItems.newGuiItem()//
+					.setTitle("§a" + confirmText)//
+					.setMaterial(Material.EMERALD_BLOCK)//
+					.setAction(action);
+			for (String field : fields.split(",")) {
+				confirm.setActionData(field, GuiItems.getActionData(stack, field));
+			}
+			inv.addGuiItem(11, confirm);
+			inv.addLastItem();
+			inv.openInventory();
+		}
+	}
 }
-

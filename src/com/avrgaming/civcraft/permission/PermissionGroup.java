@@ -105,7 +105,7 @@ public class PermissionGroup extends SQLObject {
 		loadMembersFromSaveString(rs.getString("members"));
 
 		if (townId != 0) {
-			town = CivGlobal.getTownFromId(this.getTownId());
+			town = CivGlobal.getTown(this.getTownId());
 			if (town == null) {
 				CivLog.warning("TownChunk tried to load without a town...");
 				if (CivGlobal.isHaveTestFlag("cleanupDatabase")) {
@@ -117,7 +117,7 @@ public class PermissionGroup extends SQLObject {
 				this.getTown().GM.addGroup(this);
 		}
 		if (civId != 0) {
-			civ = CivGlobal.getCivFromId(this.getCivId());
+			civ = CivGlobal.getCiv(this.getCivId());
 			if (civ == null) {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
 				if (civ == null) {

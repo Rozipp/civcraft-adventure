@@ -66,7 +66,7 @@ public class MobStatic {
 	}
 
 	public static void startMobSpawnTimer() {
-		if (task == null) task = new MobAsynckSpawnTimer();
+		if (task == null) task = new MobAsynckSpawnTimer(CivCraft.mainWorld);
 		TaskMaster.asyncTimer("MobAsynckSpawner", task, TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
 	}
 

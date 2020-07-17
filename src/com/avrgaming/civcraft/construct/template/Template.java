@@ -13,15 +13,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
-import org.bukkit.Chunk;
+import java.util.Random;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -49,16 +48,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Template {
-	public SimpleBlock[][][] blocks;
+	public ArrayList<ArrayList<SimpleBlock>> blocks;
 	public int size_x;
 	public int size_y;
 	public int size_z;
 	private String direction;
 	public String filepath;
+	public ArrayList<Integer> layerBlocksCount;
 	public int totalBlocks;
 
 	/* Save the command block locations when we init the template, so we dont have to search for them later. */
 	public ArrayList<SimpleBlock> commandBlockRelativeLocations = new ArrayList<SimpleBlock>();
+	public ArrayList<SimpleBlock> emptyLocations = new ArrayList<SimpleBlock>();
 	public LinkedList<SimpleBlock> doorRelativeLocations = new LinkedList<SimpleBlock>();
 	public LinkedList<SimpleBlock> attachableLocations = new LinkedList<SimpleBlock>();
 
@@ -88,33 +89,27 @@ public class Template {
 		size_y = Integer.valueOf(split[1]);
 		size_z = Integer.valueOf(split[2]);
 		this.totalBlocks = 0;
-		SimpleBlock blocks[][][] = new SimpleBlock[size_x][size_y][size_z];
-		for (int x = 0; x < size_x; x++)
-			for (int y = 0; y < size_y; y++)
-				for (int z = 0; z < size_z; z++)
-					blocks[x][y][z] = new SimpleBlock("", x, y, z, 0, 0);
-		
+
+		SimpleBlock[][][] loadedblocks = new SimpleBlock[size_x][size_y][size_z];
+
 		// Read blocks from file.
 		while ((line = reader.readLine()) != null) {
 			String locTypeSplit[] = line.split(",");
-			String location = locTypeSplit[0];
-			String type = locTypeSplit[1];
 
 			// Parse location
-			String locationSplit[] = location.split(":");
+			String locationSplit[] = locTypeSplit[0].split(":");
 			int blockX = Integer.valueOf(locationSplit[0]);
 			int blockY = Integer.valueOf(locationSplit[1]);
 			int blockZ = Integer.valueOf(locationSplit[2]);
 
 			// Parse type
-			String typeSplit[] = type.split(":");
+			String typeSplit[] = locTypeSplit[1].split(":");
 			int blockId = Integer.valueOf(typeSplit[0]);
 			int blockData = Integer.valueOf(typeSplit[1]);
+			if (blockId == 0) continue;
 
-			if (blockId != 0) this.totalBlocks++;
-			SimpleBlock sblock = blocks[blockX][blockY][blockZ];
-			sblock.setType(blockId);
-			sblock.setData(blockData);
+			this.totalBlocks++;
+			SimpleBlock sblock = new SimpleBlock(null, blockX, blockY, blockZ, blockId, blockData);
 
 			if (blockId == CivData.WOOD_DOOR || blockId == CivData.IRON_DOOR || blockId == CivData.SPRUCE_DOOR || blockId == CivData.BIRCH_DOOR || blockId == CivData.JUNGLE_DOOR || blockId == CivData.ACACIA_DOOR
 					|| blockId == CivData.DARK_OAK_DOOR) {
@@ -164,12 +159,34 @@ public class Template {
 				}
 			} else
 				if (Template.isAttachable(blockId)) this.attachableLocations.add(sblock);
-			blocks[blockX][blockY][blockZ] = sblock;
+			loadedblocks[blockX][blockY][blockZ] = sblock;
 		}
-
-		this.blocks = blocks;
 		reader.close();
+
+		blocks = new ArrayList<ArrayList<SimpleBlock>>();
+		layerBlocksCount = new ArrayList<Integer>();
+		Random rand = new Random(2020);
+		int count = 0;
+		layerBlocksCount.add(count);
+		for (int y = 0; y < size_y; y++) {
+			ArrayList<SimpleBlock> layer = new ArrayList<SimpleBlock>();
+			for (int x = 0; x < size_x; x++)
+				for (int z = 0; z < size_z; z++) {
+					SimpleBlock sb = loadedblocks[x][y][z];
+					if (sb == null) sb = new SimpleBlock(null, x, y, z, 0, 0);
+					if (sb.getType() == 0)
+						emptyLocations.add(sb);
+					else
+						layer.add(loadedblocks[x][y][z]);
+				}
+			Collections.shuffle(layer, rand);
+			count += layer.size();
+			layerBlocksCount.add(count);
+			blocks.add(layer);
+		}
 	}
+
+	// ---------------- debug edit Template
 
 	public void getBlocksWithWorld(Location loc, int sizeX, int sizeY, int sizeZ, String filepath) {
 		World world = loc.getWorld();
@@ -178,15 +195,16 @@ public class Template {
 		size_z = sizeZ;
 		this.filepath = filepath;
 
-		blocks = new SimpleBlock[size_x][size_y][size_z];
+		blocks = new ArrayList<ArrayList<SimpleBlock>>();
 		// Read blocks from file.
-		for (int z = 0; z < size_z; z++) {
-			for (int y = 0; y < size_y; y++) {
+		for (int y = 0; y < size_y; y++) {
+			blocks.add(new ArrayList<SimpleBlock>());
+			for (int z = 0; z < size_z; z++) {
 				for (int x = 0; x < size_x; x++) {
 					Block block = world.getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
 					int typeId = ItemManager.getTypeId(block);
 					int data = ItemManager.getData(block);
-					SimpleBlock sb = new SimpleBlock(world.getName(), x, y, z, typeId, data);
+					SimpleBlock sb = new SimpleBlock(null, x, y, z, typeId, data);
 
 					if (typeId == CivData.WOOD_DOOR || typeId == CivData.IRON_DOOR || typeId == CivData.SPRUCE_DOOR || typeId == CivData.BIRCH_DOOR || typeId == CivData.JUNGLE_DOOR || typeId == CivData.ACACIA_DOOR
 							|| typeId == CivData.DARK_OAK_DOOR) {
@@ -195,25 +213,24 @@ public class Template {
 
 					if (block.getState() instanceof Sign) {
 						Sign sign = (Sign) block.getState();
-						if (sign.getLine(0).charAt(0) == '/') {
+						String firstLine = sign.getLine(0);
+						if (!firstLine.isEmpty() && firstLine.charAt(0) == '/') {
 							sb.specialType = Type.COMMAND;
-							sb.command = sign.getLine(0);
+							sb.command = firstLine;
 							for (int i = 1; i < 4; i++) {
 								String[] split = sign.getLine(i).split(":");
 								if (split.length < 2) continue;
-								String key = split[0];
-								if (key.isEmpty()) continue;
-								sb.keyvalues.put(key, split[1]);
+								sb.keyvalues.put(split[0], split[1]);
 							}
 						} else {
+							sb.specialType = Type.LITERAL;
 							for (int i = 0; i < 4; i++)
 								sb.message[i] = sign.getLine(i).replace(",", "");
-							sb.specialType = Type.LITERAL;
 						}
 					}
 
 					if (Template.isAttachable(typeId)) this.attachableLocations.add(sb);
-					blocks[x][y][z] = sb;
+					blocks.get(y).add(sb);
 				}
 			}
 		}
@@ -228,44 +245,43 @@ public class Template {
 
 		writer.write(this.size_x + ";" + this.size_y + ";" + this.size_z + "\n");
 
-		for (int x = 0; x < this.size_x; x++) {
-			for (int y = 0; y < this.size_y; y++) {
-				for (int z = 0; z < this.size_z; z++) {
-					SimpleBlock sb = blocks[x][y][z];
-					if (sb.getType() == 0) continue;
-					
-					String ss = x + ":" + y + ":" + z + "," + sb.getType() + ":" + sb.getData();
-					switch (sb.specialType) {
-					case NORMAL:
-						break;
-					case LITERAL:
-						for (String line : sb.message) {
-							ss += "," + line;
-						}
-						break;
-					case COMMANDDBG:
-					case COMMAND:
-						ss = ss + "," + sb.command;
-						for (String key : sb.keyvalues.keySet()) {
-							ss = ss + "," + key + ":" + sb.keyvalues.get(key);
-						}
-						break;
+		for (int y = 0; y < this.size_y; y++) {
+			for (SimpleBlock sb : blocks.get(y)) {
+				if (sb.getType() == 0) continue;
+
+				String ss = sb.getX() + ":" + y + ":" + sb.getZ() + "," + sb.getType() + ":" + sb.getData();
+				switch (sb.specialType) {
+				case NORMAL:
+					break;
+				case LITERAL:
+					for (String line : sb.message) {
+						ss += "," + line;
 					}
-					writer.write(ss + "\n");
+					break;
+				case COMMANDDBG:
+				case COMMAND:
+					ss = ss + "," + sb.command;
+					for (String key : sb.keyvalues.keySet()) {
+						ss = ss + "," + key + ":" + sb.keyvalues.get(key);
+					}
+					break;
 				}
+				writer.write(ss + "\n");
 			}
 		}
 		writer.close();
 	}
 
-	public List<SimpleBlock> getBlocksForLayer(int y) {
-		List<SimpleBlock> ret = new ArrayList<SimpleBlock>();
-		for (int x = 0; x < size_x; x++) {
-			for (int z = 0; z < size_z; z++) {
-				ret.add(blocks[x][y][z]);
+	public SimpleBlock getNextBlockBuild(int blocksCompleted) {
+		for (int y = 0; y < size_y; y++) {
+			int layerCount = layerBlocksCount.get(y + 1);
+			if (layerCount > blocksCompleted) {
+				int size = blocks.get(y).size();
+				int xz = (blocksCompleted - layerBlocksCount.get(y)) % size;
+				return blocks.get(y).get(xz);
 			}
 		}
-		return ret;
+		return null;
 	}
 
 	public void buildPreviewScaffolding(BlockCoord bcoord, Player player) {
@@ -481,112 +497,41 @@ public class Template {
 		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
 		// Not Attachable blocks
 		for (int y = 0; y < this.size_y; ++y) {
-			for (int x = 0; x < this.size_x; ++x) {
-				for (int z = 0; z < this.size_z; ++z) {
-					SimpleBlock sb = this.blocks[x][y][z];
-					if (Template.isAttachable(sb.getMaterial())) continue;
-					sbs.add(new SimpleBlock(corner, sb));
-				}
+			for (SimpleBlock sb : this.blocks.get(y)) {
+				if (Template.isAttachable(sb.getMaterial())) continue;
+				sbs.add(new SimpleBlock(corner, sb));
 			}
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
 		// Attachable blocks
 		for (int y = 0; y < this.size_y; ++y) {
-			for (int x = 0; x < this.size_x; ++x) {
-				for (int z = 0; z < this.size_z; ++z) {
-					SimpleBlock sb = this.blocks[x][y][z];
-					if (!Template.isAttachable(sb.getMaterial())) continue;
-					sbs.add(new SimpleBlock(corner, sb));
-				}
+			for (SimpleBlock sb : this.blocks.get(y)) {
+				if (!Template.isAttachable(sb.getMaterial())) continue;
+				sbs.add(new SimpleBlock(corner, sb));
 			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+		sbs.clear();
+	}
+
+	public void buildAirBlocks(BlockCoord corner) {
+		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+		for (SimpleBlock sb : emptyLocations) {
+			sbs.add(new SimpleBlock(corner, sb));
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
 	}
 
 	public void buildTemplateDbg(BlockCoord corner) {
+		buildTemplate(corner);
+		buildAirBlocks(corner);
 		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
-		// Not Attachable blocks
-		for (int y = 0; y < this.size_y; ++y) {
-			for (int x = 0; x < this.size_x; ++x) {
-				for (int z = 0; z < this.size_z; ++z) {
-					SimpleBlock sb = this.blocks[x][y][z];
-					if (Template.isAttachable(sb.getMaterial())) continue;
-					sbs.add(new SimpleBlock(corner, sb));
-				}
-			}
-		}
-		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-		sbs.clear();
-		// Attachable blocks
-		for (int y = 0; y < this.size_y; ++y) {
-			for (int x = 0; x < this.size_x; ++x) {
-				for (int z = 0; z < this.size_z; ++z) {
-					SimpleBlock sb = this.blocks[x][y][z];
-					if (!Template.isAttachable(sb.getMaterial())) continue;
-					sbs.add(new SimpleBlock(corner, sb));
-				}
-			}
-		}
-		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-		sbs.clear();
-
 		for (SimpleBlock sb : this.commandBlockRelativeLocations) {
 			SimpleBlock sbt = new SimpleBlock(corner, sb);
 			sbt.specialType = Type.COMMANDDBG;
 			sbs.add(sbt);
-		}
-		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-		sbs.clear();
-	}
-
-	@Deprecated
-	public void buildUndoTemplate(Template tpl, Block cornerBlock) {
-		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
-		HashMap<Chunk, Chunk> chunkUpdates = new HashMap<Chunk, Chunk>();
-
-		for (int x = 0; x < tpl.size_x; x++) {
-			for (int y = 0; y < tpl.size_y; y++) {
-				for (int z = 0; z < tpl.size_z; z++) {
-					Block b = cornerBlock.getRelative(x, y, z);
-					if (Template.isAttachable(b.getType())) {
-						SimpleBlock sb = new SimpleBlock(b);
-						sb.setTypeAndData(0, 0);
-						sbs.add(sb);
-					}
-				}
-			}
-		}
-		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-		sbs.clear();
-
-		for (int x = 0; x < tpl.size_x; x++) {
-			for (int y = 0; y < tpl.size_y; y++) {
-				for (int z = 0; z < tpl.size_z; z++) {
-					Block b = cornerBlock.getRelative(x, y, z);
-					chunkUpdates.put(b.getChunk(), b.getChunk());
-
-					if (ItemManager.getTypeId(b) == CivData.WALL_SIGN || ItemManager.getTypeId(b) == CivData.SIGN) {
-						Sign s2 = (Sign) b.getState();
-						s2.setLine(0, tpl.blocks[x][y][z].message[0]);
-						s2.setLine(1, tpl.blocks[x][y][z].message[1]);
-						s2.setLine(2, tpl.blocks[x][y][z].message[2]);
-						s2.setLine(3, tpl.blocks[x][y][z].message[3]);
-						s2.update();
-					}
-
-					SimpleBlock sb = tpl.blocks[x][y][z];
-					if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) sb.setType(CivData.AIR);
-					// Convert relative x,y,z to real x,y,z in world.
-					sb.x = x + cornerBlock.getX();
-					sb.y = y + cornerBlock.getY();
-					sb.z = z + cornerBlock.getZ();
-					sb.worldname = cornerBlock.getWorld().getName();
-					// sb.buildable = buildable;
-					sbs.add(sb);
-				}
-			}
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);
 		sbs.clear();
@@ -634,30 +579,18 @@ public class Template {
 		return "templates/undo/" + string;
 	}
 
-	public static String getInprogressFilePath(String string) {
-		return "templates/inprogress/" + string;
-	}
-
 	// ------------ file process
 	public static void deleteFilePath(String filepath) {
 		File templateFile = new File(filepath);
 		templateFile.delete();
 	}
 
-	/* This function will save a copy of the template currently building into the town's temp directory. It does this so that we: 1) Dont have
-	 * to remember the template's direction when we resume 2) Can change the master template without messing up any builds in progress 3) So we
-	 * can pick a random template and "resume" the correct one. (e.g. cottages) */
-	public static void copyFilePath(String masterTemplatePath, String copyTemplatePath) {
-		// Copy File...
-		File master_tpl_file = new File(masterTemplatePath);
-		File inprogress_tpl_file = new File(copyTemplatePath);
-
-		try {
-			Files.copy(master_tpl_file.toPath(), inprogress_tpl_file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			System.out.println("Failure to copy file!");
-			e.printStackTrace();
-		}
+	public static boolean checkFile(String filepath) {
+		File templateFile = new File(filepath);
+		if (templateFile.exists())
+			return true;
+		else
+			return false;
 	}
 
 	// ------------------ Direction
@@ -732,14 +665,6 @@ public class Template {
 			templateCache.put(filepath, tpl);
 		}
 		return tpl;
-	}
-
-	public static boolean checkFile(String filepath) {
-		File templateFile = new File(filepath);
-		if (templateFile.exists())
-			return true;
-		else
-			return false;
 	}
 
 }

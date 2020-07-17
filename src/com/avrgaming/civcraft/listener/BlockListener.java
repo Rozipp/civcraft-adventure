@@ -44,7 +44,6 @@ import com.avrgaming.civcraft.threading.tasks.StructureBlockHitEvent;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemFrameStorage;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarRegen;
@@ -245,13 +244,6 @@ public class BlockListener implements Listener {
 		if (event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
 			event.setCancelled(true);
 			return;
-		}
-		if (event.getEntity() instanceof ItemFrame) {
-			ItemFrameStorage iFrameStorage = CivGlobal.getProtectedItemFrame(event.getEntity().getUniqueId());
-			if (iFrameStorage != null) {
-				event.setCancelled(true);
-				return;
-			}
 		}
 
 		if (event.getDamager() instanceof LightningStrike) {
@@ -1139,45 +1131,6 @@ public class BlockListener implements Listener {
 	public void OnHangingBreakByEntityEvent(HangingBreakByEntityEvent event) {
 		// CivLog.debug("hanging painting break event");
 
-		ItemFrameStorage frameStore = CivGlobal.getProtectedItemFrame(event.getEntity().getUniqueId());
-		if (frameStore != null) {
-			// if (!(event.getRemover() instanceof Player)) {
-			// event.setCancelled(true);
-			// return;
-			// }
-			//
-			// if (frameStore.getTown() != null) {
-			// Resident resident = CivGlobal.getResident((Player)event.getRemover());
-			// if (resident == null) {
-			// event.setCancelled(true);
-			// return;
-			// }
-			//
-			// if (resident.hasTown() == false || resident.getTown() != frameStore.getTown()) {
-			// event.setCancelled(true);
-			// CivMessage.sendError((Player)event.getRemover(), "Cannot remove item from protected item frame. Belongs to another town.");
-			// return;
-			// }
-			// }
-			//
-			// CivGlobal.checkForEmptyDuplicateFrames(frameStore);
-			//
-			// ItemStack stack = ((ItemFrame)event.getEntity()).getItem();
-			// if (stack != null && !stack.getType().equals(Material.AIR)) {
-			// BonusGoodie goodie = CivGlobal.getBonusGoodie(stack);
-			// if (goodie != null) {
-			// frameStore.getTown().onGoodieRemoveFromFrame(frameStore, goodie);
-			// }
-			// frameStore.clearItem();
-			// TaskMaster.syncTask(new DelayItemDrop(stack, event.getEntity().getLocation()));
-			// }
-			if (event.getRemover() instanceof Player) {
-				CivMessage.sendError((Player) event.getRemover(), CivSettings.localize.localizedString("blockBreak_errorItemFrame"));
-			}
-			event.setCancelled(true);
-			return;
-		}
-
 		if (event.getRemover() instanceof Player) {
 			Player player = (Player) event.getRemover();
 
@@ -1286,14 +1239,6 @@ public class BlockListener implements Listener {
 		BlockCoord bcoord = new BlockCoord(loc);
 		ConstructBlock bb = CivGlobal.getConstructBlock(bcoord);
 		if (bb != null) return false;
-
-		/* If we're next to an attached protected item frame. Disallow we cannot break protected item frames. Only need to check blocks directly
-		 * next to us. */
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(-1, 0, 0))) return false;
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(1, 0, 0))) return false;
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(0, 0, -1))) return false;
-		if (ItemFrameStorage.attachedBlockMap.containsKey(bcoord.getRelative(0, 0, 1))) return false;
-
 		return true;
 	}
 

@@ -82,7 +82,7 @@ public class CannonTower extends Structure {
 			double build_distanceSqr = Math.pow(CivSettings.getDouble(CivSettings.warConfig, "cannon_tower.build_distance"), 2);
 
 			for (Town town : this.getTown().getCiv().getTowns()) {
-				for (Structure struct : town.SM.getStructures()) {
+				for (Structure struct : town.BM.getStructures()) {
 					if (struct instanceof CannonTower) {
 						Location center = struct.getCenterLocation();
 						double distanceSqr = center.distanceSquared(this.getCenterLocation());

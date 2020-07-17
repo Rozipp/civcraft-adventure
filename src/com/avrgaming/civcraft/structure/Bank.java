@@ -105,11 +105,6 @@ public class Bank extends Structure {
 		return exchange_rate;
 	}
 
-	@Override
-	public void onBonusGoodieUpdate() {
-		this.updateSignText();
-	}
-
 	private String getExchangeRateString() {
 		return ((int) (getBankExchangeRate() * 100) + "%").toString();
 	}
@@ -162,7 +157,7 @@ public class Bank extends Structure {
 		String itemName;
 		ItemStack inHand = player.getInventory().getItemInMainHand();
 		try {
-			if (CustomMaterial.isCustomMaterial(inHand) || CivGlobal.isBonusGoodie(inHand)) throw new CivException(CivSettings.localize.localizedString("bank_invalidItem"));
+			if (CustomMaterial.isCustomMaterial(inHand))  throw new CivException(CivSettings.localize.localizedString("bank_invalidItem"));
 			switch (sign.getAction()) {
 			case "iron":
 				itemMat = Material.IRON_INGOT;
@@ -373,8 +368,8 @@ public class Bank extends Structure {
 
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().SM.saved_bank_level;
-		this.interestRate = getTown().SM.saved_bank_interest_amount;
+		this.level = getTown().BM.saved_bank_level;
+		this.interestRate = getTown().BM.saved_bank_interest_amount;
 	}
 
 	public NonMemberFeeComponent getNonMemberFeeComponent() {

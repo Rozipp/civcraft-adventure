@@ -21,7 +21,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigCultureBiomeInfo;
+import com.avrgaming.civcraft.config.ConfigBiomeInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;
@@ -85,8 +85,14 @@ public class TownCommand extends CommandBase {
 		cs.add("changetown", CivSettings.localize.localizedString("cmd_town_switchtown"));
 		cs.add("teleport", "tp", CivSettings.localize.localizedString("cmd_town_teleportDesc"));
 		cs.add("getunit", "unit", "gu", "Открыть сундук с юнитами");
+		cs.add("people", "p", "Открыть сундук с юнитами");
 	}
 
+	public void people_cmd() throws CivException {
+		validMayor();
+		this.getSelectedTown().unitInventory.showUnits(getPlayer());
+	}
+	
 	public void getunit_cmd() throws CivException {
 		validMayor();
 		this.getSelectedTown().unitInventory.showUnits(getPlayer());
@@ -173,11 +179,11 @@ public class TownCommand extends CommandBase {
 		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureWar"));
 		if (struct == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_enableStructureNotFound", coordString));
 		if (!resident.getCiv().GM.isLeader(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureNotLead"));
-		if (!town.SM.isStructureAddable(struct)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureOverLimit"));
+		if (!town.BM.isStructureAddable(struct)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureOverLimit"));
 
 		/* Readding structure will make it valid. */
-		town.SM.removeStructure(struct);
-		town.SM.addStructure(struct);
+		town.BM.removeStructure(struct);
+		town.BM.addStructure(struct);
 		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_enableStructureSuccess"));
 	}
 
@@ -278,7 +284,6 @@ public class TownCommand extends CommandBase {
 		double hammers = 0.0;
 		double growth = 0.0;
 		double happiness = 0.0;
-		double beakers = 0.0;
 		DecimalFormat df = new DecimalFormat();
 
 		for (ChunkCoord c : closedSet) {
@@ -292,13 +297,12 @@ public class TownCommand extends CommandBase {
 				biomes.put(biome.name(), value + 1);
 			}
 
-			ConfigCultureBiomeInfo info = CivSettings.getCultureBiome(biome.name());
+			ConfigBiomeInfo info = CivSettings.getCultureBiome(biome);
 
 			// coins += info.coins;
-			hammers += info.hammers;
-			growth += info.growth;
-			happiness += info.happiness;
-			beakers += info.beakers;
+			hammers += info.getHammers();
+			growth += info.getGrowth();
+			happiness += info.beauty ? 1 : 0;
 		}
 
 		outList.add(CivColor.LightBlue + CivSettings.localize.localizedString("cmd_town_biomeList"));
@@ -314,8 +318,7 @@ public class TownCommand extends CommandBase {
 
 		outList.add(CivColor.LightBlue + CivSettings.localize.localizedString("cmd_town_totals"));
 		outList.add(CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_happiness") + " " + CivColor.LightGreen + df.format(happiness) + CivColor.Green + " " + CivSettings.localize.localizedString("Hammers") + " "
-				+ CivColor.LightGreen + df.format(hammers) + CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_growth") + " " + CivColor.LightGreen + df.format(growth) + CivColor.Green + " "
-				+ CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + df.format(beakers));
+				+ CivColor.LightGreen + df.format(hammers) + CivColor.Green + " " + CivSettings.localize.localizedString("cmd_town_growth") + " " + CivColor.LightGreen + df.format(growth));
 		return outList;
 	}
 
@@ -532,7 +535,7 @@ public class TownCommand extends CommandBase {
 			if (town.getCiv() != civ) {
 				if (sender instanceof Player) {
 					Player player = (Player) sender;
-					Location ourCapLoc = civ.getCapitolCityHallLocation();
+					Location ourCapLoc = civ.getCapitolLocation();
 
 					if (ourCapLoc == null) return;
 

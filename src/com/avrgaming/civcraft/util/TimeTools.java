@@ -23,17 +23,26 @@ import java.util.Date;
 
 public class TimeTools {
 
+	public static int civtickSecond = 36;
+	public static long civtickMiliSecond = civtickSecond * 1000;
+	public static long civtickMinecraftTick = TimeTools.toTicks(civtickSecond);
+	public static int countCivtickInHour = Math.floorDiv(3600, civtickSecond);
+
 	public static long toTicks(long seconds) {
-		return 20*seconds;
+		return 20 * seconds;
+	}
+
+	public static long minuteToMinisec(long minute) {
+		return 60000 * minute;
 	}
 
 	public static long getTicksUnitl(Date next) {
 		Calendar c = Calendar.getInstance();
 		Date now = c.getTime();
-		
-		long seconds = Math.abs((now.getTime() - next.getTime())/1000);
-		
-		return seconds*20;
+
+		long seconds = Math.abs((now.getTime() - next.getTime()) / 1000);
+
+		return seconds * 20;
 	}
-	
+
 }

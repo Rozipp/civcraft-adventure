@@ -35,9 +35,9 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.fishing.FishingListener;
 import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItemListener;
+import com.avrgaming.civcraft.lorestorage.GuiInventoryListener;
 import com.avrgaming.civcraft.mythicmob.MobListener;
-import com.avrgaming.civcraft.mythicmob.MobPoolSpawnSyncTimer;
+import com.avrgaming.civcraft.mythicmob.SyncMobSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
@@ -52,7 +52,6 @@ import com.avrgaming.civcraft.threading.tasks.ArrowProjectileTask;
 import com.avrgaming.civcraft.threading.tasks.ProjectileComponentTimer;
 import com.avrgaming.civcraft.threading.timers.*;
 import com.avrgaming.civcraft.trade.TradeInventoryListener;
-import com.avrgaming.civcraft.units.UnitInventoryListener;
 import com.avrgaming.civcraft.units.UnitListener;
 import com.avrgaming.civcraft.units.CooldownSynckTask;
 import com.avrgaming.civcraft.util.BukkitObjects;
@@ -186,20 +185,19 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTask("SQLUpdate", new SQLUpdate(), 0);
 		// Sync Timers
 		TaskMaster.syncTimer(SyncBuildUpdateTask.class.getName(), new SyncBuildUpdateTask(), 0, 1);
-		TaskMaster.syncTimer(SyncUpdateChunks.class.getName(), new SyncUpdateChunks(), 0, TimeTools.toTicks(1));
+		TaskMaster.syncTimer(SyncUpdateChunks.class.getName(), new SyncUpdateChunks(), 0, 1);
 		TaskMaster.syncTimer(SyncLoadChunk.class.getName(), new SyncLoadChunk(), 0, 1);
 		TaskMaster.syncTimer(SyncGetChestInventory.class.getName(), new SyncGetChestInventory(), 0, 1);
 		TaskMaster.syncTimer(SyncUpdateInventory.class.getName(), new SyncUpdateInventory(), 0, 1);
 		TaskMaster.syncTimer(SyncGrowTask.class.getName(), new SyncGrowTask(), 0, 1);
+		TaskMaster.syncTimer(SyncMobSpawnTimer.class.getName(), new SyncMobSpawnTimer(), 0, 1);
+		
 		TaskMaster.syncTimer(PlayerLocationCacheUpdate.class.getName(), new PlayerLocationCacheUpdate(), 0, 10);
-		TaskMaster.asyncTimer("RandomEventSweeper", new RandomEventSweeper(), 0, TimeTools.toTicks(10));
+		TaskMaster.asyncTimer(RandomEventSweeper.class.getName(), new RandomEventSweeper(), 0, TimeTools.toTicks(10));
 		// Structure event timers
-		TaskMaster.asyncTimer("UpdateEventTimer", new UpdateSecondTimer(), TimeTools.toTicks(1));
-		TaskMaster.asyncTimer("UpdateMinuteEventTimer", new UpdateMinuteEventTimer(), TimeTools.toTicks(20));
-		TaskMaster.asyncTimer("RegenTimer", new RegenTimer(), TimeTools.toTicks(5));
-		TaskMaster.asyncTimer("BeakerTimer", new BeakerTimer(60), TimeTools.toTicks(60));
-		TaskMaster.syncTimer("UnitTrainTimer", new UnitTrainTimer(), TimeTools.toTicks(1));
-		TaskMaster.syncTimer("UnitMaterialColdownTimer", new CooldownSynckTask(), 20);
+		TaskMaster.asyncTimer(UpdateSecondTimer.class.getName(), new UpdateSecondTimer(), TimeTools.toTicks(1));
+		TaskMaster.asyncTimer(UpdateCivtickTimer.class.getName(), new UpdateCivtickTimer(), TimeTools.civtickMinecraftTick);
+		TaskMaster.asyncTimer(RegenTimer.class.getName(), new RegenTimer(), TimeTools.toTicks(5));
 		try {
 			double arrow_firerate = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.fire_rate");
 			TaskMaster.syncTimer("arrowTower", new ProjectileComponentTimer(), (int) (arrow_firerate * 20));
@@ -218,13 +216,12 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer(PlayerProximityComponentTimer.class.getName(), new PlayerProximityComponentTimer(), TimeTools.toTicks(1));
 		TaskMaster.asyncTimer(EventTimerTask.class.getName(), new EventTimerTask(), TimeTools.toTicks(5));
 		TaskMaster.asyncTimer("EndGameNotification", new EndConditionNotificationTask(), TimeTools.toTicks(3600));
-		TaskMaster.asyncTask(new StructureValidationChecker(), TimeTools.toTicks(120));
+		TaskMaster.asyncTask(StructureValidationChecker.class.getName(), new StructureValidationChecker(), TimeTools.toTicks(120));
 		TaskMaster.asyncTimer("StructureValidationPunisher", new StructureValidationPunisher(), TimeTools.toTicks(3600));
 		TaskMaster.asyncTimer("SessionDBAsyncTimer", new SessionDBAsyncTimer(), 10);
 		TaskMaster.asyncTimer("pvptimer", new PvPTimer(), TimeTools.toTicks(30));
-
+		TaskMaster.syncTimer(CooldownSynckTask.class.getName(), new CooldownSynckTask(), 20);
 		MobStatic.startMobSpawnTimer();
-		TaskMaster.syncTimer("MobPoolSpawner", new MobPoolSpawnSyncTimer(), TimeTools.toTicks(1));
 		// TODO from furnex
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		// XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный
@@ -241,7 +238,7 @@ public final class CivCraft extends JavaPlugin {
 		pluginManager.registerEvents(new PlayerListener(), this);
 		pluginManager.registerEvents(new DebugListener(), this);
 		pluginManager.registerEvents(new CraftableCustomMaterialListener(), this);
-		pluginManager.registerEvents(new LoreGuiItemListener(), this);
+		pluginManager.registerEvents(new GuiInventoryListener(), this);
 
 		Boolean useEXPAsCurrency = true;
 		try {

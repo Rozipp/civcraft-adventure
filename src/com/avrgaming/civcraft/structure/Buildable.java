@@ -2,6 +2,9 @@ package com.avrgaming.civcraft.structure;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -12,20 +15,23 @@ import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.BuildAsyncTask;
+import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
+import com.avrgaming.civcraft.util.SimpleBlock.Type;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,10 +39,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public abstract class Buildable extends Construct {
-	protected BlockCoord mobSpawnerCoord;
 
-	public int blocksCompleted = 0;
-	public int savedBlockCount = 0;
+	private int hammersCompleted = 0;
+	private long nextProgressBuild = Long.MAX_VALUE;
 
 	private boolean complete = false;
 	private boolean enabled = true;
@@ -46,13 +51,7 @@ public abstract class Buildable extends Construct {
 	// private String invalidReason = "";
 
 	public void startBuildTask() {
-		if (this instanceof Structure)
-			this.getTown().SM.setCurrentStructureInProgress(this);
-		else
-			this.getTown().SM.setCurrentWonderInProgress(this);
-		BuildAsyncTask task = new BuildAsyncTask(this);
-		this.getTown().SM.addBuildTask(task);
-		TaskMaster.asyncTask(task, TimeTools.toTicks(5));
+		this.getTown().BM.addBuildableInprogress(this);
 	}
 
 	@Override
@@ -73,6 +72,14 @@ public abstract class Buildable extends Construct {
 	}
 
 	// ------------- Build Task
+	public abstract void validCanProgressBuild() throws CivException;
+
+	public void abortBuild() {
+		// Remove build task from town..
+		getTown().BM.removeBuildableInprogress(this);
+		// remove wonder from town.
+		deleteWithUndo();
+	}
 
 	@Override
 	public void build(Player player) throws CivException {
@@ -83,10 +90,10 @@ public abstract class Buildable extends Construct {
 		Structure struct = (this instanceof Structure) ? (Structure) this : null;
 		Wonder wonder = (this instanceof Wonder) ? (Wonder) this : null;
 
-		town.SM.checkIsTownCanBuildBuildable(this);
+		town.BM.checkIsTownCanBuildBuildable(this);
 		this.checkBlockPermissionsAndRestrictions(player);
 
-		town.SM.setLastBuildableBuilt(this);
+		town.BM.setLastBuildableBuilt(this);
 		try {
 			tpl.saveUndoTemplate(corner.toString(), corner);
 		} catch (IOException e) {
@@ -109,74 +116,113 @@ public abstract class Buildable extends Construct {
 		this.save();
 
 		town.getTreasury().withdraw(this.getCost());
-		if (town.getExtraHammers() > 0) town.giveExtraHammers(town.getExtraHammers());
-
-		if (this instanceof TradeOutpost) {
-			TradeOutpost outpost = (TradeOutpost) this;
-			if (outpost.getGood() != null) outpost.getGood().save();
-		}
 
 		if (struct != null) {
 			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", this.getDisplayName()));
-			town.SM.addStructure(struct);
-		} 
-		if (wonder != null){
-			town.SM.addWonder(wonder);
+			town.BM.addStructure(struct);
+		}
+		if (wonder != null) {
+			town.BM.addWonder(wonder);
 			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", this.getDisplayName(), player.getName(), town.getName()));
 			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", town.getCiv().getName(), this.getDisplayName(), town.getName(), player.getName()));
 		}
 		town.save();
 	}
 
-	public double getHammerCost() {
-		double rate = 1;
-		rate -= this.getTown().getBuffManager().getEffectiveDouble(Buff.RUSH);
-		rate -= this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_rush");
-		rate -= this.getTown().getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
-		return rate * getInfo().hammer_cost;
+	public int getHammerCost() {
+		return getInfo().hammer_cost;
 	}
 
 	public int getTotalBlock() {
-		// return this.getTemplate().getTotalBlocks();
-		return this.getTemplate().size_x * this.getTemplate().size_y * this.getTemplate().size_z;
+		return this.getTemplate().getTotalBlocks();
+		// return this.getTemplate().size_x * this.getTemplate().size_y * this.getTemplate().size_z;
 	};
 
-	public double getBlocksPerHammer() {
-		// no hammer cost should be instant...
-		if (this.getHammerCost() == 0) return this.getTotalBlock();
-		return this.getTotalBlock() / this.getHammerCost();
+	public int converHammerToBlock(int hammer) {
+		return getTotalBlock() * hammer / getHammerCost();
 	}
 
-	/** Время ожидания между установкой блоков. Если менше 1000 мс то никак не влияет на процес строительства */
-	public int getTimeLag() {
-		// buildTime is in hours, we need to return milliseconds. We should return the
-		// number of milliseconds to wait between each block placement.
-		double millisecondsPerBlock = 3600 * 1000 / getBlocksPerHour();
-
-		if (millisecondsPerBlock < 500) // Clip millisecondsPerBlock to 500 milliseconds.
-			millisecondsPerBlock = 500;
-		return (int) millisecondsPerBlock;
+	public int getNeadHammersToComplit() {
+		return getHammerCost() - getHammersCompleted();
 	}
 
-	/** скорость установки блоков */
-	public double getBlocksPerHour() {
-		return getTown().getHammers().total * this.getTotalBlock() / this.getHammerCost();
+	private int percent_complete = 0;
+
+	public void progressBuild(int depositHammer) {
+		int completedBlock = converHammerToBlock(getHammersCompleted());
+		hammersCompleted += depositHammer;
+		int endBlock = converHammerToBlock(getHammersCompleted());
+		updateBuildProgess();
+		if (completedBlock == endBlock) return;
+		if (endBlock >= getTotalBlock()) endBlock = getTotalBlock();
+
+		try {
+			Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+			for (int count = completedBlock; count < endBlock; count++) {
+				SimpleBlock sbnext = this.getTemplate().getNextBlockBuild(count);
+				if (sbnext == null) throw new CivException("В темплатете не нашел блок под номером " + count + ". Всего блоков " + getTotalBlock());
+				SimpleBlock sb = new SimpleBlock(getCorner(), sbnext);
+
+				if (!Template.isAttachable(sb.getMaterial())) sbs.add(sb);
+				if (sb.getType() != CivData.AIR && sb.specialType != Type.COMMAND) addConstructBlock(new BlockCoord(sb), sb.y != 0);
+			}
+
+			// Add all of the blocks from this tick to the sync task.
+			if (getTown().BM.isBuildableInprogress(this)) {
+				SyncBuildUpdateTask.queueSimpleBlock(sbs);
+				sbs.clear();
+			} else {
+				abortBuild();
+				return;
+			}
+
+			if (getHammersCompleted() >= getHammerCost()) {
+				finished();
+				return;
+			}
+
+			int nextPercentComplete = Math.floorDiv(getHammersCompleted() * 100, getHammerCost());
+			if (nextPercentComplete > this.percent_complete) {
+				this.percent_complete = nextPercentComplete;
+				if ((this.percent_complete / 10) != (nextPercentComplete / 10)) {
+					if (this instanceof Wonder)
+						CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_progressWonder", getDisplayName(), getTown().getName(), nextPercentComplete, getCiv().getName()));
+					else
+						CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_progressOther", getDisplayName(), nextPercentComplete));
+				}
+			}
+		} catch (Exception e) {
+			CivLog.exception("BuildAsyncTask town:" + getTown() + " struct:" + getDisplayName() + " template:" + getTemplate().filepath, e);
+		}
 	}
 
-	public double getHammersCompleted() {
-		return getHammerCost() * getBlocksCompleted() / getTotalBlock();
+	public void finished() {
+		setComplete(true);
+		updateBuildProgess();
+		save();
+		getTown().BM.removeBuildableInprogress(this);
+		getTown().save();
+
+		Template tpl = this.getTemplate();
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				tpl.buildTemplate(getCorner());
+				tpl.buildAirBlocks(getCorner());
+			}
+		});
+		
+		postBuildSyncTask();
+		onComplete();
+		return;
 	}
 
-	/** Количество блоков которое нужно установить за такт. Такт = 500 мс */
-	public int getBlocksPerTick() {
-		double blocks = getBlocksPerHour() / 7200;
-		if (blocks < 1) blocks = 1;
-		return (int) blocks;
+	public void setNextProgressBuild(int minute) {
+		this.nextProgressBuild = System.currentTimeMillis() + TimeTools.minuteToMinisec(minute);
 	}
 
-	public void setBlocksCompleted(int builtBlockCount) {
-		this.blocksCompleted = builtBlockCount;
-		this.savedBlockCount = builtBlockCount;
+	public boolean isNextProgressBuild() {
+		return this.nextProgressBuild > System.currentTimeMillis();
 	}
 
 	// ------------ abstract metods
@@ -216,11 +262,6 @@ public abstract class Buildable extends Construct {
 			if (player != null) {
 				CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_alreadyDestroyed", hit.getOwner().getDisplayName()));
 			}
-			return;
-		}
-
-		if ((this instanceof TradeOutpost || this instanceof FishingBoat) && player != null) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_buildable_cannotBeBroken", "§6" + hit.getOwner().getDisplayName() + "§c"));
 			return;
 		}
 
@@ -310,7 +351,7 @@ public abstract class Buildable extends Construct {
 	@Override
 	public void setValid(boolean b) {
 		this.valid = this.isPartOfAdminCiv() || b;
-		if (!this.valid) this.getTown().SM.addInvalideBuildable(this);
+		if (!this.valid) this.getTown().BM.addInvalideBuildable(this);
 	}
 
 	@Override
@@ -349,4 +390,5 @@ public abstract class Buildable extends Construct {
 		CivMessage.sendTown(this.getTown(), CivColor.Rose + CivSettings.localize.localizedString("buildable_validationPrompt"));
 		this.save();
 	}
+
 }

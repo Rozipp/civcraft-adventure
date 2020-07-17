@@ -109,7 +109,7 @@ public class AdminCivCommand extends CommandBase {
 
 		Civilization civ = CivGlobal.getConqueredCiv(conquerCiv);
 		if (civ == null) {
-			civ = CivGlobal.getCiv(conquerCiv);
+			civ = CivGlobal.getCivFromName(conquerCiv);
 		}
 
 		if (civ == null) {
@@ -268,7 +268,7 @@ public class AdminCivCommand extends CommandBase {
 			throw new CivException(CivSettings.localize.localizedString("adcmd_civ_giveTechInvalid") + args[2]);
 		}
 
-		if (civ.hasTechnology(tech.id)) {
+		if (civ.hasTechnologys(tech.id)) {
 			throw new CivException(CivSettings.localize.localizedString("var_adcmd_civ_giveTechAlreadyhas", civ.getName(), tech.id));
 		}
 

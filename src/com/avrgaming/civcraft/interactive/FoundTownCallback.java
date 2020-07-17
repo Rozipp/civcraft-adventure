@@ -5,10 +5,10 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.town.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.ChoiseTemplate;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -42,7 +42,7 @@ public class FoundTownCallback implements CallbackInterface {
 		town = new Town(resident.getCiv());
 		town.checkCanCreatedTown(resident, cityhall);
 
-		new ChoiseTemplate(player, cityhall.getInfo(), this);
+		GuiInventory.getGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
 	}
 
 	private String templateTheme = null;
@@ -109,7 +109,7 @@ public class FoundTownCallback implements CallbackInterface {
 				return;
 			}
 			try {
-				if (CivGlobal.getTown(townName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_town_found_errorNameExists", townName));
+				if (CivGlobal.getTownFromName(townName) != null) throw new InvalidNameException(CivSettings.localize.localizedString("var_town_found_errorNameExists", townName));
 				town.setName(townName);
 			} catch (InvalidNameException e) {
 				townName = null;

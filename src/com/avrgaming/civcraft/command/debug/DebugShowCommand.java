@@ -109,7 +109,7 @@ public class DebugShowCommand extends CommandBase {
 		}
 		final Town town = this.getNamedTown(1);
 		CivMessage.sendHeading(this.sender, "Town " + town.getName());
-		CivMessage.send(this.sender, "id:" + town.getId() + " level: " + town.getLevel());
+		CivMessage.send(this.sender, "id:" + town.getId() + " level: " + town.SM.getLevel());
 	}
 
 	public void civ_cmd() throws CivException {

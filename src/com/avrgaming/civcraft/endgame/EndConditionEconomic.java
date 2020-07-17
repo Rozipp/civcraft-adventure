@@ -59,7 +59,7 @@ extends EndGameCondition {
         boolean hasStock = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.SM.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals("w_stock_exchange")) continue;
                 stock = wonder;
                 hasStock = true;

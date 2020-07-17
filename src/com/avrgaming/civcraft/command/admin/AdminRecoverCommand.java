@@ -24,13 +24,12 @@ import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.recover.RecoverStructuresAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.sync.RecoverStructuresAsyncTask;
 
 public class AdminRecoverCommand extends CommandBase {
 
@@ -64,27 +63,6 @@ public class AdminRecoverCommand extends CommandBase {
 		cs.add("listnocaptials", CivSettings.localize.localizedString("adcmd_recover_listNoCapitolsDesc"));
 		cs.add("cleannocapitols", CivSettings.localize.localizedString("adcmd_recover_cleanNoCapitolsDesc"));
 
-		cs.add("fixtownresidents", CivSettings.localize.localizedString("adcmd_recover_fixTownResidenstDesc"));
-
-	}
-
-	public void fixtownresidents_cmd() {
-		for (Resident resident : CivGlobal.getResidents()) {
-			if (resident.debugTown != null && !resident.debugTown.equals("")) {
-				Town town = CivGlobal.getTown(resident.debugTown);
-				if (town == null) {
-					CivLog.error(CivSettings.localize.localizedString("var_admcd_recover_FixTownError1", resident.debugTown, resident.getName()));
-					continue;
-				}
-
-				resident.setTown(town);
-				try {
-					resident.saveNow();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 
 	public void listnocapitols_cmd() {

@@ -110,7 +110,7 @@ public class ConfigCave implements Comparable<ConfigCave> {
 		String[] requireTechs = require_techs.split(":");
 
 		for (String reqTech : requireTechs) {
-			if (!civ.hasTechnology(reqTech))
+			if (!civ.hasTechnologys(reqTech))
 				return false;
 		}
 		return true;

@@ -89,7 +89,7 @@ public class FarmChunk {
 	}
 
 	public double getGrowth() {
-		if (construct.getTown() != null) return construct.getTown().getGrowth().total;
+		if (construct.getTown() != null) return construct.getTown().SM.getAttrGrowth().total;
 		if (construct instanceof Camp) return Camp.growthCampTotal;
 		return 1.0;
 	}

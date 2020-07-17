@@ -107,7 +107,7 @@ public class CivResearchCommand extends CommandBase {
 		if (civ.getResearchTech() == null) {
 			throw new CivException(CivSettings.localize.localizedString("no_research"));
 		}
-		double mins = (civ.getResearchTech().getAdjustedBeakerCost(civ) - civ.getResearchProgress()) / civ.getBeakers() * 60.0;
+		double mins = (civ.getResearchTech().getAdjustedBeakerCost(civ) - civ.getResearchProgress()) / civ.getBeakersCivtick() * 60.0;
 		long timeNow = Calendar.getInstance().getTimeInMillis();
 		double seconds = mins * 60.0;
 		long endResearch = (long) ((double) timeNow + 1000.0 * seconds);

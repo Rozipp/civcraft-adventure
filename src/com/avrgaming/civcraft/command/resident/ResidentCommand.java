@@ -25,7 +25,7 @@ import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.loregui.GuiPage;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -144,8 +144,7 @@ public class ResidentCommand extends CommandBase {
 	}
 
 	public void perks_cmd() throws CivException {
-		Resident resident = getResident();
-		GuiPage.showPerkPage(resident, 0);
+		GuiInventory.getGuiInventory(getPlayer(), "PerkPage", null);
 	}
 
 	public void structure_cmd() throws CivException {
@@ -153,7 +152,7 @@ public class ResidentCommand extends CommandBase {
 		if (resident.getCiv() == null) {
 			throw new CivException(CivSettings.localize.localizedString("belongTownGUI"));
 		}
-		GuiPage.showStructPage(resident);
+		GuiInventory.getGuiInventory(getPlayer(), "Structure", "false").openInventory();
 	}
 
 	public void upgrade_cmd() throws CivException {
@@ -161,15 +160,13 @@ public class ResidentCommand extends CommandBase {
 		if (resident.getCiv() == null) {
 			throw new CivException(CivSettings.localize.localizedString("belongTownGUI"));
 		}
-		GuiPage.showUpgradePage(resident);
+		GuiInventory.getGuiInventory(getPlayer(), "UpgradeBuy", "false").openInventory();
 	}
 
 	public void tech_cmd() throws CivException {
 		Resident resident = this.getResident();
-		if (resident.getCiv() == null) {
-			throw new CivException(CivSettings.localize.localizedString("belongTownGUI"));
-		}
-		GuiPage.showTechPage(resident);
+		if (resident.getCiv() == null) throw new CivException(CivSettings.localize.localizedString("belongTownGUI"));
+		GuiInventory.getGuiInventory(getPlayer(), "TechPage", "false").openInventory();
 	}
 
 	public void dip_cmd() throws CivException {
@@ -177,7 +174,7 @@ public class ResidentCommand extends CommandBase {
 		if (resident.getCiv() == null) {
 			throw new CivException(CivSettings.localize.localizedString("belongTownGUI"));
 		}
-		GuiPage.showRelationPage(resident);
+		GuiInventory.getGuiInventory(getPlayer(), "RelationPage", null);
 	}
 
 	public void book_cmd() throws CivException {
@@ -295,9 +292,6 @@ public class ResidentCommand extends CommandBase {
 
 			if (CraftableCustomMaterial.isCustomMaterial(is)) continue;
 
-			if (CivGlobal.isBonusGoodie(is)) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_res_exchangeNoTradeGoods"));
-			}
 			if (Enchantments.hasEnchantment(is, CustomEnchantment.BuyItem)) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_res_exchangeNoBuyItems"));
 			}

@@ -72,9 +72,10 @@ public class TheHangingGardens extends Wonder {
 		removeBuffs();
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
-	public void onMinuteUpdate() {
-		super.onMinuteUpdate();
+	public void onCivtickUpdate() {
+		super.onCivtickUpdate();
 		
 		for (Town t : this.getTown().getCiv().getTowns()) {
 			for (Resident res : t.getResidents()) {
@@ -94,8 +95,8 @@ public class TheHangingGardens extends Wonder {
 						continue;
 					}
 					
-					if (player.getHealth() >= 19.0) {
-						player.setHealth(20);
+					if (player.getHealth() > player.getMaxHealth()) {
+						player.setHealth(player.getMaxHealth());
 					} else {
 						player.setHealth(player.getHealth() + 1);
 					}

@@ -48,7 +48,7 @@ public class Windmill extends Structure {
 	}
 
 	@Override
-	public void onMinuteUpdate() {
+	public void onCivtickUpdate() {
 		Windmill windmill = this;
 		/* Fire a sync task to perform this. */
 		TaskMaster.syncTask(new Runnable() {
@@ -86,7 +86,7 @@ public class Windmill extends Structure {
 			int plant_max;
 			try {
 				plant_max = CivSettings.getInteger(CivSettings.structureConfig, "windmill.plant_max");
-				if (windmill.getCiv().hasTechnology("tech_machinery")) plant_max *= 2;
+				if (windmill.getCiv().hasTechnologys("tech_machinery")) plant_max *= 2;
 				if (windmill.getTown().getBuffManager().hasBuff("buff_farm")) plant_max *= 2;
 			} catch (InvalidConfiguration e) {
 				e.printStackTrace();

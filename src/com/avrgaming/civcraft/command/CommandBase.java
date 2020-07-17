@@ -212,9 +212,7 @@ public abstract class CommandBase implements CommandExecutor {
 	}
 
 	public Player getPlayer() throws CivException {
-		if (sender instanceof Player) {
-			return (Player) sender;
-		}
+		if (sender instanceof Player) return (Player) sender;
 		throw new CivException(CivSettings.localize.localizedString("cmd_MustBePlayer"));
 	}
 

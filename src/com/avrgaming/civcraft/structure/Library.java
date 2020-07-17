@@ -147,7 +147,7 @@ public class Library extends Structure {
 		super(id, town);
 		nonMemberFeeComponent = new NonMemberFeeComponent(this);
 		nonMemberFeeComponent.onSave();
-		setLevel(town.SM.saved_library_level);
+		setLevel(town.BM.saved_library_level);
 	}
 
 	public Library(ResultSet rs) throws SQLException, CivException {
@@ -187,7 +187,7 @@ public class Library extends Structure {
 			}
 			double price = enchant.price;
 
-			if (this.getTown().SM.hasStructure("s_shopingcenter")) price /= 2.0;
+			if (this.getTown().BM.hasStructure("s_shopingcenter")) price /= 2.0;
 			sign.setText(enchant.displayName + "\n" + "Level " + enchant.level + "\n" + getNonResidentFeeString() + "\n" + "For " + price);
 			sign.update();
 			count++;

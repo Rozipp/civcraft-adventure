@@ -1,15 +1,18 @@
 
 package com.avrgaming.civcraft.loregui;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import com.avrgaming.civcraft.loregui.GuiAction;
+
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.lorestorage.GuiItemAction;
 
 public class CloseInventory
-implements GuiAction {
+implements GuiItemAction {
     @Override
     public void performAction(InventoryClickEvent event, ItemStack stack) {
-        event.getWhoClicked().closeInventory();
+        GuiInventory.closeInventory((Player) event.getWhoClicked());
     }
 }
 

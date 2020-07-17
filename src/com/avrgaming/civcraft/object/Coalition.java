@@ -96,7 +96,7 @@ public class Coalition extends SQLObject {
 		civ.getDiplomacyManager().setCoalitionId(this.getId());
 	}
 	public void addCiv(int civId) throws CivException {
-		addCiv(CivGlobal.getCivFromId(civId));
+		addCiv(CivGlobal.getCiv(civId));
 	}
 
 	public void removeCiv(Civilization civ) {
@@ -109,7 +109,7 @@ public class Coalition extends SQLObject {
 		}
 	}
 	public void removeCiv(int civId) {
-		removeCiv(CivGlobal.getCivFromId(civId));
+		removeCiv(CivGlobal.getCiv(civId));
 	}
 	
 	private void loadCoalitions(String civString) {
@@ -118,7 +118,7 @@ public class Coalition extends SQLObject {
 		String[] civSplit = civString.split(",");
 		for (String civId : civSplit) {
 			int id = Integer.parseInt(civId);
-			Civilization civ = CivGlobal.getCivFromId(id);
+			Civilization civ = CivGlobal.getCiv(id);
 			if (civ != null) {
 				civs.put(id, civ);
 				civ.getDiplomacyManager().setCoalitionId(this.getId());
@@ -149,7 +149,7 @@ public class Coalition extends SQLObject {
 		return creatorId;
 	}
 	public Civilization getCreator() {
-		return CivGlobal.getCivFromId(creatorId);
+		return CivGlobal.getCiv(creatorId);
 	}
 	
 	public static String getCoalitionsName(Civilization civ) {

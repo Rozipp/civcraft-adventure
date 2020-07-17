@@ -55,6 +55,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.interactive.BuildCallbackDbg;
 import com.avrgaming.civcraft.items.CustomMaterial;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.lorestorage.LoreStoreage;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -73,7 +74,6 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.tutorial.Book;
 import com.avrgaming.civcraft.util.AsciiMap;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -86,6 +86,7 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.CuboidRegion;
 
+@SuppressWarnings("deprecation")
 public class DebugCommand extends CommandBase {
 
 	@Override
@@ -95,7 +96,6 @@ public class DebugCommand extends CommandBase {
 
 		this.cs.add("show", "Show data base info.");
 		this.cs.add("reloadconf", "перезагрузка настроек из файла");
-		this.cs.add("tradegood", "Дебаг торговых ресурсов");
 		this.cs.add("cave", "Дебаг пещер");
 
 		cs.add("map", "shows a town chunk map of the current area.");
@@ -113,9 +113,7 @@ public class DebugCommand extends CommandBase {
 
 		cs.add("restoresigns", "restores all structure signs");
 
-		cs.add("quickcodereload", "Reloads the quick code plugin");
 		cs.add("loadbans", "Loads bans from ban list into global table");
-		cs.add("setallculture", "[amount] - sets all towns culture in the world to this amount.");
 		cs.add("timers", "show all the timer information.");
 		cs.add("runtimer", "run timer commands.");
 		cs.add("loretest", "tests if the magic lore is set.");
@@ -319,85 +317,82 @@ public class DebugCommand extends CommandBase {
 
 						CivMessage.send(sender, "Building from " + start_x + "," + start_y + "," + start_z);
 						for (int y = start_y; y < tpl.size_y; y++) {
-							for (int x = start_x; x < tpl.size_x; x++) {
-								for (int z = start_z; z < tpl.size_z; z++) {
-									BlockCoord next = corner.getRelative(x, y, z);
-									SimpleBlock sb = tpl.blocks[x][y][z];
+							for (SimpleBlock sb : tpl.blocks.get(y)) {
+								BlockCoord next = corner.getRelative(sb.getX(), y, sb.getZ());
 
-									if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
-										String buildableName = sb.command.replace("/", "");
+								if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
+									String buildableName = sb.command.replace("/", "");
 
-										ConfigBuildableInfo info = null;
-										for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
-											if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
-												info = buildInfo;
-												break;
-											}
+									ConfigBuildableInfo info = null;
+									for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
+										if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
+											info = buildInfo;
+											break;
 										}
-										if (info == null) {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
-												continue;
-											} catch (Exception e) {
-												e.printStackTrace();
-												continue;
-											}
+									}
+									if (info == null) {
+										try {
+											Block block = next.getBlock();
+											ItemManager.setTypeIdAndData(block, CivData.AIR, 0, false);
+											continue;
+										} catch (Exception e) {
+											e.printStackTrace();
+											continue;
 										}
+									}
 
-										CivMessage.send(sender, "Setting up " + buildableName);
-										int yShift = 0;
-										String lines[] = sb.getKeyValueString().split(",");
-										String split[] = lines[0].split(":");
-										String dir = split[0];
-										yShift = Integer.valueOf(split[1]);
+									CivMessage.send(sender, "Setting up " + buildableName);
+									int yShift = 0;
+									String lines[] = sb.getKeyValueString().split(",");
+									String split[] = lines[0].split(":");
+									String dir = split[0];
+									yShift = Integer.valueOf(split[1]);
 
-										Location loc = next.getLocation();
-										loc.setY(loc.getY() + yShift);
+									Location loc = next.getLocation();
+									loc.setY(loc.getY() + yShift);
 
-										Structure struct = Structure.newStructure(player, loc, info.id, spawnCapitol, false);
-										if (struct instanceof Cityhall) {
-											AdminTownCommand.claimradius(spawnCapitol, center, 15);
-										}
-										struct.setTemplate(Template.getTemplate(Template.getTemplateFilePath(info.template_name, dir, null)));
-										struct.bindBlocks();
-										struct.setComplete(true);
-										struct.setHitpoints(info.max_hitpoints);
-										CivGlobal.addStructure(struct);
-										spawnCapitol.SM.addStructure(struct);
-										struct.postBuildSyncTask();
-										struct.save();
-										spawnCapitol.save();
-									} else
-										if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+									Structure struct = Structure.newStructure(player, loc, info.id, spawnCapitol, false);
+									if (struct instanceof Cityhall) {
+										AdminTownCommand.claimradius(spawnCapitol, center, 15);
+									}
+									struct.setTemplate(Template.getTemplate(Template.getTemplateFilePath(info.template_name, dir, null)));
+									struct.bindBlocks();
+									struct.setComplete(true);
+									struct.setHitpoints(info.max_hitpoints);
+									CivGlobal.addStructure(struct);
+									spawnCapitol.BM.addStructure(struct);
+									struct.postBuildSyncTask();
+									struct.save();
+									spawnCapitol.save();
+								} else
+									if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
+										try {
+											Block block = next.getBlock();
+											ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
 
-												Sign s = (Sign) block.getState();
-												for (int j = 0; j < 4; j++) {
-													s.setLine(j, sb.message[j]);
-												}
-
-												s.update();
-											} catch (Exception e) {
-												e.printStackTrace();
+											Sign s = (Sign) block.getState();
+											for (int j = 0; j < 4; j++) {
+												s.setLine(j, sb.message[j]);
 											}
-										} else {
-											try {
-												Block block = next.getBlock();
-												ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
+
+											s.update();
+										} catch (Exception e) {
+											e.printStackTrace();
 										}
-								}
+									} else {
+										try {
+											Block block = next.getBlock();
+											ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
+									}
 							}
 						}
 
 						CivMessage.send(sender, "Finished building.");
 
-						spawnCapitol.addAccumulatedCulture(60000000);
+						spawnCapitol.SM.addCulture(60000000);
 						spawnCapitol.save();
 
 					} catch (CivException e) {
@@ -603,11 +598,11 @@ public class DebugCommand extends CommandBase {
 	}
 
 	public void showinv_cmd() throws CivException {
-		Book.spawnGuiBook(getPlayer());
+		GuiInventory.getGuiInventory(getPlayer(), "GuiBook", null).openInventory();
 	}
 
 	public void showcraftinv_cmd() throws CivException {
-		Book.showCraftingHelp(getPlayer());
+		GuiInventory.getGuiInventory(getPlayer(), "CraftingHelp", null).openInventory();
 	}
 
 	public void scout_cmd() throws CivException {
@@ -756,7 +751,7 @@ public class DebugCommand extends CommandBase {
 	public void loreset_cmd() throws CivException {
 		Player player = getPlayer();
 
-		org.bukkit.inventory.ItemStack inHand = player.getInventory().getItemInMainHand();
+		ItemStack inHand = player.getInventory().getItemInMainHand();
 		if (inHand != null) {
 			LoreStoreage.setMatID(1337, inHand);
 		}
@@ -784,24 +779,6 @@ public class DebugCommand extends CommandBase {
 			}
 
 		}
-
-	}
-
-	public void setallculture_cmd() throws CivException {
-		Integer culture = getNamedInteger(1);
-
-		for (Town town : CivGlobal.getTowns()) {
-			town.addAccumulatedCulture(culture);
-			town.save();
-		}
-
-		CivGlobal.processCulture();
-		CivMessage.sendSuccess(sender, "Set all town culture to " + culture + " points.");
-	}
-
-	public void quickcodereload_cmd() {
-
-		Bukkit.getPluginManager().getPlugin("QuickCode");
 
 	}
 
@@ -883,12 +860,12 @@ public class DebugCommand extends CommandBase {
 			throw new CivException("/arrow [power]");
 		}
 		for (Town town : CivGlobal.getTowns()) {
-			for (Structure struct : town.SM.getStructures()) {
+			for (Structure struct : town.BM.getStructures()) {
 				if (struct instanceof ArrowTower) {
 					((ArrowTower) struct).setPower(Float.valueOf(args[1]));
 				}
 			}
-			for (Wonder wonder : town.SM.getWonders()) {
+			for (Wonder wonder : town.BM.getWonders()) {
 				if (wonder instanceof GrandShipIngermanland) {
 					((GrandShipIngermanland) wonder).setArrorPower(Float.valueOf(args[1]));
 				}
@@ -955,11 +932,6 @@ public class DebugCommand extends CommandBase {
 	public void cave_cmd() {
 		final DebugCaveCommand cmd = new DebugCaveCommand();
 		cmd.onCommand(this.sender, null, "cave", this.stripArgs(this.args, 1));
-	}
-
-	public void tradegood_cmd() {
-		final DebugTradeGoodCommand cmd = new DebugTradeGoodCommand();
-		cmd.onCommand(this.sender, null, "tradegood", this.stripArgs(this.args, 1));
 	}
 
 	public void reloadconf_cmd() {

@@ -32,9 +32,8 @@ import com.avrgaming.civcraft.components.AttributeBiomeBase;
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigCultureBiomeInfo;
+import com.avrgaming.civcraft.config.ConfigBiomeInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.BiomeCache;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -48,7 +47,7 @@ public class CultureChunk {
 	private ChunkCoord chunkCoord;
 	private int distance = 0;
 	private Biome biome = null;
-	
+
 	public CultureChunk(Town town, ChunkCoord coord) {
 		this.town = town;
 		this.chunkCoord = coord;
@@ -57,101 +56,91 @@ public class CultureChunk {
 
 	public int getDistanceToNearestEdge(ArrayList<TownChunk> edges) {
 		int distance = Integer.MAX_VALUE;
-		
+
 		for (TownChunk tc : edges) {
 			int tmp = tc.getChunkCoord().manhattanDistance(this.chunkCoord);
 			if (tmp < distance) {
 				distance = tmp;
 			}
 		}
-		
+
 		return distance;
 	}
 
 	public String getOnLeaveString() {
-		return CivColor.LightPurple+CivSettings.localize.localizedString("var_cultureLeaveMsg",town.getCiv().getName());
+		return CivColor.LightPurple + CivSettings.localize.localizedString("var_cultureLeaveMsg", town.getCiv().getName());
 	}
-	
+
 	public String getOnEnterString() {
-		return CivColor.LightPurple+CivSettings.localize.localizedString("var_cultureEnterMsg",town.getCiv().getName());
+		return CivColor.LightPurple + CivSettings.localize.localizedString("var_cultureEnterMsg", town.getCiv().getName());
 	}
+
 	public double getPower() {
 		// power = max/(distance^2).
 		// if distance == 0, power = DOUBLEMAX;
-		
+
 		if (this.distance == 0) {
 			return Double.MAX_VALUE;
 		}
-		
-		ConfigCultureLevel clc = CivSettings.cultureLevels.get(getTown().getCultureLevel());
+
+		ConfigCultureLevel clc = CivSettings.cultureLevels.get(getTown().SM.getLevel());
 		double power = clc.amount / (Math.pow(distance, 2));
-		
+
 		return power;
 	}
-	
+
 	public Biome getBiome() {
 		return biome;
 	}
+
 	public void setBiome(Biome biome) {
 		this.biome = biome;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.chunkCoord.toString();
 	}
-	
-	public ConfigCultureBiomeInfo getCultureBiomeInfo() {
+
+	public ConfigBiomeInfo getCultureBiomeInfo() {
 		if (this.biome != null) {
-			ConfigCultureBiomeInfo info = CivSettings.getCultureBiome(this.biome.name());
+			ConfigBiomeInfo info = CivSettings.getCultureBiome(this.biome);
 			return info;
 		} else {
 			// This can happen within 1 tick of the chunk being created, that's OK. 
-			return CivSettings.getCultureBiome("UNKNOWN");
+			return CivSettings.getCultureBiome(Biome.VOID);
 		}
 	}
-	
-	public double getCoins() {
-		return getCultureBiomeInfo().coins+getAdditionalAttributes(Attribute.TypeKeys.COINS.name());
-	}
-	
+
 	public double getHappiness() {
-		return getCultureBiomeInfo().happiness+getAdditionalAttributes(Attribute.TypeKeys.HAPPINESS.name());
+		return (getCultureBiomeInfo().beauty ? 1 : 0) + getAdditionalAttributes(Attribute.TypeKeys.HAPPINESS.name());
 	}
-	
+
 	public double getHammers() {
-		//CivLog.debug("getting hammers...");
-		return getCultureBiomeInfo().hammers+getAdditionalAttributes(Attribute.TypeKeys.HAMMERS.name());
+		return getCultureBiomeInfo().getHammers() + getAdditionalAttributes(Attribute.TypeKeys.HAMMERS.name());
 	}
-	
+
 	public double getGrowth() {
-		return getCultureBiomeInfo().growth+getAdditionalAttributes(Attribute.TypeKeys.GROWTH.name());
+		return getCultureBiomeInfo().getGrowth() + getAdditionalAttributes(Attribute.TypeKeys.GROWTH.name());
 	}
-	
-	public double getBeakers() {		
-		return getCultureBiomeInfo().beakers+getAdditionalAttributes(Attribute.TypeKeys.BEAKERS.name());
-	}
-	
+
 	private double getAdditionalAttributes(String attrType) {
-		if (getBiome() == null) {
-			return 0.0;
-		}
-		
+		if (getBiome() == null) return 0.0;
+
 		Component.componentsLock.lock();
 		try {
 			ArrayList<Component> attrs = Component.componentsByType.get("AttributeBiomeBase");
 			double total = 0;
-			
+
 			if (attrs == null) {
 				return total;
 			}
-	
+
 			for (Component comp : attrs) {
-				if (comp instanceof AttributeBiomeRadiusPerLevel) {
-				}
-				
+				if (comp instanceof AttributeBiomeRadiusPerLevel) {}
+
 				if (comp instanceof AttributeBiomeBase) {
-					AttributeBiomeBase attrComp = (AttributeBiomeBase)comp;
+					AttributeBiomeBase attrComp = (AttributeBiomeBase) comp;
 					if (attrComp.getAttribute().equals(attrType)) {
 						total += attrComp.getGenerated(this);
 					}
@@ -162,33 +151,17 @@ public class CultureChunk {
 			Component.componentsLock.unlock();
 		}
 	}
-	
-	public static void showInfo(Player player) {
-	//	Biome biome = player.getLocation().getWorld().getBiome(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-		Biome biome = getBiomeFromLocation(player.getLocation());
-		
-		CultureChunk cc = CivGlobal.getCultureChunk(new ChunkCoord(player.getLocation()));
-		ConfigCultureBiomeInfo info = CivSettings.getCultureBiome(biome.name());
-	//	CivLog.debug("showing info.");
-		
-		if (cc == null) {
-			CivMessage.send(player, CivColor.LightPurple+biome.name()+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Coins")+" "+CivColor.LightGreen+info.coins+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Happiness")+" "+CivColor.LightGreen+info.happiness+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Hammers")+" "+CivColor.LightGreen+info.hammers+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Growth")+" "+CivColor.LightGreen+info.growth+				
-					CivColor.Green+" "+CivSettings.localize.localizedString("Beakers")+" "+CivColor.LightGreen+info.beakers);
-		} else {
-			CivMessage.send(player, CivColor.LightPurple+biome.name()+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Coins")+" "+CivColor.LightGreen+cc.getCoins()+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Happiness")+" "+CivColor.LightGreen+info.happiness+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Hammers")+" "+CivColor.LightGreen+info.hammers+
-					CivColor.Green+" "+CivSettings.localize.localizedString("Growth")+" "+CivColor.LightGreen+info.growth+				
-					CivColor.Green+" "+CivSettings.localize.localizedString("Beakers")+" "+CivColor.LightGreen+info.beakers);
-		}
 
+	public static void showInfo(Player player) {
+		Biome biome = getBiomeFromLocation(player.getLocation());
+
+		ConfigBiomeInfo info = CivSettings.getCultureBiome(biome);
+		// CivLog.debug("showing info.");
+
+		CivMessage.send(player, CivColor.LightPurple + biome.name() + CivColor.Green + " " + CivSettings.localize.localizedString("Happiness") + " " + CivColor.LightGreen + info.beauty + CivColor.Green + " "
+				+ CivSettings.localize.localizedString("Hammers") + " " + CivColor.LightGreen + info.getHammers() + CivColor.Green + " " + CivSettings.localize.localizedString("Growth") + " " + CivColor.LightGreen + info.getGrowth());
 	}
-	
+
 	public static Biome getBiomeFromLocation(Location loc) {
 		Block block = loc.getChunk().getBlock(0, 0, 0);
 		return block.getBiome();

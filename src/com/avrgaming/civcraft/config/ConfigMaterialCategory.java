@@ -5,28 +5,27 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 public class ConfigMaterialCategory {
-	
+
 	private static TreeMap<String, ConfigMaterialCategory> categories = new TreeMap<String, ConfigMaterialCategory>();
-	
-	public String name;
+
+	public String id;
+	public String title;
 	public HashMap<String, ConfigCraftableMaterial> materials = new HashMap<String, ConfigCraftableMaterial>();
 	public int craftableCount = 0;
-	
+
 	public static void addMaterial(ConfigCraftableMaterial mat) {
-		ConfigMaterialCategory cat = categories.get(mat.categoryCivColortripped);
+		ConfigMaterialCategory cat = categories.get(mat.categoryId);
 		if (cat == null) {
 			cat = new ConfigMaterialCategory();
-			cat.name = mat.category;
+			cat.title = mat.category;
+			cat.id = mat.categoryId;
 		}
-		
+
 		cat.materials.put(mat.id, mat);
-		if (mat.craftable) {
-			cat.craftableCount++;
-		}
-		categories.put(mat.categoryCivColortripped, cat);
-		
+		if (mat.craftable) cat.craftableCount++;
+		categories.put(cat.id, cat);
 	}
-	
+
 	public static Collection<ConfigMaterialCategory> getCategories() {
 		return categories.values();
 	}
@@ -34,5 +33,5 @@ public class ConfigMaterialCategory {
 	public static ConfigMaterialCategory getCategory(String key) {
 		return categories.get(key);
 	}
-	
+
 }

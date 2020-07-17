@@ -8,7 +8,6 @@ import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCave;
 import com.avrgaming.civcraft.construct.Cave;
-import com.avrgaming.civcraft.event.GoodieRepoEvent;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -93,7 +92,7 @@ public class DebugCaveCommand extends CommandBase {
 	}
 
 	public void repo_cmd() {
-		GoodieRepoEvent.repoProcess();
+//		GoodieRepoEvent.repoProcess();
 	}
 
 	@Override

@@ -97,7 +97,7 @@ public class ConfigTech {
 		ArrayList<ConfigTech> returnTechs = new ArrayList<ConfigTech>();
 
 		for (ConfigTech tech : CivSettings.techs.values()) {
-			if (!civ.hasTechnology(tech.id)) {
+			if (!civ.hasTechnologys(tech.id)) {
 				if (tech.isAvailable(civ)) {
 					returnTechs.add(tech);
 				}
@@ -123,7 +123,7 @@ public class ConfigTech {
 		String[] requireTechs = require_techs.split(":");
 
 		for (String reqTech : requireTechs) {
-			if (!civ.hasTechnology(reqTech))
+			if (!civ.hasTechnologys(reqTech))
 				return false;
 		}
 		return true;

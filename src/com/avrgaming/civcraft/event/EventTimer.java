@@ -103,14 +103,6 @@ public class EventTimer {
 			e.printStackTrace();
 		}
 		
-		/* Setup repo event. */
-		try {
-			GoodieRepoEvent repoEvent = new GoodieRepoEvent();
-			new EventTimer("repo-goodies", repoEvent, repoEvent.getNextDate());
-		} catch (InvalidConfiguration e) {
-			e.printStackTrace();
-		}
-		
 		/* Setup random event timer. */
 		try {
 			RandomEventTimer randEvent = new RandomEventTimer();

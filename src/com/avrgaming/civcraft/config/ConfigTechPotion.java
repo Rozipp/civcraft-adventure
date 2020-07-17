@@ -39,7 +39,7 @@ public class ConfigTechPotion {
 			return false;
 		}
 		
-		if (!resident.getCiv().hasTechnology(require_tech)) {
+		if (!resident.getCiv().hasTechnologys(require_tech)) {
 			return false;
 		}
 		

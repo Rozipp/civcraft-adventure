@@ -43,7 +43,7 @@ public class TownResetCommand extends CommandBase {
 	public void library_cmd() throws CivException {
 		Town town = getSelectedTown();
 		
-		Library library = (Library) town.SM.getFirstStructureById("s_library");
+		Library library = (Library) town.BM.getFirstStructureById("s_library");
 		if (library == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_reset_libraryNone"));
 		}
@@ -68,7 +68,7 @@ public class TownResetCommand extends CommandBase {
 	public void store_cmd() throws CivException {
 		Town town = getSelectedTown();
 		
-		Store store = (Store) town.SM.getFirstStructureById("s_store");
+		Store store = (Store) town.BM.getFirstStructureById("s_store");
 		if (store == null) {
 			throw new CivException(CivSettings.localize.localizedString("cmd_town_reset_storeNone"));
 		}

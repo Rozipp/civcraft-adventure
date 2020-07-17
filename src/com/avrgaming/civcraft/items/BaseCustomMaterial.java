@@ -32,7 +32,6 @@ import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.items.components.ItemComponent;
-import com.avrgaming.civcraft.lorestorage.ItemChangeResult;
 import com.avrgaming.civcraft.main.CivMessage;
 
 import gpl.AttributeUtil;

@@ -28,7 +28,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -37,7 +36,6 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.enchantment.CustomEnchantment;
@@ -49,9 +47,9 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.interactive.InteractiveResponse;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.lorestorage.LoreGuiItem;
+import com.avrgaming.civcraft.loreguiinventory.Trade;
+import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivCraft;
-import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -62,7 +60,6 @@ import com.avrgaming.civcraft.structure.Cityhall;
 import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TeslaTower;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.BuildPreviewAsyncTask;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
@@ -138,13 +135,11 @@ public class Resident extends SQLObject {
 	private boolean isProtected = false;
 
 	public ConcurrentHashMap<BlockCoord, SimpleBlock> previewUndo = new ConcurrentHashMap<BlockCoord, SimpleBlock>();
-	private BuildPreviewAsyncTask previewTask = null;
 	public LinkedHashMap<String, Perk> perks = new LinkedHashMap<String, Perk>();
 	private Date lastKilledTime = null;
 	private String lastIP = "";
 	public UUID uuid;
 	private double walkingModifier = UnitStatic.normal_speed;
-	public String debugTown;
 
 	private String savedPrefix;
 	private String prefix;
@@ -202,8 +197,6 @@ public class Resident extends SQLObject {
 					"`isProtected` bool NOT NULL DEFAULT '0'," + //
 					"`flags` mediumtext DEFAULT NULL," + //
 					"`last_ip` mediumtext DEFAULT NULL," + //
-					"`debug_town` mediumtext DEFAULT NULL," + //
-					"`debug_civ` mediumtext DEFAULT NuLL," + //
 					"`language_id` int(11) DEFAULT '1033'," + //
 					"`reportResult` mediumtext," + //
 					"`reportChecked` boolean DEFAULT false," + //
@@ -224,7 +217,6 @@ public class Resident extends SQLObject {
 		int townID = rs.getInt("town_id");
 		int campID = rs.getInt("camp_id");
 		this.lastIP = rs.getString("last_ip");
-		this.debugTown = rs.getString("debug_town");
 
 		this.uuid = (rs.getString("uuid").equalsIgnoreCase("UNKNOWN")) ? null : UUID.fromString(rs.getString("uuid"));
 
@@ -243,7 +235,7 @@ public class Resident extends SQLObject {
 		if (this.getTimezone() == null) this.setTimezoneToServerDefault();
 
 		if (townID != 0) {
-			this.setTown(CivGlobal.getTownFromId(townID));
+			this.setTown(CivGlobal.getTown(townID));
 			if (this.town == null) {
 				CivLog.error("COULD NOT FIND TOWN(" + townID + ") FOR RESIDENT(" + this.getId() + ") Name:" + this.getName());
 				/* When a town fails to load, we wont be able to find it above. However this can cause a cascade effect where because we couldn't find the
@@ -293,11 +285,6 @@ public class Resident extends SQLObject {
 		hashmap.put("language_id", this.languageCode);
 		hashmap.put("nextTeleport", this.nextTeleport);
 		hashmap.put("nextRefresh", this.nextRefresh);
-
-		if (this.getTown() != null) {
-			hashmap.put("debug_town", this.getTown().getName());
-			if (this.getTown().getCiv() != null) hashmap.put("debug_civ", this.getCiv().getName());
-		}
 
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
@@ -401,6 +388,18 @@ public class Resident extends SQLObject {
 		return out;
 	}
 
+	public String getCivName() {
+		return getCiv() == null ? "" : getCiv().getName();
+	}
+
+	public String getTownName() {
+		return getTown() == null ? "" : getTown().getName();
+	}
+
+	public String getCampName() {
+		return getCamp() == null ? "" : getCamp().getName();
+	}
+	
 	// ------------- getters
 	public Civilization getCiv() {
 		if (this.getTown() == null) return null;
@@ -442,7 +441,7 @@ public class Resident extends SQLObject {
 		String[] split = craftMat.getConfigMaterial().required_tech.split(",");
 		for (String tech : split) {
 			tech = tech.replace(" ", "");
-			if (!this.getCiv().hasTechnology(tech)) return false;
+			if (!this.getCiv().hasTechnologys(tech)) return false;
 		}
 		return true;
 	}
@@ -549,7 +548,7 @@ public class Resident extends SQLObject {
 
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getCooldownKey());
 		if (entries.size() > 0) {
-			Civilization oldCiv = CivGlobal.getCivFromId(Integer.valueOf(entries.get(0).value));
+			Civilization oldCiv = CivGlobal.getCiv(Integer.valueOf(entries.get(0).value));
 			if (oldCiv == null) {
 				/* Hmm old civ is gone. */
 				cleanupCooldown();
@@ -657,84 +656,23 @@ public class Resident extends SQLObject {
 
 	// ------------------- other
 
-	public Inventory startTradeWith(Resident resident) {
+	public GuiInventory startTradeWith(Resident tradeResident) {
 		try {
 			Player player = CivGlobal.getPlayer(this);
-			if (player.isDead()) {
-				throw new CivException(CivSettings.localize.localizedString("resident_tradeErrorPlayerDead"));
-			}
-			Inventory inv = Bukkit.createInventory(player, 9 * 5, this.getName() + " : " + resident.getName());
-
-			/* Set up top and bottom layer with buttons. */
-
-			/* Top part which is for the other resident. */
-			ItemStack signStack = LoreGuiItem.build("", CivData.WOOL, CivData.DATA_WOOL_WHITE, "");
-			int start = 0;
-			for (int i = start; i < (9 + start); i++) {
-				if ((i - start) == 8) {
-					ItemStack guiStack = LoreGuiItem.build(resident.getName() + " Confirm", CivData.WOOL, CivData.DATA_WOOL_RED,
-							CivColor.LightGreen + CivSettings.localize.localizedString("var_resident_tradeWait1", CivColor.LightBlue + resident.getName()),
-							CivColor.LightGray + " " + CivSettings.localize.localizedString("resident_tradeWait2"));
-					inv.setItem(i, guiStack);
-				} else
-					if ((i - start) == 7) {
-						ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-								CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
-						inv.setItem(i, guiStack);
-					} else {
-						inv.setItem(i, signStack);
-					}
-			}
-
-			start = 4 * 9;
-			for (int i = start; i < (9 + start); i++) {
-				if ((i - start) == 8) {
-					ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeYourConfirm"), CivData.WOOL, CivData.DATA_WOOL_RED,
-							CivColor.Gold + CivSettings.localize.localizedString("resident_tradeClicktoConfirm"));
-					inv.setItem(i, guiStack);
-
-				} else
-					if ((i - start) == 0) {
-						ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeRemove") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-								CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove100") + " " + CivSettings.CURRENCY_NAME,
-								CivColor.Gold + CivSettings.localize.localizedString("resident_tradeRemove1000") + " " + CivSettings.CURRENCY_NAME);
-						inv.setItem(i, guiStack);
-					} else
-						if ((i - start) == 1) {
-							ItemStack guiStack = LoreGuiItem.build(CivSettings.localize.localizedString("resident_tradeAdd") + " " + CivSettings.CURRENCY_NAME, ItemManager.getMaterialId(Material.GOLD_INGOT), 0,
-									CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd100") + " " + CivSettings.CURRENCY_NAME,
-									CivColor.Gold + CivSettings.localize.localizedString("resident_tradeAdd1000") + " " + CivSettings.CURRENCY_NAME);
-							inv.setItem(i, guiStack);
-						} else
-							if ((i - start) == 7) {
-								ItemStack guiStack = LoreGuiItem.build(CivSettings.CURRENCY_NAME + " " + CivSettings.localize.localizedString("resident_tradeOffered"), ItemManager.getMaterialId(Material.NETHER_BRICK_ITEM), 0,
-										CivColor.Yellow + "0 " + CivSettings.CURRENCY_NAME);
-								inv.setItem(i, guiStack);
-							} else {
-								inv.setItem(i, signStack);
-							}
-			}
-
-			/* Set up middle divider. */
-			start = 2 * 9;
-			for (int i = start; i < (9 + start); i++) {
-				inv.setItem(i, signStack);
-			}
-
-			player.openInventory(inv);
-			return inv;
+			if (player.isDead()) throw new CivException(CivSettings.localize.localizedString("resident_tradeErrorPlayerDead"));
+			GuiInventory gi = new Trade(player, tradeResident.getName());
+			gi.openInventory();
+			return gi;
 		} catch (CivException e) {
 			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("possibleCheaters.txt", true)))) {
-				out.println("trade:" + this.getName() + " WITH " + resident.getName() + " and was dead");
+				out.println("trade:" + this.getName() + " WITH " + tradeResident.getName() + " and was dead");
 			} catch (IOException e1) {
 				// exception handling left as an exercise for the reader
 			}
-
 			CivMessage.sendError(this, CivSettings.localize.localizedString("resident_tradeCouldNotTrade") + " " + e.getMessage());
-			CivMessage.sendError(resident, CivSettings.localize.localizedString("resident_tradeCouldNotTrade") + " " + e.getMessage());
+			CivMessage.sendError(tradeResident, CivSettings.localize.localizedString("resident_tradeCouldNotTrade") + " " + e.getMessage());
 			return null;
 		}
-
 	}
 
 	public void toggleItemMode() {
@@ -794,14 +732,11 @@ public class Resident extends SQLObject {
 		}
 
 		int dmg = 7;
-		Structure tesla = source.SM.getFirstStructureById("s_teslatower");
+		Structure tesla = source.BM.getFirstStructureById("s_teslatower");
 		if (tesla != null) {
 			dmg = ((TeslaTower) tesla).getDamage();
 		}
-		// tesla = source.getStructureByType("s_teslaship");
-		// if (tesla != null) {
-		// dmg = ((TeslaShip) tesla).getDamage();
-		// }
+
 		final LivingEntity target = (LivingEntity) player;
 		if (target.getHealth() - dmg > 0.0) {
 			target.setHealth(target.getHealth() - dmg);
@@ -811,26 +746,10 @@ public class Resident extends SQLObject {
 			target.damage(1.0);
 		}
 		target.setFireTicks(60);
-		if (repeat) {
-			Bukkit.getScheduler().runTaskLater(CivCraft.getPlugin(), () -> this.lightningStrike(false, source), 30L);
-		}
-	}
-
-	public void startPreviewTask(Template tpl, BlockCoord bcoord, Player player) {
-		this.previewTask = new BuildPreviewAsyncTask(tpl, bcoord, player);
-		TaskMaster.asyncTask(previewTask, 0);
+		if (repeat) Bukkit.getScheduler().runTaskLater(CivCraft.getPlugin(), () -> this.lightningStrike(false, source), 30L);
 	}
 
 	public void undoPreview() {
-		if (this.previewTask != null) {
-			previewTask.lock.lock();
-			try {
-				previewTask.aborted = true;
-			} finally {
-				previewTask.lock.unlock();
-			}
-		}
-
 		Player player;
 		try {
 			player = CivGlobal.getPlayer(this);
@@ -849,7 +768,7 @@ public class Resident extends SQLObject {
 	public void showPlayerLoginWarnings(Player player) {
 		/* Notify Resident of any invalid structures. */
 		if (this.getTown() != null) {
-			for (Buildable buildable : this.getTown().SM.getInvalideBuildables()) {
+			for (Buildable buildable : this.getTown().BM.getInvalideBuildables()) {
 				CivMessage.send(player, CivColor.Yellow + ChatColor.BOLD + CivSettings.localize.localizedString("var_resident_structInvalidAlert1", buildable.getDisplayName(), buildable.getCorner()) + " "
 						+ CivSettings.localize.localizedString("resident_structInvalidAlert2") + " " + buildable.getInvalidLayerMessage());
 			}
@@ -871,13 +790,9 @@ public class Resident extends SQLObject {
 		Inventory inv = player.getInventory();
 
 		if (!inv.contains(itemId)) return false;
-
-		if ((player.getInventory().getItemInMainHand().getTypeId() != itemId) && (player.getInventory().getItemInMainHand().getTypeId() != itemData)) {
-			return false;
-		}
+		if ((player.getInventory().getItemInMainHand().getTypeId() != itemId) && (player.getInventory().getItemInMainHand().getTypeId() != itemData)) return false;
 
 		ItemStack stack = player.getInventory().getItemInMainHand();
-
 		if (stack.getAmount() < amount) {
 			return false;
 		} else

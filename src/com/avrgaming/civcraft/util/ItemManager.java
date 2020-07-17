@@ -53,8 +53,8 @@ public class ItemManager {
 			try {
 				return createItemStack(Integer.parseInt(spl[0]), Short.parseShort(spl[1]), amount);
 			} catch (NumberFormatException e) {
-				CivLog.warning("createItemStack() \"" + umid + "\" is not found material");
-				return null;
+				CivLog.error("createItemStack() \"" + umid + "\" is not found material");
+				return createItemStack(CivData.AIR, 0);
 			}
 		}
 		try {
@@ -63,7 +63,7 @@ public class ItemManager {
 			try {
 				return createItemStack(Material.valueOf(umid.toUpperCase()), amount);
 			} catch (IllegalArgumentException e1) {
-				CivLog.warning("createItemStack() \"" + umid + "\" is not found material");
+				CivLog.error("createItemStack() \"" + umid + "\" is not found material");
 				return createItemStack(CivData.AIR, 0);
 			}
 		}

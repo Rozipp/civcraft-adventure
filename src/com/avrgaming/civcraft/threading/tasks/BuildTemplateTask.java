@@ -20,47 +20,42 @@ public class BuildTemplateTask implements Runnable {
 
 	private Queue<SimpleBlock> syncBlockQueue = new LinkedList<SimpleBlock>();
 	int builtBlockCount = 0;
-
+	boolean buildAir;
+	
 	private final int MAX_BLOCKS_PER_TICK = CivSettings.getIntBase("update_limit_for_sync_build_task");
-	private final int DELAY_SPEED = 20;
+	private final int SLEEP = 100;
 
 	public static Boolean isFinished(BuildTemplateTask stt) {
 		return !listTask.contains(stt);
 	}
 
-	public BuildTemplateTask(Template tpl, BlockCoord cornerBlock) {
+	public BuildTemplateTask(Template tpl, BlockCoord cornerBlock, boolean buildAir) {
 		this.tpl = tpl;
 		this.cornerBlock = cornerBlock;
+		this.buildAir = buildAir;
 	}
 
 	private void oneLayer(Template tpl, int size_x, int y, int size_z) throws InterruptedException {
-		for (int x = 0; x < size_x; x++) {
-			for (int z = 0; z < size_z; z++) {
-				SimpleBlock sb = (tpl == null) ? new SimpleBlock(CivData.BARRIER, 0) : tpl.blocks[x][y][z];
-				builtBlockCount++;
-				/*
-				 * We're resuming an undo task after reboot and this block is already built. Or
-				 * This block is restricted
-				 */
-				if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial()))
-					sb.setType(CivData.AIR);
-
-				/* Convert relative template x,y,z to real x,y,z in world. */
-				sb.x = x + cornerBlock.getX();
-				sb.y = y + cornerBlock.getY();
-				sb.z = z + cornerBlock.getZ();
-				sb.worldname = cornerBlock.getWorld().getName();
-				/* Add block to sync queue, will be built on next sync tick. */
-				syncBlockQueue.add(sb);
-
-				if (builtBlockCount > MAX_BLOCKS_PER_TICK) {
-					/* Wait for a period of time. */
-					Thread.sleep(DELAY_SPEED);
-					SyncBuildUpdateTask.queueSimpleBlock(syncBlockQueue);
-					syncBlockQueue.clear();
-					builtBlockCount = 0;
+		if (tpl == null)
+			for (int x = 0; x < size_x; x++) {
+				for (int z = 0; z < size_z; z++) {
+					SimpleBlock sb = new SimpleBlock(CivData.BARRIER, 0);
+					syncBlockQueue.add(new SimpleBlock(cornerBlock, sb));
 				}
 			}
+		else
+			for (SimpleBlock sb : tpl.blocks.get(y)) {
+				/* We're resuming an undo task after reboot and this block is already built. Or This block is restricted */
+				SimpleBlock sbnew = new SimpleBlock(cornerBlock, sb); 
+				if (CivSettings.restrictedUndoBlocks.contains(sb.getMaterial())) sbnew.setType(CivData.AIR);
+				syncBlockQueue.add(sbnew);
+			}
+		builtBlockCount += syncBlockQueue.size();
+		if (builtBlockCount > MAX_BLOCKS_PER_TICK) {
+			SyncBuildUpdateTask.queueSimpleBlock(syncBlockQueue);
+			syncBlockQueue.clear();
+			builtBlockCount = 0;
+			Thread.sleep(SLEEP); /* Wait for a period of time. */
 		}
 	}
 
@@ -78,6 +73,8 @@ public class BuildTemplateTask implements Runnable {
 			/* Build last remaining blocks. */
 			SyncBuildUpdateTask.queueSimpleBlock(syncBlockQueue);
 			syncBlockQueue.clear();
+			
+			if (buildAir) tpl.buildAirBlocks(cornerBlock);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {

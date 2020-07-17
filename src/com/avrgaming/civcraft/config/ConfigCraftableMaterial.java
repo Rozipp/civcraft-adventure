@@ -24,7 +24,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 
 	/* Required */
 	public String category = CivSettings.localize.localizedString("config_material_misc");
-	public String categoryCivColortripped = category;
+	public String categoryId = category;
 	public int tier = 0;
 
 	/* Optional */
@@ -63,7 +63,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 		String category = (String) b.get("category");
 		if (category != null) {
 			mat.category = CivColor.colorize(category);
-			mat.categoryCivColortripped = CivColor.stripTags(category);
+			mat.categoryId = CivColor.stripTags(category).toLowerCase().replace(" ", "_");
 
 			if (mat.category.toLowerCase().contains("ier 1")) {
 				mat.tier = 1;
@@ -173,7 +173,7 @@ public class ConfigCraftableMaterial extends ConfigMaterial {
 		String[] split = this.required_tech.split(",");
 		for (String tech : split) {
 			tech = tech.replace(" ", "");
-			if (!resident.getCiv().hasTechnology(tech)) return false;
+			if (!resident.getCiv().hasTechnologys(tech)) return false;
 		}
 		return true;
 	}

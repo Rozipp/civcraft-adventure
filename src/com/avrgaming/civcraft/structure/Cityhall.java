@@ -76,7 +76,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 
 	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
 
-	private HashMap<Integer, ProjectileArrowComponent> arrowTowers = new HashMap<Integer, ProjectileArrowComponent>();
+	private HashMap<BlockCoord, ProjectileArrowComponent> arrowTowers = new HashMap<BlockCoord, ProjectileArrowComponent>();
 
 	public Cityhall(String id, Town town) throws CivException {
 		super(id, town);
@@ -118,13 +118,11 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			this.createControlPoint(absCoord, "");
 			break;
 		case "/towerfire":
-			String id = sb.keyvalues.get("id");
-			Integer towerID = Integer.valueOf(id);
-			if (!arrowTowers.containsKey(towerID)) {
+			if (!arrowTowers.containsKey(absCoord)) {
 				ProjectileArrowComponent arrowTower = new ProjectileArrowComponent(this);
 				arrowTower.createComponent(this);
 				arrowTower.setTurretLocation(absCoord);
-				arrowTowers.put(towerID, arrowTower);
+				arrowTowers.put(absCoord, arrowTower);
 			}
 			break;
 		case "/next":
@@ -158,6 +156,17 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			structSign.update();
 			this.addConstructSign(structSign);
 			this.respawnSign = structSign;
+			changeIndex(index);
+			break;
+		case "/tohome":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("ДОМОЙ");
+			structSign.setDirection(sb.getData());
+			structSign.setAction("tohome");
+			structSign.update();
+			this.addConstructSign(structSign);
 			changeIndex(index);
 			break;
 		}
@@ -236,6 +245,30 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 
 			BlockCoord revive = holder.getRandomRevivePoint();
 			Location loc;
+			if (revive == null) {
+				loc = player.getBedSpawnLocation();
+			} else {
+				loc = revive.getLocation();
+			}
+
+			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
+			player.teleport(loc);
+			break;
+		case "tohome":
+			holder = resident.getTown().getCityhall();
+			respawnTimeSeconds = this.getRespawnTime();
+			now = new Date();
+
+			if (resident.getLastKilledTime() != null) {
+				long secondsLeft = (resident.getLastKilledTime().getTime() + (respawnTimeSeconds * 1000)) - now.getTime();
+				if (secondsLeft > 0) {
+					secondsLeft /= 1000;
+					CivMessage.sendError(resident, CivColor.Rose + CivSettings.localize.localizedString("var_capitol_secondsLeftTillRespawn", secondsLeft));
+					return;
+				}
+			}
+
+			revive = holder.getRandomRevivePoint();
 			if (revive == null) {
 				loc = player.getBedSpawnLocation();
 			} else {
@@ -361,7 +394,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 
 		if (this.getTown().getBuffManager().hasBuff("buff_oracle_extra_hp")) townhallControlHitpoints += 20;
 		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) townhallControlHitpoints += 20;
-		if (this.getTown().SM.hasStructure("s_castle")) townhallControlHitpoints += 5;
+		if (this.getTown().BM.hasStructure("s_castle")) townhallControlHitpoints += 5;
 
 		BlockCoord coord = new BlockCoord(b);
 		this.controlPoints.put(coord, new ControlPoint(coord, this, townhallControlHitpoints, info));
@@ -403,7 +436,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			onAllControlBlockDestroy(player);
 		else {
 			CivMessage.sendTown(cp.getTown(), CivColor.Rose + CivSettings.localize.localizedString("townHall_controlBlockDestroyed"));
-			if (cp.getTown().SM.hasWonder("w_neuschwanstein")) {
+			if (cp.getTown().BM.hasWonder("w_neuschwanstein")) {
 				CivMessage.sendCiv(attacker.getCiv(), CivSettings.localize.localizedString("var_townHall_didDestroyNeus", cp.getTown().getName()));
 			}
 			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_townHall_didDestroyCB", cp.getTown().getName()));
@@ -423,7 +456,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			}
 
 			civ.updateReviveSigns();
-			if (civ.hasTechnology("tech_enlightenment")) {
+			if (civ.hasTechnologys("tech_enlightenment")) {
 				civ.removeTech("tech_enlightenment");
 				final ConfigTech tech = CivSettings.techs.get("tech_enlightenment");
 				attacker.getCiv().addTech(tech);
@@ -457,7 +490,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			this.getTown().defeated = true;
 			// War.defeatedTowns.put(this.getTown().getName(), attacker.getTown().getCiv());
 			WarStats.logCapturedTown(attacker.getTown().getCiv(), this.getTown());
-			War.saveDefeatedTown(this.getTown().getName(), attacker.getTown().getCiv());
+			War.saveDefeatedTown(this.getTown(), attacker.getTown().getCiv());
 		}
 	}
 
@@ -598,8 +631,8 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	public String getDynmapDescription() {
 		String out = "";
 		out += "<b>" + CivSettings.localize.localizedString("var_townHall_dynmap_heading", this.getTown().getName()) + "</b>";
-		ConfigCultureLevel culturelevel = CivSettings.cultureLevels.get(this.getTown().getCultureLevel());
-		out += "<br/>" + CivSettings.localize.localizedString("townHall_dynmap_cultureLevel") + " " + culturelevel.level + " (" + this.getTown().getAccumulatedCulture() + "/" + culturelevel.amount + ")";
+		ConfigCultureLevel culturelevel = CivSettings.cultureLevels.get(this.getTown().SM.getLevel());
+		out += "<br/>" + CivSettings.localize.localizedString("townHall_dynmap_cultureLevel") + " " + culturelevel.level + " (" + this.getTown().SM.getCulture() + "/" + culturelevel.amount + ")";
 		return out;
 	}
 }
