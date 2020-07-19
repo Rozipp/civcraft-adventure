@@ -12,6 +12,7 @@ package com.avrgaming.civcraft.items.components;
 import gpl.AttributeUtil;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -20,6 +21,7 @@ import com.avrgaming.civcraft.enchantment.CustomEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.interactive.FoundCivCallback;
+import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -38,7 +40,8 @@ public class FoundCivilization extends ItemComponent  {
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) 
 			return;
 		try {
-			new FoundCivCallback(event.getPlayer());
+			Player player = event.getPlayer();
+			CivGlobal.getResident(player).setPendingCallback(new FoundCivCallback(player));
 		} catch (CivException e) {
 			CivMessage.sendError(event.getPlayer(), e.getMessage());
 		}

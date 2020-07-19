@@ -1,15 +1,13 @@
 package com.avrgaming.civcraft.interactive;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -20,7 +18,6 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -32,31 +29,16 @@ public class BuildCallback implements CallbackInterface {
 
 	public BuildCallback(Player player, ConfigBuildableInfo sinfo, Town town) throws CivException {
 		this.player = player;
-		resident = CivGlobal.getResident(player);
+		this.resident = CivGlobal.getResident(player);
 
 		if (sinfo.id.equals("wonder_stock_exchange") && !town.BM.canBuildStock(player)) {
 			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
 		}
-
-		Structure replaceStructure = null;
-		Location location = player.getLocation();
-		String repStruct = sinfo.replace_structure;
-		if (repStruct != null) {
-			Vector dir = location.getDirection();
-			replaceStructure = town.BM.getFirstStructureById(repStruct);
-			if (replaceStructure == null) throw new CivException("не найдено здание " + repStruct + " для замены");
-
-			BlockCoord bc = replaceStructure.getCorner();
-			location = bc.getRelative(0, -replaceStructure.getTemplateYShift(), 0).getLocation();
-			location.setDirection(dir);
-		}
-
 		if (sinfo.isWonder)
-			buildable = Wonder.newWonder(player, location, sinfo.id, town);
+			buildable = Wonder.newWonder(player, player.getLocation(), sinfo.id, town);
 		else
-			buildable = Structure.newStructure(player, location, sinfo.id, town, true);
-		buildable.replaceStructure = replaceStructure;
-		GuiInventory.getGuiInventory(player, "ChoiseTemplate", buildable.getInfo().id).openInventory();
+			buildable = Structure.newStructure(player, player.getLocation(), sinfo.id, town, true);
+		GuiInventory.openGuiInventory(player, "ChoiseTemplate", buildable.getInfo().id);
 	}
 
 	private String templateTheme = null;

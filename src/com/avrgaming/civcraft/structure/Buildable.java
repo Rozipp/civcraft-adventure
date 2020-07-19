@@ -46,8 +46,6 @@ public abstract class Buildable extends Construct {
 	private boolean complete = false;
 	private boolean enabled = true;
 
-	public Structure replaceStructure;
-
 	// private String invalidReason = "";
 
 	public void startBuildTask() {

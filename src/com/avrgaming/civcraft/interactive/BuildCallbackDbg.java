@@ -7,8 +7,8 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
-import com.avrgaming.civcraft.lorestorage.GuiItems;
+import com.avrgaming.civcraft.gui.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -54,7 +54,7 @@ public class BuildCallbackDbg implements CallbackInterface {
 				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildName);
 				GuiInventory.closeInventory(player);
 
-				GuiInventory.getGuiInventory(player, "ChoiseTemplate", sinfo.id);
+				GuiInventory.openGuiInventory(player, "ChoiseTemplate", sinfo.id);
 			} catch (CivException e) {
 				e.printStackTrace();
 				sinfo = null;

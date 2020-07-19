@@ -199,7 +199,7 @@ public abstract class CommandBase implements CommandExecutor {
 
 	public void showBasicHelp() {
 		CivMessage.sendHeading(sender, displayName + " " + CivSettings.localize.localizedString("cmd_CommandHelpTitle"));
-		cs.showListSelectElement(sender);
+		cs.showListSelectElement((Player) sender);
 	}
 
 	public Resident getResident() throws CivException {

@@ -8,8 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -117,6 +117,6 @@ public class ArrowComponent extends ItemComponent {
 			return;
 		}
 
-		GuiInventory.getGuiInventory(player, "ChoiceArrowComponent", null).openInventory();
+		GuiInventory.openGuiInventory(player, "ChoiceArrowComponent", null);
 	}
 }

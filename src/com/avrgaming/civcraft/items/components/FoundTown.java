@@ -21,12 +21,14 @@ package com.avrgaming.civcraft.items.components;
 import gpl.AttributeUtil;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.interactive.FoundTownCallback;
+import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -47,11 +49,12 @@ public class FoundTown extends ItemComponent {
 		event.setCancelled(true);
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 
+		Player player = event.getPlayer();
 		try {
-			new FoundTownCallback(event.getPlayer());
+			CivGlobal.getResident(player).setPendingCallback(new FoundTownCallback(player));
 		} catch (CivException e) {
-			CivMessage.sendError(event.getPlayer(), e.getMessage());
+			CivMessage.sendError(player, e.getMessage());
 		}
-		event.getPlayer().updateInventory();
+		player.updateInventory();
 	}
 }

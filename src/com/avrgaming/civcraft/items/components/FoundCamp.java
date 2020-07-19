@@ -30,9 +30,9 @@ import com.avrgaming.civcraft.enchantment.CustomEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.InteractiveGetName;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -69,7 +69,7 @@ public class FoundCamp extends ItemComponent implements CallbackInterface {
 		resident = CivGlobal.getResident(player);
 		try {
 			camp = Camp.newCamp(player, player.getLocation());
-			GuiInventory.getGuiInventory(player, "ChoiseTemplate", camp.getInfo().id);
+			GuiInventory.openGuiInventory(player, "ChoiseTemplate", camp.getInfo().id);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}

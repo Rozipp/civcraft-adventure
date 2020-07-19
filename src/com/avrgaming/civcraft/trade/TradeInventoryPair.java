@@ -2,7 +2,7 @@ package com.avrgaming.civcraft.trade;
 
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 
 public class TradeInventoryPair {
 	public GuiInventory inv;

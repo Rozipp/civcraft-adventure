@@ -18,9 +18,9 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
-import com.avrgaming.civcraft.lorestorage.GuiItem;
-import com.avrgaming.civcraft.lorestorage.GuiItems;
+import com.avrgaming.civcraft.gui.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiItem;
+import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;

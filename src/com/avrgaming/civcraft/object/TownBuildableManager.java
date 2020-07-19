@@ -1,6 +1,5 @@
 package com.avrgaming.civcraft.object;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -14,7 +13,6 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.components.AttributeBase;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveBuildableRefresh;
@@ -28,11 +26,8 @@ import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.structure.TradeShip;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
 
 import lombok.Getter;
@@ -199,53 +194,6 @@ public class TownBuildableManager {
 		town.getTreasury().withdraw(struct.getCost());
 
 		town.save();
-	}
-
-	/** @deprecated */
-	public void rebuildStructure(Player player, Structure struct) throws CivException {
-		if (struct.getReplaceStructure() == null) {
-			struct.build(player);
-			return;
-		}
-
-		Structure replaceStruct = this.getFirstStructureById(struct.getInfo().replace_structure);
-		if (replaceStruct == null) throw new CivException("Заменяемое здание " + struct.getReplaceStructure() + " не найдено");
-
-		try {
-			CivMessage.sendTown(replaceStruct.getTown(), CivColor.Yellow + "В городе начался снос постройки " + replaceStruct.getDisplayName());
-			TaskMaster.asyncTask(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						String templatePath = Template.getUndoFilePath(replaceStruct.getCorner().toString());
-						Template tpl = new Template(templatePath);
-						BuildTemplateTask btt = new BuildTemplateTask(tpl, replaceStruct.getCorner(), true);
-						TaskMaster.asyncTask(btt, 0);
-						while (!BuildTemplateTask.isFinished(btt)) {
-							try {
-								Thread.sleep(2000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						Template.deleteFilePath(templatePath);
-						try {
-							Thread.sleep(5000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					} catch (IOException | CivException e) {
-						e.printStackTrace();
-					}
-
-					replaceStruct.delete();
-					replaceStruct.getTown().BM.startBuildStructure(player, struct);
-				}
-			}, 10);
-		} catch (Exception e) {
-			e.printStackTrace();
-			CivMessage.sendError(player, e.getMessage());
-		}
 	}
 
 	// -------------- wonder_stock_exchange

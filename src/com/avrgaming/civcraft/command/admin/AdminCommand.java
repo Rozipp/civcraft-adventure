@@ -29,7 +29,7 @@ import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -202,7 +202,7 @@ public class AdminCommand extends CommandBase {
 	public static GuiInventory spawnInventory = null;
 
 	public void items_cmd() throws CivException {
-		GuiInventory.getGuiInventory(getPlayer(), "ItemsSpawn", null).openInventory();
+		GuiInventory.openGuiInventory(getPlayer(), "ItemsSpawn", null);
 	}
 
 	public void item_cmd() {

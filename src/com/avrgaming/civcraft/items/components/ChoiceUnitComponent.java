@@ -5,7 +5,7 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -26,7 +26,7 @@ public class ChoiceUnitComponent extends ItemComponent {
 			event.setCancelled(true);
 			return;
 		}
-		GuiInventory.getGuiInventory(player, "ChoiceUnitComponent", null).openInventory();
+		GuiInventory.openGuiInventory(player, "ChoiceUnitComponent", null);
 	}
 
 	@Override

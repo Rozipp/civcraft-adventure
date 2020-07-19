@@ -53,10 +53,10 @@ import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
+import com.avrgaming.civcraft.gui.GuiInventory;
+import com.avrgaming.civcraft.gui.LoreStoreage;
 import com.avrgaming.civcraft.interactive.BuildCallbackDbg;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
-import com.avrgaming.civcraft.lorestorage.LoreStoreage;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -416,7 +416,7 @@ public class DebugCommand extends CommandBase {
 		Player player = getPlayer();
 
 		if (args.length == 1) {
-			new BuildCallbackDbg(player);
+			getResident().setPendingCallback(new BuildCallbackDbg(player));
 			return;
 		}
 		String name = getNamedString(1, "Enter a buildName");
@@ -598,11 +598,11 @@ public class DebugCommand extends CommandBase {
 	}
 
 	public void showinv_cmd() throws CivException {
-		GuiInventory.getGuiInventory(getPlayer(), "GuiBook", null).openInventory();
+		GuiInventory.openGuiInventory(getPlayer(), "GuiBook", null);
 	}
 
 	public void showcraftinv_cmd() throws CivException {
-		GuiInventory.getGuiInventory(getPlayer(), "CraftingHelp", null).openInventory();
+		GuiInventory.openGuiInventory(getPlayer(), "CraftingHelp", null);
 	}
 
 	public void scout_cmd() throws CivException {

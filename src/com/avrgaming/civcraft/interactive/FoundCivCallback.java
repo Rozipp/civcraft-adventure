@@ -7,7 +7,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
@@ -41,7 +41,7 @@ public class FoundCivCallback implements CallbackInterface {
 		civ = new Civilization();
 		civ.checkCanCreatedCiv(player);
 
-		GuiInventory.getGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
+		GuiInventory.openGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
 	}
 
 	private String templateTheme = null;

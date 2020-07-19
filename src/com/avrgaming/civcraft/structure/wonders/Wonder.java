@@ -44,7 +44,7 @@ public class Wonder extends Buildable {
 	}
 
 	public static Wonder newWonder(ResultSet rs) throws CivException, SQLException {
-		return _newWonder(null, rs.getString("type_id"), null, rs);
+		return _newWonder(rs.getString("type_id"), null, rs);
 	}
 
 	public Wonder(String id, Town town) throws CivException {
@@ -216,11 +216,9 @@ public class Wonder extends Buildable {
 	public static Wonder newWonder(Player player, Location location, String id, Town town) throws CivException {
 		Wonder wonder;
 		try {
-			wonder = _newWonder(location, id, town, null);
+			wonder = _newWonder(id, town, null);
 		} catch (SQLException e) {
-			// should never happen
-			e.printStackTrace();
-			return null;
+			throw new CivException("SQLException");
 		}
 		wonder.initDefaultTemplate(location);
 		town.BM.checkIsTownCanBuildBuildable(wonder);
@@ -228,7 +226,7 @@ public class Wonder extends Buildable {
 		return wonder;
 	}
 
-	public static Wonder _newWonder(Location center, String id, Town town, ResultSet rs) throws CivException, SQLException {
+	public static Wonder _newWonder(String id, Town town, ResultSet rs) throws CivException, SQLException {
 		Wonder wonder;
 		switch (id) {
 		case "w_pyramid":

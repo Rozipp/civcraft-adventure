@@ -499,8 +499,8 @@ structures:
     template: city_hall
     displayName: City Hall
     require_tech:
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 49
+    gui_slot: 0
     limit: 2
     cost: 50000.0
     upkeep: 0.0
@@ -519,8 +519,8 @@ structures:
     template: town_hall
     displayName: Town Hall
     require_tech:
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 49
+    gui_slot: 45
     limit: 2
     cost: 50000.0
     upkeep: 0.0
@@ -539,8 +539,8 @@ structures:
     template: capitol
     displayName: Capitol
     require_tech:
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 49
+    gui_slot: 36
     limit: 2
     cost: 250000.0
     upkeep: 0.0
@@ -582,10 +582,8 @@ structures:
     template: bank
     displayName: Bank
     require_tech: 'tech_religion' 
-    gui_item_id: 340
-    gui_slot: 3
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 266
+    gui_slot: 20
     limit: 1
     cost: 2250.0
     upkeep: 100.0
@@ -597,9 +595,8 @@ structures:
     template: trommel
     displayName: Trommel
     require_tech: 'tech_mining' 
-    check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 4
+    gui_slot: 2
     limit: 2
     allow_outside_town: false
     cost: 5000.0
@@ -613,7 +610,8 @@ structures:
     displayName: Fish Hatchery
     require_upgrade:
     require_tech: 'tech_automation' 
-    check_event: 
+    gui_item_id: 349
+    gui_slot: 16
     limit: 0
     allow_outside_town: false
     tile_improvement: true
@@ -629,8 +627,8 @@ structures:
     displayName: quarry
     require_tech: 'tech_automation' 
     check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 159
+    gui_slot: 11
     limit: 1
     allow_outside_town: false
     tile_improvement: true
@@ -644,7 +642,7 @@ structures:
     template: store
     displayName: Store
     require_tech: 'tech_commerce'
-    gui_item_id: 340
+    gui_item_id: 88
     gui_slot: 3
     limit: 1
     cost: 2500.0
@@ -657,8 +655,8 @@ structures:
     template: library
     displayName: Library
     require_tech: 'tech_productivity'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 116
+    gui_slot: 5
     limit: 1
     cost: 5000.0
     upkeep: 500.0
@@ -675,8 +673,8 @@ structures:
     template: university
     displayName: University
     require_tech: 'tech_education'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 387
+    gui_slot: 14
     limit: 1
     cost: 25000.0
     upkeep: 1000.0
@@ -696,8 +694,8 @@ structures:
     replace_structure: s_university
     require_structure: 's_university'
     require_tech: 'tech_scientific_method'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 403
+    gui_slot: 23
     limit: 1
     cost: 50000.0
     upkeep: 1500.0
@@ -716,8 +714,8 @@ structures:
     require_upgrade: upgrade_town_level_8
     require_structure: 's_school'
     require_tech: 'tech_plastics'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 390
+    gui_slot: 32
     limit: 1
     cost: 100000.0
     upkeep: 2000.0
@@ -734,8 +732,8 @@ structures:
     template: grocer
     displayName: Grocer
     require_tech: 'tech_hunting'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 260
+    gui_slot: 12
     limit: 1
     cost: 1500.0
     upkeep: 150.0
@@ -748,7 +746,7 @@ structures:
     displayName: Alchemists House
     require_tech: 'tech_alchemy'
     gui_item_id: 340
-    gui_slot: 3
+    gui_slot: 30
     limit: 1
     cost: 100000.0
     upkeep: 1000.0
@@ -761,8 +759,8 @@ structures:
     template_y_shift: -2
     displayName: Blacksmith
     require_tech: 'tech_blacksmithing'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 267
+    gui_slot: 18
     limit: 1
     cost: 32000.0  
     upkeep: 2000.0
@@ -770,31 +768,17 @@ structures:
     points: 10000
     max_hitpoints: 350
     components:
-        # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'UNHAPPINESS'
-          # value: '2.0'
-        # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'GROWTH'
-          # value: '-0.2'
         - name: 'AttributeStatic'
           type: 'direct'
           attribute: 'HAMMERS'
           value: '50.0'
-        - name: 'AttributeTradeGood'
-          type: 'direct'
-          attribute: 'HAMMERS'
-          value: '100.0'
-          goods: 'good_copper,good_oil,good_silver'
   
   - id: s_granary
     template: granary
     displayName: Granary
     require_tech: 'tech_pottery'
-    check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 170
+    gui_slot: 15
     limit: 2
     cost: 2500.0
     upkeep: 1500.0
@@ -806,9 +790,8 @@ structures:
     template: cottage
     displayName: Cottage
     require_tech: 'tech_advanced_masonry'
-    check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 123
+    gui_slot: 24
     limit: 0
     cost: 5000.0
     upkeep: 1000.0
@@ -823,9 +806,8 @@ structures:
     template: temple
     displayName: Temple
     require_tech: 'tech_priesthood'
-    check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 109
+    gui_slot: 13
     limit: 1
     cost: 30000.0
     upkeep: 2500.0
@@ -848,9 +830,8 @@ structures:
     template_y_shift: -2
     displayName: Monument
     require_tech: 'tech_religion'
-    check_event: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 98
+    gui_slot: 4
     limit: 1
     cost: 15000.0
     upkeep: 1500.0
@@ -873,7 +854,7 @@ structures:
     require_tech: 'tech_refrigeration'
     require_structure: 
     gui_item_id: 340
-    gui_slot: 3
+    gui_slot: 31
     limit: 1
     cost: 100000.0
     upkeep: 2000.0
@@ -938,8 +919,8 @@ structures:
     displayName: Museum
     require_tech: 'tech_archaeology'
     require_structure: 
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 31
+    gui_slot: 22
     limit: 1
     cost: 75000.0
     upkeep: 1000.0
@@ -966,8 +947,8 @@ structures:
     template_y_shift: -3
     displayName: Shipyard
     require_tech: 'tech_sailing'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 333
+    gui_slot: 7
     limit: 1
     cost: 35000.0
     upkeep: 1500.0
@@ -986,8 +967,8 @@ structures:
     template_y_shift: -6
     displayName: Mine
     require_tech: 'tech_productivity'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 331
+    gui_slot: 29
     limit: 0
     cost: 25000.0
     upkeep: 1500.0
@@ -999,51 +980,14 @@ structures:
     components:
         - name: 'ConsumeLevelComponent'
 
-#   - id: ti_trade_outpost
-#     template: trade_outpost
-#     displayName: Trade Outpost
-#     require_tech: 'tech_trade'
-#     gui_item_id: 340
-#     gui_slot: 3
-#     limit: 0
-#     cost: 25000.0
-#     upkeep: 500.0
-#     hammer_cost: 2000
-#     tile_improvement: true
-#     points: 3000
-#     max_hitpoints: 500
-#     ignore_floating: true
-  
-#   - id: ti_fishing_boat
-#     template: fishingboats
-#     template_y_shift: -3
-#     displayName: Fishing Boat
-#     require_tech: 'tech_trade'
-#     require_structure: 's_shipyard'
-#     gui_item_id: 340
-#     gui_slot: 3
-#     limit: 0
-#     cost: 25000.0
-#     upkeep: 500.0
-#     hammer_cost: 2000
-#     tile_improvement: true
-#     points: 3000
-#     max_hitpoints: 500
-#     ignore_floating: true
-#     components:
-#         - name: 'AttributeStatic'
-#           type: 'direct'
-#           attribute: 'HAMMERS'
-#           value: '50'
-
   - id: ti_trade_ship
     template: trade_ship
     template_y_shift: -5
     displayName: Trade Ship
     require_tech: 'tech_exploration'
     require_structure: 's_shipyard'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 289
+    gui_slot: 25
     limit: 1
     cost: 50000.0
     upkeep: 500.0
@@ -1076,8 +1020,8 @@ structures:
     template_y_shift: -1
     displayName: Farm
     require_tech: 'tech_agriculture'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 396
+    gui_slot: 6
     limit: 0
     cost: 2500.0
     upkeep: 500.0
@@ -1099,8 +1043,8 @@ structures:
     template_y_shift: -2
     displayName: Pasture
     require_tech: 'tech_hunting'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 288
+    gui_slot: 42
     limit: 0
     cost: 2500.0
     upkeep: 500.0
@@ -1114,6 +1058,8 @@ structures:
     displayName: Arrow Tower
     require_upgrade:
     require_tech: 'tech_artillery'
+    gui_item_id: 158
+    gui_slot: 10
     limit: 6
     cost: 50000.0
     upkeep: 1500.0
@@ -1128,6 +1074,8 @@ structures:
     displayName: Cannon Tower
     require_upgrade:
     require_tech: 'tech_advanced_artillery'
+    gui_item_id: 173
+    gui_slot: 19
     limit: 1
     cost: 250000.0
     upkeep: 3500.0
@@ -1141,8 +1089,8 @@ structures:
     template: tesla_tower
     displayName: Tesla Tower
     require_tech: 'tech_electricity'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 138
+    gui_slot: 28
     limit: 1
     cost: 350000.0
     upkeep: 4500.0
@@ -1156,8 +1104,8 @@ structures:
     template: scout_tower
     displayName: Scout Tower
     require_tech: 'tech_masonry'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 86
+    gui_slot: 1
     limit: 4
     cost: 15000.0
     upkeep: 800.0
@@ -1171,8 +1119,8 @@ structures:
     template: barracks
     displayName: Barracks
     require_tech: 'tech_armory'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 268
+    gui_slot: 9
     limit: 1
     cost: 15000.0
     upkeep: 1000.0
@@ -1188,8 +1136,8 @@ structures:
     template: windmill
     displayName: Windmill
     require_tech: 'tech_automation'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 295
+    gui_slot: 33
     limit: 0
     cost: 25000.0
     upkeep: 2500.0
@@ -1202,8 +1150,8 @@ structures:
     template: market
     displayName: Market
     require_tech: 'tech_commerce'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 322
+    gui_slot: 21
     limit: 1
     cost: 10000.0
     upkeep: 1250.0
@@ -1226,7 +1174,7 @@ structures:
     displayName: Stable
     require_tech: 'tech_global_trade' 
     gui_item_id: 340
-    gui_slot: 3
+    gui_slot: 27
     limit: 1
     cost: 5000.0
     upkeep: 750.0
@@ -1245,7 +1193,7 @@ structures:
     displayName: Mine House
     require_tech: 'tech_metal_casting' 
     gui_item_id: 340
-    gui_slot: 3
+    gui_slot: 38
     limit: 0
     cost: 20000.0
     upkeep: 1500.0
@@ -1296,8 +1244,8 @@ structures:
     template_y_shift: -1
     displayName: Silkworm Farm
     require_tech: 'tech_monopoly'
-    gui_item_id: 340
-    gui_slot: 3
+    gui_item_id: 287
+    gui_slot: 34
     limit: 1
     allow_outside_town: true
     tile_improvement: true
@@ -1313,7 +1261,7 @@ structures:
     displayName: Warehouse
     require_tech: 'tech_pottery'
     gui_item_id: 340
-    gui_slot: 3
+    gui_slot: 44
     limit: 1
     cost: 15000.0
     upkeep: 1500.0
@@ -1322,22 +1270,23 @@ structures:
     points: 2000
     allow_outside_town: true
 
-#   - id: ti_lab
-#     template: lab
-#     displayName: Обсерватория
-#     require_upgrade:
-#     require_tech: 'tech_innovation'
-#     onBuild_event:
-#     limit: 3
-#     cost: 100000.0
-#     upkeep: 4500.0
-#     tile_improvement: true
-#     hammer_cost: 3600
-#     points: 6200
-#     max_hitpoints: 1200
-#     allow_outside_town: false
-#     components:
-#         - name: 'AttributeBiomeRadiusPerLevel'
-#           attribute: 'BEAKERS'
-#           biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
-#           base_value: '7.0'
+  - id: ti_lab
+    template: lab
+    displayName: Обсерватория
+    require_upgrade:
+    require_tech: 'tech_innovation'
+    gui_item_id: 390
+    gui_slot: 32
+    limit: 3
+    cost: 100000.0
+    upkeep: 4500.0
+    tile_improvement: true
+    hammer_cost: 3600
+    points: 6200
+    max_hitpoints: 1200
+    allow_outside_town: false
+    components:
+        - name: 'AttributeBiomeRadiusPerLevel'
+          attribute: 'BEAKERS'
+          biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
+          base_value: '7.0'

@@ -417,7 +417,7 @@ public class Civilization extends SQLObject {
 
 	public boolean hasTechnologys(String require_tech) {
 		if (require_tech != null) {
-			for (String str : require_tech.split(":")) {
+			for (String str : require_tech.split(",")) {
 				if (!hasTech(str)) return false;
 			}
 		}

@@ -13,9 +13,9 @@ import com.avrgaming.civcraft.construct.WarCamp;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.InteractiveConfirm;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -45,7 +45,7 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 		resident = CivGlobal.getResident(player);
 		try {
 			warCamp = WarCamp.newWarCamp(player, player.getLocation());
-			GuiInventory.getGuiInventory(player, "ChoiseTemplate", warCamp.getInfo().id);
+			GuiInventory.openGuiInventory(player, "ChoiseTemplate", warCamp.getInfo().id);
 		} catch (CivException e) {
 			CivMessage.sendError(player, e.getMessage());
 		}

@@ -3,14 +3,16 @@ package com.avrgaming.civcraft.command;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+
+import com.avrgaming.civcraft.gui.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiItem;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
-/**
- * <b>Хранит в себе команды, их номера и коментарий к командам</b>
- * 
- * @author Rozipp
- */
+/** <b>Хранит в себе команды, их номера и коментарий к командам</b>
+ * @author Rozipp */
 public class ListSelectElements {
 
 	class CommandElement {
@@ -25,11 +27,6 @@ public class ListSelectElements {
 	private List<CommandElement> commands = new ArrayList<CommandElement>();
 
 	public ListSelectElements() {
-	}
-
-	/** Never used */
-	public ListSelectElements(String perentCommand) {
-		this.perentCommand = perentCommand;
 	}
 
 	public String getCommand(Integer i) {
@@ -54,7 +51,7 @@ public class ListSelectElements {
 		comEl.coment = coment;
 		this.commands.add(comEl);
 	}
-	
+
 	public void add(String command, String alt1, String coment) {
 		CommandElement comEl = new CommandElement();
 		comEl.command = command;
@@ -62,7 +59,7 @@ public class ListSelectElements {
 		comEl.altComm.add(alt1);
 		this.commands.add(comEl);
 	}
-	
+
 	public void add(String command, String alt1, String alt2, String coment) {
 		CommandElement comEl = new CommandElement();
 		comEl.command = command;
@@ -81,7 +78,7 @@ public class ListSelectElements {
 		comEl.altComm.add(alt3);
 		this.commands.add(comEl);
 	}
-	
+
 	public void add(String command, String[] altComm, String coment) {
 		CommandElement comEl = new CommandElement();
 		comEl.command = command;
@@ -91,9 +88,14 @@ public class ListSelectElements {
 		this.commands.add(comEl);
 	}
 
-	public void showListSelectElement(Object sender) {
-		CivMessage.send(sender, CivColor.LightPurple + "Help " + CivColor.BOLD + CivColor.Green + perentCommand);
+	public void showListSelectElement(Player player) {
+		CivMessage.send(player, CivColor.LightPurple + "Help " + CivColor.BOLD + CivColor.Green + perentCommand);
+
+		GuiInventory gi = new GuiInventory(player, null);
+		gi.setTitle(this.perentCommand);
 		for (Integer i = 0; i < size(); i++) {
+			GuiItem g = new GuiItem();
+			g.setMaterial(Material.APPLE);
 			String string = "";
 			string = CivColor.addTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
 			String getCt = getComent(i);
@@ -101,14 +103,22 @@ public class ListSelectElements {
 			String altComms = "";
 			for (String s : getAltCommands(i))
 				altComms = altComms + " (" + s + ")";
-			string = CivColor.addTabToString(string, CivColor.LightPurple + getCommand(i) +altComms + getCt.substring(0, index), 18);
-			string = CivColor.addTabToString(string, CivColor.LightGray + getComent(i).substring(index), 0);
-			string = string.replace("[", CivColor.Yellow + "[");
-			string = string.replace("]", "]" + CivColor.LightGray);
-			string = string.replace("(", CivColor.Yellow + "(");
-			string = string.replace(")", ")" + CivColor.LightGray);
-
-			CivMessage.send(sender, string);
+			
+			String title = CivColor.LightPurple + getCommand(i) + altComms + getCt.substring(0, index);
+			g.setTitle(title);
+			string = string + CivColor.addTabToString(string, title, 18);
+			
+			String coment = CivColor.LightGray + getComent(i).substring(index);
+			coment = coment.replace("[", CivColor.Yellow + "[");
+			coment = coment.replace("]", "]" + CivColor.LightGray);
+			coment = coment.replace("(", CivColor.Yellow + "(");
+			coment = coment.replace(")", ")" + CivColor.LightGray);
+			g.addLore(coment);
+			
+			string = string + CivColor.addTabToString(string, coment, 0);
+			CivMessage.send(player, string);
+			gi.addGuiItem(i, g);
 		}
+		gi.openInventory();
 	}
 }

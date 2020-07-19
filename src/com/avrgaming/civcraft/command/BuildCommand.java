@@ -15,8 +15,8 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.BuildCallback;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
@@ -227,7 +227,7 @@ public class BuildCommand extends CommandBase {
 	public void doDefaultAction() throws CivException {
 		if (this.args.length == 0) {
 			this.showHelp();
-			GuiInventory.getGuiInventory(getPlayer(), "Structure", "false").openInventory();
+			GuiInventory.openGuiInventory(getPlayer(), "Structure", "false");
 			return;
 		}
 		String fullArgs = "";
@@ -242,7 +242,7 @@ public class BuildCommand extends CommandBase {
 	private void buildByName(String fullArgs) throws CivException {
 		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + fullArgs);
-		new BuildCallback(getPlayer(), sinfo, getSelectedTown());
+		getResident().setPendingCallback(new BuildCallback(getPlayer(), sinfo, getSelectedTown()));
 	}
 
 	@Override

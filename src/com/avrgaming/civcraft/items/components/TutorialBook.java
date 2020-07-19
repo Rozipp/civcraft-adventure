@@ -7,7 +7,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.lorestorage.GuiInventory;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class TutorialBook extends ItemComponent {
@@ -23,7 +23,7 @@ public class TutorialBook extends ItemComponent {
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			return;
 		}
-		GuiInventory.getGuiInventory(event.getPlayer(), "GuiBook", null).openInventory();
+		GuiInventory.openGuiInventory(event.getPlayer(), "GuiBook", null);
 	}
 
 	public void onItemSpawn(ItemSpawnEvent event) {
