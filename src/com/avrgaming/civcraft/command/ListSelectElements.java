@@ -3,11 +3,8 @@ package com.avrgaming.civcraft.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.gui.GuiInventory;
-import com.avrgaming.civcraft.gui.GuiItem;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -93,11 +90,11 @@ public class ListSelectElements {
 	public void showListSelectElement(Player player) {
 		CivMessage.send(player, CivColor.LightPurple + "Help " + CivColor.BOLD + CivColor.Green + perentCommand);
 
-		GuiInventory gi = new GuiInventory(player, null);
-		gi.setTitle(this.perentCommand);
+//		GuiInventory gi = new GuiInventory(player, null);
+//		gi.setTitle(this.perentCommand);
 		for (Integer i = 0; i < size(); i++) {
-			GuiItem g = new GuiItem();
-			g.setMaterial(Material.APPLE);
+//			GuiItem g = new GuiItem();
+//			g.setMaterial(Material.APPLE);
 			String string = "";
 			string = CivColor.addTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
 			String getCt = getComent(i);
@@ -107,7 +104,7 @@ public class ListSelectElements {
 				altComms = altComms + " (" + s + ")";
 			
 			String title = CivColor.LightPurple + getCommand(i) + altComms + getCt.substring(0, index);
-			g.setTitle(title);
+//			g.setTitle(title);
 			string = string + CivColor.addTabToString(string, title, 18);
 			
 			String coment = CivColor.LightGray + getComent(i).substring(index);
@@ -115,12 +112,12 @@ public class ListSelectElements {
 			coment = coment.replace("]", "]" + CivColor.LightGray);
 			coment = coment.replace("(", CivColor.Yellow + "(");
 			coment = coment.replace(")", ")" + CivColor.LightGray);
-			g.addLore(coment);
+//			g.addLore(coment);
 			
 			string = string + CivColor.addTabToString(string, coment, 0);
 			CivMessage.send(player, string);
-			gi.addGuiItem(i, g);
+//			gi.addGuiItem(i, g);
 		}
-		gi.openInventory();
+//		gi.openInventory();
 	}
 }
