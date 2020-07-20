@@ -9,15 +9,22 @@
 package com.avrgaming.civcraft.command;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuildableInfo;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.BuildCallback;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -30,7 +37,7 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.civcraft.war.War;
 
-public class BuildCommand extends CommandBase {
+public class BuildCommand extends CommandBase implements TabCompleter {
 
 	@Override
 	public void init() {
@@ -53,6 +60,21 @@ public class BuildCommand extends CommandBase {
 		info = info.replace("(", "§2(");
 		info = info.replace(")", ")§f");
 		CivMessage.send(this.sender, (String) ("§e" + this.command + "§f" + ": " + info));
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+		CivLog.debug(arg0.toString());
+		CivLog.debug(arg1.toString());
+		CivLog.debug(arg2.toString());
+		CivLog.debug(arg3.toString());
+		String[] s = {"list", "progress","repairnearest", "demolish", "demolishnearest", "refreshnearest",
+				"validatenearest", "calc"};
+		List<String> l = new ArrayList<>();
+		for (String ce : s) {
+			if (arg3[0].isEmpty() || ce.startsWith(arg3[0])) l.add(ce);
+		}
+		return l;
 	}
 
 	public void calc_cmd() throws CivException {

@@ -28,7 +28,9 @@ public class ListSelectElements {
 
 	public ListSelectElements() {
 	}
-
+	public List<CommandElement> getCommandElemets() {
+		return commands;
+	}
 	public String getCommand(Integer i) {
 		return commands.get(i).command;
 	}

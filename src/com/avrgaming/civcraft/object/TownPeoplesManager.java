@@ -58,12 +58,17 @@ public class TownPeoplesManager {
 	}
 
 	private EnumMap<StorageType, EnumMap<Prof, Integer>> createNewIntakeTable() {
+		Map<Prof, Integer> mf = Map.of(Prof.Unhappines, 0, Prof.Worker, 1, Prof.WorkerNotWork, 2, Prof.Farmer, 4, Prof.Engineer, 1, Prof.Artist, 1, Prof.Merchant, 1, Prof.Scientist, 1);
+		Map<Prof, Integer> mh = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 10, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 0);
+		Map<Prof, Integer> mc = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 10, Prof.Merchant, 0, Prof.Scientist, 0);
+		Map<Prof, Integer> me = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 10, Prof.Scientist, 0);
+		Map<Prof, Integer> mb = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 10);
 		return new EnumMap<>(Map.of(//
-				StorageType.Food, /*    */new EnumMap<>(Map.of(Prof.Unhappines, 0, Prof.Worker, 1, Prof.WorkerNotWork, 2, Prof.Farmer, 4, Prof.Engineer, 1, Prof.Artist, 1, Prof.Merchant, 1, Prof.Scientist, 1)), //
-				StorageType.Hammer, /*  */new EnumMap<>(Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 10, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 0)), //
-				StorageType.Culture, /* */new EnumMap<>(Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 10, Prof.Merchant, 0, Prof.Scientist, 0)), //
-				StorageType.Econ, /*    */new EnumMap<>(Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 10, Prof.Scientist, 0)), //
-				StorageType.Beakers, /* */new EnumMap<>(Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 10))));//
+				StorageType.Food, /*    */new EnumMap<>(mf), //
+				StorageType.Hammer, /*  */new EnumMap<>(mh), //
+				StorageType.Culture, /* */new EnumMap<>(mc), //
+				StorageType.Econ, /*    */new EnumMap<>(me), //
+				StorageType.Beakers, /* */new EnumMap<>(mb)));//
 	}
 
 	public void saveNow(HashMap<String, Object> hashmap) {
@@ -136,7 +141,7 @@ public class TownPeoplesManager {
 	public int calcHammerPerCivtick() {
 		return getCount(Prof.WorkerNotWork) * hammersWorkerOuttake;
 	}
-	
+
 	// ----------- private Peoples
 
 	private int getMaxPeoplesWithProfesion(Prof prof) {
