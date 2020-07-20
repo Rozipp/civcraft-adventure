@@ -58,17 +58,59 @@ public class TownPeoplesManager {
 	}
 
 	private EnumMap<StorageType, EnumMap<Prof, Integer>> createNewIntakeTable() {
-		Map<Prof, Integer> mf = Map.of(Prof.Unhappines, 0, Prof.Worker, 1, Prof.WorkerNotWork, 2, Prof.Farmer, 4, Prof.Engineer, 1, Prof.Artist, 1, Prof.Merchant, 1, Prof.Scientist, 1);
-		Map<Prof, Integer> mh = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 10, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 0);
-		Map<Prof, Integer> mc = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 10, Prof.Merchant, 0, Prof.Scientist, 0);
-		Map<Prof, Integer> me = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 10, Prof.Scientist, 0);
-		Map<Prof, Integer> mb = Map.of(Prof.Unhappines, 0, Prof.Worker, 0, Prof.WorkerNotWork, 2, Prof.Farmer, 0, Prof.Engineer, 0, Prof.Artist, 0, Prof.Merchant, 0, Prof.Scientist, 10);
-		return new EnumMap<>(Map.of(//
-				StorageType.Food, /*    */new EnumMap<>(mf), //
-				StorageType.Hammer, /*  */new EnumMap<>(mh), //
-				StorageType.Culture, /* */new EnumMap<>(mc), //
-				StorageType.Econ, /*    */new EnumMap<>(me), //
-				StorageType.Beakers, /* */new EnumMap<>(mb)));//
+		EnumMap<Prof, Integer> mf = new EnumMap<>(Prof.class);
+		mf.put(Prof.Unhappines, 0);
+		mf.put(Prof.Worker, 1);
+		mf.put(Prof.WorkerNotWork, 2);
+		mf.put(Prof.Farmer, 4);
+		mf.put(Prof.Engineer, 1);
+		mf.put(Prof.Artist, 1);
+		mf.put(Prof.Merchant, 1);
+		mf.put(Prof.Scientist, 1);
+		EnumMap<Prof, Integer> mh = new EnumMap<Prof, Integer>(Prof.class);
+		mh.put(Prof.Unhappines, 0);
+		mh.put(Prof.Worker, 0);
+		mh.put(Prof.WorkerNotWork, 2);
+		mh.put(Prof.Farmer, 0);
+		mh.put(Prof.Engineer, 10);
+		mh.put(Prof.Artist, 0);
+		mh.put(Prof.Merchant, 0);
+		mh.put(Prof.Scientist, 0);
+		EnumMap<Prof, Integer> mc = new EnumMap<>(Prof.class);
+		mc.put(Prof.Unhappines, 0);
+		mc.put(Prof.Worker, 0);
+		mc.put(Prof.WorkerNotWork, 2);
+		mc.put(Prof.Farmer, 0);
+		mc.put(Prof.Engineer, 0);
+		mc.put(Prof.Artist, 10);
+		mc.put(Prof.Merchant, 0);
+		mc.put(Prof.Scientist, 0);
+		EnumMap<Prof, Integer> me = new EnumMap<>(Prof.class);
+		me.put(Prof.Unhappines, 0);
+		me.put(Prof.Worker, 0);
+		me.put(Prof.WorkerNotWork, 2);
+		me.put(Prof.Farmer, 0);
+		me.put(Prof.Engineer, 0);
+		me.put(Prof.Artist, 0);
+		me.put(Prof.Merchant, 10);
+		me.put(Prof.Scientist, 0);
+		EnumMap<Prof, Integer> mb = new EnumMap<>(Prof.class);
+		mb.put(Prof.Unhappines, 0);
+		mb.put(Prof.Worker, 0);
+		mb.put(Prof.WorkerNotWork, 2);
+		mb.put(Prof.Farmer, 0);
+		mb.put(Prof.Engineer, 0);
+		mb.put(Prof.Artist, 0);
+		mb.put(Prof.Merchant, 0);
+		mb.put(Prof.Scientist, 10);
+
+		EnumMap<StorageType, EnumMap<Prof, Integer>> m = new EnumMap<>(StorageType.class);
+		m.put(StorageType.Food, mf);
+		m.put(StorageType.Hammer, mh);
+		m.put(StorageType.Culture, mc);
+		m.put(StorageType.Econ, me);
+		m.put(StorageType.Beakers, mb);
+		return m;
 	}
 
 	public void saveNow(HashMap<String, Object> hashmap) {
