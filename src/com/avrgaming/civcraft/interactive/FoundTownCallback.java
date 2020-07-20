@@ -40,7 +40,7 @@ public class FoundTownCallback implements CallbackInterface {
 		cityhall = Structure.newStructure(player, player.getLocation(), "s_cityhall", null, true);
 
 		town = new Town(resident.getCiv());
-		town.checkCanCreatedTown(resident, cityhall);
+		town.checkCanCreatedTown(resident, cityhall.getCenterLocation());
 
 		GuiInventory.openGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
 	}

@@ -341,7 +341,7 @@ public class Town extends SQLObject {
 	}
 	// ----------- create town
 
-	public void checkCanCreatedTown(Resident resident, Structure cityhall) throws CivException {
+	public void checkCanCreatedTown(Resident resident, Location centerLocation) throws CivException {
 		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("town_found_errorIncamp"));
 		if (resident.getTown() != null && resident.getTown().GM.isOneMayor(resident)) throw new CivException(CivSettings.localize.localizedString("var_town_found_errorIsMayor", resident.getTown().getName()));
 
@@ -366,7 +366,7 @@ public class Town extends SQLObject {
 			if (loc == null) continue;
 			if (!loc.getWorld().equals(this.getLocation().getWorld())) continue;
 
-			double distSqr = loc.distanceSquared(cityhall.getCenterLocation());
+			double distSqr = loc.distanceSquared(centerLocation);
 			double minDistanceSqr;
 			if (town.getCiv().equals(getCiv())) {
 				minDistanceSqr = minDistanceFriendSqr;
@@ -387,7 +387,7 @@ public class Town extends SQLObject {
 
 	public void createTown(Resident resident, Structure cityhall) throws CivException {
 		Player player = CivGlobal.getPlayer(resident);
-		this.checkCanCreatedTown(resident, cityhall);
+		this.checkCanCreatedTown(resident, cityhall.getCenterLocation());
 		try {
 			this.saveNow();
 			int cost = getCiv().getNextTownCost();
@@ -415,12 +415,12 @@ public class Town extends SQLObject {
 			}
 			GM.addMayor(resident);
 
-			SM.onCivtickUpdate();
 			CivGlobal.addTown(this);
 			getCiv().addTown(this);
-			getCiv().getTreasury().deposit(cost);
+			getCiv().getTreasury().withdraw(cost);
 
 			CivGlobal.processCulture();
+			SM.onCivtickUpdate();
 			this.saveNow();
 			return;
 		} catch (SQLException e2) {

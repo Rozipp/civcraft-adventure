@@ -7,14 +7,15 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterialCategory;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class CraftingHelp extends GuiInventory {
 
-	public CraftingHelp(Player player, String arg) {
-		super(player, arg);
+	public CraftingHelp(Player player, String arg) throws CivException {
+		super(player, null, arg);
 		if (arg == null)
 			createPerent();
 		else
@@ -39,7 +40,6 @@ public class CraftingHelp extends GuiInventory {
 					.addLore(CivColor.Gold + CivSettings.localize.localizedString("tutorial_lore_clickToOpen"))//
 					.setOpenInventory("CraftingHelp", cat.id));
 		}
-		saveStaticGuiInventory();
 	}
 
 	private void createCategory() {
@@ -51,7 +51,6 @@ public class CraftingHelp extends GuiInventory {
 			if (stack == null) continue;
 			this.addGuiItem(GuiItems.newGuiItem(stack).setOpenInventory("CraftingHelpRecipe", mat.id));
 		}
-		saveStaticGuiInventory();
 	}
 
 }

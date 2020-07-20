@@ -75,9 +75,7 @@ public class PlotPermissions {
 
 		for (String gstr : grpString) {
 			gstr = gstr.trim();
-			if (gstr.equals("0") || gstr.equals("")) {
-				continue;
-			}
+			if (gstr.equals("0") || gstr.isEmpty()) continue;
 			PermissionGroup group = town.GM.getGroupById(Integer.valueOf(gstr));
 			addGroup(group);
 		}

@@ -26,7 +26,7 @@ import gpl.AttributeUtil;
 public class ChoiceArrowComponent extends GuiInventory {
 
 	public ChoiceArrowComponent(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		if (getResident() == null) return;
 
 		this.setTitle("Выберите тип стрелы");
@@ -79,19 +79,14 @@ public class ChoiceArrowComponent extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
-		try {
-			String mid = strings[0];
-			ItemStack stack = ItemManager.createItemStack(mid, 1);
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.UnitItem, 1);
+		String mid = strings[0];
+		ItemStack stack = ItemManager.createItemStack(mid, 1);
+		stack = Enchantments.addEnchantment(stack, CustomEnchantment.UnitItem, 1);
 
-			getPlayer().getInventory().setItemInMainHand(stack);
+		getPlayer().getInventory().setItemInMainHand(stack);
 
-			Cooldown.startCooldown(getPlayer(), stack, 20, null);
-			GuiInventory.closeInventory(getPlayer());
-		} catch (CivException e) {
-			// TODO Автоматически созданный блок catch
-			e.printStackTrace();
-		}
+		Cooldown.startCooldown(getPlayer(), stack, 20, null);
+		GuiInventory.closeInventory(getPlayer());
 	}
 
 }

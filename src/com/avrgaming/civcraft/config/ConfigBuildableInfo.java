@@ -61,6 +61,7 @@ public class ConfigBuildableInfo {
 	}
 
 	public boolean isAvailable(Town town) {
+		if (town == null) return true;
 		if (!town.hasTechnology(require_tech)) return false;
 		if (!town.hasUpgrade(require_upgrade)) return false;
 		if (!town.BM.hasStructure(require_structure)) return false;

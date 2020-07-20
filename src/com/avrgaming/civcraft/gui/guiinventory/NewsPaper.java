@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigNewspaper;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -15,8 +16,8 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class NewsPaper extends GuiInventory {
 
-	public NewsPaper(Player player, String arg) {
-		super(player, arg);
+	public NewsPaper(Player player, String arg) throws CivException {
+		super(player, null, arg);
 		this.setTitle(CivColor.LightGreenBold + CivSettings.localize.localizedString("bookReborn_news_heading"));
 		for (int i = 0; i < 27; ++i) {
 			Random rand = CivCraft.civRandom;
@@ -46,7 +47,6 @@ public class NewsPaper extends GuiInventory {
 									CivColor.LightPurpleBold + "Tauri:", "§f" + news.line10, "§f" + news.line11, "§f" + news.line12, //
 									"Version: " + news.version));
 		}
-		saveStaticGuiInventory();
 	}
 
 }

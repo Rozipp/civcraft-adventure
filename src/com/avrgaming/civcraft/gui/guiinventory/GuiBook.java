@@ -4,14 +4,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class GuiBook extends GuiInventory {
 
-	public GuiBook(Player player, String arg) {
-		super(player, arg);
+	public GuiBook(Player player, String arg) throws CivException {
+		super(player, null, arg);
 		this.setRow(3);
 		this.setTitle("§a" + CivSettings.localize.localizedString("bookReborn_heading"));
 
@@ -24,7 +25,7 @@ public class GuiBook extends GuiInventory {
 				.setTitle(CivSettings.localize.localizedString("bookReborn_diplomaticMenu"))//
 				.setMaterial(Material.NAME_TAG)//
 				.setLore("§6" + CivSettings.localize.localizedString("bookReborn_clickToView"))//
-				.setAction("BookRelationsGui"));
+				.setOpenInventory("Relations", null));
 		this.addGuiItem(2, GuiItems.newGuiItem()//
 				.setTitle(CivSettings.localize.localizedString("bookReborn_civSpaceMenu"))//
 				.setMaterial(Material.BLAZE_POWDER)//
@@ -73,19 +74,12 @@ public class GuiBook extends GuiInventory {
 				.setMaterial(Material.ANVIL)//
 				.setLore("§6" + CivSettings.localize.localizedString("bookReborn_clickToView"))//
 				.setOpenInventory("UpgradeBuy", "true"));
-		// this.addGuiItem(21, GuiItems.newGuiItem()//
-		// .setTitle(CivSettings.localize.localizedString("bookReborn_goodsMenu"))//
-		// .setMaterial(Material.QUARTZ_BLOCK)//
-		// .setLore("§6" + CivSettings.localize.localizedString("bookReborn_clickToView"))//
-		// .setAction("BookGoodsGui"));
 
 		this.addGuiItem(26, GuiItems.newGuiItem()//
 				.setTitle(CivSettings.localize.localizedString("bookReborn_perkMenu"))//
 				.setMaterial(Material.BOOK_AND_QUILL)//
 				.setLore("§6" + CivSettings.localize.localizedString("bookReborn_clickToView"))//
 				.setOpenInventory("PerkPage", null));
-
-		saveStaticGuiInventory();
 	}
 
 }

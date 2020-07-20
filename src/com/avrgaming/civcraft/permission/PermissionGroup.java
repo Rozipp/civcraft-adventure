@@ -83,11 +83,15 @@ public class PermissionGroup extends SQLObject {
 
 	public static void init() throws SQLException {
 		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" + "`id` int(11) unsigned NOT NULL auto_increment," + "`name` VARCHAR(64) NOT NULL," + "`town_id` int(11)," + "`civ_id` int(11)," + "`members` mediumtext,"
-					+
+			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " ("//
+					+ "`id` int(11) unsigned NOT NULL auto_increment," //
+					+ "`name` VARCHAR(64) NOT NULL," //
+					+ "`town_id` int(11)," //
+					+ "`civ_id` int(11)," //
+					+ "`members` mediumtext,"
 					// "FOREIGN KEY (town_id) REFERENCES "+SQL.tb_prefix+"TOWN(id),"+
 					// "FOREIGN KEY (civ_id) REFERENCES "+SQL.tb_prefix+"CIVILIZATIONS(id),"+
-					"PRIMARY KEY (`id`)" + ")";
+					+ "PRIMARY KEY (`id`)" + ")";
 
 			SQL.makeTable(table_create);
 			CivLog.info("Created " + TABLE_NAME + " table");
@@ -104,7 +108,7 @@ public class PermissionGroup extends SQLObject {
 		this.setCivId(rs.getInt("civ_id"));
 		loadMembersFromSaveString(rs.getString("members"));
 
-		if (townId != 0) {
+		if (getTownId() != 0) {
 			town = CivGlobal.getTown(this.getTownId());
 			if (town == null) {
 				CivLog.warning("TownChunk tried to load without a town...");
@@ -116,7 +120,7 @@ public class PermissionGroup extends SQLObject {
 			} else
 				this.getTown().GM.addGroup(this);
 		}
-		if (civId != 0) {
+		if (getCivId() != 0) {
 			civ = CivGlobal.getCiv(this.getCivId());
 			if (civ == null) {
 				civ = CivGlobal.getConqueredCivFromId(this.getCivId());
@@ -128,9 +132,8 @@ public class PermissionGroup extends SQLObject {
 					}
 					throw new CivException("COUlD NOT FIND CIV ID:" + this.getCivId() + " for group: " + this.getName() + " to load.");
 				}
-			}
-
-			civ.GM.addGroup(this);
+			} else
+				civ.GM.addGroup(this);
 		}
 	}
 

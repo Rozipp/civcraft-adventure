@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -11,8 +12,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class Tutorial extends GuiInventory {
 
-	public Tutorial(Player player, String arg) {
-		super(player, arg);
+	public Tutorial(Player player, String arg) throws CivException {
+		super(player, null, arg);
 		this.setRow(3);
 		this.setTitle(CivSettings.localize.localizedString("tutorial_gui_heading"));
 
@@ -127,7 +128,6 @@ public class Tutorial extends GuiInventory {
 		this.addGuiItem(18, GuiItems.newGuiItem(CraftingHelpRecipe.getInfoBookForItem("mat_found_camp"))//
 				.setOpenInventory("CraftingHelpRecipe", "mat_found_camp"));
 		
-		saveStaticGuiInventory();
 	}
 
 }

@@ -10,18 +10,14 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.util.CivColor;
 
-public class RelationPage extends GuiInventory {
+public class RelationsPage extends GuiInventory {
 
-	public RelationPage(Player player, String arg) throws CivException {
-		super(player, arg);
-		if (getResident().getTown() == null) {
-			CivMessage.send((Object) player, "§c" + CivSettings.localize.localizedString("res_gui_noTown"));
-			return;
-		}
+	public RelationsPage(Player player, String arg) throws CivException {
+		super(player, player, arg);
+		if (getResident().getTown() == null) throw new CivException("§c" + CivSettings.localize.localizedString("res_gui_noTown"));
 		this.setCiv(getResident().getCiv());
 		if (arg == null) createGuiPerent();
 		if (arg == "Allies") createGuiAllies();

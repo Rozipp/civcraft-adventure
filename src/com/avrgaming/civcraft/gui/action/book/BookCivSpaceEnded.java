@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigSpaceMissions;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItemAction;
 import com.avrgaming.civcraft.gui.GuiItems;
@@ -23,29 +24,32 @@ public class BookCivSpaceEnded implements GuiItemAction {
 	@Override
 	public void performAction(InventoryClickEvent event, ItemStack stack) {
 		Player player = (Player) event.getWhoClicked();
-		Resident interactor = CivGlobal.getResident(player);
-		if (interactor.getCiv() == null) {
-			CivMessage.sendError((Object) player, CivSettings.localize.localizedString("var_bookcivspacegui_noCiv"));
-			return;
+		try {
+			Resident interactor = CivGlobal.getResident(player);
+			if (interactor.getCiv() == null) {
+				throw new CivException(CivSettings.localize.localizedString("var_bookcivspacegui_noCiv"));
+			}
+			Civilization civ = interactor.getCiv();
+			if (!civ.GM.isLeader(interactor)) {
+				throw new CivException(CivSettings.localize.localizedString("var_bookcivspacegui_noLeader", civ.getName()));
+			}
+			int ended = civ.getCurrentMission();
+
+			guiInventory = new GuiInventory(player, null, null)//
+					.setRow(1)//
+					.setTitle(CivSettings.localize.localizedString("bookReborn_civSpaceEndedHeading"));
+			for (int i = 1; i < ended; ++i) {
+				ConfigSpaceMissions configSpaceMissions = CivSettings.spacemissions_levels.get(i);
+				guiInventory.addGuiItem(GuiItems.newGuiItem()//
+						.setTitle("§a" + configSpaceMissions.name).setStack(ItemManager.createItemStack(ItemManager.getMaterialId(Material.STAINED_GLASS_PANE), CivCraft.civRandom.nextInt(15)))//
+						.setLore("§6" + CivSettings.localize.localizedString("click_to_view"))//
+						.setAction("CivSpaceComponents")//
+						.setActionData("i", String.valueOf(i))//
+						.setActionData("b", "true"));
+			}
+			guiInventory.openInventory(player);
+		} catch (CivException e) {
+			CivMessage.sendError(player, e.getMessage());
 		}
-		Civilization civ = interactor.getCiv();
-		if (!civ.GM.isLeader(interactor)) {
-			CivMessage.sendError((Object) player, CivSettings.localize.localizedString("var_bookcivspacegui_noLeader", civ.getName()));
-			return;
-		}
-		int ended = civ.getCurrentMission();
-		guiInventory = new GuiInventory(player,null)//
-				.setRow(1)//
-				.setTitle(CivSettings.localize.localizedString("bookReborn_civSpaceEndedHeading"));
-		for (int i = 1; i < ended; ++i) {
-			ConfigSpaceMissions configSpaceMissions = CivSettings.spacemissions_levels.get(i);
-			guiInventory.addGuiItem(GuiItems.newGuiItem()//
-					.setTitle("§a" + configSpaceMissions.name).setStack(ItemManager.createItemStack(ItemManager.getMaterialId(Material.STAINED_GLASS_PANE), CivCraft.civRandom.nextInt(15)))//
-					.setLore("§6" + CivSettings.localize.localizedString("click_to_view"))//
-					.setAction("CivSpaceComponents")//
-					.setActionData("i", String.valueOf(i))//
-					.setActionData("b", "true"));
-		}
-		guiInventory.openInventory();
 	}
 }

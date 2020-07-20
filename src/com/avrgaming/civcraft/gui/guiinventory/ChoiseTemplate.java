@@ -14,7 +14,8 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class ChoiseTemplate extends GuiInventory {
 
 	public ChoiseTemplate(Player player, String buildableId) throws CivException {
-		super(player, buildableId);
+		super(player, player, buildableId);
+		this.setPlayer(player);
 		ConfigBuildableInfo sinfo = CivSettings.structures.get(buildableId);
 		this.setTown(getResident().getTown());
 		/* We will resume by calling buildPlayerPreview with the template when a gui item is clicked. */
@@ -31,13 +32,8 @@ public class ChoiseTemplate extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
-		try {
-			getResident().getPendingCallback().execute(strings[0]);
-			GuiInventory.closeInventory(getPlayer());
-		} catch (CivException e) {
-			// TODO Автоматически созданный блок catch
-			e.printStackTrace();
-		}
+		getResident().getPendingCallback().execute(strings[0]);
+		GuiInventory.closeInventory(getPlayer());
 	}
 
 }

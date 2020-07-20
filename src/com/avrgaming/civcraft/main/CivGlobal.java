@@ -682,7 +682,7 @@ public class CivGlobal {
 
 	public static Resident getResident(UUID uuid) {
 		Player player = Bukkit.getPlayer(uuid);
-		if (player == null)
+		if (player != null)
 			return getResident(player);
 		else
 			return null;

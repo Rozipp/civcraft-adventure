@@ -19,7 +19,7 @@ import com.avrgaming.civcraft.util.CivColor;
 public class UpgradeBuy extends GuiInventory {
 
 	public UpgradeBuy(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		Boolean isTutorial = Boolean.parseBoolean(arg);
 		if (!isTutorial) {
 			if (getResident().getTown() == null)
@@ -42,7 +42,7 @@ public class UpgradeBuy extends GuiInventory {
 				}
 			}
 		}
-
+		if (isTutorial) this.setPlayer(null);
 		this.setTitle(CivSettings.localize.localizedString("resident_upgradesGuiHeading") + (getTown() != null ? " " + getTown().getName() : " Tutorial"));
 
 		for (ConfigTownUpgrade upgrade : (isTutorial) ? CivSettings.townUpgrades.values() : ConfigTownUpgrade.getAllUpgrades(getTown())) {
@@ -78,14 +78,9 @@ public class UpgradeBuy extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
-		try {
-			GuiInventory.closeInventory(getPlayer());
-			String toUpgrade = "town upgrade buy " + strings[0];
-			Bukkit.dispatchCommand((CommandSender) getPlayer(), (String) toUpgrade);
-		} catch (CivException e) {
-			// TODO Автоматически созданный блок catch
-			e.printStackTrace();
-		}
+		GuiInventory.closeInventory(getPlayer());
+		String toUpgrade = "town upgrade buy " + strings[0];
+		Bukkit.dispatchCommand((CommandSender) getPlayer(), (String) toUpgrade);
 	}
 
 }

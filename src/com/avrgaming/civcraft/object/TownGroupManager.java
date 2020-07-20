@@ -85,7 +85,6 @@ public class TownGroupManager extends GroupManager {
 					this.defaultGroup = grp;
 				else
 					groups.put(grp.getName(), grp);
-		grp.save();
 	}
 
 	public void addMayor(Resident res) throws CivException {

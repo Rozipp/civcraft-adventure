@@ -33,7 +33,7 @@ public class GuiInventory implements CallbackInterface {
 	private static Map<UUID, ArrayDeque<GuiInventory>> playersGuiInventoryStack = new HashMap<>();
 	protected static Map<String, GuiInventory> staticGuiInventory = new HashMap<>();
 
-	private String id;
+	private InventoryHolder holder;
 	private Player player;
 	private Resident resident;
 	private Town town;
@@ -44,11 +44,14 @@ public class GuiInventory implements CallbackInterface {
 	private String title = "";
 	private Integer row = 6;
 
-	public GuiInventory(Player player, String arg) {
+	public GuiInventory(InventoryHolder holder, Player player, String arg) throws CivException {
+		this.holder = holder;
 		this.player = player;
-		this.resident = CivGlobal.getResident(player);
+		if (player != null) {
+			this.resident = CivGlobal.getResident(player);
+			if (this.resident == null) throw new CivException("Resident not found");
+		}
 		this.arg = arg;
-		this.id = buildId(this.getClass().getSimpleName(), arg);
 	}
 
 	// ------------- builders
@@ -106,24 +109,20 @@ public class GuiInventory implements CallbackInterface {
 		items.put(slot, item);
 	}
 
-	public void addLastItem() {
+	public void addLastItem(UUID uuid) {
 		ArrayDeque<GuiInventory> gis;
-		try {
-			gis = GuiInventory.getInventoryStack(getPlayer().getUniqueId());
-			if (gis.isEmpty()) {
-				items.put(size(), GuiItems.newGuiItem()//
-						.setTitle("§c" + "Закрыть меню")//
-						.setMaterial(Material.EMPTY_MAP)//
-						.setAction("CloseInventory"));
-			} else {
-				items.put(size(), GuiItems.newGuiItem()//
-						.setTitle(CivSettings.localize.localizedString("loreGui_recipes_back"))//
-						.setMaterial(Material.MAP)//
-						.addLore(CivSettings.localize.localizedString("bookReborn_backTo", CivColor.White + gis.getFirst().getName()))//
-						.setAction("OpenBackInventory"));
-			}
-		} catch (CivException e) {
-			e.printStackTrace();
+		gis = GuiInventory.getInventoryStack(uuid);
+		if (gis.isEmpty()) {
+			items.put(size(), GuiItems.newGuiItem()//
+					.setTitle("§c" + "Закрыть меню")//
+					.setMaterial(Material.EMPTY_MAP)//
+					.setAction("CloseInventory"));
+		} else {
+			items.put(size(), GuiItems.newGuiItem()//
+					.setTitle(CivSettings.localize.localizedString("loreGui_recipes_back"))//
+					.setMaterial(Material.MAP)//
+					.addLore(CivSettings.localize.localizedString("bookReborn_backTo", CivColor.White + gis.getFirst().getName()))//
+					.setAction("OpenBackInventory"));
 		}
 	}
 
@@ -145,31 +144,19 @@ public class GuiInventory implements CallbackInterface {
 		return title;
 	}
 
-	private InventoryHolder getInventoryHolder() {
-		return player;
-	}
-
-	public Resident getResident() throws CivException {
-		return resident;
-	}
-
-	public Player getPlayer() throws CivException {
-		return player;
-	}
-
 	// -------------------- Inventory
 
-	public void openInventory() {
+	public void openInventory(Player player) {
 		ArrayDeque<GuiInventory> gis = GuiInventory.getInventoryStack(player.getUniqueId());
-		player.openInventory(getInventory());
+		player.openInventory(getInventory(player));
 		gis.push(this);
 		GuiInventory.setInventoryStack(player.getUniqueId(), gis);
 	}
 
-	public Inventory getInventory() {
+	public Inventory getInventory(Player player) {
 		if (inventory == null) try {
-			inventory = Bukkit.createInventory(getInventoryHolder(), size() + 1, title);
-			addLastItem();
+			inventory = Bukkit.createInventory(holder, size() + 1, title);
+			addLastItem(player.getUniqueId());
 			for (int slot = 0; slot <= size(); slot++) {
 				GuiItem item = items.get(slot);
 				if (item == null) continue;
@@ -182,14 +169,12 @@ public class GuiInventory implements CallbackInterface {
 	}
 
 	@Override
-	public void execute(String... strings){
+	public void execute(String... strings) {
 		// XXX Children Override
-		ArrayDeque<GuiInventory> gis = getInventoryStack(player.getUniqueId());
+		UUID uuid = (getPlayer() == null) ? UUID.fromString(strings[1]) : getPlayer().getUniqueId();  
+		
+		ArrayDeque<GuiInventory> gis = getInventoryStack(uuid);
 		if (!gis.isEmpty()) gis.getFirst().execute(strings);
-	}
-
-	protected void saveStaticGuiInventory() {
-		staticGuiInventory.put(this.getId(), this);
 	}
 
 	// ------------------- static
@@ -210,13 +195,16 @@ public class GuiInventory implements CallbackInterface {
 		String id = GuiInventory.buildId(className, arg);
 		if (staticGuiInventory.containsKey(id))
 			return staticGuiInventory.get(id);
-		else
-			return newGuiInventory(player, className, arg);
+		else {
+			GuiInventory gi = newGuiInventory(player, className, arg);
+			if (gi.getPlayer() == null) staticGuiInventory.put(id, gi);
+			return gi;
+		}
 	}
 
 	public static void openGuiInventory(Player player, String className, String arg) {
 		GuiInventory gi = getGuiInventory(player, className, arg);
-		if (gi != null) gi.openInventory();
+		if (gi != null) gi.openInventory(player);
 	}
 
 	public static boolean isGuiInventory(Inventory inv) {
@@ -243,6 +231,10 @@ public class GuiInventory implements CallbackInterface {
 
 	public static void setInventoryStack(UUID uuid, ArrayDeque<GuiInventory> gis) {
 		GuiInventory.playersGuiInventoryStack.put(uuid, gis);
+	}
+
+	public static void clearInventoryStack(UUID uuid) {
+		GuiInventory.playersGuiInventoryStack.put(uuid, null);
 	}
 
 }

@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItem;
 import com.avrgaming.civcraft.gui.GuiItems;
@@ -15,9 +16,10 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class Trade extends GuiInventory {
 
-	public Trade(Player player, String arg) {
-		super(player, arg);
+	public Trade(Player player, String arg) throws CivException {
+		super(player, player, arg);
 		Resident tradeResident = CivGlobal.getResident(arg);
+		if (tradeResident == null) throw new CivException("Resident " + arg + " not found");
 		this.setRow(5);
 		this.setTitle(this.getName() + " : " + tradeResident.getName());
 

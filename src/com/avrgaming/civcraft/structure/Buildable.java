@@ -21,7 +21,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -81,19 +80,15 @@ public abstract class Buildable extends Construct {
 
 	@Override
 	public void build(Player player) throws CivException {
-		BlockCoord corner = this.getCorner();
-		Template tpl = this.getTemplate();
-		Town town = this.getTown();
-
 		Structure struct = (this instanceof Structure) ? (Structure) this : null;
 		Wonder wonder = (this instanceof Wonder) ? (Wonder) this : null;
 
-		town.BM.checkIsTownCanBuildBuildable(this);
+		getTown().BM.checkIsTownCanBuildBuildable(this);
 		this.checkBlockPermissionsAndRestrictions(player);
 
-		town.BM.setLastBuildableBuilt(this);
+		getTown().BM.setLastBuildableBuilt(this);
 		try {
-			tpl.saveUndoTemplate(corner.toString(), corner);
+			getTemplate().saveUndoTemplate(corner.toString(), corner);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -102,7 +97,7 @@ public abstract class Buildable extends Construct {
 
 		for (ChunkCoord cc : this.getChunksCoords()) {
 			TownChunk tc = CivGlobal.getTownChunk(cc);
-			if (tc == null) TownChunk.autoClaim(town, cc).save();
+			if (tc == null) TownChunk.autoClaim(getTown(), cc);
 		}
 
 		try {
@@ -113,18 +108,18 @@ public abstract class Buildable extends Construct {
 		this.startBuildTask();
 		this.save();
 
-		town.getTreasury().withdraw(this.getCost());
+		getTown().getTreasury().withdraw(this.getCost());
 
 		if (struct != null) {
-			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", this.getDisplayName()));
-			town.BM.addStructure(struct);
+			CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildStructure_success", this.getDisplayName()));
+			getTown().BM.addStructure(struct);
 		}
 		if (wonder != null) {
-			town.BM.addWonder(wonder);
-			CivMessage.sendTown(town, CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", this.getDisplayName(), player.getName(), town.getName()));
-			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", town.getCiv().getName(), this.getDisplayName(), town.getName(), player.getName()));
+			getTown().BM.addWonder(wonder);
+			CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_town_buildwonder_success", this.getDisplayName(), player.getName(), getTown().getName()));
+			CivMessage.global(CivSettings.localize.localizedString("var_wonder_startedByCiv", getCiv().getName(), this.getDisplayName(), getTown().getName(), player.getName()));
 		}
-		town.save();
+		getTown().save();
 	}
 
 	public int getHammerCost() {

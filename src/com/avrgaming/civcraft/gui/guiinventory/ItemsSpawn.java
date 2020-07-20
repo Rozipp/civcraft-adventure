@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMaterial;
 import com.avrgaming.civcraft.config.ConfigMaterialCategory;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -14,8 +15,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class ItemsSpawn extends GuiInventory {
 
-	public ItemsSpawn(Player player, String arg) {
-		super(player, arg);
+	public ItemsSpawn(Player player, String arg) throws CivException {
+		super(player, null, arg);
 		if (arg == null)
 			createPerent();
 		else
@@ -24,7 +25,6 @@ public class ItemsSpawn extends GuiInventory {
 
 	private void createPerent() {
 		this.setTitle(CivSettings.localize.localizedString("adcmd_itemsHeader"));
-
 		/* Build the Category Inventory. */
 		for (ConfigMaterialCategory cat : ConfigMaterialCategory.getCategories()) {
 			Material identifier = cat.title.contains("Fish") ? Material.RAW_FISH //
@@ -38,7 +38,6 @@ public class ItemsSpawn extends GuiInventory {
 					.setLore(CivColor.LightBlue + cat.materials.size() + " Items", CivColor.Gold + "<Click To Open>")//
 					.setOpenInventory("ItemsSpawn", cat.id));
 		}
-		saveStaticGuiInventory();
 	}
 
 	private void createCategory() {
@@ -50,6 +49,5 @@ public class ItemsSpawn extends GuiInventory {
 			if (craftMat == null) continue;
 			this.addGuiItem(GuiItems.newGuiItem(CustomMaterial.spawn(craftMat)).setAction("SpawnItem"));
 		}
-		saveStaticGuiInventory();
 	}
 }

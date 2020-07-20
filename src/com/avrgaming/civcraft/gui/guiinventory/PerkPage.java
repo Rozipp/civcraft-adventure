@@ -12,7 +12,7 @@ import com.avrgaming.global.perks.Perk;
 public class PerkPage extends GuiInventory {
 
 	public PerkPage(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		this.setTitle(CivSettings.localize.localizedString("resident_perksGuiHeading"));
 		for (Perk p : getResident().perks.values()) {
 			if (p.getConfigId().startsWith("temp")) {

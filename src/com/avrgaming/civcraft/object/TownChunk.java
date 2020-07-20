@@ -37,7 +37,7 @@ import com.avrgaming.civcraft.util.CivColor;
 @Setter
 public class TownChunk extends SQLObject {
 
-	private ChunkCoord chunkLocation;
+	private ChunkCoord chunkCoord;
 	private Town town;
 	private boolean forSale;
 	/* Price vs value, price is what the owner is currently selling it for, value is the amount that it was last purchased at, used for
@@ -58,16 +58,16 @@ public class TownChunk extends SQLObject {
 		}
 	}
 
-	public TownChunk(Town newTown, Location location) {
-		setTown(newTown);
-		setChunkCord(new ChunkCoord(location));
-		perms.addGroup(newTown.GM.getDefaultGroup());
+	public TownChunk(Town town, Location location) {
+		this.town = town;
+		this.chunkCoord = new ChunkCoord(location);
+		perms.addGroup(town.GM.getDefaultGroup());
 	}
 
-	public TownChunk(Town newTown, ChunkCoord chunkLocation) {
-		setTown(newTown);
-		setChunkCord(chunkLocation);
-		perms.addGroup(newTown.GM.getDefaultGroup());
+	public TownChunk(Town town, ChunkCoord chunkCoord) {
+		this.town = town;
+		this.chunkCoord = chunkCoord;
+		perms.addGroup(town.GM.getDefaultGroup());
 	}
 
 	public static void init() throws SQLException {
@@ -108,7 +108,7 @@ public class TownChunk extends SQLObject {
 			throw new CivException("Not found town ID (" + rs.getInt("town_id") + ") to load this town chunk(" + this.getId());
 		}
 		ChunkCoord cord = new ChunkCoord(rs.getString("world"), rs.getInt("x"), rs.getInt("z"));
-		this.setChunkCord(cord);
+		this.setChunkCoord(cord);
 
 		try {
 			this.perms.loadFromSaveString(town, rs.getString("permissions"));
@@ -169,14 +169,6 @@ public class TownChunk extends SQLObject {
 		}
 
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
-	}
-
-	public ChunkCoord getChunkCoord() {
-		return chunkLocation;
-	}
-
-	public void setChunkCord(ChunkCoord chunkLocation) {
-		this.chunkLocation = chunkLocation;
 	}
 
 	public static TownChunk claim(Town town, ChunkCoord coord) throws CivException {
@@ -323,7 +315,7 @@ public class TownChunk extends SQLObject {
 	}
 
 	public String getCenterString() {
-		return this.chunkLocation.toString();
+		return this.chunkCoord.toString();
 	}
 
 	public static void unclaim(TownChunk tc) throws CivException {

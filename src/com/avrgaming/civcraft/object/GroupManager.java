@@ -62,17 +62,17 @@ public abstract class GroupManager {
 	}
 
 	public PermissionGroup getGroup(String name) {
-		if (!groups.contains(name.toLowerCase().trim())) {
-			for (PermissionGroup grp : this.getProtectedGroups())
-				if (grp.getName().equalsIgnoreCase(name)) return grp;
-		}
-		return groups.get(name.toLowerCase().trim());
+		if (groups.contains(name.toLowerCase().trim())) return groups.get(name.toLowerCase().trim());
+		for (PermissionGroup grp : this.getProtectedGroups())
+			if (grp.getName().equalsIgnoreCase(name)) return grp;
+		return null;
 	}
 
 	public PermissionGroup getGroupById(Integer id) {
-		for (PermissionGroup grp : groups.values()) {
+		for (PermissionGroup grp : this.getProtectedGroups())
 			if (grp.getId() == id) return grp;
-		}
+		for (PermissionGroup grp : groups.values())
+			if (grp.getId() == id) return grp;
 		return null;
 	}
 

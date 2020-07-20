@@ -79,6 +79,6 @@ public class GuiInventoryListener implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void OnCloseInventory(InventoryCloseEvent event) {
-		GuiInventory.setInventoryStack(((Player) event.getPlayer()).getUniqueId(), null);
+		GuiInventory.clearInventoryStack(((Player) event.getPlayer()).getUniqueId());
 	}
 }

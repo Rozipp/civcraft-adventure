@@ -18,7 +18,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class ChoiceUnitComponent extends GuiInventory {
 
 	public ChoiceUnitComponent(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		this.setTitle("Окно выбора новых способностей");
 
 		UnitObject uo = CivGlobal.getUnitObject(getResident().getUnitObjectId());
@@ -84,19 +84,14 @@ public class ChoiceUnitComponent extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
-		try {
-			UnitObject uo = CivGlobal.getUnitObject(getResident().getUnitObjectId());
+		UnitObject uo = CivGlobal.getUnitObject(getResident().getUnitObjectId());
 
-			uo.addComponent(strings[0]);
+		uo.addComponent(strings[0]);
 
-			UnitStatic.updateUnitForPlaeyr(getPlayer());
-			uo.removeLevelUp();
-			uo.save();
-			uo.rebuildUnitItem(getPlayer());
-			GuiInventory.closeInventory(getPlayer());
-		} catch (CivException e) {
-			// TODO Автоматически созданный блок catch
-			e.printStackTrace();
-		}
+		UnitStatic.updateUnitForPlaeyr(getPlayer());
+		uo.removeLevelUp();
+		uo.save();
+		uo.rebuildUnitItem(getPlayer());
+		GuiInventory.closeInventory(getPlayer());
 	}
 }

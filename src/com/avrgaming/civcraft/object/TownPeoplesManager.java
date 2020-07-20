@@ -129,6 +129,9 @@ public class TownPeoplesManager {
 	private void loadPeopesFromString(String string) {
 		CivLog.debug("loadPeopesFromString  " + string);
 		peoples.clear();
+		for (Prof prof : Prof.values()) {
+			this.peoples.put(prof, 0);
+		}
 		for (String s : string.split(",")) {
 			String[] split = s.trim().split(":");
 			if (split.length != 2) continue;

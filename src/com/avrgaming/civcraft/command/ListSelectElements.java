@@ -25,9 +25,11 @@ public class ListSelectElements {
 
 	public ListSelectElements() {
 	}
+
 	public List<CommandElement> getCommandElemets() {
 		return commands;
 	}
+
 	public String getCommand(Integer i) {
 		return commands.get(i).command;
 	}
@@ -90,34 +92,34 @@ public class ListSelectElements {
 	public void showListSelectElement(Player player) {
 		CivMessage.send(player, CivColor.LightPurple + "Help " + CivColor.BOLD + CivColor.Green + perentCommand);
 
-//		GuiInventory gi = new GuiInventory(player, null);
-//		gi.setTitle(this.perentCommand);
+		// GuiInventory gi = new GuiInventory(player, null);
+		// gi.setTitle(this.perentCommand);
 		for (Integer i = 0; i < size(); i++) {
-//			GuiItem g = new GuiItem();
-//			g.setMaterial(Material.APPLE);
 			String string = "";
-			string = CivColor.addTabToString(string, CivColor.BOLD + CivColor.Green + "(" + i + ")", 8);
-			String getCt = getComent(i);
-			Integer index = getCt.lastIndexOf("]") + 1;
+			String nomer = CivColor.BOLD + CivColor.Green + "(" + i + ")";
+			string = CivColor.addTabToString(string, nomer, 8);
 			String altComms = "";
 			for (String s : getAltCommands(i))
 				altComms = altComms + " (" + s + ")";
-			
-			String title = CivColor.LightPurple + getCommand(i) + altComms + getCt.substring(0, index);
-//			g.setTitle(title);
-			string = string + CivColor.addTabToString(string, title, 18);
-			
+			Integer index = getComent(i).lastIndexOf("]") + 1;
+			String title = CivColor.LightPurple + getCommand(i) + altComms + getComent(i).substring(0, index);
+
+			string = CivColor.addTabToString(string, title, 18);
+
 			String coment = CivColor.LightGray + getComent(i).substring(index);
 			coment = coment.replace("[", CivColor.Yellow + "[");
 			coment = coment.replace("]", "]" + CivColor.LightGray);
 			coment = coment.replace("(", CivColor.Yellow + "(");
 			coment = coment.replace(")", ")" + CivColor.LightGray);
-//			g.addLore(coment);
-			
-			string = string + CivColor.addTabToString(string, coment, 0);
+
+			string = CivColor.addTabToString(string, coment, 0);
 			CivMessage.send(player, string);
-//			gi.addGuiItem(i, g);
+			// GuiItem g = new GuiItem();
+			// g.setMaterial(Material.APPLE);
+			// g.setTitle(title);
+			// g.addLore(coment);
+			// gi.addGuiItem(i, g);
 		}
-//		gi.openInventory();
+		// gi.openInventory();
 	}
 }

@@ -661,7 +661,7 @@ public class Resident extends SQLObject {
 			Player player = CivGlobal.getPlayer(this);
 			if (player.isDead()) throw new CivException(CivSettings.localize.localizedString("resident_tradeErrorPlayerDead"));
 			GuiInventory gi = new Trade(player, tradeResident.getName());
-			gi.openInventory();
+			gi.openInventory(player);
 			return gi;
 		} catch (CivException e) {
 			try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("possibleCheaters.txt", true)))) {

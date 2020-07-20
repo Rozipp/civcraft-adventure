@@ -15,9 +15,9 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class ResidentPage extends GuiInventory {
 
 	public ResidentPage(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		SimpleDateFormat sdf = CivGlobal.dateFormat;
-
+		
 		this.setRow(1).setTitle(CivSettings.localize.localizedString("bookReborn_resInfoHeading"));
 		this.addGuiItem(0, GuiItems.newGuiItem(ItemManager.createItemStack(ItemManager.getMaterialId(Material.SKULL_ITEM), (short) 3, 1))//
 				.setTitle(CivSettings.localize.localizedString("bookReborn_infoMenu_name"))//

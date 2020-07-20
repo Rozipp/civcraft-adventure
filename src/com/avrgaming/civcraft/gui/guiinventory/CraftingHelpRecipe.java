@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigIngredient;
 import com.avrgaming.civcraft.config.ConfigTech;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItem;
 import com.avrgaming.civcraft.gui.GuiItems;
@@ -25,10 +26,10 @@ public class CraftingHelpRecipe extends GuiInventory {
 
 	public static final int START_OFFSET = GuiItems.INV_ROW_COUNT + 3;
 
-	public CraftingHelpRecipe(Player player, String mid) {
-		super(player, mid);
+	public CraftingHelpRecipe(Player player, String mid) throws CivException {
+		super(player, null, mid);
 		CraftableCustomMaterial craftMat = CustomMaterial.getCraftableCustomMaterial(mid);
-		if (craftMat == null || craftMat.getConfigMaterial().ingredients == null) return;
+		if (craftMat == null || craftMat.getConfigMaterial().ingredients == null) throw new CivException("CustomMaterial " + mid + " have't ingredients");
 
 		this.setTitle(CivSettings.localize.localizedString("loreGui_recipes_guiHeading", craftMat.getName()));
 		if (craftMat.isShaped()) {
@@ -65,8 +66,6 @@ public class CraftingHelpRecipe extends GuiInventory {
 
 		buildCraftTableBorder(this);
 		buildInfoBar(craftMat, this, player);
-		this.addLastItem();
-		saveStaticGuiInventory();
 	}
 
 	public GuiItem getIngredItem(ConfigIngredient ingred) {

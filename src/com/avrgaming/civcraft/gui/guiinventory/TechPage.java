@@ -2,7 +2,6 @@ package com.avrgaming.civcraft.gui.guiinventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -16,9 +15,11 @@ import com.avrgaming.civcraft.gui.GuiItems;
 public class TechPage extends GuiInventory {
 
 	public TechPage(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		Boolean isTutorial = Boolean.parseBoolean(arg);
 		this.setCiv(getResident().getCiv());
+
+		if (isTutorial) this.setPlayer(null);
 		this.setTitle(CivSettings.localize.localizedString("resident_techsGuiHeading"));
 
 		if (!getCiv().GM.isLeaderOrAdviser(getResident())) isTutorial = true;
@@ -38,16 +39,11 @@ public class TechPage extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
-		try {
-			GuiInventory.closeInventory(getPlayer());
-			if (getCiv().getResearchTech() == null)
-				Bukkit.dispatchCommand((CommandSender) getPlayer(), "civ research on " + strings[0]);
-			else
-				Bukkit.dispatchCommand((CommandSender) getPlayer(), "civ research queueadd " + strings[0]);
-		} catch (CommandException | CivException e) {
-			// TODO Автоматически созданный блок catch
-			e.printStackTrace();
-		}
+		GuiInventory.closeInventory(getPlayer());
+		if (getCiv().getResearchTech() == null)
+			Bukkit.dispatchCommand((CommandSender) getPlayer(), "civ research on " + strings[0]);
+		else
+			Bukkit.dispatchCommand((CommandSender) getPlayer(), "civ research queueadd " + strings[0]);
 	}
 
 }

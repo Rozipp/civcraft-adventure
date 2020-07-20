@@ -37,10 +37,11 @@ public class FoundCivCallback implements CallbackInterface {
 		/* Build a preview for the Capitol structure. */
 		cityhall = Structure.newStructure(player, player.getLocation(), "s_cityhall", null,true);
 		town = new Town((Civilization) null);
-		town.checkCanCreatedTown(resident, cityhall);
+		town.checkCanCreatedTown(resident, cityhall.getCenterLocation());
 		civ = new Civilization();
 		civ.checkCanCreatedCiv(player);
-
+		
+		GuiInventory.clearInventoryStack(player.getUniqueId());
 		GuiInventory.openGuiInventory(player, "ChoiseTemplate", cityhall.getInfo().id);
 	}
 

@@ -20,15 +20,31 @@ import com.avrgaming.civcraft.util.CivColor;
 public class Wonders extends GuiInventory {
 
 	public Wonders(Player player, String arg) throws CivException {
-		super(player, arg);
+		super(player, player, arg);
 		Boolean isTutorial = Boolean.parseBoolean(arg);
 		if (!isTutorial) {
-			Town town = getResident().getSelectedTown();
-			if (town == null) town = getResident().getTown();
-			if (town == null) return;
-			this.setTown(town);
+			if (getResident().getTown() == null)
+				isTutorial = true;
+			else {
+				Town town = getResident().getTown();
+				if (getResident().getSelectedTown() != null) {
+					try {
+						getResident().getSelectedTown().validateResidentSelect(getResident());
+					} catch (CivException e) {
+						CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_townDeselectedInvalid", getResident().getSelectedTown().getName(), getResident().getTown().getName()));
+						getResident().setSelectedTown(getResident().getTown());
+						town = getResident().getTown();
+					}
+					town = getResident().getSelectedTown();
+					this.setTown(town);
+				}
+				if (!town.GM.isMayorOrAssistant(getResident()) && !town.getCiv().GM.isLeader(getResident())) {
+					isTutorial = true;
+				}
+			}
 		}
-		this.setTitle(CivSettings.localize.localizedString("resident_structuresGuiHeading"));
+		if (isTutorial) this.setPlayer(null);
+		this.setTitle(CivSettings.localize.localizedString("resident_structuresGuiHeading") + (getTown() != null ? " " + getTown().getName() : " Tutorial"));
 
 		double rate = 1.0;
 		if (!isTutorial) {
@@ -101,19 +117,14 @@ public class Wonders extends GuiInventory {
 
 	@Override
 	public void execute(String... strings) {
+		GuiInventory.closeInventory(getPlayer());
 		try {
-			GuiInventory.closeInventory(getPlayer());
-			try {
-				String buildId = strings[0];
-				ConfigBuildableInfo sinfo = CivSettings.wonders.get(buildId);
-				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildId);
-				getResident().setPendingCallback(new BuildCallback(getPlayer(), sinfo, getTown()));
-			} catch (CivException e) {
-				CivMessage.sendError(getPlayer(), e.getMessage());
-			}
-		} catch (CivException e1) {
-			// TODO Автоматически созданный блок catch
-			e1.printStackTrace();
+			String buildId = strings[0];
+			ConfigBuildableInfo sinfo = CivSettings.wonders.get(buildId);
+			if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildId);
+			getResident().setPendingCallback(new BuildCallback(getPlayer(), sinfo, getTown()));
+		} catch (CivException e) {
+			CivMessage.sendError(getPlayer(), e.getMessage());
 		}
 	}
 
