@@ -21,9 +21,10 @@ package com.avrgaming.civcraft.components;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Buildable;
+
 import lombok.Getter;
 
 @Getter

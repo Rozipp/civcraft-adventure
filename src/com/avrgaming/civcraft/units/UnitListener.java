@@ -4,20 +4,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.listener.SimpleListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.object.Resident;
 
-public class UnitListener implements Listener {
-
-	public UnitListener() { /* для Listener */
-	}
+public class UnitListener extends SimpleListener {
 
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onEntityDeath(final EntityDeathEvent event) {

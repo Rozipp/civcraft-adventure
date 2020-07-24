@@ -31,7 +31,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.CaveStatus.StatusType;
+//import com.avrgaming.civcraft.construct.caves.CaveStatus.StatusType;
 import com.avrgaming.civcraft.endgame.EndConditionDiplomacy;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.exception.CivException;
@@ -77,19 +77,19 @@ public class CivCommand extends CommandBase {
 		cs.add("members", CivSettings.localize.localizedString("cmd_civ_membersDesc"));
 		cs.add("space", CivSettings.localize.localizedString("cmd_civ_space_name"));
 		cs.add("culture", CivSettings.localize.localizedString("cmd_civ_culture_name"));
-		cs.add("caves", "[all,founded,available,captured,lost,updated,used] Показать информаци о пещерах");
+//		cs.add("caves", "[all,founded,available,captured,lost,updated,used] Показать информаци о пещерах");
 	}
 
-	public void caves_cmd() throws CivException {
-		Player player = this.getPlayer();
-		if (args.length < 2 || args[1].equalsIgnoreCase("all")) {
-			CivGlobal.getResident(player).getCiv().showCaveStatus(player, null);
-			return;
-		}
-
-		StatusType statusType = StatusType.valueOf(args[1]);
-		CivGlobal.getResident(player).getCiv().showCaveStatus(player, statusType);
-	}
+//	public void caves_cmd() throws CivException {
+//		Player player = this.getPlayer();
+//		if (args.length < 2 || args[1].equalsIgnoreCase("all")) {
+//			CivGlobal.getResident(player).getCiv().showCaveStatus(player, null);
+//			return;
+//		}
+//
+//		StatusType statusType = StatusType.valueOf(args[1]);
+//		CivGlobal.getResident(player).getCiv().showCaveStatus(player, statusType);
+//	}
 
 	public void culture_cmd() throws CivException {
 		final Resident resident = this.getResident();

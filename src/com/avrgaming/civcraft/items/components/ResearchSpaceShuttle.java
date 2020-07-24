@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.components.ItemComponent;
@@ -28,7 +28,7 @@ public class ResearchSpaceShuttle extends ItemComponent implements CallbackInter
 	public void onPrepareCreate(AttributeUtil attrUtil) {
 		attrUtil.addLore(ChatColor.RESET + CivColor.Gold + CivSettings.localize.localizedString("researchSpaceShuttle_lore1"));
 		attrUtil.addLore(ChatColor.RESET + CivColor.Red + CivSettings.localize.localizedString("itemLore_RightClickToUse"));
-		attrUtil = Enchantments.addEnchantment(attrUtil, CustomEnchantment.SoulBound, 1);
+		Enchantments.addEnchantment(attrUtil, EnchantmentCustom.SoulBound, 1);
 	}
 
 	@Override

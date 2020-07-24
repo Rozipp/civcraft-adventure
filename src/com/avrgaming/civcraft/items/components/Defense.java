@@ -16,8 +16,8 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentDefense;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.DefenseEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -51,8 +51,8 @@ public class Defense extends ItemComponent {
 		if (craftMat == null) return;
 
 		double extraDef = 0;
-		if (Enchantments.hasEnchantment(stack, CustomEnchantment.Defense)) {
-			extraDef += EnchantmentDefense.defensePerLevel * Enchantments.getLevelEnchantment(stack, CustomEnchantment.Defense);
+		if (Enchantments.hasEnchantment(stack, EnchantmentCustom.Defense)) {
+			extraDef += DefenseEnchantment.defensePerLevel * Enchantments.getLevelEnchantment(stack, EnchantmentCustom.Defense);
 		}
 
 		defValue += extraDef;

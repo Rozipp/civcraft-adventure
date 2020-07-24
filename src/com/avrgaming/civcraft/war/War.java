@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Arrowpost;
-import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.construct.Transmuter;
-import com.avrgaming.civcraft.construct.WarCamp;
+import com.avrgaming.civcraft.construct.constructs.Arrowpost;
+import com.avrgaming.civcraft.construct.constructs.Cannon;
+import com.avrgaming.civcraft.construct.constructs.WarCamp;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.DisableTeleportEvent;
 import com.avrgaming.civcraft.event.EventTimer;

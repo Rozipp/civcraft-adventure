@@ -21,7 +21,7 @@ package com.avrgaming.civcraft.questions;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;

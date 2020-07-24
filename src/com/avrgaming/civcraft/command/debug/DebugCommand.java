@@ -42,13 +42,17 @@ import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.command.admin.AdminTownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
-import com.avrgaming.civcraft.construct.Camp;
-import com.avrgaming.civcraft.construct.Cannon;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.WarCamp;
+import com.avrgaming.civcraft.construct.constructs.Cannon;
+import com.avrgaming.civcraft.construct.structures.ArrowTower;
+import com.avrgaming.civcraft.construct.structures.BuildableStatic;
+import com.avrgaming.civcraft.construct.structures.Cityhall;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.wonders.GrandShipIngermanland;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
 import com.avrgaming.civcraft.exception.CivException;
@@ -67,12 +71,6 @@ import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.structure.ArrowTower;
-import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.Cityhall;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.AsciiMap;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -96,7 +94,7 @@ public class DebugCommand extends CommandBase {
 
 		this.cs.add("show", "Show data base info.");
 		this.cs.add("reloadconf", "перезагрузка настроек из файла");
-		this.cs.add("cave", "Дебаг пещер");
+//		this.cs.add("cave", "Дебаг пещер");
 
 		cs.add("map", "shows a town chunk map of the current area.");
 
@@ -323,13 +321,7 @@ public class DebugCommand extends CommandBase {
 								if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
 									String buildableName = sb.command.replace("/", "");
 
-									ConfigBuildableInfo info = null;
-									for (ConfigBuildableInfo buildInfo : CivSettings.structures.values()) {
-										if (buildInfo.displayName.equalsIgnoreCase(buildableName)) {
-											info = buildInfo;
-											break;
-										}
-									}
+									ConfigConstructInfo info = CivSettings.getConstructInfoByName(buildableName);
 									if (info == null) {
 										try {
 											Block block = next.getBlock();
@@ -422,19 +414,12 @@ public class DebugCommand extends CommandBase {
 		String name = getNamedString(1, "Enter a buildName");
 		String theme = "default";
 		if (args.length == 3) theme = args[2];
-		ConfigBuildableInfo sinfo;
+		ConfigConstructInfo sinfo;
 
 		if (theme.equals("cave")) {
 			// TODO
 		}
-
-		if (name.equals("camp"))
-			sinfo = Camp.campInfo;
-		else
-			if (name.equals("warcamp"))
-				sinfo = WarCamp.info;
-			else
-				sinfo = CivSettings.getBuildableInfoByName(name);
+		sinfo = CivSettings.getConstructInfoByName(name);
 
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
 		String templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
@@ -448,7 +433,7 @@ public class DebugCommand extends CommandBase {
 		String name = getNamedString(1, "Enter a filename");
 		String build_name = name.replace("_", " ");
 		String theme = (args.length == 3) ? args[2] : null;
-		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(build_name);
+		ConfigConstructInfo sinfo = CivSettings.getConstructInfoByName(build_name);
 
 		String filepath = null;
 
@@ -929,10 +914,10 @@ public class DebugCommand extends CommandBase {
 		CivMessage.send(player, AsciiMap.getMapAsString(player.getLocation()));
 	}
 
-	public void cave_cmd() {
-		final DebugCaveCommand cmd = new DebugCaveCommand();
-		cmd.onCommand(this.sender, null, "cave", this.stripArgs(this.args, 1));
-	}
+//	public void cave_cmd() {
+//		final DebugCaveCommand cmd = new DebugCaveCommand();
+//		cmd.onCommand(this.sender, null, "cave", this.stripArgs(this.args, 1));
+//	}
 
 	public void reloadconf_cmd() {
 		final DebugReloadConfCommand cmd = new DebugReloadConfCommand();

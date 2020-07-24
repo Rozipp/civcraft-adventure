@@ -2,12 +2,6 @@
 # Contains configuration options for camps.
 # 
 camp:
-    # Number of hitpoints a camp has.
-    hitpoints: 5000
-  
-    # Number of hitpoints to regenerate per second
-    regen_rate: 2
-
     # Number of hours a camp can survive without coal.
     firepoints: 24
 
@@ -17,9 +11,6 @@ camp:
     # количество хлеба, которое потребляет второй уровень большого дома в час
     bread_per_hour_for_second_longhouse: 32
 
-    # cost of the camp in coins.
-    cost: 2500.0
-   
     # number of hours to let camp be raidable
     raid_length: 22
     

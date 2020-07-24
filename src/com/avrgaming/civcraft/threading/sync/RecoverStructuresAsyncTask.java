@@ -16,11 +16,11 @@ import java.util.Map.Entry;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;

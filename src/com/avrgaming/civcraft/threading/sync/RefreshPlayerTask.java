@@ -7,7 +7,7 @@ import org.bukkit.entity.*;
 import org.bukkit.plugin.*;
 import java.util.*;
 import com.avrgaming.civcraft.config.*;
-import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.constructs.Camp;
 
 import org.bukkit.*;
 import com.avrgaming.civcraft.main.*;

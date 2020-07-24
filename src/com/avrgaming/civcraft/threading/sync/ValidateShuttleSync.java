@@ -3,8 +3,9 @@ package com.avrgaming.civcraft.threading.sync;
 
 import java.util.concurrent.locks.ReentrantLock;
 import org.bukkit.entity.Player;
+
+import com.avrgaming.civcraft.construct.wonders.SpaceShuttle;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.SpaceShuttle;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class ValidateShuttleSync

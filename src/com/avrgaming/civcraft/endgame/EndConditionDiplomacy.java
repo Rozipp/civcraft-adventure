@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import org.bukkit.Bukkit;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -13,7 +14,6 @@ import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndConditionDiplomacy extends EndGameCondition {

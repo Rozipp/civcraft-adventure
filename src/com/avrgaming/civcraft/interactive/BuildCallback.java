@@ -4,19 +4,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo.ConstructType;
+import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
+import com.avrgaming.civcraft.construct.structures.BuildableStatic;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
-import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
@@ -27,17 +28,22 @@ public class BuildCallback implements CallbackInterface {
 	private Resident resident;
 	private Buildable buildable;
 
-	public BuildCallback(Player player, ConfigBuildableInfo sinfo, Town town) throws CivException {
+	public BuildCallback(Player player, ConfigConstructInfo sinfo, Town town) throws CivException {
 		this.player = player;
 		this.resident = CivGlobal.getResident(player);
 
 		if (sinfo.id.equals("wonder_stock_exchange") && !town.BM.canBuildStock(player)) {
 			throw new CivException(CivColor.Red + CivSettings.localize.localizedString("var_buildStockExchange_nogoodCondition", "http://wiki.minetexas.com/index.php/Stock_Exchange"));
 		}
-		if (sinfo.isWonder)
-			buildable = Wonder.newWonder(player, player.getLocation(), sinfo.id, town);
-		else
+
+		if (sinfo.type == ConstructType.Structure)
 			buildable = Structure.newStructure(player, player.getLocation(), sinfo.id, town, true);
+		else
+			if (sinfo.type == ConstructType.Wonder)
+				buildable = Wonder.newWonder(player, player.getLocation(), sinfo.id, town);
+			else
+				throw new CivException("This construct can not build in town");
+
 		GuiInventory.openGuiInventory(player, "ChoiseTemplate", buildable.getInfo().id);
 	}
 

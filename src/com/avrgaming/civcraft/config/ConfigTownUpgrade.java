@@ -17,22 +17,21 @@ import java.util.Set;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import com.avrgaming.civcraft.construct.structures.Bank;
+import com.avrgaming.civcraft.construct.structures.FishHatchery;
+import com.avrgaming.civcraft.construct.structures.Grocer;
+import com.avrgaming.civcraft.construct.structures.Library;
+import com.avrgaming.civcraft.construct.structures.Store;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.structures.TradeShip;
+import com.avrgaming.civcraft.construct.wonders.StockExchange;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.LibraryEnchantment;
 import com.avrgaming.civcraft.object.StoreMaterial;
 import com.avrgaming.civcraft.object.Town;
-//import com.avrgaming.civcraft.structure.Alch;
-import com.avrgaming.civcraft.structure.Bank;
-import com.avrgaming.civcraft.structure.FishHatchery;
-import com.avrgaming.civcraft.structure.Grocer;
-import com.avrgaming.civcraft.structure.Library;
-import com.avrgaming.civcraft.structure.Store;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TradeShip;
-import com.avrgaming.civcraft.structure.wonders.StockExchange;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 
 public class ConfigTownUpgrade {
 	public String id;

@@ -28,7 +28,9 @@ import org.bukkit.material.MaterialData;
 
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
+import com.avrgaming.civcraft.construct.structures.BuildableStatic;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -41,8 +43,6 @@ import com.avrgaming.civcraft.object.SQLObject;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
-import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
@@ -63,7 +63,7 @@ public abstract class Construct extends SQLObject {
 
 	protected BlockCoord corner;
 	private Location centerLocation;
-	private ConfigBuildableInfo info = new ConfigBuildableInfo();
+	private ConfigConstructInfo info;
 	private int hitpoints;
 	private boolean enabled = true;
 	private Template template;
@@ -80,6 +80,15 @@ public abstract class Construct extends SQLObject {
 
 	public ArrayList<Component> attachedComponents = new ArrayList<Component>();
 
+	public Construct(String id, SQLObject owner) throws CivException {
+		ConfigConstructInfo in = CivSettings.constructs.get(id);
+		CivLog.debug("create construct " + id);
+		CivLog.debug("info  " + in.id);
+		this.setInfo(in);
+		this.setSQLOwner(owner);
+		loadSettings();
+	}
+	
 	public String getHash() {
 		return corner.toString();
 	}
@@ -173,7 +182,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public boolean isDestroyable() {
-		return (info.destroyable != null) && info.destroyable;
+		return info.destroyable;
 	}
 
 	public boolean isAvailable() {
@@ -183,10 +192,6 @@ public abstract class Construct extends SQLObject {
 
 	public int getLimit() {
 		return info.limit;
-	}
-
-	public boolean isAllowOutsideTown() {
-		return (info.allow_outside_town != null) && (info.allow_outside_town == true);
 	}
 
 	public boolean isStrategic() {

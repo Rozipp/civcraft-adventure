@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.main.CivLog;
 
 public class ConfigCampUpgrade {

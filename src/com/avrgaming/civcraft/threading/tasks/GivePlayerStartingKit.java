@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -64,7 +64,7 @@ public class GivePlayerStartingKit implements Runnable {
 
 					stack = CraftableCustomMaterial.spawn(craftMat);
 				}
-				Enchantments.addEnchantment(stack, CustomEnchantment.SoulBound, 1);
+				Enchantments.addEnchantment(stack, EnchantmentCustom.SoulBound, 1);
 
 				player.getInventory().addItem(stack);
 			}

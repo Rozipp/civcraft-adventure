@@ -22,13 +22,13 @@ import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.construct.farm.FarmChunk;
+import com.avrgaming.civcraft.construct.farm.FarmGrowthSyncTask;
+import com.avrgaming.civcraft.construct.farm.FarmPreCachePopulateTimer;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.farm.FarmChunk;
-import com.avrgaming.civcraft.structure.farm.FarmGrowthSyncTask;
-import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;

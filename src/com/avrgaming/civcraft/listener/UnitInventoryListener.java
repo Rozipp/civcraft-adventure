@@ -25,7 +25,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -41,7 +40,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 import gpl.AttributeUtil;
 
-public class UnitInventoryListener implements Listener {
+public class UnitInventoryListener  extends SimpleListener {
 
 	public static HashSet<Inventory> guiInventories = new HashSet<>();
 

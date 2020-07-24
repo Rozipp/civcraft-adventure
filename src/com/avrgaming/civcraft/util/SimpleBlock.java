@@ -16,7 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.construct.Buildable;
 
 import lombok.Getter;
 import lombok.Setter;

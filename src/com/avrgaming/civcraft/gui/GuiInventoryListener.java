@@ -21,12 +21,13 @@ package com.avrgaming.civcraft.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
-public class GuiInventoryListener implements Listener {
+import com.avrgaming.civcraft.listener.SimpleListener;
+
+public class GuiInventoryListener extends SimpleListener {
 
 	/* First phase of inventory click that cancels any event that was clicked on a gui item. */
 	@EventHandler(priority = EventPriority.LOWEST)

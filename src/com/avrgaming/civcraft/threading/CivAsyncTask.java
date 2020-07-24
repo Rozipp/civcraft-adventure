@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.construct.farm.GrowBlock;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.structure.farm.GrowBlock;
 import com.avrgaming.civcraft.threading.sync.SyncGetChestInventory;
 import com.avrgaming.civcraft.threading.sync.SyncGrowTask;
 import com.avrgaming.civcraft.threading.sync.SyncLoadChunk;

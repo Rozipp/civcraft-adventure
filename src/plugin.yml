@@ -9,8 +9,8 @@ commands:
         aliases: [t,е, ещцт]
     plot:
         aliases: [p,здще,з]
-    resident:
-        aliases: [res,куы]
+#     resident:
+#         aliases: [res,куы]
     dbg:
         aliases: []
     accept:

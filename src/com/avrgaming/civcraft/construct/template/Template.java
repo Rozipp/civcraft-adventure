@@ -28,7 +28,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo.ConstructType;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -557,8 +558,8 @@ public class Template {
 	}
 
 	// -------------- get filePath
-	public static String getTemplateFilePath(Location loc, ConfigBuildableInfo info, String theme) throws CivException {
-		if (info.isWonder) theme = "wonders";
+	public static String getTemplateFilePath(Location loc, ConfigConstructInfo info, String theme) throws CivException {
+		if (info.type == ConstructType.Wonder) theme = "wonders";
 		return Template.getTemplateFilePath(info.template_name, Template.getDirection(loc), theme);
 	}
 

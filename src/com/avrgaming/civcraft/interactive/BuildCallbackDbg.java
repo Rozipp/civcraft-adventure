@@ -3,7 +3,7 @@ package com.avrgaming.civcraft.interactive;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -24,18 +24,17 @@ public class BuildCallbackDbg implements CallbackInterface {
 		GuiInventory.openGuiInventory(player, "Structure", "true");
 	}
 
-	private ConfigBuildableInfo sinfo = null;
+	private ConfigConstructInfo sinfo = null;
 	private String templateTheme = null;
 
 	@Override
 	public void execute(String... strings) {
 		if (sinfo == null) {
-			String buildName = strings[0];
+			String buildId = strings[0];
 			try {
-				sinfo = CivSettings.structures.get(buildName);
-				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildName);
+				sinfo = CivSettings.constructs.get(buildId);
+				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildId);
 				GuiInventory.closeInventory(player);
-
 				GuiInventory.openGuiInventory(player, "ChoiseTemplate", sinfo.id);
 			} catch (CivException e) {
 				e.printStackTrace();

@@ -14,9 +14,9 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;

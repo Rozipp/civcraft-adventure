@@ -11,8 +11,8 @@ package com.avrgaming.civcraft.listener;
 import com.avrgaming.civcraft.cache.ArrowFiredCache;
 import com.avrgaming.civcraft.cache.CivCache;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentCritical;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.CriticalEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -33,6 +33,7 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.Cooldown;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
+
 import gpl.HorseModifier;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
@@ -48,7 +49,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TippedArrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -88,12 +88,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class CustomItemListener implements Listener {
+public class CustomItemListener extends SimpleListener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreakSpawnItems(BlockBreakEvent event) {
 		if (event.getBlock().getType().equals(Material.LAPIS_ORE)) {
-			if (Enchantments.hasEnchantment(event.getPlayer().getInventory().getItemInMainHand(), CustomEnchantment.SILK_TOUCH)) return;
+			if (Enchantments.hasEnchantment(event.getPlayer().getInventory().getItemInMainHand(), EnchantmentCustom.SILK_TOUCH)) return;
 			event.setCancelled(true);
 			ItemManager.setTypeIdAndData(event.getBlock(), CivData.AIR, (byte) 0, true);
 
@@ -161,7 +161,7 @@ public class CustomItemListener implements Listener {
 		if (event.isCancelled()) return;
 		ItemStack stack = event.getItemDrop().getItemStack();
 
-		if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
+		if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem)) {
 			event.setCancelled(true);
 			return;
 		}
@@ -356,7 +356,7 @@ public class CustomItemListener implements Listener {
 				event.setDamage(CivCraft.minDamage);
 			}
 
-			if (Enchantments.hasEnchantment(attacker.getInventory().getItemInMainHand(), CustomEnchantment.Critical) && EnchantmentCritical.randomCriticalAttack(attacker.getInventory().getItemInMainHand())) {
+			if (Enchantments.hasEnchantment(attacker.getInventory().getItemInMainHand(), EnchantmentCustom.Critical) && CriticalEnchantment.randomCriticalAttack(attacker.getInventory().getItemInMainHand())) {
 				if (event.getEntity() instanceof LivingEntity) {
 					LivingEntity le = (LivingEntity) event.getEntity();
 					final Player player = attacker;
@@ -401,8 +401,8 @@ public class CustomItemListener implements Listener {
 			if (event.getDamager() instanceof LivingEntity) {
 				LivingEntity le = (LivingEntity) event.getDamager();
 				ItemStack chestplate = defendingPlayer.getEquipment().getChestplate();
-				if (chestplate != null && Enchantments.hasEnchantment(chestplate, CustomEnchantment.Thorns)) {
-					le.damage(event.getDamage() * Enchantments.getLevelEnchantment(chestplate, CustomEnchantment.Thorns), defendingPlayer);
+				if (chestplate != null && Enchantments.hasEnchantment(chestplate, EnchantmentCustom.Thorns)) {
+					le.damage(event.getDamage() * Enchantments.getLevelEnchantment(chestplate, EnchantmentCustom.Thorns), defendingPlayer);
 				}
 			}
 		}
@@ -516,11 +516,11 @@ public class CustomItemListener implements Listener {
 				continue;
 			}
 
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.SoulBound)) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.SoulBound)) {
 				event.getDrops().remove(stack);
 				noDrop.put(i, stack);
 			}
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem)) {
 				event.getDrops().remove(stack);
 			}
 		}
@@ -538,11 +538,11 @@ public class CustomItemListener implements Listener {
 				continue;
 			}
 
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.SoulBound)) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.SoulBound)) {
 				event.getDrops().remove(stack);
 				noDrop.put(i, stack);
 			}
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem)) {
 				event.getDrops().remove(stack);
 			}
 
@@ -641,7 +641,7 @@ public class CustomItemListener implements Listener {
 
 		Inventory clickedInv = event.getClickedInventory();
 
-		if (Enchantments.hasEnchantment(cursorStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
+		if (Enchantments.hasEnchantment(cursorStack, EnchantmentCustom.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
@@ -679,7 +679,7 @@ public class CustomItemListener implements Listener {
 				otherInv = view.getTopInventory();
 		}
 
-		if (Enchantments.hasEnchantment(currentStack, CustomEnchantment.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
+		if (Enchantments.hasEnchantment(currentStack, EnchantmentCustom.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
@@ -713,14 +713,14 @@ public class CustomItemListener implements Listener {
 		Inventory clickedInv = event.getClickedInventory();
 		Inventory otherInv = playerInventory;
 
-		if (Enchantments.hasEnchantment(firstStack, CustomEnchantment.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
+		if (Enchantments.hasEnchantment(firstStack, EnchantmentCustom.UnitItem) && otherInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
 			return;
 		}
 
-		if (Enchantments.hasEnchantment(secondStack, CustomEnchantment.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
+		if (Enchantments.hasEnchantment(secondStack, EnchantmentCustom.UnitItem) && clickedInv.getType() != InventoryType.PLAYER) {
 			event.setCancelled(true);
 			event.setResult(Result.DENY);
 			((Player) event.getWhoClicked()).updateInventory();
@@ -814,7 +814,7 @@ public class CustomItemListener implements Listener {
 					inv = view.getBottomInventory();
 			}
 
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem) && inv.getType() != InventoryType.PLAYER) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem) && inv.getType() != InventoryType.PLAYER) {
 				event.setCancelled(true);
 				event.setResult(Result.DENY);
 				((Player) event.getWhoClicked()).updateInventory();

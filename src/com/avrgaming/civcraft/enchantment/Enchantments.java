@@ -19,30 +19,25 @@ import java.util.Objects;
 
 /** EnchantmentAPI © 2017 com.sucy.enchant.api.Enchantments */
 public class Enchantments {
-	public static Map<Integer, CustomEnchantment> enchantmentList = new HashMap<>();
+	public static Map<Integer, EnchantmentCustom> enchantmentList = new HashMap<>();
 
-	public static ItemStack addEnchantment(final ItemStack item, CustomEnchantment enchantment, Integer level) {
+	public static void addEnchantment(ItemStack item, EnchantmentCustom enchantment, Integer level) {
 		Objects.requireNonNull(item, "Item cannot be null");
 		Validate.isTrue(level > 0, "Level must be at least 1");
-		if (item.getType() == Material.BOOK) {
-			item.setType(Material.ENCHANTED_BOOK);
-		}
+		if (item.getType() == Material.BOOK) item.setType(Material.ENCHANTED_BOOK);
 
-		final ItemMeta meta = item.getItemMeta();
-		final List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
-		final int lvl = Enchantments.getLevelEnchantment(item, enchantment);
-		if (lvl > 0) {
-			lore.remove(enchantment.getDisplayName(lvl));
-		}
+		ItemMeta meta = item.getItemMeta();
+		List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+		int lvl = Enchantments.getLevelEnchantment(item, enchantment);
+		if (lvl > 0) lore.remove(enchantment.getDisplayName(lvl));
 		lore.add(0, enchantment.getDisplayName(level));
 		meta.setLore(lore);
 		meta.addEnchant(enchantment.enchantment, level, true);
 		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		item.setItemMeta(meta);
-		return item;
 	}
 
-	public static AttributeUtil addEnchantment(AttributeUtil attrUtil, CustomEnchantment enchantment, Integer level) {
+	public static void addEnchantment(AttributeUtil attrUtil, EnchantmentCustom enchantment, Integer level) {
 		Objects.requireNonNull(attrUtil, "Item cannot be null");
 		Validate.isTrue(level > 0, "Level must be at least 1");
 
@@ -55,10 +50,9 @@ public class Enchantments {
 		lore.add(0, enchantment.getDisplayName(level));
 		attrUtil.setLore(lore);
 		attrUtil.addEnchantment(enchantment.enchantment, level);
-		return attrUtil;
 	}
 
-	public static ItemStack removeEnchantment(final ItemStack item, CustomEnchantment enchantment) {
+	public static void removeEnchantment(ItemStack item, EnchantmentCustom enchantment) {
 		Objects.requireNonNull(item, "Item cannot be null");
 		final int lvl = Enchantments.getLevelEnchantment(item, enchantment);
 		if (lvl > 0) {
@@ -69,20 +63,19 @@ public class Enchantments {
 			meta.removeEnchant(enchantment.enchantment);
 			item.setItemMeta(meta);
 		}
-		return item;
 	}
 
-	public static Integer getLevelEnchantment(final ItemStack item, CustomEnchantment enchantment) {
-		if (item == null) return 0; 
+	public static Integer getLevelEnchantment(final ItemStack item, EnchantmentCustom enchantment) {
+		if (item == null) return 0;
 		return item.getItemMeta().getEnchantLevel(enchantment.enchantment);
 	}
 
-	public static CustomEnchantment getCustomEnchantment(int id) {
+	public static EnchantmentCustom getCustomEnchantment(int id) {
 		return enchantmentList.get(id);
 	}
 
-	public static Map<CustomEnchantment, Integer> getCustomEnchantments(final ItemStack item) {
-		final HashMap<CustomEnchantment, Integer> list = new HashMap<CustomEnchantment, Integer>();
+	public static Map<EnchantmentCustom, Integer> getCustomEnchantments(final ItemStack item) {
+		final HashMap<EnchantmentCustom, Integer> list = new HashMap<EnchantmentCustom, Integer>();
 		if (!ItemManager.isPresent(item)) return list;
 
 		final ItemMeta meta = item.getItemMeta();
@@ -92,7 +85,7 @@ public class Enchantments {
 			@SuppressWarnings("deprecation")
 			Integer id = ench.getId();
 			if (enchantmentList.containsKey(id)) {
-				CustomEnchantment enchant = enchantmentList.get(id);
+				EnchantmentCustom enchant = enchantmentList.get(id);
 				if (enchant == null) continue;
 				int level = meta.getEnchants().get(ench);
 				if (level > 0) list.put(enchant, level);
@@ -101,12 +94,12 @@ public class Enchantments {
 		return list;
 	}
 
-	public static Map<CustomEnchantment, Integer> getAllEnchantments(final ItemStack item) {
-		final Map<CustomEnchantment, Integer> result = getCustomEnchantments(item);
+	public static Map<EnchantmentCustom, Integer> getAllEnchantments(final ItemStack item) {
+		final Map<EnchantmentCustom, Integer> result = getCustomEnchantments(item);
 		return result;
 	}
 
-	public static boolean hasEnchantment(final ItemStack item, final CustomEnchantment enchantment) {
+	public static boolean hasEnchantment(final ItemStack item, final EnchantmentCustom enchantment) {
 		if (item == null || !item.hasItemMeta()) return false;
 		return item.getItemMeta().hasEnchant(enchantment.enchantment);
 	}

@@ -299,13 +299,6 @@ farm:
     # Number of seconds it takes for a growth tick to fire, cannot be less than 1.
     grow_tick_rate: 60
 
-    # #keep this set to false to use the whole chunk height for growth in a farm chunk (Classic Behavior)
-    # uses_range: false
-    # #This the range above the base y in which the farm will grow.
-    # #Use this to add additional height in which to grow.
-    # #The default of 4 limits growth to the original height of the structure
-    # grow_range_y: 4
-
 ##################### Windmill Settings #####################
 windmill:
     # Max number of crops to plant per hour
@@ -496,6 +489,7 @@ stable_horses:
       
 structures:
   - id: s_cityhall
+    type: Structure
     template: city_hall
     displayName: City Hall
     require_tech:
@@ -516,6 +510,7 @@ structures:
           value: '25.0'
 
   - id: s_townhall
+    type: Structure
     template: town_hall
     displayName: Town Hall
     require_tech:
@@ -536,6 +531,7 @@ structures:
           value: '25.0'
   
   - id: s_capitol
+    type: Structure
     template: capitol
     displayName: Capitol
     require_tech:
@@ -556,6 +552,7 @@ structures:
           value: '50.0'
 
   # - id: s_lighthouse
+    # type: Structure
     # template: lighthouse
     # template_y_shift: -1
     # displayName: Lighthouse
@@ -579,6 +576,7 @@ structures:
           # value: '200'
 
   - id: s_bank
+    type: Structure
     template: bank
     displayName: Bank
     require_tech: 'tech_religion' 
@@ -592,13 +590,13 @@ structures:
     max_hitpoints: 200
   
   - id: s_trommel
+    type: Structure
     template: trommel
     displayName: Trommel
     require_tech: 'tech_mining' 
     gui_item_id: 4
     gui_slot: 2
     limit: 2
-    allow_outside_town: false
     cost: 5000.0
     upkeep: 1000.0
     hammer_cost: 800
@@ -606,6 +604,7 @@ structures:
     max_hitpoints: 200
 
   - id: ti_fish_hatchery
+    type: Structure
     template: fish_hatchery
     displayName: Fish Hatchery
     require_upgrade:
@@ -613,7 +612,6 @@ structures:
     gui_item_id: 349
     gui_slot: 16
     limit: 0
-    allow_outside_town: false
     tile_improvement: true
     cost: 10000.0
     upkeep: 5000.0
@@ -622,6 +620,7 @@ structures:
     max_hitpoints: 100
 
   - id: ti_quarry
+    type: Structure
     template: quarry
     template_y_shift: -30
     displayName: quarry
@@ -630,7 +629,6 @@ structures:
     gui_item_id: 159
     gui_slot: 11
     limit: 1
-    allow_outside_town: false
     tile_improvement: true
     cost: 10000.0
     upkeep: 5000.0
@@ -639,6 +637,7 @@ structures:
     max_hitpoints: 100
 
   - id: s_store
+    type: Structure
     template: store
     displayName: Store
     require_tech: 'tech_commerce'
@@ -652,6 +651,7 @@ structures:
     max_hitpoints: 200
 
   - id: s_library
+    type: Structure
     template: library
     displayName: Library
     require_tech: 'tech_productivity'
@@ -670,6 +670,7 @@ structures:
           value: '50.0'
 
   - id: s_university
+    type: Structure
     template: university
     displayName: University
     require_tech: 'tech_education'
@@ -688,6 +689,7 @@ structures:
           value: '50.0'
 
   - id: s_school
+    type: Structure
     template: school
     template_y_shift: -1
     displayName: Public School
@@ -709,6 +711,7 @@ structures:
           value: '50.0'
 
   - id: s_research_lab
+    type: Structure
     template: research_lab
     displayName: Research Lab
     require_upgrade: upgrade_town_level_8
@@ -729,6 +732,7 @@ structures:
           value: '100.0'
 
   - id: s_grocer
+    type: Structure
     template: grocer
     displayName: Grocer
     require_tech: 'tech_hunting'
@@ -742,6 +746,7 @@ structures:
     max_hitpoints: 200
 
   - id: s_alch
+    type: Structure
     template: alch
     displayName: Alchemists House
     require_tech: 'tech_alchemy'
@@ -755,6 +760,7 @@ structures:
     max_hitpoints: 1500
 
   - id: s_blacksmith
+    type: Structure
     template: blacksmith
     template_y_shift: -2
     displayName: Blacksmith
@@ -774,6 +780,7 @@ structures:
           value: '50.0'
   
   - id: s_granary
+    type: Structure
     template: granary
     displayName: Granary
     require_tech: 'tech_pottery'
@@ -787,6 +794,7 @@ structures:
     max_hitpoints: 50
 
   - id: ti_cottage
+    type: Structure
     template: cottage
     displayName: Cottage
     require_tech: 'tech_advanced_masonry'
@@ -803,6 +811,7 @@ structures:
         - name: 'ConsumeLevelComponent'
 
   - id: s_temple
+    type: Structure
     template: temple
     displayName: Temple
     require_tech: 'tech_priesthood'
@@ -826,6 +835,7 @@ structures:
         - name: 'ConsumeLevelComponent'
 
   - id: s_monument
+    type: Structure
     template: monument
     template_y_shift: -2
     displayName: Monument
@@ -849,6 +859,7 @@ structures:
           value: '200.0'
 
   - id: s_stadium
+    type: Structure
     template: stadium
     displayName: Stadium
     require_tech: 'tech_refrigeration'
@@ -873,10 +884,10 @@ structures:
           value: '2.0'
 
   # - id: s_theatre
+    # type: Structure
     # template: theatre
     # displayName: Theater
     # require_tech: 'tech_art'
-    # allow_outside_town: false
     # limit: 1
     # cost: 175000.0
     # upkeep: 10000.0
@@ -895,6 +906,7 @@ structures:
           # value: '-2.0'
           
   # - id: s_broadcast_tower
+    # type: Structure
     # template: broadcast_tower
     # template_y_shift: -1
     # displayName: Broadcast Tower
@@ -914,6 +926,7 @@ structures:
           # value: '200.0'
           
   - id: s_museum
+    type: Structure
     template: museum
     template_y_shift: -1
     displayName: Museum
@@ -943,6 +956,7 @@ structures:
           value: '300.0'
           
   - id: s_shipyard
+    type: Structure
     template: shipyard
     template_y_shift: -3
     displayName: Shipyard
@@ -963,6 +977,7 @@ structures:
           value: '100'
   
   - id: ti_mine
+    type: Structure
     template: mine
     template_y_shift: -6
     displayName: Mine
@@ -976,11 +991,11 @@ structures:
     hammer_cost: 900
     points: 6200
     max_hitpoints: 300
-    allow_outside_town: false
     components:
         - name: 'ConsumeLevelComponent'
 
   - id: ti_trade_ship
+    type: Structure
     template: trade_ship
     template_y_shift: -5
     displayName: Trade Ship
@@ -1016,6 +1031,7 @@ structures:
         - name: 'TradeLevelComponent'
   
   - id: ti_farm
+    type: Structure
     template: farm
     template_y_shift: -1
     displayName: Farm
@@ -1039,6 +1055,7 @@ structures:
           value: '1.5'
   
   - id: ti_pasture
+    type: Structure
     template: pasture
     template_y_shift: -2
     displayName: Pasture
@@ -1054,6 +1071,7 @@ structures:
     points: 1000
   
   - id: s_arrow_tower
+    type: Structure
     template: arrow_tower
     displayName: Arrow Tower
     require_upgrade:
@@ -1066,10 +1084,10 @@ structures:
     hammer_cost: 2500
     max_hitpoints: 500
     points: 4650
-    allow_outside_town: true
     strategic: true
   
   - id: s_cannon_tower
+    type: Structure
     template: cannon_tower
     displayName: Cannon Tower
     require_upgrade:
@@ -1082,10 +1100,10 @@ structures:
     hammer_cost: 5000
     max_hitpoints: 1000
     points: 10000
-    allow_outside_town: true
     strategic: true
 
   - id: s_tesla_tower
+    type: Structure
     template: tesla_tower
     displayName: Tesla Tower
     require_tech: 'tech_electricity'
@@ -1097,10 +1115,10 @@ structures:
     hammer_cost: 7500
     max_hitpoints: 1000
     points: 20000
-    allow_outside_town: true
     strategic: true
 
   - id: s_scout_tower
+    type: Structure
     template: scout_tower
     displayName: Scout Tower
     require_tech: 'tech_masonry'
@@ -1112,10 +1130,10 @@ structures:
     hammer_cost: 1500
     max_hitpoints: 500
     points: 3000
-    allow_outside_town: true
     strategic: true
   
   - id: s_barracks
+    type: Structure
     template: barracks
     displayName: Barracks
     require_tech: 'tech_armory'
@@ -1127,12 +1145,12 @@ structures:
     hammer_cost: 1500
     max_hitpoints: 700
     points: 3000
-    allow_outside_town: false
     components:
         - name: 'AttributeWarUnhappiness'
           value: '-1.0'
   
   - id: ti_windmill
+    type: Structure
     template: windmill
     displayName: Windmill
     require_tech: 'tech_automation'
@@ -1147,6 +1165,7 @@ structures:
     max_hitpoints: 350
   
   - id: s_market
+    type: Structure
     template: market
     displayName: Market
     require_tech: 'tech_commerce'
@@ -1169,6 +1188,7 @@ structures:
           value: '0.1'
   
   - id: s_stable2
+    type: Structure
     template: stable
     template_y_shift: -2
     displayName: Stable
@@ -1188,6 +1208,7 @@ structures:
           value: '50.0'
           
   - id: s_mine_house
+    type: Structure
     template: minehouse
     template_y_shift: -2
     displayName: Mine House
@@ -1208,12 +1229,12 @@ structures:
 
     # позволяет делать космическиемиссии
   # - id: ti_factory
+    # type: Structure
     # template: factory
     # displayName: Factory
     # require_upgrade:
     # require_tech: 'tech_advanced_efficiency'
     # limit: 1
-    # allow_outside_town: false
     # tile_improvement: true
     # cost: 100000.0
     # upkeep: 10000.0
@@ -1222,6 +1243,7 @@ structures:
     # max_hitpoints: 1500
 
   # - id: s_castle
+    # type: Structure
     # template: castle
     # template_y_shift: -2
     # displayName: Castle
@@ -1234,12 +1256,12 @@ structures:
     # hammer_cost: 2500
     # max_hitpoints: 700
     # points: 1500
-    # allow_outside_town: false
     # components:
         # - name: 'AttributeWarUnpkeep'
           # value: '0.5'
 
   - id: ti_silkworm_farm
+    type: Structure
     template: silkwormfarm
     template_y_shift: -1
     displayName: Silkworm Farm
@@ -1247,7 +1269,6 @@ structures:
     gui_item_id: 287
     gui_slot: 34
     limit: 1
-    allow_outside_town: true
     tile_improvement: true
     cost: 35000.0
     upkeep: 5000.0
@@ -1256,6 +1277,7 @@ structures:
     max_hitpoints: 800
 
   - id: s_ware_house
+    type: Structure
     template: warehouse
     template_y_shift: -1
     displayName: Warehouse
@@ -1268,9 +1290,9 @@ structures:
     hammer_cost: 700
     max_hitpoints: 300
     points: 2000
-    allow_outside_town: true
 
   - id: ti_lab
+    type: Structure
     template: lab
     displayName: Обсерватория
     require_upgrade:
@@ -1284,7 +1306,6 @@ structures:
     hammer_cost: 3600
     points: 6200
     max_hitpoints: 1200
-    allow_outside_town: false
     components:
         - name: 'AttributeBiomeRadiusPerLevel'
           attribute: 'BEAKERS'

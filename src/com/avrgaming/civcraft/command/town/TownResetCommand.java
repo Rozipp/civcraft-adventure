@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTownUpgrade;
+import com.avrgaming.civcraft.construct.structures.Library;
+import com.avrgaming.civcraft.construct.structures.Store;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Library;
-import com.avrgaming.civcraft.structure.Store;
 
 public class TownResetCommand extends CommandBase {
 

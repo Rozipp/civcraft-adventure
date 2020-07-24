@@ -24,8 +24,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
+import com.avrgaming.civcraft.construct.structures.Farm;
 import com.avrgaming.civcraft.exception.InvalidBlockLocation;
-import com.avrgaming.civcraft.structure.Farm;
 import com.avrgaming.civcraft.util.BlockSnapshot;
 import com.avrgaming.civcraft.util.ItemManager;
 

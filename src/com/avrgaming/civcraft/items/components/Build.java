@@ -9,8 +9,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Arrowpost;
-import com.avrgaming.civcraft.construct.Cannon;
+import com.avrgaming.civcraft.construct.constructs.Arrowpost;
+import com.avrgaming.civcraft.construct.constructs.Cannon;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;

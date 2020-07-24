@@ -21,7 +21,7 @@ package com.avrgaming.civcraft.threading.sync.request;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.structure.farm.GrowBlock;
+import com.avrgaming.civcraft.construct.farm.GrowBlock;
 
 public class GrowRequest extends AsyncRequest {
 

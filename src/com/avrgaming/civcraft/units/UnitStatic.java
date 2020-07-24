@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -109,7 +109,7 @@ public class UnitStatic {
 		attrs.setLore(uo.getConfigUnit().lore);
 		attrs.addLore(CivColor.Rose + "Создан в городе: " + CivColor.LightBlue + uo.getTownOwner().getName());
 
-		Enchantments.addEnchantment(attrs, CustomEnchantment.SoulBound, 1);
+		Enchantments.addEnchantment(attrs, EnchantmentCustom.SoulBound, 1);
 		attrs.addLore(CivColor.Rose + "id = " + uo.getId());
 
 		// for (LoreEnhancement ench : attrs.getEnhancements()) {
@@ -124,7 +124,7 @@ public class UnitStatic {
 
 	public static void putItemToPlayerSlot(PlayerInventory inv, ItemStack newStack, int slot, ArrayList<ItemStack> removes) {
 		if (newStack == null) return;
-		newStack = Enchantments.addEnchantment(newStack, CustomEnchantment.UnitItem, 1);
+		Enchantments.addEnchantment(newStack, EnchantmentCustom.UnitItem, 1);
 		ItemStack stack = inv.getItem(slot);
 		if (stack != null) removes.add(stack);
 
@@ -137,10 +137,10 @@ public class UnitStatic {
 		switch (name.toLowerCase()) {
 		// ================= Helmet
 		case "oxygen":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.OXYGEN, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.OXYGEN, value);
 			break;
 		case "waterworker":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.WATER_WORKER, 1);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.WATER_WORKER, 1);
 			break;
 		// ================= Chestplate
 		case "maxheal":
@@ -150,60 +150,60 @@ public class UnitStatic {
 			stack = attrs.getStack();
 			break;
 		case "protection":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Defense, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Defense, value);
 			break;
 		case "thorns":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Thorns, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Thorns, value);
 			break;
 		// ================= Leggings
 		case "jumping":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Jumping, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Jumping, value);
 			break;
 		case "speed":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Speed, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Speed, value);
 			break;
 		// ================= Boots
 		case "depthstrider":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.DEPTH_STRIDER, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.DEPTH_STRIDER, value);
 			break;
 		case "againstfall":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.PROTECTION_FALL, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.PROTECTION_FALL, value);
 			break;
 		case "frostwalker":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.FROST_WALKER, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.FROST_WALKER, value);
 			break;
 		// =================Ammunitions
 		case "fireprotection":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.PROTECTION_FIRE, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.PROTECTION_FIRE, value);
 			break;
 		// ================= Sword
 		case "swordattack":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Attack, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Attack, value);
 			break;
 		case "critical":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Critical, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Critical, value);
 			break;
 		case "swordknockback":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_KNOCKBACK, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.ARROW_KNOCKBACK, value);
 			break;
 		case "fireaspect":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.FIRE_ASPECT, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.FIRE_ASPECT, value);
 			break;
 		case "looting":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.LOOT_BONUS_MOBS, value);
 			break;
 		// ================= Bow
 		case "bowattack":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.Attack, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Attack, value);
 			break;
 		case "bowknockback":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_KNOCKBACK, 1);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.ARROW_KNOCKBACK, 1);
 			break;
 		case "flame":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_FIRE, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.ARROW_FIRE, value);
 			break;
 		case "infinite":
-			stack = Enchantments.addEnchantment(stack, CustomEnchantment.ARROW_INFINITE, value);
+			Enchantments.addEnchantment(stack, EnchantmentCustom.ARROW_INFINITE, value);
 			break;
 		default:
 			break;
@@ -328,7 +328,7 @@ public class UnitStatic {
 		HashMap<String, Integer> ammunitionSlot = new HashMap<>();
 		for (int i = 0; i <= player.getInventory().getSize(); i++) {
 			ItemStack stack = player.getInventory().getItem(i);
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.UnitItem)) {
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem)) {
 				String mid = CustomMaterial.getMID(stack);
 				if (mid != null) ammunitionSlot.put(mid, i);
 				player.getInventory().setItem(i, null);
@@ -373,8 +373,8 @@ public class UnitStatic {
 		ItemStack[] stacks = player.getInventory().getArmorContents();
 		for (ItemStack is : stacks) {
 			if (is == null) continue;
-			if (Enchantments.hasEnchantment(is, CustomEnchantment.Jumping)) {
-				Integer level = Enchantments.getLevelEnchantment(is, CustomEnchantment.Jumping);
+			if (Enchantments.hasEnchantment(is, EnchantmentCustom.Jumping)) {
+				Integer level = Enchantments.getLevelEnchantment(is, EnchantmentCustom.Jumping);
 				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 9999 * 20, level));
 				return;
 			}

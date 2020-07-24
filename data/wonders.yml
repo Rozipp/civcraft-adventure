@@ -10,6 +10,7 @@
 #  Any option for structures is also available for wonders.
 wonders:
   - id: w_pyramid
+    type: Wonder
     template: the_great_pyramid
     template_y_shift: 0
     displayName: The Great Pyramid
@@ -28,6 +29,7 @@ wonders:
     regen_rate: 6
   
   - id: w_greatlibrary
+    type: Wonder
     template: the_great_library
     template_y_shift: 0
     displayName: Great Library of Alexandria
@@ -46,6 +48,7 @@ wonders:
     regen_rate: 6
   
   - id: w_hanginggardens
+    type: Wonder
     template: the_hanging_gardens
     template_y_shift: 0
     displayName: The Hanging Gardens
@@ -64,6 +67,7 @@ wonders:
     regen_rate: 6
 
   - id: w_colossus
+    type: Wonder
     template: the_colossus
     template_y_shift: 0
     displayName: Colossus of Rhodes
@@ -82,6 +86,7 @@ wonders:
     regen_rate: 6
 
   - id: w_notre_dame
+    type: Wonder
     template: notre_dame
     template_y_shift: 0
     displayName: Notre Dame Cathedral
@@ -100,6 +105,7 @@ wonders:
     regen_rate: 6
 
   - id: w_chichen_itza
+    type: Wonder
     template: chichen_itza
     template_y_shift: 0
     displayName: Chichen Itza Temple
@@ -118,6 +124,7 @@ wonders:
     regen_rate: 6
   
   - id: w_council_of_eight
+    type: Wonder
     template: council_of_eight
     template_y_shift: 0
     displayName: Council of Eight
@@ -136,6 +143,7 @@ wonders:
     regen_rate: 6
 
   - id: w_colosseum
+    type: Wonder
     template: colosseum
     template_y_shift: -1
     displayName: Great Colosseum
@@ -154,6 +162,7 @@ wonders:
     regen_rate: 1
 
   - id: w_globe_theatre
+    type: Wonder
     template: globe_theatre
     template_y_shift: -1
     displayName: Globe Theatre
@@ -172,6 +181,7 @@ wonders:
     regen_rate: 6
 
   - id: w_great_lighthouse
+    type: Wonder
     template: great_lighthouse
     template_y_shift: 0
     displayName: Great Lighthouse of Alexandria
@@ -190,6 +200,7 @@ wonders:
     regen_rate: 6
 
   - id: w_mother_tree
+    type: Wonder
     template: mother_tree
     template_y_shift: 0
     displayName: Mother Tree
@@ -208,6 +219,7 @@ wonders:
     regen_rate: 6
 
   - id: w_grand_ship_ingermanland
+    type: Wonder
     template: grand_ship_ingermanland
     template_y_shift: -8
     displayName: Grand Ship Ingermanland
@@ -227,6 +239,7 @@ wonders:
     regen_rate: 2
 
 #   - id: w_battledome
+#     type: Wonder
 #     template: battledome
 #     template_y_shift: -1
 #     displayName: Battledome
@@ -245,6 +258,7 @@ wonders:
 #     regen_rate: 1
  
   - id: w_oracle
+    type: Wonder
     template: oracle
     template_y_shift: -1
     displayName: Оракул
@@ -263,6 +277,7 @@ wonders:
     regen_rate: 5
     
   - id: w_grandcanyon
+    type: Wonder
     template: grand
     template_y_shift: 0
     displayName: The Grand Canyon
@@ -281,6 +296,7 @@ wonders:
     regen_rate: 6
 
   - id: w_burj
+    type: Wonder
     template: burj
     template_y_shift: 0
     displayName: Burj Khalifa
@@ -299,6 +315,7 @@ wonders:
     regen_rate: 6
 
   - id: w_stock_exchange
+    type: Wonder
     template: global_bank
     template_y_shift: 0
     displayName: Global Stock Exchange
@@ -317,6 +334,7 @@ wonders:
     regen_rate: 6
 
   - id: w_statue_of_zeus
+    type: Wonder
     template: statue_of_zeus
     template_y_shift: 0
     displayName: Statue of Zeus
@@ -335,6 +353,7 @@ wonders:
     regen_rate: 6
 
   - id: w_moscow_state_uni
+    type: Wonder
     template: mgu
     template_y_shift: -1
     displayName: Moscow State Univeristy
@@ -354,6 +373,7 @@ wonders:
     regen_rate: 6
 
 #   - id: w_space_shuttle
+#     type: Wonder
 #     template: space_shuttle
 #     template_y_shift: 0
 #     displayName: Soace Shuttle
@@ -374,6 +394,7 @@ wonders:
 #     regen_rate: 6
 
 #   - id: w_neuschwanstein
+#     type: Wonder
 #     template: neuschwanstein
 #     template_y_shift: 0
 #     displayName: Neuschwanstein Castle

@@ -2,12 +2,13 @@ package com.avrgaming.civcraft.threading.tasks;
 
 import java.util.HashSet;
 
+import com.avrgaming.civcraft.construct.wonders.Battledome;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
+
 //import org.bukkit.Bukkit;
 //import org.bukkit.World;
 
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.structure.wonders.Battledome;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class BattledomeMobSpawnTask extends CivAsyncTask {

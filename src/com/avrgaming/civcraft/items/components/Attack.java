@@ -17,10 +17,10 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentAttack;
-import com.avrgaming.civcraft.enchantment.EnchantmentLevitate;
-import com.avrgaming.civcraft.enchantment.EnchantmentPoison;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.AttackEnchantment;
+import com.avrgaming.civcraft.enchantment.LevitateEnchantment;
+import com.avrgaming.civcraft.enchantment.PoisonEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -54,10 +54,10 @@ public class Attack extends ItemComponent {
 		double dmg = this.getDouble("value");
 		double extraAtt = 0.0;
 		Resident resident;
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Attack)) extraAtt += EnchantmentAttack.onAttack(Enchantments.getLevelEnchantment(inHand, CustomEnchantment.Attack));
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Poison)) EnchantmentPoison.onAttack(event);
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Levitate)) EnchantmentLevitate.onAttack(event);
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.LightningStrike)) EnchantmentLevitate.onAttack(event);
+		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Attack)) extraAtt += AttackEnchantment.onAttack(Enchantments.getLevelEnchantment(inHand, EnchantmentCustom.Attack));
+		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Poison)) PoisonEnchantment.onAttack(event);
+		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Levitate)) LevitateEnchantment.onAttack(event);
+		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.LightningStrike)) LevitateEnchantment.onAttack(event);
 		
 		dmg = dmg * event.getOriginalDamage(DamageModifier.BASE);
 		

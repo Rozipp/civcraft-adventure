@@ -6,7 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo.ConstructType;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -55,7 +56,8 @@ public class Structure extends GuiInventory {
 			rate -= getTown().getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
 		}
 
-		for (ConfigBuildableInfo info : CivSettings.structures.values()) {
+		for (ConfigConstructInfo info : CivSettings.constructs.values()) {
+			if (info.type != ConstructType.Structure) continue;
 			double hammerCost = Math.round(info.hammer_cost * rate);
 			int count = isTutorial ? 1 : (info.limit == 0 ? 64 : info.limit) - getTown().BM.getBuildableByIdCount(info.id);
 			GuiItem gi = (count > 0) ? GuiItems.newGuiItem(ItemManager.createItemStack(info.gui_item_id, (short) 0, count)) : GuiItems.newGuiItem().setMaterial(Material.BEDROCK);
@@ -84,7 +86,7 @@ public class Structure extends GuiInventory {
 					gi.addLore("§d" + CivSettings.localize.localizedString("era_this", tech.era));
 				}
 			}
-			ConfigBuildableInfo str = CivSettings.structures.get(info.require_structure);
+			ConfigConstructInfo str = CivSettings.constructs.get(info.require_structure);
 			if (str != null) {
 				gi.setMaterial(Material.BEDROCK).setLore(CivColor.Red + CivSettings.localize.localizedString("requ") + str.displayName);
 			}
@@ -114,7 +116,7 @@ public class Structure extends GuiInventory {
 		GuiInventory.closeInventory(getPlayer());
 		try {
 			String buildId = strings[0];
-			ConfigBuildableInfo sinfo = CivSettings.structures.get(buildId);
+			ConfigConstructInfo sinfo = CivSettings.constructs.get(buildId);
 			if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + buildId);
 			getResident().setPendingCallback(new BuildCallback(getPlayer(), sinfo, getTown()));
 		} catch (CivException e) {

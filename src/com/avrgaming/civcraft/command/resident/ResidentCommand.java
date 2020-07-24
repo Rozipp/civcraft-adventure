@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -292,7 +292,7 @@ public class ResidentCommand extends CommandBase {
 
 			if (CraftableCustomMaterial.isCustomMaterial(is)) continue;
 
-			if (Enchantments.hasEnchantment(is, CustomEnchantment.BuyItem)) {
+			if (Enchantments.hasEnchantment(is, EnchantmentCustom.BuyItem)) {
 				throw new CivException(CivSettings.localize.localizedString("cmd_res_exchangeNoBuyItems"));
 			}
 

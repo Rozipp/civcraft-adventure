@@ -10,8 +10,8 @@ package com.avrgaming.civcraft.threading.timers;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.avrgaming.civcraft.construct.Cave;
-import com.avrgaming.civcraft.construct.Camp;
+//import com.avrgaming.civcraft.construct.caves.Cave;
+import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
@@ -31,9 +31,9 @@ public class UpdateSecondTimer extends CivAsyncTask {
 			for (Camp camp : CivGlobal.getCamps()) {
 				camp.onSecondUpdate();
 			}
-			for (Cave cave : CivGlobal.getCaves()) {
-				cave.onSecondUpdate();
-			}
+//			for (Cave cave : CivGlobal.getCaves()) {
+//				cave.onSecondUpdate();
+//			}
 		} finally {
 			lock.unlock();
 		}

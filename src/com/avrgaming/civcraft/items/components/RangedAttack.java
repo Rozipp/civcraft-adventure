@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentAttack;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.AttackEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -62,7 +62,7 @@ public class RangedAttack extends ItemComponent {
 		}
 		double dmg = this.getDouble("value");
 		double extraAtt = 0.0;
-		if (Enchantments.hasEnchantment(inHand, CustomEnchantment.Attack)) dmg += EnchantmentAttack.onAttack(Enchantments.getLevelEnchantment(inHand, CustomEnchantment.Attack));
+		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Attack)) dmg += AttackEnchantment.onAttack(Enchantments.getLevelEnchantment(inHand, EnchantmentCustom.Attack));
 
 		Vector vel = event.getDamager().getVelocity();
 		double magnitudeSquared = Math.pow(vel.getX(), 2) + Math.pow(vel.getY(), 2) + Math.pow(vel.getZ(), 2);

@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -17,12 +16,13 @@ import org.bukkit.plugin.Plugin;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigFishing;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
+import com.avrgaming.civcraft.listener.SimpleListener;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
-public class FishingListener implements Listener {
+public class FishingListener extends SimpleListener{
 
 	public ArrayList<ConfigFishing> getRandomDrops() {
 		Random rand = new Random();

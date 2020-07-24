@@ -7,22 +7,22 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
+import com.avrgaming.civcraft.listener.SimpleListener;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.units.UnitStatic;
 
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 
-public class MobListener implements Listener {
+public class MobListener extends SimpleListener{
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityCombust(EntityCombustEvent event) {
@@ -43,8 +43,8 @@ public class MobListener implements Listener {
 		Double modify = 1.0;
 		if (killer != null) {
 			ItemStack stack = killer.getInventory().getItemInMainHand();
-			if (Enchantments.hasEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS))
-				modify = modify + 0.3 * Enchantments.getLevelEnchantment(stack, CustomEnchantment.LOOT_BONUS_MOBS);
+			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.LOOT_BONUS_MOBS))
+				modify = modify + 0.3 * Enchantments.getLevelEnchantment(stack, EnchantmentCustom.LOOT_BONUS_MOBS);
 		}
 		event.setDrops(cm.getItemsDrop(itemDrops, modify));
 

@@ -8,7 +8,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -21,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.listener.SimpleListener;
 import com.avrgaming.civcraft.listener.armor.ArmorEquipEvent.EquipMethod;
 
 /**
@@ -29,13 +29,9 @@ import com.avrgaming.civcraft.listener.armor.ArmorEquipEvent.EquipMethod;
  * @Website http://codingforcookies.com/
  * @since Jul 30, 2015 6:43:34 PM
  */
-public class ArmorListener implements Listener{
+public class ArmorListener extends SimpleListener{
 
-	private final List<String> blockedMaterials;
-
-	public ArmorListener(List<String> blockedMaterials){
-		this.blockedMaterials = blockedMaterials;
-	}
+	public static List<String> blockedMaterials;
 
 	@EventHandler
 	public final void onInventoryClick(final InventoryClickEvent e){

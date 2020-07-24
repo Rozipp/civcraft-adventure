@@ -102,7 +102,7 @@ public class InventorySerializer {
             }
             else if (itemAttribute[0].equals("e") && createdItemStack)
             {
-                is = Enchantments.addEnchantment(is, Enchantments.enchantmentList.get(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
+                Enchantments.addEnchantment(is, Enchantments.enchantmentList.get(Integer.valueOf(itemAttribute[1])), Integer.valueOf(itemAttribute[2]));
             } 
             else if (itemAttribute[0].equals("l") && createdItemStack) 
             {

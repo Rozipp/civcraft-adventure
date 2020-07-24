@@ -25,7 +25,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 //import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -34,14 +33,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.ItemManager;
 
-public class MarkerPlacementManager implements Listener {
+public class MarkerPlacementManager extends SimpleListener {
 
 	private static HashMap<String, Structure> playersInPlacementMode = new HashMap<String, Structure>();
 	private static HashMap<String, ArrayList<Location>> markers = new HashMap<String, ArrayList<Location>>();

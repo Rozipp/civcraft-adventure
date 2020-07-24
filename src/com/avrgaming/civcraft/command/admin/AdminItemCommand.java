@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -53,12 +53,12 @@ public class AdminItemCommand extends CommandBase {
 
 	public void enhance_cmd() throws CivException {
 		Player player = getPlayer();
-		HashMap<String, CustomEnchantment> enhancements = new HashMap<String, CustomEnchantment>();
+		HashMap<String, EnchantmentCustom> enhancements = new HashMap<String, EnchantmentCustom>();
 		ItemStack inHand = getPlayer().getInventory().getItemInMainHand();
 
-		enhancements.put("soulbound", CustomEnchantment.SoulBound);
-		enhancements.put("attack", CustomEnchantment.Attack);
-		enhancements.put("defence", CustomEnchantment.Defense);
+		enhancements.put("soulbound", EnchantmentCustom.SoulBound);
+		enhancements.put("attack", EnchantmentCustom.Attack);
+		enhancements.put("defence", EnchantmentCustom.Defense);
 
 		if (inHand == null || ItemManager.getTypeId(inHand) == CivData.AIR) {
 			throw new CivException(CivSettings.localize.localizedString("adcmd_item_enhanceNoItem"));
@@ -78,7 +78,7 @@ public class AdminItemCommand extends CommandBase {
 		name.toLowerCase();
 		for (String str : enhancements.keySet()) {
 			if (name.equals(str)) {
-				CustomEnchantment ench = enhancements.get(str);
+				EnchantmentCustom ench = enhancements.get(str);
 				Enchantments.addEnchantment(inHand, ench, 1);
 				player.getInventory().setItemInMainHand(inHand);
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_item_enhanceSuccess", name));

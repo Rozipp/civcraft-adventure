@@ -14,8 +14,8 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentPunchout;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.PunchoutEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -44,7 +44,7 @@ public class StructureBlockHitEvent implements Runnable {
 			if (hand != null && hand.getType() != Material.AIR) {
 				CustomMaterial material = CustomMaterial.getCustomMaterial(hand);
 				if (material != null) damage = material.onStructureBlockBreak(dmgBlock, damage);
-				if (Enchantments.hasEnchantment(hand, CustomEnchantment.Punchout)) damage = EnchantmentPunchout.onStructureBlockBreak(dmgBlock, damage);
+				if (Enchantments.hasEnchantment(hand, EnchantmentCustom.Punchout)) damage = PunchoutEnchantment.onStructureBlockBreak(dmgBlock, damage);
 			}
 
 			if (damage > 1 && dmgBlock.isDamageable()) CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_StructureBlockHitEvent_punchoutDmg", (damage - 1)));

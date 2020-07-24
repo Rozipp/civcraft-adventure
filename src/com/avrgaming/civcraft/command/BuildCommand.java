@@ -19,7 +19,11 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo.ConstructType;
+import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.BuildCallback;
@@ -28,9 +32,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -68,8 +69,7 @@ public class BuildCommand extends CommandBase implements TabCompleter {
 		CivLog.debug(arg1.toString());
 		CivLog.debug(arg2.toString());
 		CivLog.debug(arg3.toString());
-		String[] s = {"list", "progress","repairnearest", "demolish", "demolishnearest", "refreshnearest",
-				"validatenearest", "calc"};
+		String[] s = { "list", "progress", "repairnearest", "demolish", "demolishnearest", "refreshnearest", "validatenearest", "calc" };
 		List<String> l = new ArrayList<>();
 		for (String ce : s) {
 			if (arg3[0].isEmpty() || ce.startsWith(arg3[0])) l.add(ce);
@@ -197,15 +197,10 @@ public class BuildCommand extends CommandBase implements TabCompleter {
 	public void list_available_structures() throws CivException {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_listHeader"));
 		Town town = getSelectedTown();
-		for (ConfigBuildableInfo sinfo : CivSettings.structures.values()) {
+		for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
+			if (sinfo.type != ConstructType.Structure) continue;
 			if (sinfo.isAvailable(town)) {
-				String leftString = "";
-				if (sinfo.limit == 0) {
-					leftString = CivSettings.localize.localizedString("Unlimited");
-				} else {
-					leftString = "" + (sinfo.limit - town.BM.getBuildableByIdCount(sinfo.id));
-				}
-
+				String leftString = (sinfo.limit == 0) ? CivSettings.localize.localizedString("Unlimited") : "" + (sinfo.limit - town.BM.getBuildableByIdCount(sinfo.id));
 				CivMessage.send(sender, CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " " + CivSettings.localize.localizedString("Upkeep") + " "
 						+ sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
 			}
@@ -215,27 +210,22 @@ public class BuildCommand extends CommandBase implements TabCompleter {
 	public void list_available_wonders() throws CivException {
 		CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_listWondersHeader"));
 		Town town = getSelectedTown();
-		for (ConfigBuildableInfo sinfo : CivSettings.wonders.values()) {
-			if (sinfo.isAvailable(town)) {
-				String leftString = "";
-				if (sinfo.limit == 0) {
-					leftString = CivSettings.localize.localizedString("Unlimited");
-				} else {
-					leftString = "" + (sinfo.limit - (town.BM.getBuildableByIdCount(sinfo.id)));
-				}
+		for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
+			if (sinfo.type != ConstructType.Wonder) continue;
+			if (!sinfo.isAvailable(town)) continue;
+			String leftString = (sinfo.limit == 0) ? CivSettings.localize.localizedString("Unlimited") : "" + (sinfo.limit - (town.BM.getBuildableByIdCount(sinfo.id)));
 
-				if (Wonder.isWonderAvailable(sinfo.id)) {
-					double rate = 1.0;
-					rate -= town.getBuffManager().getEffectiveDouble("buff_rush");
-					rate -= town.getBuffManager().getEffectiveDouble("buff_grandcanyon_rush");
-					rate -= town.getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
-					CivMessage.send(sender, CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " " + CivSettings.localize.localizedString("Upkeep") + " "
-							+ sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost * rate + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
-				} else {
-					Wonder wonder = CivGlobal.getWonderByConfigId(sinfo.id);
-					CivMessage.send(sender, CivColor.LightGray + sinfo.displayName + " Cost: " + sinfo.cost + " - "
-							+ CivSettings.localize.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTown().getName(), wonder.getTown().getCiv().getName()));
-				}
+			if (Wonder.isWonderAvailable(sinfo.id)) {
+				double rate = 1.0;
+				rate -= town.getBuffManager().getEffectiveDouble("buff_rush");
+				rate -= town.getBuffManager().getEffectiveDouble("buff_grandcanyon_rush");
+				rate -= town.getBuffManager().getEffectiveDouble("buff_mother_tree_tile_improvement_cost");
+				CivMessage.send(sender, CivColor.LightPurple + sinfo.displayName + " " + CivColor.Yellow + CivSettings.localize.localizedString("Cost") + " " + sinfo.cost + " " + CivSettings.localize.localizedString("Upkeep") + " "
+						+ sinfo.upkeep + " " + CivSettings.localize.localizedString("Hammers") + " " + sinfo.hammer_cost * rate + " " + CivSettings.localize.localizedString("Remaining") + " " + leftString);
+			} else {
+				Wonder wonder = CivGlobal.getWonderByConfigId(sinfo.id);
+				CivMessage.send(sender, CivColor.LightGray + sinfo.displayName + " Cost: " + sinfo.cost + " - "
+						+ CivSettings.localize.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTown().getName(), wonder.getTown().getCiv().getName()));
 			}
 		}
 	}
@@ -262,7 +252,7 @@ public class BuildCommand extends CommandBase implements TabCompleter {
 	}
 
 	private void buildByName(String fullArgs) throws CivException {
-		ConfigBuildableInfo sinfo = CivSettings.getBuildableInfoByName(fullArgs);
+		ConfigConstructInfo sinfo = CivSettings.getConstructInfoByName(fullArgs);
 		if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + fullArgs);
 		getResident().setPendingCallback(new BuildCallback(getPlayer(), sinfo, getSelectedTown()));
 	}

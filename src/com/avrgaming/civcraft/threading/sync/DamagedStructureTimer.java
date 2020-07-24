@@ -15,8 +15,8 @@ import java.util.Random;
 import org.bukkit.Effect;
 import org.bukkit.World;
 
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 public class DamagedStructureTimer implements Runnable {

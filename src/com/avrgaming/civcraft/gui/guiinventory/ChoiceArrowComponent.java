@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -81,7 +81,7 @@ public class ChoiceArrowComponent extends GuiInventory {
 	public void execute(String... strings) {
 		String mid = strings[0];
 		ItemStack stack = ItemManager.createItemStack(mid, 1);
-		stack = Enchantments.addEnchantment(stack, CustomEnchantment.UnitItem, 1);
+		Enchantments.addEnchantment(stack, EnchantmentCustom.UnitItem, 1);
 
 		getPlayer().getInventory().setItemInMainHand(stack);
 

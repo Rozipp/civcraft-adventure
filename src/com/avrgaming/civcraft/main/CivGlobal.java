@@ -40,13 +40,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Cave;
+import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Camp;
-import com.avrgaming.civcraft.construct.WarCamp;
+//import com.avrgaming.civcraft.construct.caves.Cave;
+import com.avrgaming.civcraft.construct.constructs.Camp;
+import com.avrgaming.civcraft.construct.constructs.WarCamp;
+import com.avrgaming.civcraft.construct.farm.FarmChunk;
+import com.avrgaming.civcraft.construct.farm.FarmPreCachePopulateTimer;
+import com.avrgaming.civcraft.construct.structures.Bank;
+import com.avrgaming.civcraft.construct.structures.Market;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.event.EventTimer;
@@ -57,13 +64,6 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Bank;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Market;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.farm.FarmChunk;
-import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
 import com.avrgaming.civcraft.units.UnitObject;
@@ -106,7 +106,7 @@ public class CivGlobal {
 	private static Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
 	private static Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
 	private static Map<ChunkCoord, FarmChunk> farmChunks = new ConcurrentHashMap<ChunkCoord, FarmChunk>();
-	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
+//	private static Map<ChunkCoord, Cave> caves = new ConcurrentHashMap<ChunkCoord, Cave>();
 	private static Map<BlockCoord, CustomMapMarker> customMapMarkers = new ConcurrentHashMap<BlockCoord, CustomMapMarker>();
 	private static Map<String, Camp> camps = new ConcurrentHashMap<String, Camp>();
 	private static Map<BlockCoord, Market> markets = new ConcurrentHashMap<BlockCoord, Market>();
@@ -232,7 +232,7 @@ public class CivGlobal {
 		loadTownChunks();
 		loadWonders();
 		loadStructures();
-		loadCaves();
+//		loadCaves();
 		loadRandomEvents();
 		loadUnitObjects();
 		loadReports();
@@ -326,31 +326,31 @@ public class CivGlobal {
 		}
 	}
 
-	private static void loadCaves() throws SQLException {
-		Connection context = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		try {
-			context = SQL.getGameConnection();
-			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + Cave.TABLE_NAME);
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				Cave cave;
-				try {
-					cave = new Cave(rs);
-					caves.put(cave.getCornerEntrance().getChunkCoord(), cave);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			CivLog.info("Loaded " + caves.size() + " Caves");
-		} finally {
-			SQL.close(rs, ps, context);
-		}
-	}
+//	private static void loadCaves() throws SQLException {
+//		Connection context = null;
+//		ResultSet rs = null;
+//		PreparedStatement ps = null;
+//
+//		try {
+//			context = SQL.getGameConnection();
+//			ps = context.prepareStatement("SELECT * FROM " + SQL.tb_prefix + Cave.TABLE_NAME);
+//			rs = ps.executeQuery();
+//
+//			while (rs.next()) {
+//				Cave cave;
+//				try {
+//					cave = new Cave(rs);
+//					caves.put(cave.getCornerEntrance().getChunkCoord(), cave);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//
+//			CivLog.info("Loaded " + caves.size() + " Caves");
+//		} finally {
+//			SQL.close(rs, ps, context);
+//		}
+//	}
 
 	private static void loadCivs() throws SQLException {
 		Connection context = null;
@@ -1092,28 +1092,28 @@ public class CivGlobal {
 	}
 
 	// ------------ Cave
-	public static void addCave(Cave cave) {
-		caves.put(cave.getCornerEntrance().getChunkCoord(), cave);
-	}
-
-	public static void removeCave(ChunkCoord ccoord) {
-		caves.remove(ccoord);
-	}
-
-	public static Cave getCave(ChunkCoord ccoord) {
-		return caves.get(ccoord);
-	}
-
-	public static Cave getCaveFromId(int id) {
-		for (Cave cave : caves.values()) {
-			if (cave.getId() == id) return cave;
-		}
-		return null;
-	}
-
-	public static Collection<Cave> getCaves() {
-		return caves.values();
-	}
+//	public static void addCave(Cave cave) {
+//		caves.put(cave.getCornerEntrance().getChunkCoord(), cave);
+//	}
+//
+//	public static void removeCave(ChunkCoord ccoord) {
+//		caves.remove(ccoord);
+//	}
+//
+//	public static Cave getCave(ChunkCoord ccoord) {
+//		return caves.get(ccoord);
+//	}
+//
+//	public static Cave getCaveFromId(int id) {
+//		for (Cave cave : caves.values()) {
+//			if (cave.getId() == id) return cave;
+//		}
+//		return null;
+//	}
+//
+//	public static Collection<Cave> getCaves() {
+//		return caves.values();
+//	}
 
 	// ------------ Camp
 	public static void addCamp(Camp camp) {

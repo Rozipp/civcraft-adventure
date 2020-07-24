@@ -6,10 +6,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import com.avrgaming.civcraft.util.RomanNumerals;
+
 import java.util.Arrays;
 
 /** EnchantmentAPI © 2017 com.sucy.enchant.vanilla.VanillaEnchantment */
-public class EnchantmentVanilla extends CustomEnchantment {
+public class EnchantmentVanilla extends EnchantmentCustom {
 
 	public EnchantmentVanilla(Enchantment ench, String displayName, ItemSet itemSet, int maxLevel) {
 		this(ench, displayName, itemSet, maxLevel, "Default");

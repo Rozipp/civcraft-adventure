@@ -37,7 +37,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.construct.template.ConfigTheme;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -86,8 +86,10 @@ public class CivSettings {
 	public static FileConfiguration cultureConfig; /* culture.yml */
 	private static EnumMap<Biome, ConfigBiomeInfo> cultureBiomes = new EnumMap<>(Biome.class);
 
+	public static FileConfiguration constructConfig; /* construct.yml */
+	public static Map<String, ConfigConstructInfo> constructs = new HashMap<String, ConfigConstructInfo>();
+
 	public static FileConfiguration structureConfig; /* structures.yml */
-	public static Map<String, ConfigBuildableInfo> structures = new HashMap<String, ConfigBuildableInfo>();
 	public static Map<Integer, ConfigGrocerLevel> grocerLevels = new HashMap<Integer, ConfigGrocerLevel>();
 	public static Map<Integer, ConfigAlchLevel> alchLevels = new HashMap<Integer, ConfigAlchLevel>();
 	public static Map<Integer, ConfigConsumeLevel> cottageLevels = new HashMap<Integer, ConfigConsumeLevel>();
@@ -96,7 +98,6 @@ public class CivSettings {
 	public static Map<Integer, ConfigTradeShipLevel> tradeShipLevels = new HashMap<Integer, ConfigTradeShipLevel>();
 
 	public static FileConfiguration wonderConfig; /* wonders.yml */
-	public static Map<String, ConfigBuildableInfo> wonders = new HashMap<String, ConfigBuildableInfo>();
 	public static Map<String, ConfigWonderBuff> wonderBuffs = new HashMap<String, ConfigWonderBuff>();
 
 	public static FileConfiguration techsConfig; /* techs.yml */
@@ -401,16 +402,11 @@ public class CivSettings {
 		return cfg;
 	}
 
-	public static void reloadGovConfigFiles() throws FileNotFoundException, IOException, InvalidConfigurationException, InvalidConfiguration {
-		CivSettings.governments.clear();
-		governmentConfig = loadCivConfig("governments.yml");
-		ConfigGovernment.loadConfig(governmentConfig, governments);
-	}
-
 	private static void loadConfigFiles() throws FileNotFoundException, IOException, InvalidConfigurationException {
 		townConfig = loadCivConfig("town.yml");
 		civConfig = loadCivConfig("civ.yml");
 		cultureConfig = loadCivConfig("culture.yml");
+		constructConfig = loadCivConfig("constructs.yml");
 		structureConfig = loadCivConfig("structures.yml");
 		techsConfig = loadCivConfig("techs.yml");
 		caveConfig = loadCivConfig("cave.yml");
@@ -445,8 +441,9 @@ public class CivSettings {
 		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
 		ConfigCultureLevel.loadConfig(townConfig, cultureLevels);
-		ConfigBuildableInfo.loadConfig(structureConfig, "structures", structures, false);
-		ConfigBuildableInfo.loadConfig(wonderConfig, "wonders", wonders, true);
+		ConfigConstructInfo.loadConfig(constructConfig, "constructs", constructs);
+		ConfigConstructInfo.loadConfig(structureConfig, "structures", constructs);
+		ConfigConstructInfo.loadConfig(wonderConfig, "wonders", constructs);
 		ConfigTech.loadConfig(techsConfig, techs);
 		ConfigTechItem.loadConfig(techsConfig, techItems);
 		ConfigTechPotion.loadConfig(techsConfig, techPotions);
@@ -754,25 +751,19 @@ public class CivSettings {
 			String loweredName = name.toLowerCase();
 
 			if (loweredUpgradeName.contains(loweredName)) {
-				if (returnUpgrade == null) {
+				if (returnUpgrade == null)
 					returnUpgrade = upgrade;
-				} else {
+				else
 					throw new CivException(CivSettings.localize.localizedString("var_cmd_notSpecificUpgrade", name));
-				}
 			}
 		}
 		return returnUpgrade;
 	}
 
-	public static ConfigBuildableInfo getBuildableInfoByName(String fullArgs) {
-		for (ConfigBuildableInfo sinfo : structures.values()) {
+	public static ConfigConstructInfo getConstructInfoByName(String fullArgs) {
+		for (ConfigConstructInfo sinfo : constructs.values()) {
 			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) return sinfo;
 		}
-
-		for (ConfigBuildableInfo sinfo : wonders.values()) {
-			if (sinfo.displayName.equalsIgnoreCase(fullArgs)) return sinfo;
-		}
-
 		return null;
 	}
 

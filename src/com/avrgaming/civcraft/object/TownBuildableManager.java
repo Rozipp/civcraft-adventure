@@ -13,18 +13,18 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.components.AttributeBase;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.structures.Bank;
+import com.avrgaming.civcraft.construct.structures.Cottage;
+import com.avrgaming.civcraft.construct.structures.Quarry;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.structures.TradeShip;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveBuildableRefresh;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.Bank;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Cottage;
-import com.avrgaming.civcraft.structure.Quarry;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TradeShip;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -45,8 +45,6 @@ public class TownBuildableManager {
 	private LinkedList<Buildable> invalideBuildables = new LinkedList<>();
 
 	private LinkedList<Buildable> buildablePoolInProgress = new LinkedList<>();
-
-	private Buildable lastBuildableBuilt = null;
 
 	/* XXX kind of a hacky way to save the bank's level information between build undo calls */
 	public int saved_bank_level = 1;

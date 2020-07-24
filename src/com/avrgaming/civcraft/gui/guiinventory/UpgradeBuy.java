@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigBuildableInfo;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.config.ConfigTownUpgrade;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -51,7 +51,7 @@ public class UpgradeBuy extends GuiInventory {
 			GuiItem gi = GuiItems.newGuiItem().setTitle(upgrade.name)//
 					.setLore("§b" + CivSettings.localize.localizedString("money_requ", Math.round(cost)));
 			if (!isTutorial && !getTown().BM.hasStructure(upgrade.require_structure)) {
-				ConfigBuildableInfo structure = CivSettings.structures.get(upgrade.require_structure);
+				ConfigConstructInfo structure = CivSettings.constructs.get(upgrade.require_structure);
 				gi.setMaterial(Material.EMERALD)//
 						.addLore(CivColor.Red + CivSettings.localize.localizedString("requ") + structure.displayName, //
 								"§3" + CivSettings.localize.localizedString("clicktobuild"));

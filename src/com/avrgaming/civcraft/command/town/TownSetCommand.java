@@ -20,18 +20,16 @@ package com.avrgaming.civcraft.command.town;
 
 import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.structures.Bank;
+import com.avrgaming.civcraft.construct.structures.Blacksmith;
+import com.avrgaming.civcraft.construct.structures.Grocer;
+import com.avrgaming.civcraft.construct.structures.Library;
+import com.avrgaming.civcraft.construct.structures.ScoutTower;
+import com.avrgaming.civcraft.construct.structures.Store;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Bank;
-import com.avrgaming.civcraft.structure.Blacksmith;
-import com.avrgaming.civcraft.structure.Grocer;
-import com.avrgaming.civcraft.structure.Library;
-//import com.avrgaming.civcraft.structure.ScoutShip;
-import com.avrgaming.civcraft.structure.ScoutTower;
-//import com.avrgaming.civcraft.structure.Stable;
-import com.avrgaming.civcraft.structure.Store;
-import com.avrgaming.civcraft.structure.Structure;
 
 public class TownSetCommand extends CommandBase {
 

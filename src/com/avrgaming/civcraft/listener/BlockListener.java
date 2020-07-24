@@ -12,12 +12,20 @@ import com.avrgaming.civcraft.cache.ArrowFiredCache;
 import com.avrgaming.civcraft.cache.CannonFiredCache;
 import com.avrgaming.civcraft.cache.CivCache;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.construct.constructs.Camp;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
+import com.avrgaming.civcraft.construct.farm.FarmChunk;
+import com.avrgaming.civcraft.construct.structures.BuildableStatic;
+import com.avrgaming.civcraft.construct.structures.CannonTower;
+import com.avrgaming.civcraft.construct.structures.Pasture;
+import com.avrgaming.civcraft.construct.wonders.Battledome;
+import com.avrgaming.civcraft.construct.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.construct.ConstructLayer;
-import com.avrgaming.civcraft.construct.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -29,14 +37,6 @@ import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PlotPermissions;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.BuildableStatic;
-import com.avrgaming.civcraft.structure.CannonTower;
-import com.avrgaming.civcraft.structure.Pasture;
-import com.avrgaming.civcraft.structure.farm.FarmChunk;
-import com.avrgaming.civcraft.structure.wonders.Battledome;
-import com.avrgaming.civcraft.structure.wonders.GrandShipIngermanland;
-import com.avrgaming.civcraft.structurevalidation.StructureValidator;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
@@ -82,7 +82,6 @@ import org.bukkit.entity.Witch;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -115,7 +114,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class BlockListener implements Listener {
+public class BlockListener extends SimpleListener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityTameEvent(EntityTameEvent event) {

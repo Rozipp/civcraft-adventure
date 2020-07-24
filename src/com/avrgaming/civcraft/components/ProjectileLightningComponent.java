@@ -8,13 +8,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.components.ProjectileComponent;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.wonders.StatueOfZeus;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.wonders.StatueOfZeus;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 

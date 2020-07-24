@@ -35,11 +35,15 @@ import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigPerk;
+import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Camp;
+import com.avrgaming.civcraft.construct.constructs.Camp;
+import com.avrgaming.civcraft.construct.structures.Cityhall;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.structures.TeslaTower;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
-import com.avrgaming.civcraft.enchantment.EnchantmentSpeed;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.SpeedEnchantment;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.CivException;
@@ -55,10 +59,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Buildable;
-import com.avrgaming.civcraft.structure.Cityhall;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.TeslaTower;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -253,6 +253,7 @@ public class Resident extends SQLObject {
 				CivLog.error("COULD NOT FIND CAMP(" + campID + ") FOR RESIDENT(" + this.getId() + ") Name:" + this.getName());
 			} else {
 				camp.addMember(this);
+				if (camp.getOwnerName().equals(this.getName())) camp.setSQLOwner(this);
 			}
 		}
 
@@ -399,7 +400,7 @@ public class Resident extends SQLObject {
 	public String getCampName() {
 		return getCamp() == null ? "" : getCamp().getName();
 	}
-	
+
 	// ------------- getters
 	public Civilization getCiv() {
 		if (this.getTown() == null) return null;
@@ -716,8 +717,8 @@ public class Resident extends SQLObject {
 			if (UnitStatic.isWearingAnyChain(is.getType())) percentModifer = percentModifer + UnitStatic.T2_metal_speed;
 			if (UnitStatic.isWearingAnyGold(is.getType())) percentModifer = percentModifer + UnitStatic.T3_metal_speed;
 			if (UnitStatic.isWearingAnyDiamond(is.getType())) percentModifer = percentModifer + UnitStatic.T4_metal_speed;
-			if (Enchantments.hasEnchantment(is, CustomEnchantment.Speed)) {
-				percentModifer = percentModifer + EnchantmentSpeed.getModifitedSpeed(Enchantments.getLevelEnchantment(is, CustomEnchantment.Speed));
+			if (Enchantments.hasEnchantment(is, EnchantmentCustom.Speed)) {
+				percentModifer = percentModifer + SpeedEnchantment.getModifitedSpeed(Enchantments.getLevelEnchantment(is, EnchantmentCustom.Speed));
 			}
 		}
 		this.walkingModifier = UnitStatic.normal_speed * (1.0 + percentModifer);

@@ -4,13 +4,14 @@ package com.avrgaming.civcraft.endgame;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import com.avrgaming.civcraft.construct.wonders.StockExchange;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.StockExchange;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndConditionEconomic

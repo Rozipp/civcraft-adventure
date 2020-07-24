@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.util.ItemManager;
 
 import gpl.AttributeUtil;
@@ -127,7 +129,7 @@ public class GuiItem {
 			}
 		}
 		stack = attrs.getStack();
-
+		Enchantments.addEnchantment(stack, EnchantmentCustom.SoulBound, 1);
 		ItemMeta meta = stack.getItemMeta();
 		meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -135,6 +137,7 @@ public class GuiItem {
 		meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 		stack.setItemMeta(meta);
+		
 		return stack;
 	}
 }

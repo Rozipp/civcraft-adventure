@@ -19,12 +19,12 @@
 package com.avrgaming.civcraft.object;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.enchantment.CustomEnchantment;
+import com.avrgaming.civcraft.construct.structures.Library;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.structure.Library;
 
 public class LibraryEnchantment {
-	public CustomEnchantment enchant;
+	public EnchantmentCustom enchant;
 	public int level;
 	public double price;
 	public String name;

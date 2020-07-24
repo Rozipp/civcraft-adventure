@@ -13,65 +13,45 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Random;
 
-import com.avrgaming.donate.Donate;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import pvptimer.PvPListener;
 import pvptimer.PvPTimer;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Transmuter;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidationChecker;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidationPunisher;
+import com.avrgaming.civcraft.construct.farm.FarmGrowthSyncTask;
+import com.avrgaming.civcraft.construct.farm.FarmPreCachePopulateTimer;
+import com.avrgaming.civcraft.construct.structures.Farm;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.endgame.EndConditionNotificationTask;
 import com.avrgaming.civcraft.event.EventTimerTask;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.fishing.FishingListener;
-import com.avrgaming.civcraft.gui.GuiInventoryListener;
-import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
-import com.avrgaming.civcraft.mythicmob.MobListener;
+import com.avrgaming.civcraft.listener.SimpleListener;
 import com.avrgaming.civcraft.mythicmob.SyncMobSpawnTimer;
 import com.avrgaming.civcraft.mythicmob.MobStatic;
 import com.avrgaming.civcraft.randomevents.RandomEventSweeper;
 import com.avrgaming.civcraft.sessiondb.SessionDBAsyncTimer;
-import com.avrgaming.civcraft.structure.Farm;
-import com.avrgaming.civcraft.structure.farm.FarmGrowthSyncTask;
-import com.avrgaming.civcraft.structure.farm.FarmPreCachePopulateTimer;
-import com.avrgaming.civcraft.structurevalidation.StructureValidationChecker;
-import com.avrgaming.civcraft.structurevalidation.StructureValidationPunisher;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.sync.*;
 import com.avrgaming.civcraft.threading.tasks.ArrowProjectileTask;
 import com.avrgaming.civcraft.threading.tasks.ProjectileComponentTimer;
 import com.avrgaming.civcraft.threading.timers.*;
-import com.avrgaming.civcraft.trade.TradeInventoryListener;
-import com.avrgaming.civcraft.units.UnitListener;
 import com.avrgaming.civcraft.units.CooldownSynckTask;
 import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.TimeTools;
-import com.avrgaming.civcraft.war.WarListener;
 import com.avrgaming.global.scores.CalculateScoreTimer;
 import com.avrgaming.global.scores.GlobalTickEvent;
 import com.avrgaming.sls.SLSManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.avrgaming.civcraft.command.town.*;
-import com.avrgaming.civcraft.command.resident.*;
-import com.avrgaming.civcraft.command.plot.*;
-import com.avrgaming.civcraft.command.civ.*;
-import com.avrgaming.civcraft.command.market.*;
-import com.avrgaming.civcraft.command.*;
-import com.avrgaming.civcraft.command.debug.*;
-import com.avrgaming.civcraft.command.admin.*;
-import com.avrgaming.civcraft.command.camp.CampCommand;
-import com.avrgaming.civcraft.listener.*;
-import com.avrgaming.civcraft.listener.armor.ArmorListener;
+import com.avrgaming.civcraft.comm.Commander;
 
 public final class CivCraft extends JavaPlugin {
 
@@ -121,9 +101,9 @@ public final class CivCraft extends JavaPlugin {
 			return;
 		}
 
-		initCommands();
+		Commander.initCommands();
 
-		registerEvents();
+		SimpleListener.registerAll();
 
 		startTimers();
 	}
@@ -148,36 +128,6 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.stopAll();
 		MobStatic.despawnAll();
 		// HandlerList.unregisterAll(this);
-	}
-
-	private void initCommands() {
-		// Init commands
-		getCommand("town").setExecutor(new TownCommand());
-		getCommand("resident").setExecutor(new ResidentCommand());
-		getCommand("dbg").setExecutor(new DebugCommand());
-		getCommand("plot").setExecutor(new PlotCommand());
-		getCommand("accept").setExecutor(new AcceptCommand());
-		getCommand("deny").setExecutor(new DenyCommand());
-		getCommand("civ").setExecutor(new CivCommand());
-		getCommand("tc").setExecutor(new TownChatCommand());
-		getCommand("cc").setExecutor(new CivChatCommand());
-		// getCommand("gc").setExecutor(new GlobalChatCommand());
-		getCommand("ad").setExecutor(new AdminCommand());
-		getCommand("econ").setExecutor(new EconCommand());
-		getCommand("pay").setExecutor(new PayCommand());
-		getCommand("build").setExecutor(new BuildCommand());
-		getCommand("market").setExecutor(new MarketCommand());
-		getCommand("select").setExecutor(new SelectCommand());
-		getCommand("here").setExecutor(new HereCommand());
-		getCommand("camp").setExecutor(new CampCommand());
-		getCommand("report").setExecutor(new ReportCommand());
-		getCommand("trade").setExecutor(new TradeCommand());
-		getCommand("kill").setExecutor(new KillCommand());
-		getCommand("enderchest").setExecutor(new EnderChestCommand());
-		getCommand("map").setExecutor(new MapCommand());
-		getCommand("wiki").setExecutor(new WikiCommand());
-		getCommand("vcc").setExecutor(new CampChatCommand());
-		getCommand("donate").setExecutor(new Donate());
 	}
 
 	private void startTimers() {
@@ -226,38 +176,6 @@ public final class CivCraft extends JavaPlugin {
 		TaskMaster.asyncTimer("GlobalTickEvent", new GlobalTickEvent(), 0L, TimeTools.toTicks(30L));
 		// XXX Типа во время войны устанавливает бар прореса сверху. Сейчас не доделанный
 		// TaskMaster.asyncTimer("ChangePlayerTime", new ChangePlayerTime(), TimeTools.toTicks(1L));
-	}
-
-	private void registerEvents() {
-		final PluginManager pluginManager = getServer().getPluginManager();
-		pluginManager.registerEvents(new BlockListener(), this);
-		pluginManager.registerEvents(new ChatListener(), this);
-		pluginManager.registerEvents(new MarkerPlacementManager(), this);
-		pluginManager.registerEvents(new CustomItemListener(), this);
-		pluginManager.registerEvents(new UnitInventoryListener(), this);
-		pluginManager.registerEvents(new PlayerListener(), this);
-		pluginManager.registerEvents(new DebugListener(), this);
-		pluginManager.registerEvents(new CraftableCustomMaterialListener(), this);
-		pluginManager.registerEvents(new GuiInventoryListener(), this);
-
-		Boolean useEXPAsCurrency = true;
-		try {
-			useEXPAsCurrency = CivSettings.getBoolean(CivSettings.civConfig, "global.use_exp_as_currency");
-		} catch (InvalidConfiguration e) {
-			CivLog.error("Unable to check if EXP should be enabled. Disabling.");
-			e.printStackTrace();
-		}
-		if (useEXPAsCurrency) {
-			pluginManager.registerEvents(new DisableXPListener(), this);
-		}
-		pluginManager.registerEvents(new TradeInventoryListener(), this);
-		pluginManager.registerEvents(new WarListener(), this);
-		pluginManager.registerEvents(new FishingListener(), this);
-		pluginManager.registerEvents(new PvPListener(), this);
-		pluginManager.registerEvents(new UnitListener(), this);
-		pluginManager.registerEvents(new MobListener(), this);
-
-		pluginManager.registerEvents(new ArmorListener(getConfig().getStringList("blocked")), this);
 	}
 
 	public boolean hasPlugin(String name) {

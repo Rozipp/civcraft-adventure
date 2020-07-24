@@ -145,10 +145,11 @@ public class AdminCommand extends CommandBase {
 	}
 
 	public void reloadgov_cmd() throws FileNotFoundException, IOException, InvalidConfigurationException, InvalidConfiguration {
-		CivSettings.reloadGovConfigFiles();
+		CivSettings.governments.clear();
+		CivSettings.governmentConfig = CivSettings.loadCivConfig("governments.yml");
+		ConfigGovernment.loadConfig(CivSettings.governmentConfig, CivSettings.governments);
 		for (Civilization civ : CivGlobal.getCivs()) {
 			ConfigGovernment gov = civ.getGovernment();
-
 			civ.setGovernment(gov.id);
 		}
 		CivMessage.send(sender, CivColor.Gold + CivSettings.localize.localizedString("adcmd_reloadgovSuccess"));
