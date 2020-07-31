@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;

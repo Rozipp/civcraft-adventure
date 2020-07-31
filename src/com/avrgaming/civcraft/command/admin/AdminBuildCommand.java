@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.structures.Structure;

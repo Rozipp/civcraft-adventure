@@ -28,112 +28,114 @@ import java.lang.reflect.Field;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-/**
- *
- * @author Goblom
- */
+/** @author Goblom */
 public class PacketWriter {
-    private static final String VERSION = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-    
-    public static class PacketNotFoundException extends ClassNotFoundException {
-        private PacketNotFoundException(String string) {
-            super(string);
-        }
-    }
-    
-    public static class InvalidPacketException extends Exception {
-        private InvalidPacketException(String str) {
-            super(str);
-        }
-    }
-    
-    private final Class<?> packetClass;
-    private final Object packetObject;
-    
-    public PacketWriter(String packet) throws PacketNotFoundException, InvalidPacketException {        
-        this.packetClass = getNMSClass(packet);
-        
-        if (this.packetClass == null) {
-            throw new PacketNotFoundException(packet + " was unable to be found.");
-        }
-        
-        Object obj = null;
-        try {
-            obj = packetClass.newInstance();
-        } catch (Exception e) { }
-        
-        if (obj == null) {
-            throw new InvalidPacketException("Packet was unable to be initialized");
-        }
-        
-        this.packetObject = obj;
-    }
-    
-    public static Class<?> getNMSClass(String name) {
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName("net.minecraft.server." + VERSION + "." + name);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return clazz;
-    }
-    
-    private static Field getField(Class<?> clazz, String name) {
-        Field field = null;
-        
-        try {
-            field = clazz.getField(name);
-        } catch (Exception e) { }
-        
-        if (field == null) {
-            try {
-                field = clazz.getDeclaredField(name);
-            } catch (Exception e) { }
-        }
-        
-        if (field != null) {
-            field.setAccessible(true);
-        }
-        
-        return field;
-    }
-    
-    public PacketWriter write(String field, Object value) {
-        Field f = getField(packetClass, field);
+	private static final String VERSION = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 
-        if (f == null) {
-            throw new RuntimeException("Field " + field + " was not found for " + packetClass.getSimpleName());
-        }
+	public static class PacketNotFoundException extends ClassNotFoundException {
+		private static final long serialVersionUID = 1L;
 
-        if (!f.getType().equals(value.getClass())) {
-            throw new RuntimeException("Field " + field + " uses a different object value");
-        }
-        
-        try {
-            f.set(packetObject, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Field " + field + " is not accessible.", e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        }
-        
-        return this;
-    }
-    
-    public void send(Player... players) {
-        Class<?> packetClass = getNMSClass("Packet");
-        if (packetClass != null) {
-            for (Player player : players) {
-                try {
-                    Object handle = player.getClass().getMethod("getHandle").invoke(player);
-                    Object playerConnection = handle.getClass().getField("playerConnection").get(handle);
+		private PacketNotFoundException(String string) {
+			super(string);
+		}
+	}
 
-                    playerConnection.getClass().getMethod("sendPacket", packetClass).invoke(playerConnection, packetObject);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+	public static class InvalidPacketException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		private InvalidPacketException(String str) {
+			super(str);
+		}
+	}
+
+	private final Class<?> packetClass;
+	private final Object packetObject;
+
+	@SuppressWarnings("deprecation")
+	public PacketWriter(String packet) throws PacketNotFoundException, InvalidPacketException {
+		this.packetClass = getNMSClass(packet);
+
+		if (this.packetClass == null) {
+			throw new PacketNotFoundException(packet + " was unable to be found.");
+		}
+
+		Object obj = null;
+		try {
+			obj = packetClass.newInstance();
+		} catch (Exception e) {}
+
+		if (obj == null) {
+			throw new InvalidPacketException("Packet was unable to be initialized");
+		}
+
+		this.packetObject = obj;
+	}
+
+	public static Class<?> getNMSClass(String name) {
+		Class<?> clazz = null;
+		try {
+			clazz = Class.forName("net.minecraft.server." + VERSION + "." + name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return clazz;
+	}
+
+	private static Field getField(Class<?> clazz, String name) {
+		Field field = null;
+
+		try {
+			field = clazz.getField(name);
+		} catch (Exception e) {}
+
+		if (field == null) {
+			try {
+				field = clazz.getDeclaredField(name);
+			} catch (Exception e) {}
+		}
+
+		if (field != null) {
+			field.setAccessible(true);
+		}
+
+		return field;
+	}
+
+	public PacketWriter write(String field, Object value) {
+		Field f = getField(packetClass, field);
+
+		if (f == null) {
+			throw new RuntimeException("Field " + field + " was not found for " + packetClass.getSimpleName());
+		}
+
+		if (!f.getType().equals(value.getClass())) {
+			throw new RuntimeException("Field " + field + " uses a different object value");
+		}
+
+		try {
+			f.set(packetObject, value);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Field " + field + " is not accessible.", e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+
+		return this;
+	}
+
+	public void send(Player... players) {
+		Class<?> packetClass = getNMSClass("Packet");
+		if (packetClass != null) {
+			for (Player player : players) {
+				try {
+					Object handle = player.getClass().getMethod("getHandle").invoke(player);
+					Object playerConnection = handle.getClass().getField("playerConnection").get(handle);
+
+					playerConnection.getClass().getMethod("sendPacket", packetClass).invoke(playerConnection, packetObject);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

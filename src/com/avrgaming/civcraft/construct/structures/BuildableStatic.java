@@ -9,6 +9,7 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.threading.TaskMaster;
 
@@ -57,6 +58,7 @@ public class BuildableStatic {
 				break;
 			}
 		}
+		CivLog.debug("templateYShift = " + templateYShift);
 		if (templateYShift != 0) {
 			// Y-Shift based on the config, this allows templates to be built underground.
 			loc.setY(loc.getY() + templateYShift);

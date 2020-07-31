@@ -7,7 +7,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 

@@ -92,7 +92,7 @@ public class Camp extends Construct {
 	/** можно ли отменить установку лагеря */
 	private boolean undoable = false;
 
-	private String ownerName;
+	private UUID ownerUuid;
 	private int firepoints;
 	public HashMap<Integer, BlockCoord> firepitBlocks = new HashMap<Integer, BlockCoord>();
 	public HashSet<BlockCoord> fireFurnaceBlocks = new HashSet<BlockCoord>();
@@ -115,10 +115,12 @@ public class Camp extends Construct {
 	private HashMap<String, ConfigCampUpgrade> upgrades = new HashMap<String, ConfigCampUpgrade>();
 	public FarmChunk farmChunk;
 
+	public Date lastBuildableRefresh;
+
 	// -------------constructor
 	public Camp(Resident resident) throws CivException {
 		super("c_camp", resident);
-		this.ownerName = resident.getUuid().toString();
+		this.ownerUuid = resident.getUuid();
 		try {
 			this.setName(resident.getName());
 		} catch (InvalidNameException var6) {}
@@ -185,8 +187,8 @@ public class Camp extends Construct {
 		} catch (InvalidNameException e) {
 			throw new CivException("Плохое имя для лагеря id = " + getId());
 		}
-		this.ownerName = rs.getString("owner_name");
-		if (this.ownerName == null) CivLog.error("COULD NOT FIND OWNER FOR CAMP ID:" + this.getId());
+		this.ownerUuid = UUID.fromString(rs.getString("owner_name"));
+		if (this.ownerUuid == null) CivLog.error("COULD NOT FIND OWNER FOR CAMP ID:" + this.getId());
 		this.corner = new BlockCoord(rs.getString("corner"));
 		this.nextRaidDate = new Date(rs.getLong("next_raid_date"));
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
@@ -287,8 +289,9 @@ public class Camp extends Construct {
 		TagManager.editNameTag(player);
 	}
 
+	@Override
 	public Location repositionCenter(Location center, Template tpl) throws CivException {
-		return BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl, true);
+		return BuildableStatic.repositionCenterStatic(center, this.getTemplateYShift(), tpl, true);
 	}
 
 	@Override
@@ -385,7 +388,7 @@ public class Camp extends Construct {
 						for (int j = 1; j < 5; j++) {
 							this.memberProtectionBlocks.add(new BlockCoord(absCoord.getRelative(Camp.offset[i][0], j, Camp.offset[i][1])));
 						}
-					
+
 					if (ItemManager.getTypeId(b) != CivData.FARMLAND) ItemManager.setTypeId(b, CivData.FARMLAND);
 					this.addConstructBlock(absCoord, false);
 				} else {
@@ -655,6 +658,10 @@ public class Camp extends Construct {
 	}
 
 	public void processLonghouse(CivAsyncTask task) {
+		if (consumeComp == null) {
+			consumeComp = new ConsumeLevelComponent();
+			consumeComp.createComponent(this, false);
+		}
 		int level = annexLevel.getOrDefault("longhouse", 0);
 		if (level == 0) return;
 		MultiInventory mInv = new MultiInventory();
@@ -890,7 +897,7 @@ public class Camp extends Construct {
 	}
 
 	public String getOwnerName() {
-		Resident res = CivGlobal.getResidentViaUUID(UUID.fromString(this.ownerName));
+		Resident res = CivGlobal.getResidentViaUUID(this.ownerUuid);
 		return res.getName();
 	}
 

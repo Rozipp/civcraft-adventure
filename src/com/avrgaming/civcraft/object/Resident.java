@@ -253,7 +253,7 @@ public class Resident extends SQLObject {
 				CivLog.error("COULD NOT FIND CAMP(" + campID + ") FOR RESIDENT(" + this.getId() + ") Name:" + this.getName());
 			} else {
 				camp.addMember(this);
-				if (camp.getOwnerName().equals(this.getName())) camp.setSQLOwner(this);
+				if (camp.getOwnerUuid().equals(this.getUuid())) camp.setSQLOwner(this);
 			}
 		}
 

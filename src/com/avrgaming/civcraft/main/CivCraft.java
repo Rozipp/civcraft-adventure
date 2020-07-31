@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import pvptimer.PvPTimer;
 
+import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidationChecker;
@@ -51,7 +52,6 @@ import com.avrgaming.global.scores.CalculateScoreTimer;
 import com.avrgaming.global.scores.GlobalTickEvent;
 import com.avrgaming.sls.SLSManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.avrgaming.civcraft.comm.Commander;
 
 public final class CivCraft extends JavaPlugin {
 

@@ -95,19 +95,45 @@ public class CivMessage {
 	}
 
 	public static void send(Object sender, String line) {
+		CommandSender cs = null;
 		if ((sender instanceof Player)) {
-			((Player) sender).sendMessage(line);
+			cs = ((Player) sender);
 		} else
 			if (sender instanceof CommandSender) {
-				((CommandSender) sender).sendMessage(line);
+				cs = ((CommandSender) sender);
 			} else
 				if (sender instanceof Resident) {
 					try {
-						CivGlobal.getPlayer(((Resident) sender)).sendMessage(line);
+						cs = CivGlobal.getPlayer(((Resident) sender));
 					} catch (CivException e) {
 						// No player online
 					}
 				}
+		if (cs != null) cs.sendMessage(line);
+	}
+
+	public static void send(Object sender, List<String> lines) {
+		CommandSender cs = null;
+		if ((sender instanceof Player)) {
+			cs = ((Player) sender);
+		} else
+			if (sender instanceof CommandSender) {
+				cs = ((CommandSender) sender);
+			} else
+				if (sender instanceof Resident) {
+					try {
+						cs = CivGlobal.getPlayer(((Resident) sender));
+					} catch (CivException e) {
+						// No player online
+					}
+				}
+		if (cs != null) {
+			String out = "";
+			for (String ss : lines) {
+				out += ss + ", ";
+			}
+			cs.sendMessage(out);
+		}
 	}
 
 	// public static void send(Object sender, String line, ItemStack item) {

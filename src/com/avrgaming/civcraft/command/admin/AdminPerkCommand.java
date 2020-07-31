@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.exception.CivException;

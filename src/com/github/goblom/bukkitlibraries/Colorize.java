@@ -37,7 +37,6 @@ public class Colorize {
     private static final Random RANDOM = new Random();
 
     private static final char[] COLORS = {'1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-    private static final char[] STYLES = {'l', 'n', 'o', 'k', 'm'}; //do not use r
     private static final char[] ALL_COLORS = {'1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'l', 'n', 'o', 'k', 'm'}; //do not use r
 
     public static String getRandomColorCode(boolean withExtra) {

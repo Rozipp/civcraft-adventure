@@ -24,7 +24,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;

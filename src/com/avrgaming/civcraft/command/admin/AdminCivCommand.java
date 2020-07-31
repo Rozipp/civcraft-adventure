@@ -11,8 +11,7 @@ package com.avrgaming.civcraft.command.admin;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CommandBase;
-import com.avrgaming.civcraft.command.civ.CivInfoCommand;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.config.ConfigTech;
@@ -182,11 +181,11 @@ public class AdminCivCommand extends CommandBase {
 	}
 
 	public void info_cmd() throws CivException {
-		Civilization civ = getNamedCiv(1);
-
-		CivInfoCommand cmd = new CivInfoCommand();
-		cmd.senderCivOverride = civ;
-		cmd.onCommand(sender, null, "info", this.stripArgs(args, 2));
+//		Civilization civ = getNamedCiv(1);
+//
+//		CivInfoCommand cmd = new CivInfoCommand();
+//		cmd.senderCivOverride = civ;
+//		cmd.onCommand(sender, null, "info", this.stripArgs(args, 2));
 	}
 
 	// public void setmaster_cmd() throws CivException {

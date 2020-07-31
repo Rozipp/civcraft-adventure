@@ -21,9 +21,9 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import com.avrgaming.civcraft.command.CommandBase;
-import com.avrgaming.civcraft.command.ReportChestsTask;
-import com.avrgaming.civcraft.command.ReportPlayerInventoryTask;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.ReportChestsTask;
+import com.avrgaming.civcraft.command.oldcommands.ReportPlayerInventoryTask;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
 import com.avrgaming.civcraft.endgame.EndGameCondition;

@@ -1678,9 +1678,9 @@ public class CivGlobal {
 		getSessionDatabase().update(requestId, key, value);
 	}
 
-	public static long getTeleportCooldown(final String desc, final Player user) {
+	public static long getTeleportCooldown(final String desc, final Resident res) {
 		long cooldown = 0L;
-		final String key = "teleportCooldown_" + desc + "_" + user.getUniqueId();
+		final String key = "teleportCooldown_" + desc + "_" + res.getUuid();
 		final ArrayList<SessionEntry> entries = getSessionDatabase().lookup(key);
 		if (entries == null || entries.size() < 1) {
 			return cooldown;

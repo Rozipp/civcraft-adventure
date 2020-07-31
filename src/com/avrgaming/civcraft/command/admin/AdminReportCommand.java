@@ -3,7 +3,8 @@ package com.avrgaming.civcraft.command.admin;
 
 import java.text.SimpleDateFormat;
 import org.bukkit.Bukkit;
-import com.avrgaming.civcraft.command.CommandBase;
+
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;

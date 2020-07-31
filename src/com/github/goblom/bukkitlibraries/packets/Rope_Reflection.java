@@ -138,7 +138,8 @@ public class Rope_Reflection {
     private void makeEntity() {
         try {
             Class<?> World = getNMSClass("World");
-            Class<?> WorldServer = getNMSClass("WorldServer");
+            @SuppressWarnings("unused")
+			Class<?> WorldServer = getNMSClass("WorldServer");
             Class<?> CraftWorld = getCraftClass("CraftWorld");
             Class<?> EntityBat = getNMSClass("EntityBat");
             Class<?> EntityWitherSkull = getNMSClass("EntityWitherSkull");

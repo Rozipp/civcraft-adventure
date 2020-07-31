@@ -31,51 +31,49 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author Goblom
- */
+/** @author Goblom */
 public class Download implements Runnable {
-    private final String link, path;
-    private final boolean print;
-    
-    public Download(String link, String path, boolean printStatus) {
-        this.link = link;
-        this.path = path;
-        this.print = printStatus;
-    }
-    
-    @Override
-    public void run() {
-        try {
-            if (print) System.out.println("[Download] File: " + link);
-            if (print) System.out.println("[Download] Save To: " + path);
-            
-            URL url = new URL(link);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-            FileOutputStream fos = new FileOutputStream(path);
-            BufferedOutputStream bos = new BufferedOutputStream(fos, 1024);
-            
-            float dataRead = 0;
-            byte[] b = new byte[1024];
-            int i = 0;
-            
-            while ((i = bis.read(b, 0, 1024)) >= 0) {
-                dataRead++; //dataRead = dataRead + 1;
-                if (print) System.out.println("[Download] Downloaded: " + dataRead);
-                bos.write(b, 0, i);
-            }
-            
-            bos.close();
-            fos.close();
-            bis.close();
-            
-            if (print) System.out.println("[Download] File Downloaded!");
-        } catch (MalformedURLException e) { e.printStackTrace(); 
-        } catch (IOException e) { e.printStackTrace(); }       
-    }
+	private final String link, path;
+	private final boolean print;
+
+	public Download(String link, String path, boolean printStatus) {
+		this.link = link;
+		this.path = path;
+		this.print = printStatus;
+	}
+
+	@Override
+	public void run() {
+		try {
+			if (print) System.out.println("[Download] File: " + link);
+			if (print) System.out.println("[Download] Save To: " + path);
+
+			URL url = new URL(link);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+			FileOutputStream fos = new FileOutputStream(path);
+			BufferedOutputStream bos = new BufferedOutputStream(fos, 1024);
+
+			float dataRead = 0;
+			byte[] b = new byte[1024];
+			int i = 0;
+
+			while ((i = bis.read(b, 0, 1024)) >= 0) {
+				dataRead++; // dataRead = dataRead + 1;
+				if (print) System.out.println("[Download] Downloaded: " + dataRead);
+				bos.write(b, 0, i);
+			}
+
+			bos.close();
+			fos.close();
+			bis.close();
+
+			if (print) System.out.println("[Download] File Downloaded!");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

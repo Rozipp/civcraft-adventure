@@ -38,8 +38,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.avrgaming.civcraft.command.CommandBase;
 import com.avrgaming.civcraft.command.admin.AdminTownCommand;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;

@@ -51,6 +51,7 @@ import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import com.avrgaming.civcraft.util.TimeTools;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.Config;
 
@@ -82,8 +83,6 @@ public abstract class Construct extends SQLObject {
 
 	public Construct(String id, SQLObject owner) throws CivException {
 		ConfigConstructInfo in = CivSettings.constructs.get(id);
-		CivLog.debug("create construct " + id);
-		CivLog.debug("info  " + in.id);
 		this.setInfo(in);
 		this.setSQLOwner(owner);
 		loadSettings();
@@ -157,7 +156,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public int getTemplateYShift() {
-		return info.templateYShift;
+		return info.template_y_shift;
 	}
 
 	public String getRequiredUpgrade() {
@@ -241,7 +240,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public Location repositionCenter(Location center, Template tpl) throws CivException {
-		return BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl);
+		return BuildableStatic.repositionCenterStatic(center, this.getTemplateYShift(), tpl);
 	}
 
 	public void checkBlockPermissionsAndRestrictions(Player player) throws CivException {
@@ -423,7 +422,7 @@ public abstract class Construct extends SQLObject {
 				constr.processCommandSigns();
 				constr.onPostBuild();
 			}
-		}, 10);
+		}, TimeTools.toTicks(1));
 	}
 
 	public abstract void onPostBuild();
@@ -589,7 +588,7 @@ public abstract class Construct extends SQLObject {
 				constr.unbindConstructBlocks();
 				Template.deleteFilePath(templatePath);
 			}
-		}, 100);
+		}, 20);
 	}
 
 	public void fancyDestroyConstructBlocks() {

@@ -21,7 +21,7 @@ package com.avrgaming.civcraft.command.debug;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.construct.farm.FarmChunk;
 import com.avrgaming.civcraft.construct.farm.FarmGrowthSyncTask;
 import com.avrgaming.civcraft.construct.farm.FarmPreCachePopulateTimer;

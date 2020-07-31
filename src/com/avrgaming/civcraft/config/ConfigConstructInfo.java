@@ -27,7 +27,7 @@ public class ConfigConstructInfo {
 	public String id = "";
 	public ConstructType type;
 	public String template_name;
-	public int templateYShift;
+	public int template_y_shift;
 	public String displayName = "";
 	public String require_tech;
 	public String require_upgrade;
@@ -70,7 +70,7 @@ public class ConfigConstructInfo {
 			sinfo.id/*               */ = (String) struct.get("id");
 			sinfo.type/*             */ = ConstructType.valueOf((String) struct.get("type"));
 			sinfo.template_name/*    */ = ((obj = struct.get("template"))/*         */ == null) ? null : (String) obj;
-			sinfo.templateYShift/*   */ = ((obj = struct.get("template_y_shift"))/* */ == null) ? 0 : (Integer) obj;
+			sinfo.template_y_shift/*   */ = ((obj = struct.get("template_y_shift"))/* */ == null) ? 0 : (Integer) obj;
 			sinfo.displayName/*      */ = (String) struct.get("displayName");
 			sinfo.require_tech/*     */ = ((obj = struct.get("require_tech"))/*     */ == null) ? null : (String) obj;
 			sinfo.require_upgrade/*  */ = ((obj = struct.get("require_upgrade"))/*  */ == null) ? null : (String) obj;

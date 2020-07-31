@@ -101,24 +101,42 @@ public abstract class GroupManager {
 		return inGroup(groupName, res);
 	}
 
-	public void addToGroup(Resident res, PermissionGroup grp) {
-		if (grp == null) return;
-		grp.addMember(res);
-		grp.save();
+	public void addToGroup(PermissionGroup grp, Resident res) throws CivException {
+		if (grp == null) throw new CivException("Група не существует");
+		if (grp.hasMember(res)) throw new CivException("Игрок " + res.getName() + " уже в групе " + grp.getName());
+		if (isProtectedGroup(grp))
+			addToProtectedGroup(grp, res);
+		else {
+			grp.addMember(res);
+			grp.save();
+		}
 	}
 
-	public void removeFromGroup(String groupName, Resident res) throws CivException {
-		PermissionGroup grp = this.getGroup(groupName);
-		removeFromGroup(res, grp);
-	}
-
-	public void removeFromGroup(Resident res, PermissionGroup grp) throws CivException {
-		if (grp == null) return;
-		if (grp.hasMember(res)) {
+	public void removeFromGroup(PermissionGroup grp, Resident res) throws CivException {
+		if (grp == null) throw new CivException("Група не существует");
+		if (!grp.hasMember(res)) throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_group_removeNotInGroup", res.getName(), grp.getName()));
+		if (isProtectedGroup(grp))
+			removeFromProtectedGroup(grp, res);
+		else {
 			grp.removeMember(res);
 			grp.save();
-		} else
-			throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_group_removeNotInGroup", res.getName(), grp.getName()));
+		}
+	}
+
+	public boolean renameGroup(PermissionGroup group, String newName) throws CivException {
+		if (this.getGroup(newName) != null) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_newExists") + " " + newName);
+		try {
+			if (isProtectedGroup(group))
+				renameProtectedGroup(group, newName);
+			else {
+				this.removeGroup(group);
+				group.setName(newName);
+				this.newGroup(group);
+			}
+		} catch (InvalidNameException e) {
+			throw new CivException(e.getMessage());
+		}
+		return true;
 	}
 
 	public void removeAllGroup(Resident res) {
@@ -131,23 +149,16 @@ public abstract class GroupManager {
 		res.save();
 	}
 
-	public void renameGroup(String oldName, String newName) throws CivException, InvalidNameException {
-		if (isProtectedGroupName(oldName))
-			renameProtectedGroup(oldName, newName);
-		else {
-			PermissionGroup grp = getGroup(oldName);
-			this.removeGroup(grp);
-			grp.setName(newName);
-			this.newGroup(grp);
-		}
-	}
-
 	abstract public Collection<PermissionGroup> getProtectedGroups();
 
 	abstract public boolean isProtectedGroup(PermissionGroup grp);
 
-	abstract public boolean isProtectedGroupName(String name);
+	abstract public boolean isProtectedGroup(String name);
 
-	abstract public void renameProtectedGroup(String oldName, String newName) throws InvalidNameException;
+	abstract public void renameProtectedGroup(PermissionGroup group, String newName) throws InvalidNameException;
+
+	abstract public void addToProtectedGroup(PermissionGroup group, Resident res) throws CivException;
+
+	abstract public void removeFromProtectedGroup(PermissionGroup group, Resident res) throws CivException;
 
 }

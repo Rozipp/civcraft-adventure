@@ -11,7 +11,7 @@ package com.avrgaming.civcraft.command.debug;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.threading.TaskMaster;

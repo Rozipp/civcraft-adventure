@@ -25,9 +25,8 @@ import java.util.Queue;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CommandBase;
-import com.avrgaming.civcraft.command.ReportChestsTask;
-import com.avrgaming.civcraft.command.town.TownInfoCommand;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.ReportChestsTask;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
@@ -311,15 +310,6 @@ public class AdminTownCommand extends CommandBase {
 		CivGlobal.processCulture();
 		CivMessage.global(CivSettings.localize.localizedString("var_adcmd_town_setcivSuccess1", town.getName(), civ.getName()));
 
-	}
-
-	public void info_cmd() throws CivException {
-		Town town = getNamedTown(1);
-
-		TownInfoCommand cmd = new TownInfoCommand();
-		cmd.senderTownOverride = town;
-		cmd.senderCivOverride = town.getCiv();
-		cmd.onCommand(sender, null, "info", this.stripArgs(args, 2));
 	}
 
 	public void culture_cmd() throws CivException {

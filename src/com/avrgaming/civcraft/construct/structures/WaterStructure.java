@@ -36,7 +36,7 @@ public class WaterStructure extends Structure {
 
 	@Override
 	public Location repositionCenter(Location center, Template tpl) {
-		Location loc = BuildableStatic.repositionCenterStatic(center, this.getInfo().templateYShift, tpl);
+		Location loc = BuildableStatic.repositionCenterStatic(center, this.getTemplateYShift(), tpl);
 		loc.setY(WATER_LEVEL + this.getTemplateYShift());
 		return loc;
 	}

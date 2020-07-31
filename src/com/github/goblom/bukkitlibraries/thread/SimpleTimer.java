@@ -122,7 +122,9 @@ public class SimpleTimer {
 
     public class InvalidRunnerException extends Exception {
 
-        public InvalidRunnerException(String message) {
+		private static final long serialVersionUID = 1L;
+
+		public InvalidRunnerException(String message) {
             super(message);
         }
     }

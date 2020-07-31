@@ -5,20 +5,10 @@ version: 1.8.0-Beta7
 depend: 
 
 commands:
-    town:
-        aliases: [t,е, ещцт]
-    plot:
-        aliases: [p,здще,з]
-#     resident:
-#         aliases: [res,куы]
+    ad:
+        aliases: [фв]
     dbg:
         aliases: []
-    accept:
-        aliases: [yes,нуы]
-    deny:
-        aliases: [no,тщ,вутн]
-    civ:
-        aliases: [сшм, c]
     tc:
         aliases: [ес]
     cc:
@@ -27,22 +17,12 @@ commands:
         aliases: [фс]
     gc:
         aliases: [пс]
-    ad:
-        aliases: [фв]
-    build:
-        aliases: [b,игшдв,и]
-    market:
-        aliases: [m]
     select:
         aliases:
-    econ:
-        aliases: [money,ьщтун,ьщт]
     pay:
         aliases:
     here:
         aliases:
-    camp:
-        aliases: [сфьз]
     report:
         aliases:
     trade:

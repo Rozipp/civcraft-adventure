@@ -33,7 +33,7 @@ public class TownGroupManager extends GroupManager {
 		super();
 		this.town = town;
 	}
-	
+
 	public TownGroupManager(Town town, ResultSet rs) throws SQLException {
 		super();
 		this.town = town;
@@ -41,12 +41,13 @@ public class TownGroupManager extends GroupManager {
 		mayorGroupName = rs.getString("mayorGroupName");
 		assistantGroupName = rs.getString("assistantGroupName");
 	}
-	
+
 	public void saveNow(HashMap<String, Object> hashmap) {
 		hashmap.put("defaultGroupName", defaultGroupName);
 		hashmap.put("mayorGroupName", mayorGroupName);
 		hashmap.put("assistantGroupName", assistantGroupName);
 	}
+
 	@Override
 	public void delete() throws SQLException {
 		for (PermissionGroup grp : this.groups.values())
@@ -67,9 +68,21 @@ public class TownGroupManager extends GroupManager {
 		} catch (InvalidNameException e) {}
 	}
 
+	public PermissionGroup getDefaultGroup() {
+		return defaultGroup;
+	}
+
+	public PermissionGroup getMayorGroup() {
+		return mayorGroup;
+	}
+
+	public PermissionGroup getAssistantGroup() {
+		return assistantGroup;
+	}
+
 	@Override
 	public void newGroup(String name) throws InvalidNameException {
-		if (isProtectedGroupName(name)) throw new InvalidNameException("Это защищенная група");
+		if (isProtectedGroup(name)) throw new InvalidNameException("Это защищенная група");
 		PermissionGroup grp = new PermissionGroup(town, name);
 		this.newGroup(grp);
 	}
@@ -195,40 +208,51 @@ public class TownGroupManager extends GroupManager {
 	}
 
 	@Override
-	public boolean isProtectedGroupName(String name) {
+	public boolean isProtectedGroup(String name) {
 		if ((name == defaultGroupName) || (name == mayorGroupName) || (name == assistantGroupName)) return true;
 		return false;
 	}
 
 	@Override
-	public void renameProtectedGroup(String oldName, String newName) throws InvalidNameException {
-		if (oldName == this.mayorGroupName) {
-			mayorGroup.setName(newName);
-			mayorGroupName = newName;
+	public void renameProtectedGroup(PermissionGroup group, String newName) throws InvalidNameException {
+		if (group == mayorGroup) mayorGroupName = newName;
+		if (group == assistantGroup) assistantGroupName = newName;
+		if (group == defaultGroup) defaultGroupName = newName;
+		group.setName(newName);
+		group.save();
+		town.save();
+	}
+
+	@Override
+	public void addToProtectedGroup(PermissionGroup group, Resident res) throws CivException {
+		if (group == mayorGroup) {
+			addMayor(res);
 			return;
 		}
-		if (oldName == this.assistantGroupName) {
-			assistantGroup.setName(newName);
-			assistantGroupName = newName;
+		if (group == assistantGroup) {
+			addAssistant(res);
 			return;
 		}
-		if (oldName == this.defaultGroupName) {
-			defaultGroup.setName(newName);
-			defaultGroupName = newName;
+		if (group == defaultGroup) {
+			addDefault(res);
 			return;
 		}
 	}
 
-	public PermissionGroup getDefaultGroup() {
-		return defaultGroup;
-	}
-
-	public PermissionGroup getMayorGroup() {
-		return mayorGroup;
-	}
-
-	public PermissionGroup getAssistantGroup() {
-		return assistantGroup;
+	@Override
+	public void removeFromProtectedGroup(PermissionGroup group, Resident res) throws CivException {
+		if (group == mayorGroup) {
+			removeMayor(res);
+			return;
+		}
+		if (group == assistantGroup) {
+			removeAssistant(res);
+			return;
+		}
+		if (group == defaultGroup) {
+			removeDefault(res);
+			return;
+		}
 	}
 
 }

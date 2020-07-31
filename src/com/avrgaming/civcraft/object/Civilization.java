@@ -331,7 +331,7 @@ public class Civilization extends SQLObject {
 		hashmap.put("name", this.getName());
 		hashmap.put("tag", this.tag);
 		hashmap.put("capitolId", this.capitolId);
-		hashmap.put("leaderGroupName", this.GM.leaderGroupName);
+		hashmap.put("leaderGroupName", this.GM.leadersGroupName);
 		hashmap.put("advisersGroupName", this.GM.advisersGroupName);
 		hashmap.put("debt", this.getTreasury().getDebt());
 		hashmap.put("coins", this.getTreasury().getBalance());

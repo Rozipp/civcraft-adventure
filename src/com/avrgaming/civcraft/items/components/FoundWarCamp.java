@@ -43,6 +43,7 @@ public class FoundWarCamp extends ItemComponent implements CallbackInterface {
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		player = event.getPlayer();
 		resident = CivGlobal.getResident(player);
+		resident.setPendingCallback(this);
 		try {
 			warCamp = WarCamp.newWarCamp(player, player.getLocation());
 			GuiInventory.openGuiInventory(player, "ChoiseTemplate", warCamp.getInfo().id);

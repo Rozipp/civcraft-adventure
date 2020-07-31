@@ -30,7 +30,8 @@ package com.github.goblom.bukkitlibraries.utils;
  */
 public class GeneralUtils {
     
-    public static <V> V[] mergeArrays(V[] a, V[] b) {
+    @SuppressWarnings("unchecked")
+	public static <V> V[] mergeArrays(V[] a, V[] b) {
         Object[] array = new Object[a.length + b.length];
         System.arraycopy(a, 0, array, 0, a.length);
         System.arraycopy(b, 0, array, a.length, b.length);

@@ -214,7 +214,8 @@ public class SpreadPlayers implements Runnable {
             Location location;
 
             if (teams) {
-                Team team = player.getScoreboard().getPlayerTeam(player);
+                @SuppressWarnings("deprecation")
+				Team team = player.getScoreboard().getPlayerTeam(player);
 
                 if (!hashmap.containsKey(team)) {
                     hashmap.put(team, locations[i++]);
@@ -242,7 +243,8 @@ public class SpreadPlayers implements Runnable {
         return distance;
     }
     
-    private int getTeams(List<Player> players) {
+    @SuppressWarnings("deprecation")
+	private int getTeams(List<Player> players) {
         Set<Team> teams = Sets.newHashSet();
         
         for (Player player : players) {

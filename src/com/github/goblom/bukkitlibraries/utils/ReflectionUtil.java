@@ -69,7 +69,8 @@ public class ReflectionUtil {
         return clazz;
     }
 
-    public static <T> T getField(Object o, String fieldName) {
+    @SuppressWarnings("unchecked")
+	public static <T> T getField(Object o, String fieldName) {
         Class<?> checkClass = o.getClass();
         do {
             try {

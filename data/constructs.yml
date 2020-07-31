@@ -3,7 +3,7 @@ constructs:
   - id: c_camp
     type: Global
     template: camp
-    templateYShift: -1
+    template_y_shift: -1
     displayName: Camp
     cost: 2500.0
     regen_rate: 2
@@ -12,7 +12,7 @@ constructs:
   - id: c_warcamp
     type: War
     template: warcamp
-    templateYShift: -1
+    template_y_shift: -1
     displayName: "War Camp"
     limit: 3
     regen_rate: 2

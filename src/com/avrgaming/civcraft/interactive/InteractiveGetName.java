@@ -50,6 +50,6 @@ public class InteractiveGetName implements InteractiveResponse {
 
 		message = message.replace(" ", "_").replace("\"", "").replace("\'", "").replace("\\", "");
 
-		resident.pendingCallback.execute(message);
+		resident.getPendingCallback().execute(message);
 	}
 }

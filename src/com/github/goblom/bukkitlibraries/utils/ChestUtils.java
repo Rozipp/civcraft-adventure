@@ -47,7 +47,7 @@ public class ChestUtils {
         return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
     }
 
-    private static Class<?> getMCClass(String name) throws ClassNotFoundException {
+    public static Class<?> getMCClass(String name) throws ClassNotFoundException {
         return Class.forName("net.minecraft.server." + getVersion() + "." + name);
     }
 

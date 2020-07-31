@@ -3,7 +3,7 @@ package com.avrgaming.civcraft.interactive;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.town.TownCommand;
+import com.avrgaming.civcraft.command.menu.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
 import com.avrgaming.civcraft.construct.structures.BuildableStatic;

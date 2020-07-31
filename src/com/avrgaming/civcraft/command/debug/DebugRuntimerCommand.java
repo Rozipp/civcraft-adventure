@@ -1,6 +1,6 @@
 package com.avrgaming.civcraft.command.debug;
 
-import com.avrgaming.civcraft.command.CommandBase;
+import com.avrgaming.civcraft.command.oldcommands.CommandBase;
 import com.avrgaming.civcraft.construct.constructs.CampHourlyTick;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;

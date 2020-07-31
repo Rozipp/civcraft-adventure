@@ -15,22 +15,22 @@ public class CivGroupManager extends GroupManager {
 
 	protected Civilization civ;
 
-	public PermissionGroup leaderGroup;
-	public PermissionGroup adviserGroup;
+	public PermissionGroup leadersGroup;
+	public PermissionGroup advisersGroup;
 
 	/* Strings used for reverse lookups. */
-	public String leaderGroupName = "Leaders";
+	public String leadersGroupName = "Leaders";
 	public String advisersGroupName = "Advisers";
 
 	public CivGroupManager(Civilization civ) {
 		super();
 		this.civ = civ;
 	}
-	
+
 	public CivGroupManager(Civilization civ, ResultSet rs) throws SQLException {
 		super();
 		this.civ = civ;
-		this.leaderGroupName = rs.getString("leaderGroupName");
+		this.leadersGroupName = rs.getString("leaderGroupName");
 		this.advisersGroupName = rs.getString("advisersGroupName");
 	}
 
@@ -39,33 +39,41 @@ public class CivGroupManager extends GroupManager {
 		for (PermissionGroup grp : this.groups.values()) {
 			grp.delete();
 		}
-		if (leaderGroup != null) leaderGroup.delete();
-		if (adviserGroup != null) adviserGroup.delete();
+		if (leadersGroup != null) leadersGroup.delete();
+		if (advisersGroup != null) advisersGroup.delete();
 	}
 
 	public void init() {
 		try {
-			leaderGroup = new PermissionGroup(civ, leaderGroupName);
-			leaderGroup.save();
-			adviserGroup = new PermissionGroup(civ, advisersGroupName);
-			adviserGroup.save();
+			leadersGroup = new PermissionGroup(civ, leadersGroupName);
+			leadersGroup.save();
+			advisersGroup = new PermissionGroup(civ, advisersGroupName);
+			advisersGroup.save();
 		} catch (InvalidNameException e) {}
 
 	}
 
+	public PermissionGroup getLeaderGroup() {
+		return leadersGroup;
+	}
+
+	public PermissionGroup getAdviserGroup() {
+		return advisersGroup;
+	}
+
 	@Override
 	public void newGroup(String name) throws InvalidNameException {
-		if (isProtectedGroupName(name)) throw new InvalidNameException("It is protection group");
+		if (isProtectedGroup(name)) throw new InvalidNameException("It is protection group");
 		PermissionGroup grp = new PermissionGroup(civ, name);
 		this.newGroup(grp);
 	}
 
 	public void addGroup(PermissionGroup grp) {
-		if (grp.getName().equalsIgnoreCase(this.leaderGroupName))
-			leaderGroup = grp;
+		if (grp.getName().equalsIgnoreCase(this.leadersGroupName))
+			leadersGroup = grp;
 		else
 			if (grp.getName().equalsIgnoreCase(this.advisersGroupName))
-				adviserGroup = grp;
+				advisersGroup = grp;
 			else {
 				groups.put(grp.getName(), grp);
 				grp.save();
@@ -86,17 +94,21 @@ public class CivGroupManager extends GroupManager {
 		return true;
 	}
 
+	public void addInProtectedGroup(Resident res) throws CivException {
+
+	}
+
 	public void addLeader(Resident res) throws CivException {
-		if (this.leaderGroup != null && !this.leaderGroup.hasMember(res) && civ.hasResident(res)) {
-			this.leaderGroup.addMember(res);
-			this.leaderGroup.save();
+		if (this.leadersGroup != null && !this.leadersGroup.hasMember(res) && civ.hasResident(res)) {
+			this.leadersGroup.addMember(res);
+			this.leadersGroup.save();
 		} else
-			throw new CivException("FIXMI " + res.getName() + "  -  " + leaderGroupName);
+			throw new CivException("FIXMI " + res.getName() + "  -  " + leadersGroupName);
 	}
 
 	public void setLeader(Resident res) {
-		this.leaderGroup.clearMembers();
-		this.leaderGroup.addMember(res);
+		this.leadersGroup.clearMembers();
+		this.leadersGroup.addMember(res);
 	}
 
 	public Resident getLeader() {
@@ -106,47 +118,47 @@ public class CivGroupManager extends GroupManager {
 	}
 
 	public Collection<Resident> getLeaders() {
-		return leaderGroup.getMembers().values();
+		return leadersGroup.getMembers().values();
 	}
 
 	public void removeLeader(Resident res) throws CivException {
 		if (this.isLeader(res)) {
-			this.leaderGroup.removeMember(res);
-			this.leaderGroup.save();
+			this.leadersGroup.removeMember(res);
+			this.leadersGroup.save();
 		} else
 			throw new CivException(CivSettings.localize.localizedString("var_adcmd_civ_rmLeaderNotInGroup", res.getName(), civ.getName()));
 	}
 
 	public void addAdviser(Resident res) throws CivException {
-		if (this.adviserGroup != null && !this.adviserGroup.hasMember(res) && civ.hasResident(res)) {
-			this.adviserGroup.addMember(res);
-			this.adviserGroup.save();
+		if (this.advisersGroup != null && !this.advisersGroup.hasMember(res) && civ.hasResident(res)) {
+			this.advisersGroup.addMember(res);
+			this.advisersGroup.save();
 		} else
 			throw new CivException("FIXMI  " + res.getName() + "  -   " + advisersGroupName);
 	}
 
 	public void removeAdviser(Resident res) throws CivException {
 		if (this.isAdviser(res)) {
-			this.adviserGroup.removeMember(res);
-			this.adviserGroup.save();
+			this.advisersGroup.removeMember(res);
+			this.advisersGroup.save();
 		} else
 			throw new CivException(CivSettings.localize.localizedString("var_adcmd_civ_rmAdvisorNotInGroup", res.getName(), civ.getName()));
 	}
 
 	public Collection<Resident> getAdvisers() {
-		return adviserGroup.getMembers().values();
+		return advisersGroup.getMembers().values();
 	}
 
 	public boolean isOneLeader(Resident res) {
-		return isLeader(res) && leaderGroup.getMemberCount() == 1;
+		return isLeader(res) && leadersGroup.getMemberCount() == 1;
 	}
 
 	public boolean isLeader(Resident res) {
-		return this.leaderGroup.hasMember(res);
+		return this.leadersGroup.hasMember(res);
 	}
 
 	public boolean isAdviser(Resident res) {
-		return this.adviserGroup.hasMember(res);
+		return this.advisersGroup.hasMember(res);
 	}
 
 	public boolean isLeaderOrAdviser(Resident res) {
@@ -156,48 +168,54 @@ public class CivGroupManager extends GroupManager {
 	@Override
 	public Collection<PermissionGroup> getProtectedGroups() {
 		ArrayList<PermissionGroup> grp = new ArrayList<PermissionGroup>();
-		grp.add(leaderGroup);
-		grp.add(adviserGroup);
+		grp.add(leadersGroup);
+		grp.add(advisersGroup);
 		return grp;
 	}
 
 	@Override
 	public boolean isProtectedGroup(PermissionGroup grp) {
-		if ((grp == leaderGroup) || (grp == adviserGroup)) return true;
+		if ((grp == leadersGroup) || (grp == advisersGroup)) return true;
 		return false;
 	}
 
 	@Override
-	public boolean isProtectedGroupName(String name) {
-		if ((name == leaderGroupName) || (name == advisersGroupName)) return true;
+	public boolean isProtectedGroup(String name) {
+		if ((name == leadersGroupName) || (name == advisersGroupName)) return true;
 		return false;
 	}
 
 	@Override
-	public void renameProtectedGroup(String oldName, String newName) throws InvalidNameException {
-		if (oldName.equals(this.leaderGroupName)) {
-			leaderGroup.setName(newName);
-			leaderGroupName = newName;
-			leaderGroup.save();
-			civ.save();
-			return;
-		}
-		if (oldName.equals(this.advisersGroupName)) {
-			adviserGroup.setName(newName);
-			advisersGroupName = newName;
-			adviserGroup.save();
-			civ.save();
-			return;
-		}
-		throw new InvalidNameException("Не найдена група " + oldName);
+	public void renameProtectedGroup(PermissionGroup group, String newName) throws InvalidNameException {
+		if (group == leadersGroup) leadersGroupName = newName;
+		if (group == advisersGroup) advisersGroupName = newName;
+		group.setName(newName);
+		group.save();
+		civ.save();
 	}
 
-	public PermissionGroup getLeaderGroup() {
-		return leaderGroup;
+	@Override
+	public void addToProtectedGroup(PermissionGroup group, Resident res) throws CivException {
+		if (group == advisersGroup) {
+			addAdviser(res);
+			return;
+		}
+		if (group == leadersGroup) {
+			addLeader(res);
+			return;
+		}
 	}
 
-	public PermissionGroup getAdviserGroup() {
-		return adviserGroup;
+	@Override
+	public void removeFromProtectedGroup(PermissionGroup group, Resident res) throws CivException {
+		if (group == advisersGroup) {
+			removeAdviser(res);
+			return;
+		}
+		if (group == leadersGroup) {
+			removeLeader(res);
+			return;
+		}
 	}
 
 }
