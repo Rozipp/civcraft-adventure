@@ -41,18 +41,16 @@ import com.avrgaming.civcraft.war.War;
 
 public class CivMarketCommand extends MenuAbstractCommand {
 
-	public CivMarketCommand() {
-		super("market");
+	public CivMarketCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_market_Name");
-		this.setDescription(CivSettings.localize.localizedString("cmd_market_buyDesc"));
 		this.setValidator(Validators.validLeaderAdvisor);
 		add(new CustomCommand("towns").withAliases("t").withDescription(CivSettings.localize.localizedString("cmd_market_buy_townsDesc")).withTabCompleter(new AbstractTaber() {
 			@Override
 			public List<String> getTabList(CommandSender sender, String arg) throws CivException {
-				String s = arg.toLowerCase();
 				List<String> l = new ArrayList<>();
 				for (Town town : CivGlobal.getTowns()) {
-					if (!town.isCapitol() && town.isForSale() && town.getName().toLowerCase().startsWith(s)) l.add(town.getName());
+					if (!town.isCapitol() && town.isForSale() && town.getName().toLowerCase().startsWith(arg)) l.add(town.getName());
 				}
 				return l;
 			}
@@ -85,7 +83,7 @@ public class CivMarketCommand extends MenuAbstractCommand {
 			public List<String> getTabList(CommandSender sender, String arg) throws CivException {
 				List<String> l = new ArrayList<>();
 				for (Civilization civ : CivGlobal.getCivs()) {
-					if (civ.isForSale()) l.add(civ.getName());
+					if (civ.isForSale() && civ.getName().toLowerCase().startsWith(arg)) l.add(civ.getName());
 				}
 				return null;
 			}
@@ -112,10 +110,5 @@ public class CivMarketCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_market_buy_civsSuccess2", args[1]));
 			}
 		}));
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
 	}
 }

@@ -14,23 +14,18 @@ import com.avrgaming.civcraft.object.TownChunk;
 public class Validators {
 
 	public static Validator validEcon = new ValidEcon();
+	public static Validator validHasTown = new ValidHasTown();
 	public static Validator validMayor = new ValidMayor();
+	public static Validator validMayorAssistant = new ValidMayorAssistant();
 	public static Validator validMayorAssistantLeader = new ValidMayorAssistantLeader();
-	public static Validator validLeaderAdvisor = new ValidLeaderAdvisor();
 	public static Validator validLeader = new ValidLeader();
+	public static Validator validLeaderAdvisor = new ValidLeaderAdvisor();
 	public static Validator validPlotOwner = new ValidPlotOwner();
+	public static Validator ValidMotherCiv = new ValidMotherCiv();
+	public static Validator validHasCamp = new ValidHasCamp();
 	public static Validator validCampOwner = new ValidCampOwner();
 
-	public static class ValidMayor extends Validator {
-		@Override
-		public void isValide(CommandSender sender) throws CivException {
-			Resident resident = Commander.getResident(sender);
-			Town town = Commander.getSelectedTown(sender);
-			if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
-		}
-	}
-
-	public static class ValidEcon extends Validator {
+	private static class ValidEcon extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			if (!(sender instanceof ConsoleCommandSender)) {
@@ -40,10 +35,35 @@ public class Validators {
 				}
 			}
 		}
-
 	}
 
-	public static class ValidMayorAssistantLeader extends Validator {
+	private static class ValidHasTown extends Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			Resident resident = Commander.getResident(sender);
+			if (resident.getTown() == null) throw new CivException(CivSettings.localize.localizedString("cmd_notPartOfTown"));
+		}
+	}
+	
+	private static class ValidMayor extends Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			Resident resident = Commander.getResident(sender);
+			Town town = Commander.getSelectedTown(sender);
+			if (!town.GM.isMayor(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_MustBeMayor"));
+		}
+	}
+	
+	private static class ValidMayorAssistant extends Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			Resident resident = Commander.getResident(sender);
+			Town town = Commander.getSelectedTown(sender);
+			if (!town.GM.isMayorOrAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherTownOrCivRank"));
+		}
+	}
+	
+	private static class ValidMayorAssistantLeader extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			Resident resident = Commander.getResident(sender);
@@ -60,7 +80,7 @@ public class Validators {
 		}
 	}
 
-	public static class ValidLeaderAdvisor extends Validator {
+	private static class ValidLeaderAdvisor extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			Resident res = Commander.getResident(sender);
@@ -69,7 +89,7 @@ public class Validators {
 		}
 	}
 
-	public static class ValidLeader extends Validator {
+	private static class ValidLeader extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			Resident res = Commander.getResident(sender);
@@ -77,8 +97,17 @@ public class Validators {
 			if (!civ.GM.isLeader(res)) throw new CivException(CivSettings.localize.localizedString("cmd_NeedHigherCivRank2"));
 		}
 	}
+	
+	private static class ValidMotherCiv extends Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			Resident res = Commander.getResident(sender);
+			if (res.getTown() == null) throw new CivException(CivSettings.localize.localizedString("cmd_notPartOfTown"));;
+			if (res.getTown().getMotherCiv() == null) throw new CivException("cmd_civ_notHaveMotherCiv");
+		}
+	}
 
-	public static class ValidPlotOwner extends Validator {
+	private static class ValidPlotOwner extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			Resident resident = Commander.getResident(sender);
@@ -93,7 +122,15 @@ public class Validators {
 		}
 	}
 
-	public static class ValidCampOwner extends Validator {
+	private static class ValidHasCamp extends Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			Resident resident = Commander.getResident(sender);
+			if (!resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotIncamp"));
+		}
+	}
+	
+	private static class ValidCampOwner extends Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {
 			Resident resident = Commander.getResident(sender);
@@ -101,4 +138,5 @@ public class Validators {
 			if (resident.getCamp().getSQLOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_campBase_NotOwner") + " (" + resident.getCamp().getOwnerName() + ")");
 		}
 	}
+	
 }

@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
+import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.construct.Buildable;
@@ -55,10 +56,11 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class TownInfoCommand extends MenuAbstractCommand {
 
-	public TownInfoCommand() {
-		super("info");
+	public TownInfoCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_info_name");
-
+		withValidator(Validators.validHasTown);
+		
 		add(new CustomCommand("help").withDescription("Вивести все возможные подкоманды").withExecutor(new CustonExecutor() {
 
 			@Override
@@ -66,7 +68,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				showBasicHelp(sender);
 			}
 		}));
-		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_town_info_upkeepDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_town_info_upkeepDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -89,7 +91,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("cottage").withDescription(CivSettings.localize.localizedString("cmd_town_info_cottageDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("cottage").withDescription(CivSettings.localize.localizedString("cmd_town_info_cottageDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -140,7 +142,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("temple").withDescription(CivSettings.localize.localizedString("cmd_town_info_templeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("temple").withDescription(CivSettings.localize.localizedString("cmd_town_info_templeDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -173,7 +175,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("structures").withDescription(CivSettings.localize.localizedString("cmd_town_info_structuresDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("structures").withDescription(CivSettings.localize.localizedString("cmd_town_info_structuresDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -204,7 +206,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("culture").withDescription(CivSettings.localize.localizedString("cmd_town_info_cultureDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("culture").withDescription(CivSettings.localize.localizedString("cmd_town_info_cultureDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -215,7 +217,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, cultureSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
 			}
 		}));
-		add(new CustomCommand("mine").withDescription(CivSettings.localize.localizedString("cmd_town_info_mineDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("mine").withDescription(CivSettings.localize.localizedString("cmd_town_info_mineDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -240,7 +242,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("hammers").withDescription(CivSettings.localize.localizedString("cmd_town_info_hammersDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("hammers").withDescription(CivSettings.localize.localizedString("cmd_town_info_hammersDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -251,7 +253,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, hammerSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
 			}
 		}));
-		add(new CustomCommand("rates").withDescription(CivSettings.localize.localizedString("cmd_town_info_ratesDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("rates").withDescription(CivSettings.localize.localizedString("cmd_town_info_ratesDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -264,7 +266,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 								+ " " + CivColor.Green + " " + CivSettings.localize.localizedString("cmd_civ_gov_infoBeaker") + " " + CivColor.LightGreen + df.format(town.SM.getAttrBeakers().getRate().total * 100));
 			}
 		}));
-		add(new CustomCommand("growth").withDescription(CivSettings.localize.localizedString("cmd_town_info_growthDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("growth").withDescription(CivSettings.localize.localizedString("cmd_town_info_growthDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -275,7 +277,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, growthSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
 			}
 		}));
-		add(new CustomCommand("buffs").withDescription(CivSettings.localize.localizedString("cmd_town_info_buffsDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("buffs").withDescription(CivSettings.localize.localizedString("cmd_town_info_buffsDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -299,7 +301,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("happiness").withDescription(CivSettings.localize.localizedString("cmd_town_info_happinessDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("happiness").withDescription(CivSettings.localize.localizedString("cmd_town_info_happinessDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -325,7 +327,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_town_info_beakersDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_town_info_beakersDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -375,7 +377,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 								+ CivSettings.localize.localizedString("Beakers") + " " + CivColor.LightGreen + df.format(beakers));
 			}
 		}));
-		add(new CustomCommand("disabled").withDescription(CivSettings.localize.localizedString("cmd_town_info_disabledDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("disabled").withDescription(CivSettings.localize.localizedString("cmd_town_info_disabledDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -396,7 +398,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("tradeship").withDescription(CivSettings.localize.localizedString("cmd_town_info_tradeship_desc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("tradeship").withDescription(CivSettings.localize.localizedString("cmd_town_info_tradeship_desc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);

@@ -29,8 +29,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class TownUpgradeCommand extends MenuAbstractCommand {
 
-	public TownUpgradeCommand() {
-		super("upgrade");
+	public TownUpgradeCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_upgrade_name");
 		this.setValidator(Validators.validMayorAssistantLeader);
 
@@ -46,7 +46,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 					}
 					return;
 				}
-				list_upgrades(sender, args[1], town);
+				list_upgrades(sender, args[0], town);
 			}
 		}));
 		add(new CustomCommand("purchased").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_purchasedDesc")).withExecutor(new CustonExecutor() {
@@ -126,10 +126,4 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 			}
 		}
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

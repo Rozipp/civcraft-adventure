@@ -127,6 +127,7 @@ public class Camp extends Construct {
 		this.nextRaidDate = new Date();
 		this.nextRaidDate.setTime(this.nextRaidDate.getTime() + 86400000L);
 		this.firepoints = 2;
+		this.loadSettings();
 	}
 
 	public Camp(ResultSet rs) throws SQLException, CivException {
@@ -902,6 +903,7 @@ public class Camp extends Construct {
 	}
 
 	public int getLonghouseLevel() {
+		if (consumeComp == null) return 1;
 		return consumeComp.getLevel();
 	}
 

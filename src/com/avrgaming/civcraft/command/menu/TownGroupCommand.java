@@ -38,8 +38,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class TownGroupCommand extends MenuAbstractCommand {
 
-	public TownGroupCommand() {
-		super("group");
+	public TownGroupCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_group_name");
 		this.setValidator(Validators.validMayorAssistantLeader);
 		// add(new CustomCommand("addmayor").withDescription("[player] Добавить мера"));
@@ -111,14 +111,14 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				if (town.GM.isProtectedGroup(grp)) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteProtected"));
 				if (grp.getMemberCount() > 0) throw new CivException(CivSettings.localize.localizedString("cmd_town_group_deleteNotEmpty"));
 				town.GM.removeGroup(grp);
-				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_group_deleteSuccess") + " " + args[1]);
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_group_deleteSuccess") + " " + args[0]);
 			}
 		}));
 		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_town_group_infoDesc")).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
-				if (args.length >= 2) {
+				if (args.length >= 1) {
 					PermissionGroup grp = town.GM.getGroup(args[1]);
 					if (grp == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_group_infoInvalid", town.getName(), args[1]));
 					CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_group_infoHeading") + "(" + town.getName() + "):" + args[1]);
@@ -291,10 +291,4 @@ public class TownGroupCommand extends MenuAbstractCommand {
 	// if (newMember != commandSenderResident) CivMessage.sendSuccess(newMember,
 	// CivSettings.localize.localizedString("var_cmd_town_group_addAlert", town.GM.mayorGroupName, town.getName()));
 	// }
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

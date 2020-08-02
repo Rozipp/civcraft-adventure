@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
+import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -18,8 +19,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class TownEventCommand extends MenuAbstractCommand {
 
-	public TownEventCommand() {
-		super("event");
+	public TownEventCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_event_name");
 		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_event_showDesc")).withExecutor(new CustonExecutor() {
 			@Override
@@ -43,7 +44,7 @@ public class TownEventCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("activate").withDescription(CivSettings.localize.localizedString("cmd_town_event_activateDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("activate").withDescription(CivSettings.localize.localizedString("cmd_town_event_activateDesc")).withValidator(Validators.validMayorAssistant).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -57,10 +58,4 @@ public class TownEventCommand extends MenuAbstractCommand {
 			}
 		}));
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

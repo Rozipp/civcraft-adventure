@@ -49,8 +49,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class PlotCommand extends MenuAbstractCommand {
 
-	public PlotCommand() {
-		super("plot");
+	public PlotCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_plot_Name");
 
 		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_plot_infoDesc")).withExecutor(new CustonExecutor() {
@@ -70,8 +70,8 @@ public class PlotCommand extends MenuAbstractCommand {
 			@Override
 			protected List<String> newTabList(String arg) {
 				List<String> l = new ArrayList<>();
-				if ("mobs".toLowerCase().startsWith(arg.toLowerCase())) l.add("mobs");
-				if ("fire".toLowerCase().startsWith(arg.toLowerCase())) l.add("fire");
+				if ("mobs".toLowerCase().startsWith(arg)) l.add("mobs");
+				if ("fire".toLowerCase().startsWith(arg)) l.add("fire");
 				return l;
 			}
 		}).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
@@ -101,30 +101,30 @@ public class PlotCommand extends MenuAbstractCommand {
 					@Override
 					protected List<String> newTabList(String arg) {
 						List<String> l = new ArrayList<>();
-						if ("build".toLowerCase().startsWith(arg.toLowerCase())) l.add("build");
-						if ("destroy".toLowerCase().startsWith(arg.toLowerCase())) l.add("destroy");
-						if ("interact".toLowerCase().startsWith(arg.toLowerCase())) l.add("interact");
-						if ("itemuse".toLowerCase().startsWith(arg.toLowerCase())) l.add("itemuse");
-						if ("reset".toLowerCase().startsWith(arg.toLowerCase())) l.add("reset");
+						if ("build".toLowerCase().startsWith(arg)) l.add("build");
+						if ("destroy".toLowerCase().startsWith(arg)) l.add("destroy");
+						if ("interact".toLowerCase().startsWith(arg)) l.add("interact");
+						if ("itemuse".toLowerCase().startsWith(arg)) l.add("itemuse");
+						if ("reset".toLowerCase().startsWith(arg)) l.add("reset");
 						return l;
 					}
 				}).withTabCompleter(new AbstractCashedTaber() {
 					@Override
 					protected List<String> newTabList(String arg) {
 						List<String> l = new ArrayList<>();
-						if ("build".toLowerCase().startsWith(arg.toLowerCase())) l.add("build");
-						if ("destroy".toLowerCase().startsWith(arg.toLowerCase())) l.add("destroy");
-						if ("others".toLowerCase().startsWith(arg.toLowerCase())) l.add("others");
+						if ("build".toLowerCase().startsWith(arg)) l.add("build");
+						if ("destroy".toLowerCase().startsWith(arg)) l.add("destroy");
+						if ("others".toLowerCase().startsWith(arg)) l.add("others");
 						return l;
 					}
 				}).withTabCompleter(new AbstractCashedTaber() {
 					@Override
 					protected List<String> newTabList(String arg) {
 						List<String> l = new ArrayList<>();
-						if ("on".toLowerCase().startsWith(arg.toLowerCase())) l.add("on");
-						if ("yes".toLowerCase().startsWith(arg.toLowerCase())) l.add("yes");
-						if ("off".toLowerCase().startsWith(arg.toLowerCase())) l.add("off");
-						if ("no".toLowerCase().startsWith(arg.toLowerCase())) l.add("no");
+						if ("on".toLowerCase().startsWith(arg)) l.add("on");
+						if ("yes".toLowerCase().startsWith(arg)) l.add("yes");
+						if ("off".toLowerCase().startsWith(arg)) l.add("off");
+						if ("no".toLowerCase().startsWith(arg)) l.add("no");
 						return l;
 					}
 				}).withExecutor(new CustonExecutor() {

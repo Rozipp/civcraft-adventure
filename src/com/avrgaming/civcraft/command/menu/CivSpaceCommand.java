@@ -19,8 +19,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class CivSpaceCommand extends MenuAbstractCommand {
 	public static Inventory guiInventory;
 
-	public CivSpaceCommand() {
-		super("space");
+	public CivSpaceCommand(String perentComman) {
+		super(perentComman);
 		this.displayName = CivSettings.localize.localizedString("cmd_civ_space_name");
 		this.setValidator(Validators.validLeader);
 		add(new CustomCommand("gui").withDescription(CivSettings.localize.localizedString("cmd_civ_space_guiDesc")).withExecutor(new CustonExecutor() {
@@ -77,10 +77,5 @@ public class CivSpaceCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, message);
 			}
 		}));
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		this.showBasicHelp(sender);
 	}
 }

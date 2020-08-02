@@ -38,8 +38,8 @@ import com.avrgaming.civcraft.object.Town;
 
 public class EconCommand extends MenuAbstractCommand {
 
-	public EconCommand() {
-		super("econ");
+	public EconCommand(String perentComman) {
+		super(perentComman);
 		this.setAliases("money");
 		displayName = CivSettings.localize.localizedString("cmd_econ_Name");
 
@@ -265,7 +265,6 @@ public class EconCommand extends MenuAbstractCommand {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
 		CivMessage.sendSuccess(player, resident.getTreasury().getBalance() + " " + CivSettings.CURRENCY_NAME);
-
 	}
 
 }

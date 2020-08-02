@@ -28,7 +28,7 @@ public abstract class SelectorAbstractCommand extends CustomCommand {
 		selectorDescriptions.add(description);
 	}
 	
-	private class SelectorCustomExecutor extends CustonExecutor {
+	private class SelectorCustomExecutor implements CustonExecutor {
 		private CustonExecutor executor;
 
 		public SelectorCustomExecutor(CustonExecutor executor) {

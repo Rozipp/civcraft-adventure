@@ -19,6 +19,7 @@
 package com.avrgaming.civcraft.command.menu;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,6 +28,7 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
+import com.avrgaming.civcraft.command.taber.AbstractTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTech;
 import com.avrgaming.civcraft.exception.CivException;
@@ -38,8 +40,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class CivResearchCommand extends MenuAbstractCommand {
 
-	public CivResearchCommand() {
-		super("research");
+	public CivResearchCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_research_name");
 		this.setValidator(Validators.validLeaderAdvisor);
 
@@ -69,11 +71,22 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("on").withDescription(CivSettings.localize.localizedString("cmd_civ_research_onDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("on").withDescription(CivSettings.localize.localizedString("cmd_civ_research_onDesc"))
+				.withTabCompleter(new AbstractTaber() {
+					@Override
+					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
+						List<String> l = new ArrayList<>();
+						for (ConfigTech tech : ConfigTech.getAvailableTechs(Commander.getSenderCiv(sender))) {
+							if (tech.name.toLowerCase().startsWith(arg)) l.add(tech.name);
+						}
+						return l;
+					}
+				})
+				.withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
-				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_onPrompt"));
+				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_onPrompt"));
 				Town capitol = civ.getCapitol();
 				if (capitol == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_missingCapitol", civ.getName()) + " " + CivSettings.localize.localizedString("internalCommandException"));
 				if (!capitol.isValid()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_missingTownHall"));
@@ -201,10 +214,5 @@ public class CivResearchCommand extends MenuAbstractCommand {
 		// civ.save();
 		// }
 		// }));
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
 	}
 }

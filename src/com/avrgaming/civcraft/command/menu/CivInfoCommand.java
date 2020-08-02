@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
+import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.command.taber.TownInCivTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.endgame.EndConditionDiplomacy;
@@ -46,17 +47,11 @@ import com.avrgaming.civcraft.util.DecimalHelper;
 
 public class CivInfoCommand extends MenuAbstractCommand {
 
-	public CivInfoCommand() {
-		super("info");
+	public CivInfoCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_info_name");
 
-		add(new CustomCommand("help").withDescription("help info").withExecutor(new CustonExecutor() {
-			@Override
-			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-				showBasicHelp(sender);
-			}
-		}));
-		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_civ_info_upkeepDesc")).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_civ_info_upkeepDesc")).withValidator(Validators.validLeaderAdvisor).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -64,7 +59,7 @@ public class CivInfoCommand extends MenuAbstractCommand {
 					DecimalFormat df = new DecimalFormat("#.#");
 					CivMessage.sendHeading(sender, civ.getName() + CivSettings.localize.localizedString("cmd_civ_info_upkeepHeading"));
 					for (Town town : civ.getTowns()) {
-						CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + town.getName() + CivColor.Green + CivSettings.localize.localizedString("Total") + " "
+						CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + town.getName() + " - " + CivColor.Green + CivSettings.localize.localizedString("Total") + " "
 								+ CivColor.LightGreen + getTownTotalLastTick(town, civ));
 					}
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("WarColon") + " " + CivColor.LightGreen + df.format(civ.getWarUpkeep()));
@@ -95,18 +90,18 @@ public class CivInfoCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_info_taxesDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_info_taxesDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_civ_info_taxesHeading"));
 				for (Town t : civ.getTowns()) {
-					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + t.getName() + CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.LightGreen
+					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Town") + " " + CivColor.LightGreen + t.getName() + " - " + CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.LightGreen
 							+ civ.lastTaxesPaidMap.get(t.getName()));
 				}
 			}
 		}));
-		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_civ_info_beakersDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_civ_info_beakersDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				DecimalFormat df = new DecimalFormat("#.#");

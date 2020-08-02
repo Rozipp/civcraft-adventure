@@ -101,7 +101,7 @@ public class CustomCommand {
 		int index = args.length - 1;
 		if (index >= 0 && index < getTabs().size()) {
 			try {
-				return getTabs().get(index).getTabList(sender, args[index]);
+				return getTabs().get(index).getTabList(sender, args[index].toLowerCase());
 			} catch (CivException e) {
 				e.printStackTrace();
 				CivMessage.sendError(sender, e.getMessage());
@@ -110,7 +110,7 @@ public class CustomCommand {
 		return new ArrayList<>();
 	}
 
-	public abstract class CustonExecutor {
+	static public interface CustonExecutor {
 		public abstract void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
 	}
 

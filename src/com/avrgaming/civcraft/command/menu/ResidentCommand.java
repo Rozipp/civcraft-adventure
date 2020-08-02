@@ -35,10 +35,9 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class ResidentCommand extends MenuAbstractCommand {
 
-	public ResidentCommand() {
-		super("resident");
+	public ResidentCommand(String perentComman) {
+		super(perentComman);
 		this.setAliases("res");
-		this.setDescription("description " + CivSettings.localize.localizedString("cmd_res_Name"));
 		displayName = CivSettings.localize.localizedString("cmd_res_Name");
 
 		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_res_infoDesc")) //
@@ -190,11 +189,6 @@ public class ResidentCommand extends MenuAbstractCommand {
 		}
 
 		CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Groups") + " " + resident.getGroupsString());
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showHelp(sender);
 	}
 
 	private class TimezoneCustonCommand extends CustomCommand {

@@ -1701,10 +1701,6 @@ public class CivGlobal {
 		sessionUpdate(key, value, entries.get(0).request_id);
 	}
 
-	public static boolean isChatDisAllowed(Player player) {
-		return false;
-	}
-
 	public static String getTimeString() {
 		String time = "";
 		if (War.isWarTime()) {

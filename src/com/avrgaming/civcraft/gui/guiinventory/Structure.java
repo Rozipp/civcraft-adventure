@@ -16,6 +16,7 @@ import com.avrgaming.civcraft.gui.GuiItems;
 import com.avrgaming.civcraft.interactive.BuildCallback;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -108,7 +109,12 @@ public class Structure extends GuiInventory {
 		if (getPlayer() == null) {
 			try {
 				Player player = CivGlobal.getPlayer(UUID.fromString(strings[1]));
-				CivGlobal.getResident(player).getPendingCallback().execute(strings);
+				Resident res = CivGlobal.getResident(player);
+				if (res.getPendingCallback() == null)
+					GuiInventory.closeInventory(player);
+				else
+					res.getPendingCallback().execute(strings);
+				return;
 			} catch (CivException e) {
 				return;
 			}

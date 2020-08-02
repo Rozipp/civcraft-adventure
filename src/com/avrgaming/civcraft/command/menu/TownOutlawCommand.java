@@ -48,11 +48,11 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class TownOutlawCommand extends MenuAbstractCommand {
 
-	public TownOutlawCommand() {
-		super("outlaw");
+	public TownOutlawCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_outlaw_name");
 		this.setValidator(Validators.validMayorAssistantLeader);
-		
+
 		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addDesc")).withTabCompleter(new AllResidentTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
@@ -74,7 +74,8 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
 						List<String> l = new ArrayList<>();
 						Town town = Commander.getSelectedTown(sender);
-						l.addAll(town.outlaws);
+						for (String s : town.outlaws)
+							if (s.toLowerCase().startsWith(arg)) l.add(s);
 						return l;
 					}
 				}).withExecutor(new CustonExecutor() {
@@ -158,10 +159,4 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 			}
 		}));
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

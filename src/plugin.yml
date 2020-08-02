@@ -9,36 +9,6 @@ commands:
         aliases: [фв]
     dbg:
         aliases: []
-    tc:
-        aliases: [ес]
-    cc:
-        aliases: [сс]
-    ac:
-        aliases: [фс]
-    gc:
-        aliases: [пс]
-    select:
-        aliases:
-    pay:
-        aliases:
-    here:
-        aliases:
     report:
         aliases:
-    trade:
-        aliases:
-    kill:
-        aliases: [k, л, suicide]
-    team:
-        aliases:
-    sb:
-        aliases:
-    wiki:
-        aliases:
-    map:
-        aliases:
-    vcc:
-        aliases: [campchat]
     donate:
-    enderchest:
-        aliases: [echest, eechest, eenderchest, endersee, eendersee, ec, eec]

@@ -18,6 +18,9 @@
  */
 package com.avrgaming.civcraft.command.menu;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -25,6 +28,7 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
+import com.avrgaming.civcraft.command.taber.AbstractTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -35,8 +39,8 @@ import com.avrgaming.civcraft.util.CivColor;
 
 public class CivGroupCommand extends MenuAbstractCommand {
 
-	public CivGroupCommand() {
-		super("group");
+	public CivGroupCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_group_name");
 		this.setValidator(Validators.validLeader);
 
@@ -102,7 +106,18 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendCiv(Commander.getSenderCiv(sender), "Група помощников цивилизации переименована на " + newName);
 			}
 		}));
-		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_civ_group_infoDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_civ_group_infoDesc"))
+				.withTabCompleter(new AbstractTaber() {
+					@Override
+					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
+						List<String> l = new ArrayList<>();
+						Civilization civ = Commander.getSenderCiv(sender);
+						l.add(civ.GM.advisersGroupName);
+						l.add(civ.GM.leadersGroupName);
+						return l;
+					}
+				})
+				.withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -126,10 +141,4 @@ public class CivGroupCommand extends MenuAbstractCommand {
 			}
 		}));
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

@@ -62,7 +62,8 @@ public abstract class GroupManager {
 	}
 
 	public PermissionGroup getGroup(String name) {
-		if (groups.contains(name.toLowerCase().trim())) return groups.get(name.toLowerCase().trim());
+		for (PermissionGroup grp : this.getGroups())
+			if (grp.getName().equalsIgnoreCase(name)) return grp;
 		for (PermissionGroup grp : this.getProtectedGroups())
 			if (grp.getName().equalsIgnoreCase(name)) return grp;
 		return null;

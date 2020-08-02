@@ -33,8 +33,8 @@ import com.avrgaming.civcraft.util.DecimalHelper;
 
 public class CivSetCommand extends MenuAbstractCommand {
 
-	public CivSetCommand() {
-		super("set");
+	public CivSetCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_set_Name");
 		this.setValidator(Validators.validLeaderAdvisor);
 
@@ -103,10 +103,4 @@ public class CivSetCommand extends MenuAbstractCommand {
 		}
 
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

@@ -60,22 +60,21 @@ public class TownCommand extends MenuAbstractCommand {
 
 	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
 
-	public TownCommand() {
-		super("town");
+	public TownCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_name");
 		this.setAliases("t", "ещцт", "е");
-		add(new CustomCommand("claim").withDescription(CivSettings.localize.localizedString("cmd_town_claimDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("claim").withDescription(CivSettings.localize.localizedString("cmd_town_claimDesc")).withValidator(Validators.validMayorAssistant).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (War.isWarTime()) throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
 				Player player = Commander.getPlayer(sender);
 				Town town = Commander.getSelectedTown(sender);
-				Resident resident = Commander.getResident(sender);
-				if (!town.GM.isMayorOrAssistant(resident)) throw new CivException(CivSettings.localize.localizedString("cmd_town_claimNoPerm"));
-				TownChunk.claim(town, player);
+				TownChunk tc = TownChunk.claim(town, new ChunkCoord(player.getLocation()));
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_town_chunk_success", tc.getCoordToString(), town.getTownChunks().size(), town.getMaxPlots()));
 			}
 		}));
-		add(new CustomCommand("unclaim").withDescription(CivSettings.localize.localizedString("cmd_town_unclaimDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("unclaim").withDescription(CivSettings.localize.localizedString("cmd_town_unclaimDesc")).withValidator(Validators.validMayorAssistant).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -92,39 +91,37 @@ public class TownCommand extends MenuAbstractCommand {
 					if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
 				}
 				TownChunk.unclaim(tc);
-				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCenterString()));
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCoordToString()));
 			}
 		}));
-		add(new TownGroupCommand().withDescription(CivSettings.localize.localizedString("cmd_town_groupDesc")));
-		add(new TownUpgradeCommand().withAliases("up").withDescription(CivSettings.localize.localizedString("cmd_town_upgradeDesc")));
-		add(new TownInfoCommand().withDescription(CivSettings.localize.localizedString("cmd_town_infoDesc")));
-		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_addDesc"))
-				.withValidator(Validators.validMayorAssistantLeader).withTabCompleter(new AllResidentTaber())
-				.withExecutor(new CustonExecutor() {
-					@Override
-					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-						Resident newResident = Commander.getNamedResident(args, 0);
-						Player player = Commander.getPlayer(sender);
-						Town town = Commander.getSelectedTown(sender);
-						if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_town_addWar"));
-						if (War.isWithinWarDeclareDays() && town.getCiv().getDiplomacyManager().isAtWar())
-							throw new CivException(CivSettings.localize.localizedString("cmd_town_addCloseToWar") + " " + War.time_declare_days + " " + CivSettings.localize.localizedString("cmd_civ_dip_declareTooCloseToWar4"));
-						if (newResident.hasCamp()) {
-							CivMessage.send(newResident, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_addAlertError1", newResident.getName(), town.getName()));
-							throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addhasCamp", newResident.getName()));
-						}
-						if (town.hasResident(newResident)) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addInTown", newResident.getName()));
-						if (newResident.getTown() != null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addhasTown", newResident.getName(), newResident.getTown().getName()));
-						JoinTownResponse join = new JoinTownResponse();
-						join.town = town;
-						join.resident = newResident;
-						join.sender = player;
-						newResident.validateJoinTown(town);
-						Question.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()), INVITE_TIMEOUT, join);
-						CivMessage.sendSuccess(sender, CivColor.LightGray + CivSettings.localize.localizedString("var_cmd_town_addSuccess", args[1], town.getName()));
-					}
-				}));
-		add(new CustomCommand("members").withAliases("list").withDescription(CivSettings.localize.localizedString("cmd_town_membersDesc")).withExecutor(new CustonExecutor() {
+		add(new TownGroupCommand("group").withDescription(CivSettings.localize.localizedString("cmd_town_groupDesc")));
+		add(new TownUpgradeCommand("upgrade").withAliases("up").withDescription(CivSettings.localize.localizedString("cmd_town_upgradeDesc")));
+		add(new TownInfoCommand("info").withDescription(CivSettings.localize.localizedString("cmd_town_infoDesc")));
+		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_addDesc")).withValidator(Validators.validMayorAssistantLeader).withTabCompleter(new AllResidentTaber()).withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident newResident = Commander.getNamedResident(args, 0);
+				Player player = Commander.getPlayer(sender);
+				Town town = Commander.getSelectedTown(sender);
+				if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_town_addWar"));
+				if (War.isWithinWarDeclareDays() && town.getCiv().getDiplomacyManager().isAtWar())
+					throw new CivException(CivSettings.localize.localizedString("cmd_town_addCloseToWar") + " " + War.time_declare_days + " " + CivSettings.localize.localizedString("cmd_civ_dip_declareTooCloseToWar4"));
+				if (newResident.hasCamp()) {
+					CivMessage.send(newResident, CivColor.Yellow + CivSettings.localize.localizedString("var_cmd_town_addAlertError1", newResident.getName(), town.getName()));
+					throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addhasCamp", newResident.getName()));
+				}
+				if (town.hasResident(newResident)) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addInTown", newResident.getName()));
+				if (newResident.getTown() != null) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_addhasTown", newResident.getName(), newResident.getTown().getName()));
+				JoinTownResponse join = new JoinTownResponse();
+				join.town = town;
+				join.resident = newResident;
+				join.sender = player;
+				newResident.validateJoinTown(town);
+				Question.questionPlayer(player, CivGlobal.getPlayer(newResident), CivSettings.localize.localizedString("var_cmd_town_addInvite", town.getName()), INVITE_TIMEOUT, join);
+				CivMessage.sendSuccess(sender, CivColor.LightGray + CivSettings.localize.localizedString("var_cmd_town_addSuccess", args[1], town.getName()));
+			}
+		}));
+		add(new CustomCommand("members").withDescription(CivSettings.localize.localizedString("cmd_town_membersDesc")).withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -136,7 +133,7 @@ public class TownCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("deposit").withDescription(CivSettings.localize.localizedString("cmd_town_depositDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("deposit").withDescription(CivSettings.localize.localizedString("cmd_town_depositDesc")).withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_civ_despositPrompt"));
@@ -148,9 +145,9 @@ public class TownCommand extends MenuAbstractCommand {
 					amount = Math.floor(amount);
 					town.depositFromResident(amount, resident);
 				} catch (NumberFormatException e) {
-					throw new CivException(args[1] + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
+					throw new CivException(args[0] + " " + CivSettings.localize.localizedString("cmd_enterNumerError2"));
 				}
-				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_despositSuccess", args[1], CivSettings.CURRENCY_NAME));
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_despositSuccess", args[0], CivSettings.CURRENCY_NAME));
 			}
 		}));
 		add(new CustomCommand("withdraw").withAliases("w").withDescription(CivSettings.localize.localizedString("cmd_town_withdrawDesc")).withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
@@ -171,8 +168,8 @@ public class TownCommand extends MenuAbstractCommand {
 				CivLog.moneylog(sender.getName(), "/town withdraw " + args[0]);
 			}
 		}));
-		add(new TownSetCommand().withDescription(CivSettings.localize.localizedString("cmd_town_setDesc")));
-		add(new CustomCommand("leave").withDescription(CivSettings.localize.localizedString("cmd_town_leaveDesc")).withExecutor(new CustonExecutor() {
+		add(new TownSetCommand("set").withDescription(CivSettings.localize.localizedString("cmd_town_setDesc")));
+		add(new CustomCommand("leave").withDescription(CivSettings.localize.localizedString("cmd_town_leaveDesc")).withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -191,8 +188,7 @@ public class TownCommand extends MenuAbstractCommand {
 				town.save();
 			}
 		}));
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_showDesc"))
-				.withTabCompleter(new AllTownTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_showDesc")).withTabCompleter(new AllTownTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getNamedTown(args, 0);
@@ -248,36 +244,38 @@ public class TownCommand extends MenuAbstractCommand {
 				CivMessage.sendTown(town, CivSettings.localize.localizedString("var_cmd_town_evictSuccess1", residentToKick.getName(), resident.getName()));
 			}
 		}));
-		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_listDesc")).withExecutor(new CustonExecutor() {
-			@Override
-			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-				String out = "";
-				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_listHeading"));
-				for (Town town : CivGlobal.getTowns()) {
-					out += town.getName() + "(" + town.getCiv().getName() + ")" + ", ";
-				}
-				CivMessage.send(sender, out);
-			}
-		}));
-		add(new CustomCommand("top5").withDescription(CivSettings.localize.localizedString("cmd_town_top5Desc")).withExecutor(new CustonExecutor() {
-			@Override
-			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_top5Heading"));
-				// TreeMap<Integer, Town> scores = new TreeMap<Integer, Town>();
-				// for (Town town : CivGlobal.getTowns()) {
-				// if (town.getCiv().isAdminCiv()) continue;
-				// scores.put(town.getScore(), town);
-				// }
-				synchronized (CivGlobal.townScores) {
-					int i = 1;
-					for (Integer score : CivGlobal.townScores.descendingKeySet()) {
-						CivMessage.send(sender, i + ") " + CivColor.Gold + CivGlobal.townScores.get(score).getName() + CivColor.White + " - " + score);
-						i++;
-						if (i > 5) break;
-					}
-				}
-			}
-		}));
+		// add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_listDesc")).withExecutor(new
+		// CustonExecutor() {
+		// @Override
+		// public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+		// String out = "";
+		// CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_listHeading"));
+		// for (Town town : CivGlobal.getTowns()) {
+		// out += town.getName() + "(" + town.getCiv().getName() + ")" + ", ";
+		// }
+		// CivMessage.send(sender, out);
+		// }
+		// }));
+		// add(new CustomCommand("top5").withDescription(CivSettings.localize.localizedString("cmd_town_top5Desc")).withExecutor(new
+		// CustonExecutor() {
+		// @Override
+		// public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+		// CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_top5Heading"));
+		// // TreeMap<Integer, Town> scores = new TreeMap<Integer, Town>();
+		// // for (Town town : CivGlobal.getTowns()) {
+		// // if (town.getCiv().isAdminCiv()) continue;
+		// // scores.put(town.getScore(), town);
+		// // }
+		// synchronized (CivGlobal.townScores) {
+		// int i = 1;
+		// for (Integer score : CivGlobal.townScores.descendingKeySet()) {
+		// CivMessage.send(sender, i + ") " + CivColor.Gold + CivGlobal.townScores.get(score).getName() + CivColor.White + " - " + score);
+		// i++;
+		// if (i > 5) break;
+		// }
+		// }
+		// }
+		// }));
 		add(new CustomCommand("disbandtown").withDescription(CivSettings.localize.localizedString("cmd_town_disbandtownDesc")).withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
@@ -296,7 +294,7 @@ public class TownCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, CivSettings.localize.localizedString("cmd_town_disbandtownSuccess"));
 			}
 		}));
-		add(new TownOutlawCommand().withDescription(CivSettings.localize.localizedString("cmd_town_outlawDesc")));
+		add(new TownOutlawCommand("outlaw").withDescription(CivSettings.localize.localizedString("cmd_town_outlawDesc")));
 		add(new CustomCommand("leavegroup").withDescription(CivSettings.localize.localizedString("cmd_town_leavegroupDesc")).withExecutor(new CustonExecutor() {
 			// TODO Переместить в групы
 			@Override
@@ -347,7 +345,7 @@ public class TownCommand extends MenuAbstractCommand {
 		// town.claimed = true;
 		// }
 		// }));
-		add(new CustomCommand("capitulate").withDescription(CivSettings.localize.localizedString("cmd_town_capitulateDesc")).withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("capitulate").withDescription(CivSettings.localize.localizedString("cmd_town_capitulateDesc")).withValidator(Validators.ValidMotherCiv).withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -371,8 +369,8 @@ public class TownCommand extends MenuAbstractCommand {
 				CivMessage.send(player, survey(player.getLocation()));
 			}
 		}));
-		add(new TownEventCommand().withDescription(CivSettings.localize.localizedString("cmd_town_eventDesc")));
-		add(new CustomCommand("claimmayor").withDescription(CivSettings.localize.localizedString("cmd_town_claimmayorDesc")).withExecutor(new CustonExecutor() {
+		add(new TownEventCommand("event").withDescription(CivSettings.localize.localizedString("cmd_town_eventDesc")).withValidator(Validators.validHasTown));
+		add(new CustomCommand("claimmayor").withDescription(CivSettings.localize.localizedString("cmd_town_claimmayorDesc")).withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -408,7 +406,7 @@ public class TownCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, "Moved structure " + coordString + " to town " + targetTown.getName());
 			}
 		}));
-		add(new CustomCommand("enablestructure").withDescription(CivSettings.localize.localizedString("cmd_town_enableStructureDesc"))
+		add(new CustomCommand("enablestructure").withDescription(CivSettings.localize.localizedString("cmd_town_enableStructureDesc")).withValidator(Validators.validMayorAssistantLeader)
 				// .withTabCompleter(new )//TODO
 				.withExecutor(new CustonExecutor() {
 					@Override
@@ -434,23 +432,22 @@ public class TownCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_enableStructureSuccess"));
 					}
 				}));
-		add(new CustomCommand("location").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_town_locationDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("location").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_town_locationDesc")).withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				Resident resident = Commander.getResident(sender);
 				if (resident.getTown() == town) {
 					if (!town.isValid()) {
-						CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
-						CivMessage.send(sender, CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
+						CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - " + CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("cmd_civ_locationMissingTownHall"));
 					} else {
-						CivMessage.send(sender, CivColor.LightGreen + CivColor.BOLD + town.getName() + " - ");
-						CivMessage.send(sender, CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + town.getLocation());
+						CivMessage.send(sender,
+								CivColor.LightGreen + CivColor.BOLD + town.getName() + " - " + CivColor.LightGreen + CivSettings.localize.localizedString("Location") + " " + CivColor.LightPurple + new BlockCoord(town.getLocation()));
 					}
 				}
 			}
 		}));
-		add(new CustomCommand("changetown").withDescription(CivSettings.localize.localizedString("cmd_town_switchtown")).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("changetown").withDescription(CivSettings.localize.localizedString("cmd_town_switchtown")).withValidator(Validators.validHasTown).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				final Resident resident = Commander.getResident(sender);
@@ -477,26 +474,27 @@ public class TownCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("teleport").withAliases("tp").withDescription(CivSettings.localize.localizedString("cmd_town_teleportDesc")).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
-			@Override
-			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-				// final Player player = this.getPlayer();
-				final Resident resident = Commander.getResident(sender);
-				final Town town = Commander.getNamedTown(args, 0);
+		add(new CustomCommand("teleport").withAliases("tp").withDescription(CivSettings.localize.localizedString("cmd_town_teleportDesc")).withValidator(Validators.validHasTown).withTabCompleter(new TownInCivTaber())
+				.withExecutor(new CustonExecutor() {
+					@Override
+					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+						// final Player player = this.getPlayer();
+						final Resident resident = Commander.getResident(sender);
+						final Town town = Commander.getNamedTown(args, 0);
 
-				if (War.isWarTime()) throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
-				if (resident.getTown().getMotherCiv() != town.getMotherCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_motherCivNotNull"));
-				if (town.getCiv() != resident.getCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
-				if (!resident.getTreasury().hasEnough(5000.0))
-					throw new CivException(CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
-							"§c" + CivMessage.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
-				final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", resident);
-				final long timeNow = Calendar.getInstance().getTimeInMillis();
-				if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
-				final TeleportPlayerTaskTown teleportPlayerTask = new TeleportPlayerTaskTown(resident, town.getCityhall().getRandomRevivePoint().getLocation(), resident.getTown());
-				teleportPlayerTask.run(true);
-			}
-		}));
+						if (War.isWarTime()) throw new CivException("§c" + CivSettings.localize.localizedString("wartime_now_cenceled"));
+						if (resident.getTown().getMotherCiv() != town.getMotherCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_motherCivNotNull"));
+						if (town.getCiv() != resident.getCiv()) throw new CivException(CivSettings.localize.localizedString("var_teleport_NotYourCiv", "§a" + town.getCiv().getName() + "§c"));
+						if (!resident.getTreasury().hasEnough(5000.0))
+							throw new CivException(CivSettings.localize.localizedString("var_teleport_notEnoughMoney", "§a" + (5000 - (int) resident.getTreasury().getBalance()) + "§c",
+									"§c" + CivMessage.plurals(5000 - (int) resident.getTreasury().getBalance(), "монета", "монеты", "монет")));
+						final long nextUse = CivGlobal.getTeleportCooldown("teleportCommand", resident);
+						final long timeNow = Calendar.getInstance().getTimeInMillis();
+						if (nextUse > timeNow) throw new CivException(CivSettings.localize.localizedString("var_teleport_cooldown", "§6" + CivGlobal.dateFormat.format(nextUse)));
+						final TeleportPlayerTaskTown teleportPlayerTask = new TeleportPlayerTaskTown(resident, town.getCityhall().getRandomRevivePoint().getLocation(), resident.getTown());
+						teleportPlayerTask.run(true);
+					}
+				}));
 		add(new CustomCommand("getunit").withAliases("unit", "gu").withDescription("Открыть сундук с юнитами").withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
@@ -504,11 +502,6 @@ public class TownCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CustomCommand("people").withAliases("p").withDescription("Открыть инвентарь управления населением").withValidator(Validators.validMayor));
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
 	}
 
 	public static ArrayList<String> survey(Location loc) {

@@ -95,22 +95,11 @@ public class ConfigTech {
 
 	public static ArrayList<ConfigTech> getAvailableTechs(Civilization civ) {
 		ArrayList<ConfigTech> returnTechs = new ArrayList<ConfigTech>();
-
 		for (ConfigTech tech : CivSettings.techs.values()) {
 			if (!civ.hasTechnologys(tech.id)) {
 				if (tech.isAvailable(civ)) {
 					returnTechs.add(tech);
 				}
-
-				/*
-				 * if (tech.require_techs == null || tech.require_techs.equals("")) {
-				 * returnTechs.add(tech); } else { String[] requireTechs =
-				 * tech.require_techs.split(":"); // Search for the prereq techs. boolean
-				 * hasRequirements = true; for (String reqTech : requireTechs) { if
-				 * (!civ.hasTech(reqTech)) { hasRequirements = false; break; } } if
-				 * (hasRequirements) { // If we're here, then we have all the required techs.
-				 * returnTechs.add(tech); } }
-				 */
 			}
 		}
 		return returnTechs;

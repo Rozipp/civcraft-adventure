@@ -39,8 +39,8 @@ import com.avrgaming.civcraft.object.Town;
 
 public class TownSetCommand extends MenuAbstractCommand {
 
-	public TownSetCommand() {
-		super("set");
+	public TownSetCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_set_name");
 		this.setValidator(Validators.validMayorAssistantLeader);
 
@@ -138,10 +138,4 @@ public class TownSetCommand extends MenuAbstractCommand {
 			}
 		}));
 	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
-	}
-
 }

@@ -55,8 +55,8 @@ import com.avrgaming.civcraft.war.War;
 public class CivDiplomacyCommand extends MenuAbstractCommand {
 	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
 
-	public CivDiplomacyCommand() {
-		super("dip");
+	public CivDiplomacyCommand(String perentComman) {
+		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_dip_name");
 
 		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_showDesc")).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
@@ -244,13 +244,12 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_civ_dip_respondSuccess"));
 			}
 		}));
-		add(new CustomCommand("liberate").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_liberateDesc")).withTabCompleter(new TownInCivTaber()).withValidator(Validators.validLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("liberate").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_liberateDesc")).withValidator(Validators.ValidMotherCiv).withTabCompleter(new TownInCivTaber()).withValidator(Validators.validLeader).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_errorDuringWar"));
 				Town town = Commander.getNamedTown(args, 0);
 				Civilization civ = Commander.getSenderCiv(sender);
-				if (town.getCiv() != civ) throw new CivException(CivSettings.localize.localizedString("cmd_civ_liberateNotInCiv"));
 				Civilization motherCiv = town.getMotherCiv();
 				if (motherCiv == null) throw new CivException(CivSettings.localize.localizedString("cmd_civ_liberateNotCaptured"));
 				if (town.getId() == motherCiv.getCapitolId()) {
@@ -278,7 +277,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("capitulate").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_capitulateDesc")).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("capitulate").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_capitulateDesc")).withValidator(Validators.validHasTown).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_dip_errorDuringWar"));
@@ -325,11 +324,6 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 		int warCount = civ.getDiplomacyManager().getWarCount();
 		if (warCount != 0) CivMessage.send(sender, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_civ_dip_showSuccess1", warCount));
 		CivMessage.send(sender, CivColor.LightGray + CivSettings.localize.localizedString("cmd_civ_dip_showNeutral"));
-	}
-
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showBasicHelp(sender);
 	}
 
 	class CivDiplomacyGiftCommand extends MenuAbstractCommand {
@@ -399,11 +393,5 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 			Question.civQuestions.put(toCiv.getName(), task);
 			TaskMaster.asyncTask("", task, 0);
 		}
-
-		@Override
-		public void doDefaultAction(CommandSender sender) throws CivException {
-			showBasicHelp(sender);
-		}
-
 	}
 }

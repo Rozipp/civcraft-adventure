@@ -1,9 +1,11 @@
 package com.avrgaming.civcraft.command.menu;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.bukkit.Bukkit;
@@ -17,6 +19,7 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
+import com.avrgaming.civcraft.command.taber.AbstractTaber;
 import com.avrgaming.civcraft.command.taber.AllResidentTaber;
 import com.avrgaming.civcraft.command.taber.ResidentInCampTaber;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -36,10 +39,11 @@ import com.avrgaming.civcraft.util.ItemManager;
 public class CampCommand extends MenuAbstractCommand {
 	public static final long INVITE_TIMEOUT = 30000; // 30 seconds
 
-	public CampCommand() {
-		super("camp");
+	public CampCommand(String perentComman) {
+		super(perentComman);
 		this.setDescription("description " + CivSettings.localize.localizedString("Camp"));
 		this.displayName = CivSettings.localize.localizedString("Camp");
+		this.setValidator(Validators.validHasCamp);
 
 		add(new CustomCommand("undo").withDescription(CivSettings.localize.localizedString("cmd_camp_undoDesc")).withExecutor(new CustonExecutor() {
 			@Override
@@ -89,7 +93,7 @@ public class CampCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_camp_removeSuccess", resident.getName()));
 					}
 				}));
-		add(new CustomCommand("leave").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_camp_leaveDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("leave").withDescription(CivSettings.localize.localizedString("cmd_camp_leaveDesc")).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -146,7 +150,7 @@ public class CampCommand extends MenuAbstractCommand {
 			}
 		}));
 
-		add(new upgradeCampMenu());
+		add(new upgradeCampMenu("upgrade").withDescription(CivSettings.localize.localizedString("cmd_camp_upgradeDesc")).withValidator(Validators.validCampOwner));
 		add(new CustomCommand("refresh").withDescription(CivSettings.localize.localizedString("cmd_camp_refreshDesc")).withValidator(Validators.validCampOwner).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
@@ -216,17 +220,10 @@ public class CampCommand extends MenuAbstractCommand {
 		}
 	}
 
-	@Override
-	public void doDefaultAction(CommandSender sender) throws CivException {
-		showHelp(sender);
-	}
-
 	private class upgradeCampMenu extends MenuAbstractCommand {
 
-		public upgradeCampMenu() {
-			super("upgrade");
-			withValidator(Validators.validCampOwner);
-			withDescription(CivSettings.localize.localizedString("cmd_camp_upgradeDesc"));
+		public upgradeCampMenu(String perentComman) {
+			super(perentComman);
 			add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_listDesc")).withExecutor(new CustonExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
@@ -246,22 +243,29 @@ public class CampCommand extends MenuAbstractCommand {
 					CivMessage.send(sender, out);
 				}
 			}));
-			add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_buyDesc")).withExecutor(new CustonExecutor() {
+			add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_buyDesc")).withTabCompleter(new AbstractTaber() {
+				@Override
+				public List<String> getTabList(CommandSender sender, String arg) throws CivException {
+					List<String> l = new ArrayList<>();
+					Camp camp = Commander.getCurrentCamp(sender);
+					for (ConfigCampUpgrade upgrade : CivSettings.campUpgrades.values()) {
+						String s = upgrade.name.toLowerCase().replace(" ", "_");
+						if (upgrade.isAvailable(camp) && s.startsWith(arg)) l.add(s);
+					}
+					return l;
+				}
+			}).withExecutor(new CustonExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					Camp camp = Commander.getCurrentCamp(sender);
-					if (args.length < 2) {
+					if (args.length < 1) {
 						CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_camp_upgrade_list"));
 						list_upgrades(sender);
 						CivMessage.send(sender, CivSettings.localize.localizedString("cmd_camp_upgrade_buyHeading"));
 						return;
 					}
-					String combinedArgs = "";
-					args = Commander.stripArgs(args, 1);
-					for (String arg : args) {
-						combinedArgs += arg + " ";
-					}
-					combinedArgs = combinedArgs.trim();
+					String combinedArgs = Commander.combineArgs(args);
+					combinedArgs = combinedArgs.trim().replace("_", " ");
 					ConfigCampUpgrade upgrade = CivSettings.getCampUpgradeByNameRegex(camp, combinedArgs);
 					if (upgrade == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_camp_upgrade_buyInvalid", combinedArgs));
 					if (camp.hasUpgrade(upgrade.id)) throw new CivException(CivSettings.localize.localizedString("cmd_camp_upgrade_buyOwned"));
@@ -270,11 +274,5 @@ public class CampCommand extends MenuAbstractCommand {
 				}
 			}));
 		}
-
-		@Override
-		public void doDefaultAction(CommandSender sender) throws CivException {
-			showBasicHelp(sender);
-		}
-
 	}
 }

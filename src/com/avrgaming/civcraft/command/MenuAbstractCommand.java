@@ -27,7 +27,6 @@ import org.bukkit.command.CommandSender;
 import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -47,10 +46,7 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 	}
 
 	/* Called when no arguments are passed. */
-	public abstract void doDefaultAction(CommandSender sender) throws CivException;
-
-	/* Called on syntax error. */
-	public void showHelp(CommandSender sender) {
+	public void doDefaultAction(CommandSender sender) throws CivException {
 		showBasicHelp(sender);
 	}
 
@@ -104,34 +100,34 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 	@Override
 	public List<String> onTab(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 1) try {
-			return getTabs().get(0).getTabList(sender, args[0]);
+			return getTabs().get(0).getTabList(sender, args[0].toLowerCase());
 		} catch (CivException e) {
 			e.printStackTrace();
 			CivMessage.sendError(sender, e.getMessage());
 			return new ArrayList<>();
 		}
+		String arg = args[0];
+		String[] newargs = Commander.stripArgs(args, 1);
+		try {
+			Integer index = Integer.parseInt(arg);
+			CustomCommand cc = this.getSubCommands().get(index);
+			return cc.onTab(sender, cmd, label + " " + arg, newargs);
+		} catch (Exception e) {}
 
 		for (CustomCommand cc : this.getSubCommands()) {
-			boolean foundalias = false;
-			if (cc.getAliases() != null) for (String al : cc.getAliases()) {
-				if (al.equalsIgnoreCase(args[0])) {
-					foundalias = true;
-					break;
-				}
+			if (cc.getString_cmd().equalsIgnoreCase(arg)) {
+				return cc.onTab(sender, cmd, label + " " + arg, newargs);
 			}
-			if (foundalias || cc.getString_cmd().equalsIgnoreCase(args[0])) {
-				if (cc.getTabs().isEmpty())
-					return null;
-				else {
-					String[] newargs = Commander.stripArgs(args, 1);
-					return cc.onTab(sender, cmd, label + " " + args[0], newargs);
+			if (cc.getAliases() != null) {
+				for (String al : cc.getAliases()) {
+					if (al.equalsIgnoreCase(arg)) return cc.onTab(sender, cmd, label + " " + arg, newargs);
 				}
 			}
 		}
 		return new ArrayList<>();
 	}
 
-	public class MenuCustomExecutor extends CustonExecutor {
+	public class MenuCustomExecutor implements CustonExecutor {
 		private MenuAbstractCommand perent;
 
 		public MenuCustomExecutor(MenuAbstractCommand perent) {
@@ -141,33 +137,34 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 
 		@Override
 		public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
-			String ar = "[";
-			for (String s : args)
-				ar = ar + s + ",";
-			ar = ar + "]";
-			CivLog.debug("CommandSender:" + sender + "   Command:" + cmd + "   String:" + label + "  args:" + ar);
-
 			if (args.length == 0) {
 				perent.doDefaultAction(sender);
 				return;
 			}
 
 			if (args[0].equalsIgnoreCase("help")) {
-				perent.showHelp(sender);
+				perent.showBasicHelp(sender);
 				return;
 			}
 
 			String newcomm = args[0];
 			String[] newargs = Commander.stripArgs(args, 1);
-			String newString_cmd = label + " " + args[0];
 
-			for (CustomCommand ac : perent.getSubCommands()) {
-				if (ac.getString_cmd().equalsIgnoreCase(newcomm)) {
-					ac.getExecutor().run(sender, cmd, newString_cmd, newargs);
+			try {
+				Integer index = Integer.parseInt(newcomm);
+				if (index < 0 || index >= subCommands.size()) throw new CivException("Недопустимый индекс команды");
+				CustomCommand cc = subCommands.get(index);
+				cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
+				return;
+			} catch (NumberFormatException e) {}
+
+			for (CustomCommand cc : perent.getSubCommands()) {
+				if (cc.getString_cmd().equalsIgnoreCase(newcomm)) {
+					cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
 					return;
 				}
-				if (ac.getAliases() != null && ac.getAliases().contains(newcomm.toLowerCase())) {
-					ac.getExecutor().run(sender, cmd, newString_cmd, newargs);
+				if (cc.getAliases() != null && cc.getAliases().contains(newcomm.toLowerCase())) {
+					cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
 					return;
 				}
 			}
@@ -186,12 +183,14 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 		@Override
 		protected List<String> newTabList(String arg) {
 			List<String> tabList = new ArrayList<>();
-			for (CustomCommand s : ((MenuAbstractCommand) perent).getSubCommands()) {
+			for (CustomCommand s : perent.getSubCommands()) {
 				if (s.getString_cmd().startsWith(arg)) tabList.add(s.getString_cmd());
-				if (s.getAliases() != null) {
-					for (String al : s.getAliases())
-						if (al.startsWith(arg)) tabList.add(al);
-				}
+				// else {
+				// if (s.getAliases() != null) {
+				// for (String al : s.getAliases())
+				// if (al.startsWith(arg)) tabList.add(al);
+				// }
+				// }
 			}
 			return tabList;
 		}

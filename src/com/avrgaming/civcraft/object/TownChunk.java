@@ -30,6 +30,7 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.permission.PlotPermissions;
+import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -221,10 +222,14 @@ public class TownChunk extends SQLObject {
 		return tc;
 	}
 
-	public static TownChunk claim(Town town, Player player) throws CivException {
-		TownChunk tc = claim(town, new ChunkCoord(player.getLocation()));
-		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_town_chunk_success", tc.getChunkCoord(), town.getTownChunks().size(), town.getMaxPlots()));
-		return tc;
+	public static void unclaim(TownChunk tc) throws CivException {
+		tc.getTown().removeTownChunk(tc);
+		try {
+			tc.delete();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
+		}
 	}
 
 	private Civilization getCiv() {
@@ -317,15 +322,9 @@ public class TownChunk extends SQLObject {
 	public String getCenterString() {
 		return this.chunkCoord.toString();
 	}
-
-	public static void unclaim(TownChunk tc) throws CivException {
-		tc.getTown().removeTownChunk(tc);
-		try {
-			tc.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalDatabaseException"));
-		}
-
+	
+	public String getCoordToString() {
+		return new BlockCoord(chunkCoord).toString();
 	}
+
 }

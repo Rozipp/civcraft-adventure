@@ -5,33 +5,23 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.admin.AdminCommand;
-import com.avrgaming.civcraft.command.debug.DebugCommand;
-import com.avrgaming.civcraft.command.menu.BuildCommand;
+import com.avrgaming.civcraft.command.CustomCommand.CustonExecutor;
+import com.avrgaming.civcraft.command.menu.BuildableCommand;
 import com.avrgaming.civcraft.command.menu.CampCommand;
 import com.avrgaming.civcraft.command.menu.CivCommand;
 import com.avrgaming.civcraft.command.menu.EconCommand;
 import com.avrgaming.civcraft.command.menu.PlotCommand;
 import com.avrgaming.civcraft.command.menu.ResidentCommand;
 import com.avrgaming.civcraft.command.menu.TownCommand;
-import com.avrgaming.civcraft.command.newcommands.AcceptCommand;
-import com.avrgaming.civcraft.command.newcommands.DenyCommand;
-import com.avrgaming.civcraft.command.oldcommands.CampChatCommand;
-import com.avrgaming.civcraft.command.oldcommands.CivChatCommand;
-import com.avrgaming.civcraft.command.oldcommands.EnderChestCommand;
-import com.avrgaming.civcraft.command.oldcommands.HereCommand;
-import com.avrgaming.civcraft.command.oldcommands.KillCommand;
-import com.avrgaming.civcraft.command.oldcommands.MapCommand;
-import com.avrgaming.civcraft.command.oldcommands.PayCommand;
-import com.avrgaming.civcraft.command.oldcommands.ReportCommand;
-import com.avrgaming.civcraft.command.oldcommands.SelectCommand;
-import com.avrgaming.civcraft.command.oldcommands.TownChatCommand;
-import com.avrgaming.civcraft.command.oldcommands.TradeCommand;
-import com.avrgaming.civcraft.command.oldcommands.WikiCommand;
+import com.avrgaming.civcraft.command.report.DonateCommand;
+import com.avrgaming.civcraft.command.report.ReportCommand;
+import com.avrgaming.civcraft.commandold.AdminCommand;
+import com.avrgaming.civcraft.commandold.DebugCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.CivException;
@@ -39,12 +29,13 @@ import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
+import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.permission.PermissionGroup;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.donate.Donate;
 
 public class Commander {
 
@@ -54,32 +45,155 @@ public class Commander {
 
 	public static void initCommands() {
 		// Init commands
-		CommanderRegistration.register(new ResidentCommand());
-		CommanderRegistration.register(new EconCommand());
-		CommanderRegistration.register(new CampCommand());
-		CommanderRegistration.register(new CivCommand());
-//		CommanderRegistration.register(new CivMarketCommand());
-		CommanderRegistration.register(new TownCommand());
-		CommanderRegistration.register(new BuildCommand());
-		CommanderRegistration.register(new PlotCommand());
-		CommanderRegistration.register(new AcceptCommand());
-		CommanderRegistration.register(new DenyCommand());
+		CommanderRegistration.register(new ResidentCommand("resident"));
+		CommanderRegistration.register(new EconCommand("econ"));
+		CommanderRegistration.register(new CampCommand("camp"));
+		CommanderRegistration.register(new CivCommand("civ"));
+		CommanderRegistration.register(new TownCommand("town"));
+		CommanderRegistration.register(new BuildableCommand("buildable"));
+		CommanderRegistration.register(new PlotCommand("plot"));
+		CommanderRegistration.register(new AcceptCommand("accept"));
+		CommanderRegistration.register(new DenyCommand("deny"));
+		CommanderRegistration.register(new CustomCommand("vcc").withValidator(Validators.validHasCamp).withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getResident(sender);
+				Camp camp = Commander.getCurrentCamp(sender);
+				if (args.length == 0) {
+					resident.setCampChat(!resident.isCampChat());
+					resident.setCivChat(false);
+					resident.setTownChat(false);
+					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_campchat_modeSet") + " " + resident.isCampChat());
+					return;
+				}
+				CivMessage.sendCampChat(camp, resident, "<%s> %s", Commander.combineArgs(args));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("cc").withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getResident(sender);
+				if (args.length == 0) {
+					resident.setCampChat(false);
+					resident.setCivChat(!resident.isCivChat());
+					resident.setTownChat(false);
+					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_civchat_modeSet") + " " + resident.isCivChat());
+					return;
+				}
+				CivMessage.sendCivChat(resident.getTown().getCiv(), resident, "<%s> %s", Commander.combineArgs(args));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("tc").withValidator(Validators.validHasCamp).withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getResident(sender);
+				if (args.length == 0) {
+					resident.setCampChat(false);
+					resident.setTownChat(!resident.isTownChat());
+					resident.setCivChat(false);
+					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_chat_mode") + " " + resident.isTownChat());
+					return;
+				}
+				CivMessage.sendTownChat(resident.getTown(), resident, "<%s> %s", Commander.combineArgs(args));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("gc").withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getResident(sender);
+				if (args.length == 0) {
+					resident.setCampChat(false);
+					resident.setCivChat(false);
+					resident.setTownChat(false);
+					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_gc_enabled"));
+					return;
+				}
+				CivMessage.sendChat(resident, "<%s> %s", Commander.combineArgs(args));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("pay").withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getResident(sender);
+				Resident payTo = Commander.getNamedResident(args, 0);
+				if (resident == payTo) throw new CivException(CivSettings.localize.localizedString("cmd_pay_yourself"));
+				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_pay_prompt"));
+				Double amount;
+				try {
+					amount = Double.valueOf(args[1]);
+					if (!resident.getTreasury().hasEnough(amount)) throw new CivException(CivSettings.localize.localizedString("var_cmd_pay_InsufficentFunds", CivSettings.CURRENCY_NAME));
+				} catch (NumberFormatException e) {
+					throw new CivException(CivSettings.localize.localizedString("EnterNumber"));
+				}
+				if (amount < 1) throw new CivException(CivSettings.localize.localizedString("cmd_pay_WholeNumbers"));
+				amount = Math.floor(amount);
+				resident.getTreasury().withdraw(amount);
+				payTo.getTreasury().deposit(amount);
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_pay_PaidSuccess", amount, CivSettings.CURRENCY_NAME, payTo.getName()));
+				CivMessage.sendSuccess(payTo, CivSettings.localize.localizedString("var_cmd_pay_PaidReceiverSuccess", resident.getName(), amount, CivSettings.CURRENCY_NAME));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("here").withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				ChunkCoord coord = new ChunkCoord(player.getLocation());
+				CultureChunk cc = CivGlobal.getCultureChunk(coord);
+				if (cc != null)
+					CivMessage.send(sender, CivColor.LightPurple + CivSettings.localize.localizedString("var_cmd_here_inCivAndTown", CivColor.Yellow + cc.getCiv().getName() + CivColor.LightPurple, CivColor.Yellow + cc.getTown().getName()));
+
+				TownChunk tc = CivGlobal.getTownChunk(coord);
+				if (tc != null) CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("var_cmd_here_inTown", CivColor.LightGreen + tc.getTown().getName()));
+				if (cc == null && tc == null) CivMessage.send(sender, CivColor.Yellow + CivSettings.localize.localizedString("cmd_here_wilderness"));
+			}
+		}));
+		CommanderRegistration.register(new TradeCommand("trade"));
+		CommanderRegistration.register(new CustomCommand("kill").withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Commander.getPlayer(sender).setHealth(0);
+				CivMessage.send(sender, CivColor.Yellow + CivColor.BOLD + CivSettings.localize.localizedString("cmd_kill_Mesage"));
+			}
+		}));
+		CommanderRegistration.register(new CustomCommand("enderchest").withAliases("echest", "eechest", "eenderchest", "endersee", "eendersee", "ec", "eec").withExecutor(new CustonExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				if (!sender.hasPermission("civcraft.enderchest") && !sender.isOp() && !sender.hasPermission("civcraft.ec") && !PermissionGroup.hasGroup(sender.getName(), "ultra") && !PermissionGroup.hasGroup(sender.getName(), "deluxe"))
+					throw new CivException("§c" + CivSettings.localize.localizedString("cmd_enderchest_NoPermissions"));
+				Player player = Commander.getPlayer(sender);
+				if (!player.getWorld().equals(CivCraft.mainWorld)) throw new CivException("§c" + CivSettings.localize.localizedString("cmd_enderchest_inArena"));
+				player.openInventory(player.getEnderChest());
+			}
+		}));
+		// CommanderRegistration.register(new CustomCommand("map").withExecutor(new CustonExecutor() {
+		// @Override
+		// public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+		// if (args.length < 1)
+		// CivMessage.send(sender, "§a" + CivSettings.localize.localizedString("cmd_map_mapLink", "http://95.216.74.3:5551"));
+		// else {
+		// String combineArgs = Commander.combineArgs(args);
+		// CivMessage.send(sender, "§a" + CivSettings.localize.localizedString("cmd_map_mapLinkAddon", "http://95.216.74.3:5551" +
+		// combineArgs.toString().replace(" ", "_"), combineArgs));
+		// }
+		// }
+		// }));
+		// CommanderRegistration.register(new CustomCommand("wiki").withExecutor(new CustonExecutor() {
+		// @Override
+		// public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+		// if (args.length < 1)
+		// CivMessage.send(sender, "§a" + CivSettings.localize.localizedString("cmd_wiki_wikiLink",
+		// "https://wiki.furnex.ru/index.php?title=Введение"));
+		// else {
+		// String combineArgs = Commander.combineArgs(args);
+		// CivMessage.send(sender, "§a" + CivSettings.localize.localizedString("cmd_wiki_wikiLinkAddon",
+		// "https://wiki.furnex.ru/index.php?title=Введение" + combineArgs.toString().replace(" ", "_"), combineArgs.toString()));
+		// }
+		// }
+		// }));
 		addMenu("ad", new AdminCommand());
 		addMenu("dbg", new DebugCommand());
-		addMenu("vcc", new CampChatCommand());
-		addMenu("cc", new CivChatCommand());
-		addMenu("tc", new TownChatCommand());
-		// addMenu("gc", new GlobalChatCommand());
-		addMenu("pay", new PayCommand());
-		addMenu("select", new SelectCommand());
-		addMenu("here", new HereCommand());
 		addMenu("report", new ReportCommand());
-		addMenu("trade", new TradeCommand());
-		addMenu("kill", new KillCommand());
-		addMenu("enderchest", new EnderChestCommand());
-		addMenu("map", new MapCommand());
-		addMenu("wiki", new WikiCommand());
-		addMenu("donate", new Donate());
+		addMenu("donate", new DonateCommand());
 	}
 	// ----------------- arg utils
 
@@ -242,7 +356,6 @@ public class Commander {
 		}
 		throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults"));
 	}
-
 
 	public static PermissionGroup getNamedPermissionGroup(Town town, String[] args, int index) throws CivException {
 		if (args.length < (index + 1)) throw new CivException(CivSettings.localize.localizedString("EnterGroupName"));
