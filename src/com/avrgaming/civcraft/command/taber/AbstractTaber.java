@@ -6,11 +6,8 @@ import org.bukkit.command.CommandSender;
 
 import com.avrgaming.civcraft.exception.CivException;
 
-public abstract class AbstractTaber  {
-
-	public AbstractTaber() {
-	}
-
-	public abstract List<String> getTabList(CommandSender sender, String arg) throws CivException;
-
+/** Интерфейс для класов дополнения по клавише Tab
+ * @author rozipp */
+public interface AbstractTaber {
+	public List<String> getTabList(CommandSender sender, String arg) throws CivException;
 }

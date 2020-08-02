@@ -23,7 +23,7 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.SelectorAbstractCommand;
-import com.avrgaming.civcraft.command.taber.AllResidentTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -102,7 +102,7 @@ public class ResidentCommand extends MenuAbstractCommand {
 				add("titles", CivSettings.localize.localizedString("cmd_res_toggle_titleAPIDesc"));
 			}
 		});
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_res_showDesc")).withTabCompleter(new AllResidentTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_res_showDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_res_showPrompt"));

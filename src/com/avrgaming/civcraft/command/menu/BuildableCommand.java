@@ -45,7 +45,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 	public BuildableCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_build_Desc");
-		this.setValidator(Validators.validHasTown);
+		this.addValidator(Validators.validHasTown);
 
 		add(new CustomCommand("list").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_build_listDesc")).withExecutor(new CustonExecutor() {
 			@Override

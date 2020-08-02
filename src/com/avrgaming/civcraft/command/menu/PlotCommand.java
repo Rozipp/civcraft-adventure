@@ -32,7 +32,7 @@ import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
-import com.avrgaming.civcraft.command.taber.AllResidentTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
 import com.avrgaming.civcraft.command.taber.GroupInTown;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.farm.FarmChunk;
@@ -196,7 +196,7 @@ public class PlotCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_plot_addgroupSuccess", grp.getName()));
 			}
 		}));
-		add(new CustomCommand("setowner").withDescription(CivSettings.localize.localizedString("cmd_plot_setowner")).withTabCompleter(new AllResidentTaber()).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setowner").withDescription(CivSettings.localize.localizedString("cmd_plot_setowner")).withTabCompleter(new ResidentInWorldTaber()).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				TownChunk tc = Commander.getStandingTownChunk(sender);

@@ -22,7 +22,7 @@ public class CivSpaceCommand extends MenuAbstractCommand {
 	public CivSpaceCommand(String perentComman) {
 		super(perentComman);
 		this.displayName = CivSettings.localize.localizedString("cmd_civ_space_name");
-		this.setValidator(Validators.validLeader);
+		this.addValidator(Validators.validLeader);
 		add(new CustomCommand("gui").withDescription(CivSettings.localize.localizedString("cmd_civ_space_guiDesc")).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {

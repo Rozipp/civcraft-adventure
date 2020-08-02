@@ -42,7 +42,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 	public CivGroupCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_group_name");
-		this.setValidator(Validators.validLeader);
+		this.addValidator(Validators.validLeader);
 
 		add(new CustomCommand("addleared").withAliases("al").withDescription(CivSettings.localize.localizedString("cmd_civ_group_addLeaderDesc")).withExecutor(new CustonExecutor() {
 			@Override

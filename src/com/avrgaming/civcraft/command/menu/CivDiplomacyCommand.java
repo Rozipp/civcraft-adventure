@@ -31,7 +31,7 @@ import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
-import com.avrgaming.civcraft.command.taber.AllCivTaber;
+import com.avrgaming.civcraft.command.taber.CivInWorldTaber;
 import com.avrgaming.civcraft.command.taber.TownInCivTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
@@ -59,7 +59,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_dip_name");
 
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_showDesc")).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_showDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1)
@@ -69,7 +69,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CustomCommand("declare").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_declareDesc")).withValidator(Validators.validLeaderAdvisor)
-				.withTabCompleter(new AllCivTaber())
+				.withTabCompleter(new CivInWorldTaber())
 				.withTabCompleter(new AbstractCashedTaber() {
 					@Override
 					protected List<String> newTabList(String arg) {
@@ -134,7 +134,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 						}
 					}
 				}));
-		add(new CustomCommand("request").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_requestDesc")).withValidator(Validators.validLeaderAdvisor).withTabCompleter(new AllCivTaber())
+		add(new CustomCommand("request").withDescription(CivSettings.localize.localizedString("cmd_civ_dip_requestDesc")).withValidator(Validators.validLeaderAdvisor).withTabCompleter(new CivInWorldTaber())
 				.withTabCompleter(new AbstractCashedTaber() {
 					@Override
 					protected List<String> newTabList(String arg) {
@@ -333,7 +333,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 			displayName = CivSettings.localize.localizedString("cmd_civ_dipgift_name");
 			this.withValidator(Validators.validLeader);
 
-			add(new CustomCommand("entireciv").withDescription(CivSettings.localize.localizedString("cmd_civ_dipgift_entirecivDesc")).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
+			add(new CustomCommand("entireciv").withDescription(CivSettings.localize.localizedString("cmd_civ_dipgift_entirecivDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					Civilization fromCiv = Commander.getSenderCiv(sender);
@@ -354,7 +354,7 @@ public class CivDiplomacyCommand extends MenuAbstractCommand {
 					CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_civ_dipgift_entirecivSuccess"));
 				}
 			}));
-			add(new CustomCommand("town").withDescription(CivSettings.localize.localizedString("cmd_civ_dipgift_townDesc")).withTabCompleter(new TownInCivTaber()).withTabCompleter(new AllCivTaber())
+			add(new CustomCommand("town").withDescription(CivSettings.localize.localizedString("cmd_civ_dipgift_townDesc")).withTabCompleter(new TownInCivTaber()).withTabCompleter(new CivInWorldTaber())
 					.withExecutor(new CustonExecutor() {
 						@Override
 						public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {

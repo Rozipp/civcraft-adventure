@@ -6,10 +6,9 @@ import java.util.Map;
 
 import org.bukkit.command.CommandSender;
 
-public abstract class AbstractCashedTaber extends AbstractTaber {
-
-	public AbstractCashedTaber() {
-	}
+/** Клас кешируемых аргументов для дополнения клавишей Tab
+ * @author rozipp */
+public abstract class AbstractCashedTaber implements AbstractTaber {
 
 	protected Map<String, List<String>> cashTabList = new LinkedHashMap<>();
 

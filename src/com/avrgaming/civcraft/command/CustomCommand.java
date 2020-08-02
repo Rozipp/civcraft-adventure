@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import com.avrgaming.civcraft.command.Validators.Validator;
 import com.avrgaming.civcraft.command.taber.AbstractTaber;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -15,6 +16,15 @@ import com.avrgaming.civcraft.main.CivMessage;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>
+ * Общий клас для команд. После создания команды,добавление параметров возможно как через сеттеры (set...()), так через билдеры (with..())
+ * </p>
+ * @param executor    - вызываться при выполнении команды. Обязательный параметр.
+ * @param description - хранит описание, для вывода в help-е подменю - List<String> aliases - Вариванты альтернативных команд
+ * @param validator   - Проверка команды на доступность для CommandSender. Обрабатываються в порядке добавления;
+ * @param tab         - Класы дополнения клавишей Tab. Обрабатываються в порядке добавления
+ * @author rozipp */
 @Setter
 @Getter
 public class CustomCommand {
@@ -25,7 +35,7 @@ public class CustomCommand {
 	private String usage = null;
 	private String permission = null;
 	private String permissionMessage = null;
-	private Validator validator = null;
+	private List<Validator> validators = new ArrayList<>();
 	private CustonExecutor executor = null;
 	private List<AbstractTaber> tabs = new ArrayList<>();
 
@@ -34,7 +44,7 @@ public class CustomCommand {
 	}
 
 	public CustomCommand withValidator(Validator validator) {
-		this.validator = validator;
+		this.addValidator(validator);
 		return this;
 	}
 
@@ -77,24 +87,30 @@ public class CustomCommand {
 		this.tabs.add(tab);
 	}
 
+	public void addValidator(Validator validator) {
+		this.validators.add(validator);
+	}
+
 	public void setAliases(String... aliases) {
 		this.aliases = Arrays.asList(aliases);
 	}
 
 	public void valide(CommandSender sender) throws CivException {
-		if (validator != null) validator.isValide(sender);
+		if (validators == null) return;
+		for (Validator v : validators)
+			v.isValide(sender);
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (executor != null) try {
+		try {
+			if (executor == null) throw new CivException("Команда в разработке");
 			valide(sender);
 			executor.run(sender, cmd, label, args);
+			return true;
 		} catch (CivException e) {
 			CivMessage.sendError(sender, e.getMessage());
-			e.printStackTrace(); // TODO убрать после дебага
 			return false;
 		}
-		return true;
 	}
 
 	public List<String> onTab(CommandSender sender, Command cmd, String label, String[] args) {
@@ -111,7 +127,7 @@ public class CustomCommand {
 	}
 
 	static public interface CustonExecutor {
-		public abstract void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
+		public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
 	}
 
 }

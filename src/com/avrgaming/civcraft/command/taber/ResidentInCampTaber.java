@@ -10,7 +10,9 @@ import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Resident;
 
-public class ResidentInCampTaber extends AbstractTaber {
+/** Возвращает имена всех жителей в кемпе
+ * @author rozipp */
+public class ResidentInCampTaber implements AbstractTaber {
 
 	@Override
 	public List<String> getTabList(CommandSender sender, String arg) throws CivException {

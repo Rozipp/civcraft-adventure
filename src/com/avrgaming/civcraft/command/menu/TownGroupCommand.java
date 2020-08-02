@@ -41,7 +41,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 	public TownGroupCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_group_name");
-		this.setValidator(Validators.validMayorAssistantLeader);
+		this.addValidator(Validators.validMayorAssistantLeader);
 		// add(new CustomCommand("addmayor").withDescription("[player] Добавить мера"));
 		// add(new CustomCommand("addassistant").withDescription("[player] Добавить ассистента мера"));
 		// add(new CustomCommand("adddefault").withDescription("[player] Добавить в стандартную групу"));

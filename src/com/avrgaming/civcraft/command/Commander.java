@@ -1,10 +1,7 @@
 package com.avrgaming.civcraft.command;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,10 +15,10 @@ import com.avrgaming.civcraft.command.menu.EconCommand;
 import com.avrgaming.civcraft.command.menu.PlotCommand;
 import com.avrgaming.civcraft.command.menu.ResidentCommand;
 import com.avrgaming.civcraft.command.menu.TownCommand;
-import com.avrgaming.civcraft.command.report.DonateCommand;
-import com.avrgaming.civcraft.command.report.ReportCommand;
-import com.avrgaming.civcraft.commandold.AdminCommand;
-import com.avrgaming.civcraft.commandold.DebugCommand;
+import com.avrgaming.civcraft.command.old.AdminCommand;
+import com.avrgaming.civcraft.command.old.DebugCommand;
+import com.avrgaming.civcraft.command.old.DonateCommand;
+import com.avrgaming.civcraft.command.old.ReportCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.CivException;
@@ -37,6 +34,17 @@ import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
+/**
+ * <p>
+ * Главный Модуль управления командами.
+ * </p>
+ * <p>
+ * Регистрирует команды по новому, а так же по старому.
+ * Хранит в себе статические команды:
+ * <li> для работы с исполнителем команды (sender)
+ * <li> для работы с аргументами (args)
+ * </p>
+ * @author rozipp */
 public class Commander {
 
 	private static void addMenu(String string_cmd, CommandExecutor comm) {
@@ -376,30 +384,5 @@ public class Commander {
 			}
 		}
 		throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults"));
-	}
-
-	@SuppressWarnings("deprecation")
-	public static OfflinePlayer getNamedOfflinePlayer(String[] args, int index) throws CivException {
-		if (args.length < (index + 1)) throw new CivException(CivSettings.localize.localizedString("EnterPlayerName"));
-		OfflinePlayer offplayer = Bukkit.getOfflinePlayer(args[index]);
-		if (offplayer == null) throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults") + " " + args[index]);
-		return offplayer;
-	}
-
-	/** @deprecated */
-	public static Civilization getNamedCapturedCiv(String[] args, int index) throws CivException {
-		if (args.length < (index + 1)) throw new CivException(CivSettings.localize.localizedString("EnterCivName"));
-		String name = args[index].toLowerCase().replace("%", "(\\w*)");
-		ArrayList<Civilization> potentialMatches = new ArrayList<Civilization>();
-		for (Civilization civ : CivGlobal.getConqueredCivs()) {
-			String str = civ.getName().toLowerCase();
-			try {
-				if (str.matches(name)) potentialMatches.add(civ);
-			} catch (Exception e) {
-				throw new CivException(CivSettings.localize.localizedString("cmd_invalidPattern"));
-			}
-		}
-		if (potentialMatches.size() == 0) throw new CivException(CivSettings.localize.localizedString("cmd_NameNoResults") + " '" + args[index] + "'");
-		return potentialMatches.get(0);
 	}
 }

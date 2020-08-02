@@ -10,6 +10,8 @@ import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 
+/** Клас псевдо меню. Отличаеться от меню тем, что у него не подкоманды, а набор статических аргументов
+ * @author rozipp */
 public abstract class SelectorAbstractCommand extends CustomCommand {
 	private List<String> selectorCommands = new ArrayList<>();
 	private List<String> selectorDescriptions = new ArrayList<>();
@@ -27,7 +29,7 @@ public abstract class SelectorAbstractCommand extends CustomCommand {
 		selectorCommands.add(string_cmd);
 		selectorDescriptions.add(description);
 	}
-	
+
 	private class SelectorCustomExecutor implements CustonExecutor {
 		private CustonExecutor executor;
 

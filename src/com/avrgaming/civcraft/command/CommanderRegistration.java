@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivLog;
 
+/** Регистрирует класы CustomCommand как команды плагина
+ * @author rozipp */
 public class CommanderRegistration {
 
 	private static String fromPlugin = CivCraft.getPlugin().getName();
@@ -42,6 +44,8 @@ public class CommanderRegistration {
 		return getCommandMap();
 	}
 
+	/** Клас-обертка для регистрации класов CustomCommand как команды плагина
+	 * @author rozipp */
 	private static final class ReflectCommand extends Command {
 
 		private CustomCommand custonCommand;

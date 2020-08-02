@@ -42,7 +42,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 	public TownSetCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_set_name");
-		this.setValidator(Validators.validMayorAssistantLeader);
+		this.addValidator(Validators.validMayorAssistantLeader);
 
 		add(new CustomCommand("bankfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_bankfeeDesc")).withExecutor(new CustonExecutor() {
 			@Override

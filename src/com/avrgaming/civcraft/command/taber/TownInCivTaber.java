@@ -9,7 +9,9 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
-public class TownInCivTaber extends AbstractTaber {
+/** Возвращает города в цивилизации
+ * @author rozipp */
+public class TownInCivTaber implements AbstractTaber {
 
 	@Override
 	public List<String> getTabList(CommandSender sender, String arg) throws CivException {

@@ -26,8 +26,8 @@ import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
-import com.avrgaming.civcraft.command.taber.AllResidentTaber;
-import com.avrgaming.civcraft.command.taber.AllTownTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
+import com.avrgaming.civcraft.command.taber.TownInWorldTaber;
 import com.avrgaming.civcraft.command.taber.ResidentInTownTaber;
 import com.avrgaming.civcraft.command.taber.TownInCivTaber;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -97,7 +97,7 @@ public class TownCommand extends MenuAbstractCommand {
 		add(new TownGroupCommand("group").withDescription(CivSettings.localize.localizedString("cmd_town_groupDesc")));
 		add(new TownUpgradeCommand("upgrade").withAliases("up").withDescription(CivSettings.localize.localizedString("cmd_town_upgradeDesc")));
 		add(new TownInfoCommand("info").withDescription(CivSettings.localize.localizedString("cmd_town_infoDesc")));
-		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_addDesc")).withValidator(Validators.validMayorAssistantLeader).withTabCompleter(new AllResidentTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_addDesc")).withValidator(Validators.validMayorAssistantLeader).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident newResident = Commander.getNamedResident(args, 0);
@@ -188,7 +188,7 @@ public class TownCommand extends MenuAbstractCommand {
 				town.save();
 			}
 		}));
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_showDesc")).withTabCompleter(new AllTownTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_showDesc")).withTabCompleter(new TownInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getNamedTown(args, 0);

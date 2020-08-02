@@ -1,21 +1,3 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.command;
 
 import java.util.ArrayList;
@@ -30,6 +12,11 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 
+/**
+ * <p>
+ * Абстрактный клас служит оболочкой для создания подменю
+ * </p>
+ * @author rozipp */
 public abstract class MenuAbstractCommand extends CustomCommand {
 
 	protected String displayName = "FIXME";
@@ -72,7 +59,7 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 			// Integer index = aCommand.getDescription().lastIndexOf("]") + 1;
 			// String title = CivColor.LightPurple + aCommand.getString_cmd() + altComms + aCommand.getDescription().substring(0, index);
 			String title = CivColor.LightPurple + aCommand.getString_cmd() + altComms;
-			String coment = CivColor.LightGray + aCommand.getDescription();
+			String coment = CivColor.LightGray + aCommand.getDescription().trim();
 			// String coment = CivColor.LightGray + aCommand.getDescription().substring(index);
 			coment = coment.replace("[", CivColor.Yellow + "[");
 			coment = coment.replace("]", "]" + CivColor.LightGray);
@@ -84,13 +71,7 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 			string = CivColor.addTabToString(string, title, 18);
 			string = CivColor.addTabToString(string, coment, 0);
 			CivMessage.send(sender, string);
-			// GuiItem g = new GuiItem();
-			// g.setMaterial(Material.APPLE);
-			// g.setTitle(title);
-			// g.addLore(coment);
-			// gi.addGuiItem(i, g);
 		}
-		// gi.openInventory();
 	}
 
 	public List<CustomCommand> getSubCommands() {
@@ -154,17 +135,17 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 				Integer index = Integer.parseInt(newcomm);
 				if (index < 0 || index >= subCommands.size()) throw new CivException("Недопустимый индекс команды");
 				CustomCommand cc = subCommands.get(index);
-				cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
+				cc.onCommand(sender, cmd, label + " " + cc.getString_cmd(), newargs);
 				return;
 			} catch (NumberFormatException e) {}
 
 			for (CustomCommand cc : perent.getSubCommands()) {
 				if (cc.getString_cmd().equalsIgnoreCase(newcomm)) {
-					cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
+					cc.onCommand(sender, cmd, label + " " + cc.getString_cmd(), newargs);
 					return;
 				}
 				if (cc.getAliases() != null && cc.getAliases().contains(newcomm.toLowerCase())) {
-					cc.getExecutor().run(sender, cmd, label + " " + cc.getString_cmd(), newargs);
+					cc.onCommand(sender, cmd, label + " " + cc.getString_cmd(), newargs);
 					return;
 				}
 			}

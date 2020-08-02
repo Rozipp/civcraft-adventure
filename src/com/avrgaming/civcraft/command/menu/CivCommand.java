@@ -38,7 +38,7 @@ import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
-import com.avrgaming.civcraft.command.taber.AllCivTaber;
+import com.avrgaming.civcraft.command.taber.CivInWorldTaber;
 import com.avrgaming.civcraft.command.taber.TownInCivTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGovernment;
@@ -118,7 +118,7 @@ public class CivCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CivInfoCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_civ_infoDesc")).withValidator(Validators.validHasTown));
-		add(new CustomCommand("show").withAliases("s").withDescription(CivSettings.localize.localizedString("cmd_civ_showDesc")).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withAliases("s").withDescription(CivSettings.localize.localizedString("cmd_civ_showDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_civ_showPrompt"));
@@ -129,7 +129,7 @@ public class CivCommand extends MenuAbstractCommand {
 					CivInfoCommand.show(sender, null, civ);
 			}
 		}));
-		add(new CustomCommand("list").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_civ_listDesc")).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("list").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_civ_listDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) {
@@ -211,7 +211,7 @@ public class CivCommand extends MenuAbstractCommand {
 				if (!anybody) CivMessage.send(sender, CivColor.LightGray + CivSettings.localize.localizedString("cmd_civ_victoryNoOne"));
 			}
 		}));
-		add(new CustomCommand("vote").withDescription(CivSettings.localize.localizedString("cmd_civ_voteDesc")).withValidator(Validators.validHasTown).withTabCompleter(new AllCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("vote").withDescription(CivSettings.localize.localizedString("cmd_civ_voteDesc")).withValidator(Validators.validHasTown).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_civ_voteHeading"));

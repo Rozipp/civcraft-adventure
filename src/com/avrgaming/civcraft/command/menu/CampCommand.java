@@ -20,7 +20,7 @@ import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.command.taber.AbstractTaber;
-import com.avrgaming.civcraft.command.taber.AllResidentTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
 import com.avrgaming.civcraft.command.taber.ResidentInCampTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCampUpgrade;
@@ -43,7 +43,7 @@ public class CampCommand extends MenuAbstractCommand {
 		super(perentComman);
 		this.setDescription("description " + CivSettings.localize.localizedString("Camp"));
 		this.displayName = CivSettings.localize.localizedString("Camp");
-		this.setValidator(Validators.validHasCamp);
+		this.addValidator(Validators.validHasCamp);
 
 		add(new CustomCommand("undo").withDescription(CivSettings.localize.localizedString("cmd_camp_undoDesc")).withExecutor(new CustonExecutor() {
 			@Override
@@ -63,7 +63,7 @@ public class CampCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_camp_undoSuccess"));
 			}
 		}));
-		add(new CustomCommand("add").withAliases("a").withDescription(CivSettings.localize.localizedString("cmd_camp_addDesc")).withValidator(Validators.validCampOwner).withTabCompleter(new AllResidentTaber())
+		add(new CustomCommand("add").withAliases("a").withDescription(CivSettings.localize.localizedString("cmd_camp_addDesc")).withValidator(Validators.validCampOwner).withTabCompleter(new ResidentInWorldTaber())
 				.withExecutor(new CustonExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {

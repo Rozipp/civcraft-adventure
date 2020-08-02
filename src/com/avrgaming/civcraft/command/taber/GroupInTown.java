@@ -10,9 +10,9 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 
-public class GroupInTown extends AbstractTaber {
-	public GroupInTown() {
-	}
+/** Возвращает имена груп в городе
+ * @author rozipp */
+public class GroupInTown implements AbstractTaber {
 
 	@Override
 	public List<String> getTabList(CommandSender sender, String arg) throws CivException {

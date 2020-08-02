@@ -43,7 +43,7 @@ public class CivResearchCommand extends MenuAbstractCommand {
 	public CivResearchCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_research_name");
-		this.setValidator(Validators.validLeaderAdvisor);
+		this.addValidator(Validators.validLeaderAdvisor);
 
 		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_civ_research_listDesc")).withExecutor(new CustonExecutor() {
 			@Override

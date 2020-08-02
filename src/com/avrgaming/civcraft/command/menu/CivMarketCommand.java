@@ -44,7 +44,7 @@ public class CivMarketCommand extends MenuAbstractCommand {
 	public CivMarketCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_market_Name");
-		this.setValidator(Validators.validLeaderAdvisor);
+		this.addValidator(Validators.validLeaderAdvisor);
 		add(new CustomCommand("towns").withAliases("t").withDescription(CivSettings.localize.localizedString("cmd_market_buy_townsDesc")).withTabCompleter(new AbstractTaber() {
 			@Override
 			public List<String> getTabList(CommandSender sender, String arg) throws CivException {

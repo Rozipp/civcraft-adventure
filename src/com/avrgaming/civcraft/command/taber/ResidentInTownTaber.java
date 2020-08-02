@@ -10,7 +10,9 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 
-public class ResidentInTownTaber extends AbstractTaber {
+/** Возвращает имена игроков в выбранном городе
+ * @author rozipp */
+public class ResidentInTownTaber implements AbstractTaber {
 
 	@Override
 	public List<String> getTabList(CommandSender sender, String arg) throws CivException {

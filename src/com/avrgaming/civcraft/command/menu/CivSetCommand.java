@@ -36,7 +36,7 @@ public class CivSetCommand extends MenuAbstractCommand {
 	public CivSetCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_set_Name");
-		this.setValidator(Validators.validLeaderAdvisor);
+		this.addValidator(Validators.validLeaderAdvisor);
 
 		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_set_taxesDesc")).withExecutor(new CustonExecutor() {
 			@Override

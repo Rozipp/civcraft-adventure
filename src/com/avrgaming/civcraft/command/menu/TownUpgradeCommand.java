@@ -32,7 +32,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 	public TownUpgradeCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_upgrade_name");
-		this.setValidator(Validators.validMayorAssistantLeader);
+		this.addValidator(Validators.validMayorAssistantLeader);
 
 		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_listDesc")).withExecutor(new CustonExecutor() {
 			@Override
