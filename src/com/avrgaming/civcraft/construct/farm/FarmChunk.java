@@ -214,14 +214,12 @@ public class FarmChunk {
 			CivLog.error("Farm at location " + this.getCCoord().toString() + " in town " + this.getNameOwner() + " Growth Error");
 		}
 
-		for (Component comp : this.getConstruct().attachedComponents) {
-			if (comp instanceof ActivateOnBiome) {
-				ActivateOnBiome ab = (ActivateOnBiome) comp;
-				if (ab.isValidBiome(biomeName)) {
-					Double val = ab.getValue();
-					effectiveGrowthRate *= val;
-					break;
-				}
+		Component comp = this.getConstruct().getComponent("ActivateOnBiome");
+		if (comp != null) {
+			ActivateOnBiome ab = (ActivateOnBiome) comp;
+			if (ab.isValidBiome(biomeName)) {
+				Double val = ab.getValue();
+				effectiveGrowthRate *= val;
 			}
 		}
 		this.setLastEffectiveGrowth(effectiveGrowthRate);

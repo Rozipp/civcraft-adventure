@@ -26,7 +26,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.components.AttributeBiome;
 import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
@@ -44,91 +43,41 @@ import com.avrgaming.civcraft.util.CivColor;
 public class Library extends Structure {
 
 	private int level;
-	public AttributeBiome cultureBeakers;
-
 	ArrayList<LibraryEnchantment> enchantments = new ArrayList<LibraryEnchantment>();
-
 	private NonMemberFeeComponent nonMemberFeeComponent;
 
 	public static EnchantmentCustom getEnchantFromString(String name) {
-
 		// Armor Enchantments
-		if (name.equalsIgnoreCase("protection")) {
-			return EnchantmentCustom.PROTECTION_ENVIRONMENTAL;
-		}
-		if (name.equalsIgnoreCase("fire_protection")) {
-			return EnchantmentCustom.PROTECTION_FIRE;
-		}
-		if (name.equalsIgnoreCase("feather_falling")) {
-			return EnchantmentCustom.PROTECTION_FALL;
-		}
-		if (name.equalsIgnoreCase("blast_protection")) {
-			return EnchantmentCustom.PROTECTION_EXPLOSIONS;
-		}
-		if (name.equalsIgnoreCase("projectile_protection")) {
-			return EnchantmentCustom.PROTECTION_PROJECTILE;
-		}
-		if (name.equalsIgnoreCase("respiration")) {
-			return EnchantmentCustom.OXYGEN;
-		}
-		if (name.equalsIgnoreCase("aqua_affinity")) {
-			return EnchantmentCustom.WATER_WORKER;
-		}
+		if (name.equalsIgnoreCase("protection")) return EnchantmentCustom.PROTECTION_ENVIRONMENTAL;
+		if (name.equalsIgnoreCase("fire_protection")) return EnchantmentCustom.PROTECTION_FIRE;
+		if (name.equalsIgnoreCase("feather_falling")) return EnchantmentCustom.PROTECTION_FALL;
+		if (name.equalsIgnoreCase("blast_protection")) return EnchantmentCustom.PROTECTION_EXPLOSIONS;
+		if (name.equalsIgnoreCase("projectile_protection")) return EnchantmentCustom.PROTECTION_PROJECTILE;
+		if (name.equalsIgnoreCase("respiration")) return EnchantmentCustom.OXYGEN;
+		if (name.equalsIgnoreCase("aqua_affinity")) return EnchantmentCustom.WATER_WORKER;
 
 		// Sword Enchantments
-		if (name.equalsIgnoreCase("sharpness")) {
-			return EnchantmentCustom.DAMAGE_ALL;
-		}
-		if (name.equalsIgnoreCase("smite")) {
-			return EnchantmentCustom.DAMAGE_UNDEAD;
-		}
-		if (name.equalsIgnoreCase("bane_of_arthropods")) {
-			return EnchantmentCustom.DAMAGE_ARTHROPODS;
-		}
-		if (name.equalsIgnoreCase("knockback")) {
-			return EnchantmentCustom.KNOCKBACK;
-		}
-		if (name.equalsIgnoreCase("fire_aspect")) {
-			return EnchantmentCustom.FIRE_ASPECT;
-		}
-		if (name.equalsIgnoreCase("looting")) {
-			return EnchantmentCustom.LOOT_BONUS_MOBS;
-		}
+		if (name.equalsIgnoreCase("sharpness")) return EnchantmentCustom.DAMAGE_ALL;
+		if (name.equalsIgnoreCase("smite")) return EnchantmentCustom.DAMAGE_UNDEAD;
+		if (name.equalsIgnoreCase("bane_of_arthropods")) return EnchantmentCustom.DAMAGE_ARTHROPODS;
+		if (name.equalsIgnoreCase("knockback")) return EnchantmentCustom.KNOCKBACK;
+		if (name.equalsIgnoreCase("fire_aspect")) return EnchantmentCustom.FIRE_ASPECT;
+		if (name.equalsIgnoreCase("looting")) return EnchantmentCustom.LOOT_BONUS_MOBS;
 
 		// Tool Enchantments
-		if (name.equalsIgnoreCase("efficiency")) {
-			return EnchantmentCustom.DIG_SPEED;
-		}
-		if (name.equalsIgnoreCase("silk_touch")) {
-			return EnchantmentCustom.SILK_TOUCH;
-		}
-		if (name.equalsIgnoreCase("unbreaking")) {
-			return EnchantmentCustom.DURABILITY;
-		}
-		if (name.equalsIgnoreCase("fortune")) {
-			return EnchantmentCustom.LOOT_BONUS_BLOCKS;
-		}
+		if (name.equalsIgnoreCase("efficiency")) return EnchantmentCustom.DIG_SPEED;
+		if (name.equalsIgnoreCase("silk_touch")) return EnchantmentCustom.SILK_TOUCH;
+		if (name.equalsIgnoreCase("unbreaking")) return EnchantmentCustom.DURABILITY;
+		if (name.equalsIgnoreCase("fortune")) return EnchantmentCustom.LOOT_BONUS_BLOCKS;
 
 		// Bow Enchantments
-		if (name.equalsIgnoreCase("power")) {
-			return EnchantmentCustom.ARROW_DAMAGE;
-		}
-		if (name.equalsIgnoreCase("punch")) {
-			return EnchantmentCustom.ARROW_KNOCKBACK;
-		}
-		if (name.equalsIgnoreCase("flame")) {
-			return EnchantmentCustom.ARROW_FIRE;
-		}
-		if (name.equalsIgnoreCase("infinity")) {
-			return EnchantmentCustom.ARROW_INFINITE;
-		}
-
-		if (name.equalsIgnoreCase("soul_bound")) {
-			return EnchantmentCustom.SoulBound;
-		}
+		if (name.equalsIgnoreCase("power")) return EnchantmentCustom.ARROW_DAMAGE;
+		if (name.equalsIgnoreCase("punch")) return EnchantmentCustom.ARROW_KNOCKBACK;
+		if (name.equalsIgnoreCase("flame")) return EnchantmentCustom.ARROW_FIRE;
+		if (name.equalsIgnoreCase("infinity")) return EnchantmentCustom.ARROW_INFINITE;
+		if (name.equalsIgnoreCase("soul_bound")) return EnchantmentCustom.SoulBound;
 
 		return null;
-
 	}
 
 	public double getNonResidentFee() {

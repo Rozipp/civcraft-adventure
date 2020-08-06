@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.constructs.Arrowpost;
 import com.avrgaming.civcraft.construct.constructs.Cannon;
 import com.avrgaming.civcraft.construct.constructs.WarCamp;
@@ -175,7 +174,6 @@ public class War {
 			CivGlobal.quarriesEnabled = true;
 			CivGlobal.tradeEnabled = true;
 			CivGlobal.fisheryEnabled = true;
-			Transmuter.resumeAllTransmuter();
 
 			MobStatic.startMobSpawnTimer();
 
@@ -227,7 +225,6 @@ public class War {
 			CivGlobal.quarriesEnabled = false;
 			CivGlobal.tradeEnabled = false;
 			CivGlobal.fisheryEnabled = false;
-			Transmuter.pauseAllTransmuter();
 
 			MobStatic.stopMobSpawnTimer();
 			MobStatic.despawnAll();

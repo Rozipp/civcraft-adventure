@@ -17,7 +17,6 @@ import org.bukkit.inventory.Inventory;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigConsumeLevel;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
@@ -47,30 +46,13 @@ public class Cottage extends Structure {
 	}
 
 	public ConsumeLevelComponent getConsumeComponent() {
-		if (consumeComp == null) {
-			consumeComp = (ConsumeLevelComponent) this.getComponent(ConsumeLevelComponent.class.getSimpleName());
-		}
+		if (consumeComp == null) consumeComp = (ConsumeLevelComponent) this.getComponent(ConsumeLevelComponent.class.getSimpleName());
 		return consumeComp;
 	}
 
 	@Override
-	public void loadSettings() {
-		super.loadSettings();
-
-//		attrComp = new AttributeComponent();
-//		attrComp.setType(AttributeType.DIRECT);
-//		attrComp.setOwnerKey(this.getTown().getName());
-//		attrComp.setAttrKey(Attribute.TypeKeys.COINS.name());
-//		attrComp.setSource("Cottage("+this.getCorner().toString()+")");
-//		attrComp.registerComponent();
-	}
-
-	@Override
 	public String getDynmapDescription() {
-		if (getConsumeComponent() == null) {
-			return "";
-		}
-
+		if (getConsumeComponent() == null) return "";
 		String out = "";
 		out += CivSettings.localize.localizedString("Level") + " " + getConsumeComponent().getLevel() + " " + getConsumeComponent().getCountString();
 		return out;
@@ -86,8 +68,8 @@ public class Cottage extends Structure {
 	}
 
 	/* Returns true if the granary has been poisoned, false otherwise. */
-	public boolean processPoison(MultiInventory inv) {
-		//Check to make sure the granary has not been poisoned!
+	public boolean processIsPoison(MultiInventory inv) {
+		// Check to make sure the granary has not been poisoned!
 		String key = "posiongranary:" + getTown().getName();
 		ArrayList<SessionEntry> entries;
 		entries = CivGlobal.getSessionDatabase().lookup(key);
@@ -104,19 +86,18 @@ public class Cottage extends Structure {
 			CivGlobal.getSessionDatabase().delete_all(key);
 			max_poison_ticks--;
 
-			if (max_poison_ticks > 0)
-				CivGlobal.getSessionDatabase().add(key, "" + max_poison_ticks, this.getTown().getCiv().getId(), this.getTown().getId(), this.getId());
+			if (max_poison_ticks > 0) CivGlobal.getSessionDatabase().add(key, "" + max_poison_ticks, this.getTown().getCiv().getId(), this.getTown().getId(), this.getId());
 
 			// Add some rotten flesh to the chest lol
 			CivMessage.sendTown(this.getTown(), CivColor.Rose + CivSettings.localize.localizedString("cottage_poisoned"));
-			inv.addItemStack(ItemManager.createItemStack(CivData.ROTTEN_FLESH, 4));
+			inv.addItemStackAsync(ItemManager.createItemStack(CivData.ROTTEN_FLESH, 4));
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public void onHourlyUpdate(CivAsyncTask task) {
+	public void onCivtickUpdate(CivAsyncTask task) { //onHourlyUpdate
 		if (!this.isActive()) return;
 
 		/* Build a multi-inv from granaries. */
@@ -143,83 +124,57 @@ public class Cottage extends Structure {
 				}
 			}
 		}
-		getConsumeComponent().setSource(multiInv);
+		getConsumeComponent().setMultiInventory(multiInv);
 
-		double cottage_consume_mod = 1.0; //allows buildings and govs to change the totals for cottage consumption.
-
-		if (this.getTown().getBuffManager().hasBuff(Buff.REDUCE_CONSUME)) {
-			cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble(Buff.REDUCE_CONSUME);
-		}
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_consume")) {
-			cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_consume");
-		}
-
-		if (this.getTown().getBuffManager().hasBuff(Buff.FISHING)) {
-			// XXX change this to config var after testing...
-			int breadPerFish = this.getTown().getBuffManager().getEffectiveInt(Buff.FISHING);
-			getConsumeComponent().addEquivExchange(CivData.BREAD, CivData.FISH_RAW, breadPerFish);
-		}
+		double cottage_consume_mod = 1.0; // allows buildings and govs to change the totals for cottage consumption.
+		if (this.getTown().getBuffManager().hasBuff(Buff.REDUCE_CONSUME)) cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble(Buff.REDUCE_CONSUME);
+		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_consume")) cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_consume");
 
 		getConsumeComponent().setConsumeRate(cottage_consume_mod);
-
 		Result result = Result.STAGNATE;
 		try {
 			result = getConsumeComponent().processConsumption();
 			getConsumeComponent().onSave();
-			getConsumeComponent().clearEquivExchanges();
 		} catch (IllegalStateException e) {
 			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTown().getName() + " and Location: " + this.getCorner(), e);
 		}
 
 		/* Bail early for results that do not generate coins. */
 		switch (result) {
-			case STARVE :
-				CivMessage.sendTown(getTown(),
-						CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
-								CivSettings.localize.localizedString("var_cottage_status_starved", getConsumeComponent().getCountString()),
-								CivSettings.CURRENCY_NAME));
-				return;
-			case LEVELDOWN :
-				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base",
-						(getConsumeComponent().getLevel() + 1), CivSettings.localize.localizedString("var_cottage_status_lvlDown"), CivSettings.CURRENCY_NAME));
-				return;
-			case STAGNATE :
-				CivMessage.sendTown(getTown(),
-						CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
-								CivSettings.localize.localizedString("var_cottage_status_stagnated", getConsumeComponent().getCountString()),
-								CivSettings.CURRENCY_NAME));
-				return;
-			case UNKNOWN :
-				CivMessage.sendTown(getTown(),
-						CivColor.DarkPurple + CivSettings.localize.localizedString("var_cottage_starved_unknwon", CivSettings.CURRENCY_NAME));
-				return;
-			default :
-				break;
+		case STARVE:
+			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
+					CivSettings.localize.localizedString("var_cottage_status_starved", getConsumeComponent().getCountString()), CivSettings.CURRENCY_NAME));
+			return;
+		case LEVELDOWN:
+			CivMessage.sendTown(getTown(),
+					CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", (getConsumeComponent().getLevel() + 1), CivSettings.localize.localizedString("var_cottage_status_lvlDown"), CivSettings.CURRENCY_NAME));
+			return;
+		case STAGNATE:
+			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
+					CivSettings.localize.localizedString("var_cottage_status_stagnated", getConsumeComponent().getCountString()), CivSettings.CURRENCY_NAME));
+			return;
+		case UNKNOWN:
+			CivMessage.sendTown(getTown(), CivColor.DarkPurple + CivSettings.localize.localizedString("var_cottage_starved_unknwon", CivSettings.CURRENCY_NAME));
+			return;
+		default:
+			break;
 		}
 
-		if (processPoison(multiInv)) {
-			return;
-		}
+		if (processIsPoison(multiInv)) return;
 
 		/* Calculate how much money we made. */
 		/* XXX leveling down doesnt generate coins, so we don't have to check it here. */
-		ConfigConsumeLevel lvl = null;
+		Double coins = 0.0;
 		if (result == Result.LEVELUP) {
-			lvl = CivSettings.cottageLevels.get(getConsumeComponent().getLevel() - 1);
+			coins = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel() - 1);
 		} else {
-			lvl = CivSettings.cottageLevels.get(getConsumeComponent().getLevel());
+			coins = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel());
 		}
 
-		int total_coins = (int) Math.round(lvl.coins * this.getTown().getCottageRate());
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) {
-			total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
-		}
-		if (this.getTown().getBuffManager().hasBuff("buff_hotel")) {
-			total_coins = (int) ((double) total_coins * this.getTown().getBuffManager().getEffectiveDouble("buff_hotel"));
-		}
-		if (this.getCiv().getStockExchangeLevel() >= 1) {
-			total_coins = (int) ((double) total_coins * 1.3);
-		}
+		int total_coins = (int) Math.round(coins * this.getTown().getCottageRate());
+		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
+		if (this.getTown().getBuffManager().hasBuff("buff_hotel")) total_coins = (int) ((double) total_coins * this.getTown().getBuffManager().getEffectiveDouble("buff_hotel"));
+		if (this.getCiv().getStockExchangeLevel() >= 1) total_coins = (int) ((double) total_coins * 1.3);
 		if (this.getCiv().hasTechnologys("tech_taxation")) {
 			double taxation_bonus;
 			try {
@@ -230,34 +185,27 @@ public class Cottage extends Structure {
 			}
 		}
 
-		//	this.getTown().depositTaxed(total_coins);
-		//	attrComp.setValue(total_coins);
 		double taxesPaid = total_coins * this.getTown().getDepositCiv().getIncomeTaxRate();
-
 		String stateMessage = "";
 		switch (result) {
-			case GROW :
-				stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew", getConsumeComponent().getCountString())
-						+ CivColor.LightGreen;
-				break;
-			case LEVELUP :
-				stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew_lvlUp") + CivColor.LightGreen;
-				break;
-			case MAXED :
-				stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew_isMaxed", getConsumeComponent().getCountString())
-						+ CivColor.LightGreen;
-				break;
-			default :
-				break;
+		case GROW:
+			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew", getConsumeComponent().getCountString()) + CivColor.LightGreen;
+			break;
+		case LEVELUP:
+			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew_lvlUp") + CivColor.LightGreen;
+			break;
+		case MAXED:
+			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_cottage_grew_isMaxed", getConsumeComponent().getCountString()) + CivColor.LightGreen;
+			break;
+		default:
+			break;
 		}
 
 		if (taxesPaid > 0) {
-			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base",
-					getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME, CivColor.Yellow
-							+ CivSettings.localize.localizedString("var_cottage_grew_taxes", Math.floor(taxesPaid), this.getTown().getDepositCiv().getName())));
+			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME,
+					CivColor.Yellow + CivSettings.localize.localizedString("var_cottage_grew_taxes", Math.floor(taxesPaid), this.getTown().getDepositCiv().getName())));
 		} else {
-			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base",
-					getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME, ""));
+			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME, ""));
 		}
 
 		this.getTown().getTreasury().deposit(total_coins - taxesPaid);
@@ -277,26 +225,15 @@ public class Cottage extends Structure {
 	}
 
 	public int getMaxCount() {
-		int level = getLevel();
-
-		ConfigConsumeLevel lvl = CivSettings.cottageLevels.get(level);
-		return lvl.count;
+		return getConsumeComponent().getConsumeLevelPointMax(getConsumeComponent().getLevel());
 	}
 
 	public double getCoinsGenerated() {
-		int level = getLevel();
-
-		ConfigConsumeLevel lvl = CivSettings.cottageLevels.get(level);
-		if (lvl == null) {
-			return 0;
-		}
-		return lvl.coins;
+		return getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel());
 	}
 
 	public void delevel() {
-		int currentLevel = getLevel();
-
-		if (currentLevel > 1) {
+		if (getLevel() > 1) {
 			getConsumeComponent().setLevel(getLevel() - 1);
 			getConsumeComponent().setCount(0);
 			getConsumeComponent().onSave();
@@ -304,7 +241,7 @@ public class Cottage extends Structure {
 	}
 
 	@Override
-	public void delete(){
+	public void delete() {
 		if (getConsumeComponent() != null) {
 			getConsumeComponent().onDelete();
 		}
@@ -317,5 +254,9 @@ public class Cottage extends Structure {
 		getConsumeComponent().setLevel(1);
 		getConsumeComponent().setCount(0);
 		getConsumeComponent().onSave();
+	}
+
+	public static int getCottageMaxLevel() {
+		return CivSettings.consumeLevels.get("cottage").levels.size();
 	}
 }

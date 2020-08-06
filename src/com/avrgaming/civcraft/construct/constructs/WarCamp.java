@@ -268,11 +268,6 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 		CivMessage.send(player, "TODO Нужно чтото написать");
 	}
 
-	@Override
-	protected List<HashMap<String, String>> getComponentInfoList() {
-		return null;
-	}
-
 	public int isWarCampCooldownLeft() {
 		int rebuild_timeout;
 		try {
@@ -289,6 +284,5 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	@Override
 	public void onPostBuild() {
 		// TODO Автоматически созданная заглушка метода
-
 	}
 }

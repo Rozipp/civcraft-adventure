@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import com.avrgaming.civcraft.components.AttributeBase;
-import com.avrgaming.civcraft.components.Component;
+import com.avrgaming.civcraft.components.AttributeStatic;
+import com.avrgaming.civcraft.components.AttributeStatic.AttributeTypeKeys;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.structures.Bank;
@@ -104,6 +104,7 @@ public class TownBuildableManager {
 			this.disabledBuildables.add(struct);
 			struct.setEnabled(false);
 		}
+		CivGlobal.addStructure(struct);
 	}
 
 	public boolean isStructureAddable(Structure struct) {
@@ -142,13 +143,15 @@ public class TownBuildableManager {
 	public void checkIsTownCanBuildBuildable(Buildable buildable) throws CivException {
 		if (!town.hasUpgrade(buildable.getRequiredUpgrade())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingUpgrade") + " §6" + CivSettings.getUpgradeById(buildable.getRequiredUpgrade()).name);
 		if (!town.hasTechnology(buildable.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("town_buildwonder_errorMissingTech") + " §6" + CivSettings.getTechById(buildable.getRequiredTechnology()).name);
-		if (!buildablePoolInProgress.isEmpty()) {
-			Buildable inProgress = buildablePoolInProgress.get(0);
-			if (inProgress instanceof Structure)
-				throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + ". " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
-			if (inProgress instanceof Wonder)
-				throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) + " " + CivSettings.localize.localizedString("town_buildwonder_errorOneWonderAtaTime"));
-		}
+		// if (!buildablePoolInProgress.isEmpty()) {
+		// Buildable inProgress = buildablePoolInProgress.get(0);
+		// if (inProgress instanceof Structure)
+		// throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) +
+		// ". " + CivSettings.localize.localizedString("town_buildwonder_errorOneAtATime"));
+		// if (inProgress instanceof Wonder)
+		// throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorCurrentlyBuilding", inProgress.getDisplayName()) +
+		// " " + CivSettings.localize.localizedString("town_buildwonder_errorOneWonderAtaTime"));
+		// }
 
 		double cost = buildable.getCost();
 		if (!town.getTreasury().hasEnough(cost)) throw new CivException(CivSettings.localize.localizedString("var_town_buildwonder_errorTooPoor", buildable.getDisplayName(), cost, CivSettings.CURRENCY_NAME));
@@ -314,12 +317,8 @@ public class TownBuildableManager {
 	public double getBeakersFromStructure() {
 		double fromStructures = 0;
 		for (Structure struct : getStructures()) {
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase as = (AttributeBase) comp;
-					if (as.getString("attribute").equalsIgnoreCase("BEAKERS")) fromStructures += as.getGenerated();
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) fromStructures += as.getGenerated(AttributeTypeKeys.BEAKERS);
 		}
 		return fromStructures;
 	}
@@ -454,12 +453,12 @@ public class TownBuildableManager {
 	}
 
 	public void onCivtickUpdate(CivAsyncTask task) {
-		for (Structure struct : CivGlobal.getStructures()) {
+		for (Structure struct : getStructures()) {
 			if (!struct.isActive()) continue;
-			struct.onCivtickUpdate();
+			struct.onCivtickUpdate(task);
 		}
-		for (Wonder wonder : CivGlobal.getWonders()) {
-			wonder.onCivtickUpdate();
+		for (Wonder wonder : getWonders()) {
+			wonder.onCivtickUpdate(task);
 		}
 
 		town.PM.markAllWorkerNotWork();
@@ -481,36 +480,41 @@ public class TownBuildableManager {
 	}
 
 	public void onSecondUpdate(CivAsyncTask task) {
-		for (Structure struct : CivGlobal.getStructures()) {
+		for (Structure struct : getStructures()) {
 			if (!struct.isActive()) continue;
-			struct.onSecondUpdate();
+			struct.onSecondUpdate(task);
 		}
-		for (Wonder wonder : CivGlobal.getWonders()) {
-			wonder.onSecondUpdate();
+		for (Wonder wonder : getWonders()) {
+			wonder.onSecondUpdate(task);
 		}
 	}
 
 	// ---------- build task
 
 	public void addBuildableInprogress(Buildable build) {
-		List<Buildable> remove = new ArrayList<Buildable>();
+//		if (build instanceof Wonder) {
+//			Buildable b = buildablePoolInProgress.getLast();
+//			if (b != null && b instanceof Wonder) {
+//				b.delete();
+//				buildablePoolInProgress.remove(b);
+//			}
+//			this.buildablePoolInProgress.add(build);
+//		}
 
-		if (build instanceof Wonder) {
-			for (Buildable b : buildablePoolInProgress) {
-				if (b instanceof Wonder) {
-					remove.add(b);
-					buildablePoolInProgress.remove(b);
-				}
-			}
-		}
-		this.buildablePoolInProgress.add(build);
-		if (!remove.isEmpty()) {
-			for (Buildable b : remove) {
-				if (b instanceof Wonder) {
-					buildablePoolInProgress.add(b);
-				}
-			}
-		}
+//		if (build instanceof Structure) {
+//			List<Buildable> remove = new ArrayList<Buildable>();
+//			Buildable b = buildablePoolInProgress.getLast();
+//			if (b != null && b instanceof Wonder) {
+//				remove.add(b);
+//				buildablePoolInProgress.remove(b);
+//			}
+			this.buildablePoolInProgress.add(build);
+			// if (!remove.isEmpty()) {
+			// for (Buildable w : remove) {
+			// buildablePoolInProgress.add(w);
+			// }
+			// }
+			// }
 	}
 
 	public Buildable getBuildableInprogress() {

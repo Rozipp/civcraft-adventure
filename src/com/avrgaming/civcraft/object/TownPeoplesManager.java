@@ -18,14 +18,14 @@ import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 public class TownPeoplesManager {
 
 	public static enum Prof {
-		Unhappines, // Несчасные жители не работают
-		Worker, // Обычные рабочие строят здания
-		WorkerNotWork, // Ими временно становяться рабочие которые ничего не строят
-		Farmer, // Добывает пищю
-		Engineer, // приносят продукцию в шахтах
-		Artist, // Приносят культуру в театрах
-		Merchant, // Приносят деньги в котеджах
-		Scientist// Приносят науку в библиотеках
+		UNHAPPINES, // Несчасные жители не работают
+		WORKER, // Обычные рабочие строят здания
+		WORKERNOTWORK, // Ими временно становяться рабочие которые ничего не строят. Они добывают материалы
+		MINER, // Добывает материалы в шахтах
+		FARMER, // Добывает пищю
+		ARTIST, // Приносят культуру в театрах
+		MERCHANT, // Приносят деньги в котеджах
+		SCIENTIST// Приносят науку в библиотеках
 	}
 
 	private Town town;
@@ -42,7 +42,7 @@ public class TownPeoplesManager {
 	public TownPeoplesManager(Town town) {
 		this.town = town;
 		intakeTable = createNewIntakeTable();
-		peoplesPriority = Arrays.asList(Prof.Worker, Prof.Engineer, Prof.Merchant, Prof.Artist, Prof.Scientist, Prof.Farmer, Prof.Unhappines);
+		peoplesPriority = Arrays.asList(Prof.WORKER, Prof.MINER, Prof.MERCHANT, Prof.ARTIST, Prof.SCIENTIST, Prof.FARMER, Prof.UNHAPPINES);
 		for (Prof prof : Prof.values()) {
 			this.peoples.put(prof, 0);
 		}
@@ -58,58 +58,62 @@ public class TownPeoplesManager {
 	}
 
 	private EnumMap<StorageType, EnumMap<Prof, Integer>> createNewIntakeTable() {
-		EnumMap<Prof, Integer> mf = new EnumMap<>(Prof.class);
-		mf.put(Prof.Unhappines, 0);
-		mf.put(Prof.Worker, 1);
-		mf.put(Prof.WorkerNotWork, 2);
-		mf.put(Prof.Farmer, 4);
-		mf.put(Prof.Engineer, 1);
-		mf.put(Prof.Artist, 1);
-		mf.put(Prof.Merchant, 1);
-		mf.put(Prof.Scientist, 1);
-		EnumMap<Prof, Integer> mh = new EnumMap<Prof, Integer>(Prof.class);
-		mh.put(Prof.Unhappines, 0);
-		mh.put(Prof.Worker, 0);
-		mh.put(Prof.WorkerNotWork, 2);
-		mh.put(Prof.Farmer, 0);
-		mh.put(Prof.Engineer, 10);
-		mh.put(Prof.Artist, 0);
-		mh.put(Prof.Merchant, 0);
-		mh.put(Prof.Scientist, 0);
-		EnumMap<Prof, Integer> mc = new EnumMap<>(Prof.class);
-		mc.put(Prof.Unhappines, 0);
-		mc.put(Prof.Worker, 0);
-		mc.put(Prof.WorkerNotWork, 2);
-		mc.put(Prof.Farmer, 0);
-		mc.put(Prof.Engineer, 0);
-		mc.put(Prof.Artist, 10);
-		mc.put(Prof.Merchant, 0);
-		mc.put(Prof.Scientist, 0);
-		EnumMap<Prof, Integer> me = new EnumMap<>(Prof.class);
-		me.put(Prof.Unhappines, 0);
-		me.put(Prof.Worker, 0);
-		me.put(Prof.WorkerNotWork, 2);
-		me.put(Prof.Farmer, 0);
-		me.put(Prof.Engineer, 0);
-		me.put(Prof.Artist, 0);
-		me.put(Prof.Merchant, 10);
-		me.put(Prof.Scientist, 0);
-		EnumMap<Prof, Integer> mb = new EnumMap<>(Prof.class);
-		mb.put(Prof.Unhappines, 0);
-		mb.put(Prof.Worker, 0);
-		mb.put(Prof.WorkerNotWork, 2);
-		mb.put(Prof.Farmer, 0);
-		mb.put(Prof.Engineer, 0);
-		mb.put(Prof.Artist, 0);
-		mb.put(Prof.Merchant, 0);
-		mb.put(Prof.Scientist, 10);
-
 		EnumMap<StorageType, EnumMap<Prof, Integer>> m = new EnumMap<>(StorageType.class);
-		m.put(StorageType.Food, mf);
-		m.put(StorageType.Hammer, mh);
-		m.put(StorageType.Culture, mc);
-		m.put(StorageType.Econ, me);
-		m.put(StorageType.Beakers, mb);
+		
+		EnumMap<Prof, Integer> mf = new EnumMap<>(Prof.class);
+		mf.put(Prof.UNHAPPINES, 0);
+		mf.put(Prof.WORKER, 1);
+		mf.put(Prof.WORKERNOTWORK, 2);
+		mf.put(Prof.FARMER, 4);
+		mf.put(Prof.MINER, 1);
+		mf.put(Prof.ARTIST, 1);
+		mf.put(Prof.MERCHANT, 1);
+		mf.put(Prof.SCIENTIST, 1);
+		m.put(StorageType.FOOD, mf);
+		
+		EnumMap<Prof, Integer> mh = new EnumMap<Prof, Integer>(Prof.class);
+		mh.put(Prof.UNHAPPINES, 0);
+		mh.put(Prof.WORKER, 0);
+		mh.put(Prof.WORKERNOTWORK, 2);
+		mh.put(Prof.FARMER, 0);
+		mh.put(Prof.MINER, 10);
+		mh.put(Prof.ARTIST, 0);
+		mh.put(Prof.MERCHANT, 0);
+		mh.put(Prof.SCIENTIST, 0);
+		m.put(StorageType.HAMMER, mh);
+		
+		EnumMap<Prof, Integer> mc = new EnumMap<>(Prof.class);
+		mc.put(Prof.UNHAPPINES, 0);
+		mc.put(Prof.WORKER, 0);
+		mc.put(Prof.WORKERNOTWORK, 2);
+		mc.put(Prof.FARMER, 0);
+		mc.put(Prof.MINER, 0);
+		mc.put(Prof.ARTIST, 10);
+		mc.put(Prof.MERCHANT, 0);
+		mc.put(Prof.SCIENTIST, 0);
+		m.put(StorageType.CULTURE, mc);
+		
+		EnumMap<Prof, Integer> me = new EnumMap<>(Prof.class);
+		me.put(Prof.UNHAPPINES, 0);
+		me.put(Prof.WORKER, 0);
+		me.put(Prof.WORKERNOTWORK, 2);
+		me.put(Prof.FARMER, 0);
+		me.put(Prof.MINER, 0);
+		me.put(Prof.ARTIST, 0);
+		me.put(Prof.MERCHANT, 10);
+		me.put(Prof.SCIENTIST, 0);
+		m.put(StorageType.ECON, me);
+		
+		EnumMap<Prof, Integer> mb = new EnumMap<>(Prof.class);
+		mb.put(Prof.UNHAPPINES, 0);
+		mb.put(Prof.WORKER, 0);
+		mb.put(Prof.WORKERNOTWORK, 2);
+		mb.put(Prof.FARMER, 0);
+		mb.put(Prof.MINER, 0);
+		mb.put(Prof.ARTIST, 0);
+		mb.put(Prof.MERCHANT, 0);
+		mb.put(Prof.SCIENTIST, 10);
+		m.put(StorageType.BEAKERS, mb);
 		return m;
 	}
 
@@ -135,7 +139,7 @@ public class TownPeoplesManager {
 		for (String s : string.split(",")) {
 			String[] split = s.trim().split(":");
 			if (split.length != 2) continue;
-			Prof prof = Prof.valueOf(split[0]);
+			Prof prof = Prof.valueOf(split[0].toUpperCase());
 			peoples.put(prof, Integer.parseInt(split[1]));
 			peoplesPriority.add(prof);
 		}
@@ -172,33 +176,33 @@ public class TownPeoplesManager {
 	}
 
 	public void markAllWorkerNotWork() {
-		peoples.put(Prof.WorkerNotWork, peoples.get(Prof.Worker));
+		peoples.put(Prof.WORKERNOTWORK, peoples.get(Prof.WORKER));
 	}
 
 	public int progressBuildGetHammers(int neadHammers) {
 		if (neadHammers == 0) return 0;
 		int neadWorker = 1 + (neadHammers - 1) / hammersWorkerOuttake;
-		int workerWork = Math.min(getCount(Prof.WorkerNotWork), neadWorker);
-		setCount(Prof.WorkerNotWork, getCount(Prof.WorkerNotWork) - workerWork);
+		int workerWork = Math.min(getCount(Prof.WORKERNOTWORK), neadWorker);
+		setCount(Prof.WORKERNOTWORK, getCount(Prof.WORKERNOTWORK) - workerWork);
 		return Math.min(workerWork * hammersWorkerOuttake, neadHammers);
 	}
 
 	public int calcHammerPerCivtick() {
-		return getCount(Prof.WorkerNotWork) * hammersWorkerOuttake;
+		return getCount(Prof.WORKERNOTWORK) * hammersWorkerOuttake;
 	}
 
 	// ----------- private Peoples
 
 	private int getMaxPeoplesWithProfesion(Prof prof) {
 		switch (prof) {
-		case Artist:
-		case Merchant:
-		case Scientist:
+		case ARTIST:
+		case MERCHANT:
+		case SCIENTIST:
 			return 5; // FIXME MaxPeoplesWithProfesion
-		case Engineer:
-			return 1 + ((int) town.SM.getAttrHammer().total - 1) / intakeTable.get(StorageType.Hammer).get(Prof.Engineer);
-		case Farmer:
-			return 1 + ((int) town.SM.getAttrGrowth().total - 1) / intakeTable.get(StorageType.Food).get(Prof.Farmer);
+		case MINER:
+			return 1 + ((int) town.SM.getAttrHammer().total - 1) / intakeTable.get(StorageType.HAMMER).get(Prof.MINER);
+		case FARMER:
+			return 1 + ((int) town.SM.getAttrGrowth().total - 1) / intakeTable.get(StorageType.FOOD).get(Prof.FARMER);
 		default:
 			return Integer.MAX_VALUE;
 		}
@@ -257,15 +261,15 @@ public class TownPeoplesManager {
 
 	/** Назначить работников на должность */
 	public void dismissPeoples(Prof prof, Integer count) {
-		if (prof == Prof.Worker) return;
+		if (prof == Prof.WORKER) return;
 		int dismissed = removeProfPeople(prof, count);
-		addProfPeoples(Prof.Worker, dismissed);
+		addProfPeoples(Prof.WORKER, dismissed);
 	}
 
 	/** Уволить работников с должности */
 	public void hirePeoples(Prof prof, Integer count) {
-		if (prof == Prof.Worker) return;
-		int dismissed = removeProfPeople(Prof.Worker, count);
+		if (prof == Prof.WORKER) return;
+		int dismissed = removeProfPeople(Prof.WORKER, count);
 		addProfPeoples(prof, dismissed);
 	}
 

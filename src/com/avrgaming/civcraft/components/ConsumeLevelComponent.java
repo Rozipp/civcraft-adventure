@@ -19,81 +19,48 @@
 package com.avrgaming.civcraft.components;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigConsumeLevel;
+import com.avrgaming.civcraft.config.ConfigConsumeRecipe;
+import com.avrgaming.civcraft.config.ConfigConsumeRecipe.ConsumeLevel;
+import com.avrgaming.civcraft.config.SourceItem;
 import com.avrgaming.civcraft.construct.Construct;
-import com.avrgaming.civcraft.construct.constructs.Camp;
-import com.avrgaming.civcraft.construct.structures.Cottage;
-import com.avrgaming.civcraft.construct.structures.Mine;
-import com.avrgaming.civcraft.construct.structures.Temple;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
 
 @Getter
 @Setter
 public class ConsumeLevelComponent extends Component {
 
-	/* Current level we're operating at. */
 	private int level;
-
-	/* Current count we have in this level. */
 	private int count;
-
-	/* Last result. */
 	private Result lastResult;
+	private ConfigConsumeRecipe cConsR;
 
-	/* Consumption mod rate, can be used to increase or decrease consumption rates. */
+	/** Consumption mod rate, can be used to increase or decrease consumption rates. */
 	private double consumeRate;
 
-	/* The first key is the level id, followed by a hashmap containing integer, amount entries for each item consumed for that level. For each
-	 * item in the hashmap, we must have ALL of the items in the inventory. */
-	private HashMap<Integer, Map<Integer, Integer>> consumptions = new HashMap<Integer, Map<Integer, Integer>>();
-
-	/* Contains a list of equivilent exchanges */
-	private HashMap<Integer, ConsumeLevelEquivExchange> exchanges = new HashMap<Integer, ConsumeLevelEquivExchange>();
-
-	/* Last found counts from call to hasEnoughToConsume */
-	private Map<Integer, Integer> foundCounts;
-
-	/* Contains a hashmap of levels and counts configured for this component. */
-	private HashMap<Integer, Integer> levelCounts = new HashMap<Integer, Integer>();
-
 	/* Inventory we're trying to pull from. */
-	private MultiInventory source;
+	private MultiInventory multInv;
 
 	// consumeComp.createComponent(this);
 
 	@Override
 	public void createComponent(Construct constr, boolean async) {
 		super.createComponent(constr, async);
-
-		// XXX make both mine/cottage/longhouse levels similar in the yml so they can be loaded
-		// without this check.
-		Collection<ConfigConsumeLevel> consumeLevels = null;
-		if (constr instanceof Temple) consumeLevels = CivSettings.templeLevels.values();
-		if (constr instanceof Cottage) consumeLevels = CivSettings.cottageLevels.values();
-		if (constr instanceof Mine) consumeLevels = CivSettings.mineLevels.values();
-		if (constr instanceof Camp) consumeLevels = CivSettings.longhouseLevels.values();
-
-		if (consumeLevels != null) {
-			for (ConfigConsumeLevel lvl : consumeLevels) {
-				this.addLevel(lvl.level, lvl.count);
-				this.setConsumes(lvl.level, lvl.consumes);
-			}
-		}
-
+		String consume_id = this.getString("consume_id");
+		if (consume_id != null) {
+			this.cConsR = CivSettings.consumeLevels.get(consume_id);
+			CivLog.debug("consume_id = " + consume_id + "   " + ((this.cConsR == null) ? "this.cConsR == null" : "this.cConsR found"));
+		} else
+			CivLog.debug("consume_id = null " + consume_id);
 	}
 
 	/* Possible Results. */
@@ -109,7 +76,7 @@ public class ConsumeLevelComponent extends Component {
 	}
 
 	private String getKey() {
-		return getConstruct().getDisplayName() + ":" + getConstruct().getId() + ":" + "levelcount";
+		return getConstruct().getConfigId() + ":" + getConstruct().getId() + ":" + "levelcount";
 	}
 
 	private String getValue() {
@@ -119,32 +86,26 @@ public class ConsumeLevelComponent extends Component {
 	@Override
 	public void onLoad() {
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
-
-		if (entries.size() == 0) {
+		if (entries.size() == 0)
 			getConstruct().sessionAdd(getKey(), getValue());
-			return;
+		else {
+			String[] split = entries.get(0).value.split(":");
+			this.level = Integer.valueOf(split[0]);
+			this.count = Integer.valueOf(split[1]);
 		}
-
-		String[] split = entries.get(0).value.split(":");
-		this.level = Integer.valueOf(split[0]);
-		this.count = Integer.valueOf(split[1]);
 	}
 
 	@Override
 	public void onSave() {
 		if (getConstruct().getId() != 0) {
 			TaskMaster.asyncTask(new Runnable() {
-
 				@Override
 				public void run() {
 					ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
-
-					if (entries.size() == 0) {
+					if (entries.size() == 0)
 						getConstruct().sessionAdd(getKey(), getValue());
-						return;
-					}
-
-					CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), getValue());
+					else
+						CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), getValue());
 				}
 			}, 0);
 		}
@@ -153,7 +114,6 @@ public class ConsumeLevelComponent extends Component {
 	public void onDelete() {
 		if (getConstruct().getId() != 0) {
 			TaskMaster.asyncTask(new Runnable() {
-
 				@Override
 				public void run() {
 					CivGlobal.getSessionDatabase().delete_all(getKey());
@@ -162,250 +122,107 @@ public class ConsumeLevelComponent extends Component {
 		}
 	}
 
-	public void addLevel(int level, int count) {
-		levelCounts.put(level, count);
+	public void setMultiInventory(MultiInventory multInvs) {
+		this.multInv = multInvs;
 	}
 
-	public void setConsumes(int level, Map<Integer, Integer> consumes) {
-		this.consumptions.put(level, consumes);
+	public Integer getMaxLevel() {
+		return cConsR.levels.size();
 	}
 
-	public void addEquivExchange(int baseType, int altType, int basePerAlt) {
-		ConsumeLevelEquivExchange ee = new ConsumeLevelEquivExchange();
-		ee.baseType = baseType;
-		ee.altType = altType;
-		ee.basePerAlt = basePerAlt;
-		this.exchanges.put(baseType, ee);
+	public ConsumeLevel getConsumeLevel(Integer level) {
+		return cConsR.levels.get(level);
 	}
 
-	public void removeEquivExchange(int baseType) {
-		this.exchanges.remove(baseType);
+	public Integer getConsumeLevelPointMax(Integer level) {
+		ConsumeLevel cl = getConsumeLevel(level);
+		return (cl == null) ? null : cl.point;
 	}
 
-	public void setSource(MultiInventory source) {
-		this.source = source;
+	public Double getConsumeLevelStorageResult(Integer level) {
+		ConsumeLevel cl = getConsumeLevel(level);
+		return (cl == null) ? null : cl.storage_result;
+	}
+
+	public StorageType getConsumeStorageType(Integer level) {
+		return cConsR.storage_type;
 	}
 
 	public int getConsumedAmount(int amount) {
 		return (int) Math.max(1, amount * this.consumeRate);
 	}
 
-	private boolean hasEnoughToConsume() {
-
-		Map<Integer, Integer> thisLevelConsumptions = consumptions.get(this.level);
-		if (thisLevelConsumptions == null) { return false; }
-
-		foundCounts = new HashMap<Integer, Integer>();
-		for (ItemStack stack : source.getContents()) {
-			if (stack == null) { continue; }
-
-			boolean isRequire = thisLevelConsumptions.containsKey(ItemManager.getTypeId(stack));
-			boolean isEquiv = false;
-
-			for (ConsumeLevelEquivExchange ee : this.exchanges.values()) {
-				if (ee.altType == ItemManager.getTypeId(stack)) {
-					isEquiv = true;
-					break;
-				}
-			}
-			// CivLog.debug("type:"+stack.getTypeId()+" equiv:"+isEquiv);
-
-			if (!isRequire && !isEquiv) { continue; }
-
-			Integer count = foundCounts.get(ItemManager.getTypeId(stack));
-			if (count == null) {
-				count = stack.getAmount();
-			} else {
-				count += stack.getAmount();
-			}
-			foundCounts.put(ItemManager.getTypeId(stack), count);
+	private boolean hasEnoughToConsume(MultiInventory sMInv, List<SourceItem> sourceItems) {
+		// Проверка ести ли все предметы в сундуках в нужных количествах
+		for (SourceItem si : sourceItems) {
+			int cc = multInv.hasEnough(si, 1);
+			CivLog.debug("found " + si.items[0] + "   count = " + cc);
+			if (cc < 1) return false;
 		}
-
-		boolean found = true;
-		for (Integer typeID : thisLevelConsumptions.keySet()) {
-			Integer foundCount = foundCounts.get(typeID);
-			Integer requireCount = thisLevelConsumptions.get(typeID);
-			ConsumeLevelEquivExchange ee = this.exchanges.get(typeID);
-
-			if (foundCount == null) { foundCount = 0; }
-
-			if (foundCount < getConsumedAmount(requireCount)) {
-				if (ee == null) {
-					found = false;
-					break;
-				}
-
-				/* We found an EE for this consumable, and we didn't have enough on our own. So instead, we'll try to see if we have enough if we use our
-				 * EE. */
-				Integer totalBase = foundCounts.get(ee.baseType);
-				if (totalBase == null) { totalBase = 0; }
-
-				Integer totalAlt = foundCounts.get(ee.altType);
-				if (totalAlt == null) { totalAlt = 0; }
-
-				int total = totalBase + (totalAlt * ee.basePerAlt);
-				if (total < getConsumedAmount(requireCount)) {
-					found = false;
-					break;
-				}
-				/* We have enough if we include the EE amount. */
-			}
-		}
-
-		return found;
+		return true;
 	}
 
-	private void consumeFromInventory(Boolean sync) {
-		if (foundCounts == null) { return; }
-
-		Map<Integer, Integer> thisLevelConsumptions = consumptions.get(this.level);
-
-		for (Integer typeID : thisLevelConsumptions.keySet()) {
-			Integer amount = thisLevelConsumptions.get(typeID);
-			Integer count = foundCounts.get(typeID);
-
-			amount = getConsumedAmount(amount);
-
-			if (count == null) { count = 0; }
-
-			if (count < amount) {
-				// Try to use the EE.
-				ConsumeLevelEquivExchange ee = exchanges.get(typeID);
-				if (ee == null) {
-					/* This should never happen since we should have checked for this before calling this function. */
-					continue;
-				} else {
-					/* Lets try to use the total from the EE to supplement the base item we didn't have enough of. */
-					Integer totalBase = foundCounts.get(ee.baseType);
-					if (totalBase == null) { totalBase = 0; }
-
-					Integer totalAlt = foundCounts.get(ee.altType);
-					if (totalAlt == null) { totalAlt = 0; }
-
-					/* Get total 'base' amount we have. */
-					int total = totalBase + (totalAlt * ee.basePerAlt);
-					if (total < amount) {
-						/* This should never happen since it was checked before this function in hasEnoughToConsume() */
-						continue;
-					}
-
-					/* Get difference between the total base we have vs the required amount. */
-					total -= amount;
-
-					/* Get the number of 'alt' and 'base' types we can fit into our new total/leftover. */
-					int leftOverAlt = total / ee.basePerAlt;
-					int leftOverBase = total % ee.basePerAlt;
-
-					int totalAltConsumed = totalAlt - leftOverAlt;
-					int totalBaseConsumed = totalBase - leftOverBase;
-
-					try {
-						source.removeItem(ee.altType, totalAltConsumed, sync);
-					} catch (CivException e) {
-						e.printStackTrace();
-					}
-					if (totalBaseConsumed > 0) {
-						try {
-							source.removeItem(ee.baseType, totalBaseConsumed, sync);
-						} catch (CivException e) {
-							e.printStackTrace();
-						}
-					} else {
-						if (totalBaseConsumed != 0) {
-							/* If the total amount consumed is negative, add it to the inventory. */
-							source.addItems(ItemManager.createItemStack(ee.baseType, (-1 * totalBaseConsumed)), sync);
-						}
-					}
-				}
-			} else {
-				/* We had enough of our base item, consume it. */
-				try {
-					source.removeItem(typeID, getConsumedAmount(amount), sync);
-				} catch (CivException e) {
-					e.printStackTrace();
-				}
+	private void deleteConsumeItems(MultiInventory sMInv, List<SourceItem> sourceItems) {
+		try {
+			for (SourceItem si : sourceItems) {
+				multInv.deleteFoundItems(si, 1);
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public Result processConsumption() {
-		return processConsumption(false);
+		lastResult = _processConsumption();
+		return lastResult;
 	}
 
-	public Result processConsumption(Boolean sync) {
-		Integer currentCountMax = levelCounts.get(this.level);
-		if (currentCountMax == null) {
-			lastResult = Result.UNKNOWN;
-			return lastResult;
-		}
+	public Result _processConsumption() {
+		// HashMap<String, MultiInventory> multInvs = foundInventory();
+		if (multInv == null) return Result.UNKNOWN;
+		ConsumeLevel consumeLevel = getConsumeLevel(this.level);
+		Integer currentPointMax = getConsumeLevelPointMax(this.level);
+		if (currentPointMax == null) return Result.UNKNOWN;
 
-		if (hasEnoughToConsume()) {
-			consumeFromInventory(sync);
-
-			if ((this.count + 1) >= currentCountMax) {
+		if (hasEnoughToConsume(multInv, consumeLevel.sourceItems)) {
+			deleteConsumeItems(multInv, consumeLevel.sourceItems);
+			if ((this.count + 1) >= currentPointMax) {
 				// Level up?
-				Integer nextCountMax = levelCounts.get(this.level + 1);
-				if (nextCountMax == null) {
-					lastResult = Result.MAXED;
-					return lastResult;
-				}
-
+				Integer nextCountMax = getConsumeLevelPointMax(this.level + 1);
+				if (nextCountMax == null) return Result.MAXED;
 				this.count = 0;
-				if (hasEnoughToConsume()) {
+				if (hasEnoughToConsume(multInv, consumeLevel.sourceItems)) {
 					// we have what we need for the next level, process it as a levelup.
 					this.level++;
-					lastResult = Result.LEVELUP;
-					return lastResult;
+					return Result.LEVELUP;
 				} else {
 					// we don't have enough for the next level, process as a MAXED.
-					this.count = currentCountMax;
-					lastResult = Result.MAXED;
-					return lastResult;
+					this.count = currentPointMax;
+					return Result.MAXED;
 				}
 			} else {
-				// Grow
 				this.count++;
-				lastResult = Result.GROW;
-				return lastResult;
+				return Result.GROW;
 			}
 		} else {
 			if ((this.count - 1) < 0) {
-				// Level Down
-				Integer lastCountMax = levelCounts.get(this.level - 1);
-				if (lastCountMax == null) {
-					lastResult = Result.STAGNATE;
-					return lastResult;
-				}
-
-				this.count = lastCountMax;
+				if (getConsumeLevelPointMax(this.level - 1) == null) return Result.STAGNATE;
 				this.level--;
-				lastResult = Result.LEVELDOWN;
-				return lastResult;
-
+				return Result.LEVELDOWN;
 			} else {
-				// Starve
 				this.count--;
-				lastResult = Result.STARVE;
-				return lastResult;
+				return Result.STARVE;
 			}
 		}
-
 	}
 
 	public String getCountString() {
 		String out = "(" + this.count + "/";
-		Integer currentCountMax = levelCounts.get(this.level);
-		if (currentCountMax != null) {
+		Integer currentCountMax = getConsumeLevelPointMax(this.level);
+		if (currentCountMax != null)
 			out += currentCountMax + ")";
-		} else {
+		else
 			out += "?)";
-		}
-
 		return out;
 	}
-
-	public void clearEquivExchanges() {
-		this.exchanges.clear();
-	}
-
 }

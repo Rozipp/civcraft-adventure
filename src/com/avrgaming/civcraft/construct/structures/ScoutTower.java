@@ -25,6 +25,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -77,9 +78,8 @@ public class ScoutTower extends Structure {
 	public void onPostBuild() {
 		proximityComponent = new PlayerProximityComponent();
 		proximityComponent.setCenter(new BlockCoord(getCenterLocation()));
-		proximityComponent.createComponent(this);
 		proximityComponent.setRadius(range);
-		proximityComponent.setConstruct(this);
+		proximityComponent.createComponent(this);
 	}
 	private void scoutDebug(String str) {
 		if (this.getCiv().scoutDebug && this.getCiv().scoutDebugPlayer != null) {
@@ -106,7 +106,7 @@ public class ScoutTower extends Structure {
 	}
 	
 	@Override
-	public void onSecondUpdate() {
+	public void onSecondUpdate(CivAsyncTask task) {
 		if (!CivGlobal.towersEnabled) return;
 		HashSet<String> announced = new HashSet<String>();
 		this.process(announced);

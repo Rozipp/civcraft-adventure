@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -21,7 +20,6 @@ import com.avrgaming.civcraft.construct.CannonProjectile;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -123,7 +121,7 @@ public class Cannon extends Construct {
 			var8.printStackTrace();
 		}
 		this.getTemplate().buildTemplate(corner);
-		this.bindBlocks();
+		this.postBuild();
 		Cannon.cannons.put(this.getCorner(), this);
 	}
 
@@ -503,13 +501,6 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	protected List<HashMap<String, String>> getComponentInfoList() {
-		return null;
-	}
-
-	@Override
 	public void onPostBuild() {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 }

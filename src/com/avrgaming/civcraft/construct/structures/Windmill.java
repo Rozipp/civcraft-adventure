@@ -48,7 +48,7 @@ public class Windmill extends Structure {
 	}
 
 	@Override
-	public void onCivtickUpdate() {
+	public void onCivtickUpdate(CivAsyncTask task) {
 		Windmill windmill = this;
 		/* Fire a sync task to perform this. */
 		TaskMaster.syncTask(new Runnable() {

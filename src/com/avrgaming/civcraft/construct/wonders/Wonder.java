@@ -20,7 +20,7 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigWonderBuff;
 import com.avrgaming.civcraft.construct.Buildable;
-import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;

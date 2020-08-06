@@ -16,7 +16,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.ChunkCoord;

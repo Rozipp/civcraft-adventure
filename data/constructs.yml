@@ -8,6 +8,12 @@ constructs:
     cost: 2500.0
     regen_rate: 2
     max_hitpoints: 100
+    components:
+        - name: 'TransmuterComponent'
+          annex: 'sifter'
+          recipes: '1:sifter1, 2:sifter2'
+        - name: 'ConsumeLevelComponent'
+          consume_id: 'camp'
  
   - id: c_warcamp
     type: War

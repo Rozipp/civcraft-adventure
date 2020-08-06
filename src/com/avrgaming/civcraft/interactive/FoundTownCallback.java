@@ -5,10 +5,10 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.menu.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
 import com.avrgaming.civcraft.construct.structures.BuildableStatic;
 import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.gui.GuiInventory;

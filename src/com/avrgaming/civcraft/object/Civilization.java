@@ -10,7 +10,6 @@ package com.avrgaming.civcraft.object;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -119,9 +118,9 @@ public class Civilization extends SQLObject {
 	boolean missionActive = false;
 	String missionProgress = "0:0";
 
-//	private HashMap<Integer, CaveStatus> caveStatuses = new HashMap<Integer, CaveStatus>();
-//	private Set<Cave> disputedCave = new HashSet<Cave>();
-//	private Set<Cave> takedCave = new HashSet<Cave>();
+	// private HashMap<Integer, CaveStatus> caveStatuses = new HashMap<Integer, CaveStatus>();
+	// private Set<Cave> disputedCave = new HashSet<Cave>();
+	// private Set<Cave> takedCave = new HashSet<Cave>();
 
 	public Civilization() {
 		this.GM = new CivGroupManager(this);
@@ -322,7 +321,7 @@ public class Civilization extends SQLObject {
 		this.missionActive = rs.getBoolean("missionActive");
 		this.missionProgress = rs.getString("missionProgress");
 
-//		this.loadCaveStatus(rs.getString("cave_statuses"));
+		// this.loadCaveStatus(rs.getString("cave_statuses"));
 	}
 
 	@Override
@@ -356,7 +355,7 @@ public class Civilization extends SQLObject {
 		hashmap.put("motd", this.messageOfTheDay);
 		hashmap.put("created_date", (this.created_date != null) ? this.created_date.getTime() : null);
 
-//		hashmap.put("cave_statuses", saveCaveStatus());
+		// hashmap.put("cave_statuses", saveCaveStatus());
 
 		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
@@ -850,8 +849,7 @@ public class Civilization extends SQLObject {
 			e.printStackTrace();
 			return;
 		}
-		DecimalFormat df = new DecimalFormat("#.#");
-		double totalBeakers = Double.valueOf(df.format(beakerAmount / coins_per_beaker));
+		double totalBeakers = 0.1 * Math.floor(10 * beakerAmount / coins_per_beaker);
 		if (totalBeakers == 0) return;
 		if (this.researchTech != null) this.processTech(totalBeakers);
 	}
@@ -1283,107 +1281,107 @@ public class Civilization extends SQLObject {
 
 	// -------------------- Cave
 
-//	public void showCaveStatus(Player player, StatusType statusType) {
-//		if (statusType == null) {
-//			CivMessage.sendHeading(player, "Все пещеры");
-//		} else
-//			CivMessage.sendHeading(player, statusType + " пещеры");
-//		for (CaveStatus cs : this.caveStatuses.values()) {
-//			if (statusType != null && cs.statusType != statusType) continue;
-//			String cc;
-//			switch (cs.statusType) {
-//			case founded:
-//				cc = CivColor.Gray + "(founded) ";
-//				break;
-//			case available:
-//				cc = CivColor.Green + "(available)";
-//				break;
-//			case captured:
-//				cc = CivColor.LightBlue + "(captured) ";
-//				break;
-//			case lost:
-//				cc = CivColor.Red + "(lost)   ";
-//				break;
-//			case updated:
-//				cc = CivColor.Navy + "(updated) ";
-//				break;
-//			case used:
-//				cc = CivColor.White + "(used)    ";
-//				break;
-//			default:
-//				cc = "";
-//				break;
-//			}
-//			CivMessage.send(player, cc + cs.getCave().getCornerEntrance().toString() + " : " + cs.getCave().getDisplayName());
-//		}
-//	}
-//
-//	private String saveCaveStatus() {
-//		String res = "";
-//		for (CaveStatus cstatus : caveStatuses.values()) {
-//			res = res + cstatus.caveId + ":";
-//			res = res + cstatus.statusType.toString() + ":";
-//			res = res + cstatus.date.getTime() + ":";
-//			res = res + cstatus.activatorId + ",";
-//		}
-//		return res;
-//	}
-//
-//	private void loadCaveStatus(String string) {
-//		if (string == null || string.isEmpty()) return;
-//		String[] csSpl = string.split(",");
-//		for (int k = 0; k < csSpl.length; k++) {
-//			String[] propertySpl = csSpl[k].split(":");
-//			int id = Integer.parseInt(propertySpl[0]);
-//
-//			StatusType statusType = StatusType.valueOf(propertySpl[1]);
-//			Date date = new Date(Long.parseLong(propertySpl[2]));
-//			int activator = Integer.parseInt(propertySpl[3]);
-//
-//			CaveStatus cs = new CaveStatus(statusType, id, date, activator);
-//			this.caveStatuses.put(id, cs);
-//		}
-//	}
-//
-//	public void addDisputedCave(Cave cave) {
-//		disputedCave.add(cave);
-//	}
-//
-//	public void addTakedCave(Cave cave) {
-//		takedCave.add(cave);
-//	}
-//
-//	public CaveStatus getCaveStatus(Cave cave) {
-//		return this.caveStatuses.get(cave.getId());
-//	}
-//
-//	public void addCaveStatus(Cave cave, CaveStatus caveStatus) {
-//		this.caveStatuses.put(cave.getId(), caveStatus);
-//		this.save();
-//	}
-//
-//	public void removeCave(Cave cave, Civilization newCiv) {
-//		CaveStatus cs = this.getCaveStatus(cave);
-//		if (cs == null) return;
-//		cs.editCaveStatusLost(newCiv);
-//		this.caveStatuses.put(cave.getId(), cs);
-//		this.save();
-//	}
-//
-//	public void addCave(Cave cave) {
-//		CaveStatus cs = this.getCaveStatus(cave);
-//		StatusType statusType = StatusType.captured;
-//		Date date = new Date();
-//		if (cs == null)
-//			cs = new CaveStatus(StatusType.captured, cave.getId(), date, this.getId());
-//		else {
-//			cs.statusType = statusType;
-//			cs.date = date;
-//			cs.activatorId = this.getId();
-//		}
-//		this.caveStatuses.put(cave.getId(), cs);
-//		this.save();
-//	}
+	// public void showCaveStatus(Player player, StatusType statusType) {
+	// if (statusType == null) {
+	// CivMessage.sendHeading(player, "Все пещеры");
+	// } else
+	// CivMessage.sendHeading(player, statusType + " пещеры");
+	// for (CaveStatus cs : this.caveStatuses.values()) {
+	// if (statusType != null && cs.statusType != statusType) continue;
+	// String cc;
+	// switch (cs.statusType) {
+	// case founded:
+	// cc = CivColor.Gray + "(founded) ";
+	// break;
+	// case available:
+	// cc = CivColor.Green + "(available)";
+	// break;
+	// case captured:
+	// cc = CivColor.LightBlue + "(captured) ";
+	// break;
+	// case lost:
+	// cc = CivColor.Red + "(lost) ";
+	// break;
+	// case updated:
+	// cc = CivColor.Navy + "(updated) ";
+	// break;
+	// case used:
+	// cc = CivColor.White + "(used) ";
+	// break;
+	// default:
+	// cc = "";
+	// break;
+	// }
+	// CivMessage.send(player, cc + cs.getCave().getCornerEntrance().toString() + " : " + cs.getCave().getDisplayName());
+	// }
+	// }
+	//
+	// private String saveCaveStatus() {
+	// String res = "";
+	// for (CaveStatus cstatus : caveStatuses.values()) {
+	// res = res + cstatus.caveId + ":";
+	// res = res + cstatus.statusType.toString() + ":";
+	// res = res + cstatus.date.getTime() + ":";
+	// res = res + cstatus.activatorId + ",";
+	// }
+	// return res;
+	// }
+	//
+	// private void loadCaveStatus(String string) {
+	// if (string == null || string.isEmpty()) return;
+	// String[] csSpl = string.split(",");
+	// for (int k = 0; k < csSpl.length; k++) {
+	// String[] propertySpl = csSpl[k].split(":");
+	// int id = Integer.parseInt(propertySpl[0]);
+	//
+	// StatusType statusType = StatusType.valueOf(propertySpl[1]);
+	// Date date = new Date(Long.parseLong(propertySpl[2]));
+	// int activator = Integer.parseInt(propertySpl[3]);
+	//
+	// CaveStatus cs = new CaveStatus(statusType, id, date, activator);
+	// this.caveStatuses.put(id, cs);
+	// }
+	// }
+	//
+	// public void addDisputedCave(Cave cave) {
+	// disputedCave.add(cave);
+	// }
+	//
+	// public void addTakedCave(Cave cave) {
+	// takedCave.add(cave);
+	// }
+	//
+	// public CaveStatus getCaveStatus(Cave cave) {
+	// return this.caveStatuses.get(cave.getId());
+	// }
+	//
+	// public void addCaveStatus(Cave cave, CaveStatus caveStatus) {
+	// this.caveStatuses.put(cave.getId(), caveStatus);
+	// this.save();
+	// }
+	//
+	// public void removeCave(Cave cave, Civilization newCiv) {
+	// CaveStatus cs = this.getCaveStatus(cave);
+	// if (cs == null) return;
+	// cs.editCaveStatusLost(newCiv);
+	// this.caveStatuses.put(cave.getId(), cs);
+	// this.save();
+	// }
+	//
+	// public void addCave(Cave cave) {
+	// CaveStatus cs = this.getCaveStatus(cave);
+	// StatusType statusType = StatusType.captured;
+	// Date date = new Date();
+	// if (cs == null)
+	// cs = new CaveStatus(StatusType.captured, cave.getId(), date, this.getId());
+	// else {
+	// cs.statusType = statusType;
+	// cs.date = date;
+	// cs.activatorId = this.getId();
+	// }
+	// this.caveStatuses.put(cave.getId(), cs);
+	// this.save();
+	// }
 
 	// -------------- other
 

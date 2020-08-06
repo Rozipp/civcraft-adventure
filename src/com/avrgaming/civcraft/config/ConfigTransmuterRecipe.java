@@ -15,22 +15,11 @@ public class ConfigTransmuterRecipe {
 	public String id;
 	public Integer delay = 1;
 	public String resultChest;
-	public SourceItem sourceItem;
-	public LinkedList<ResultItem> resultItems = new LinkedList<ResultItem>();
+	public LinkedList<SourceItem> sourceItems = new LinkedList<>();
+	public Integer totalSourceItems = 0;
+	public LinkedList<ResultItem> resultItems = new LinkedList<>();
 	public LinkedList<ResultItem> resultOther = new LinkedList<>();
 	public Integer totalRate = 0;
-
-	public static class SourceItem {
-		public String[] items;
-		public Integer count;
-		public String chest;
-	}
-
-	public static class ResultItem {
-		public String item;
-		public Integer count;
-		public Integer rate;
-	}
 
 	public ResultItem getOther(Random rand) {
 		return resultOther.get(rand.nextInt(resultOther.size()));
@@ -49,11 +38,18 @@ public class ConfigTransmuterRecipe {
 			ctr.resultChest = (String) b.get("result_chest");
 			ctr.totalRate = (Integer) b.get("total_rate");
 
-			ctr.sourceItem = new SourceItem();
-			ctr.sourceItem.chest = (String) b.get("source_chest");
-			String source_item = (String) b.get("source_item");
-			ctr.sourceItem.items = source_item.split(",");
-			ctr.sourceItem.count = ((obj = b.get("source_count")) == null) ? 1 : (Integer) obj;
+			List<Map<?, ?>> configSourceItems = (List<Map<?, ?>>) b.get("source_item");
+			if (configSourceItems != null) {
+				for (Map<?, ?> ingred : configSourceItems) {
+					SourceItem sourceItem = new SourceItem();
+					String source_item = (String) ingred.get("item");
+					sourceItem.items = source_item.split(",");
+					sourceItem.count = ((obj = ingred.get("count")) == null) ? 1 : (Integer) obj;
+					ctr.totalSourceItems += sourceItem.count;
+					sourceItem.chest = (String) ingred.get("chest");
+					ctr.sourceItems.add(sourceItem);
+				}
+			}
 
 			List<Map<?, ?>> configResultItems = (List<Map<?, ?>>) b.get("result_item");
 			if (configResultItems != null) {

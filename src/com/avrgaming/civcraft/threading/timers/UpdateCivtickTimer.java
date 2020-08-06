@@ -40,7 +40,7 @@ public class UpdateCivtickTimer extends CivAsyncTask {
 			CivLog.debug("onCivtickUpdate time = " + (System.currentTimeMillis() - now.getTime()));
 			
 			for (Camp camp : CivGlobal.getCamps()) {
-				camp.onCivtickUpdate();
+				camp.onCivtickUpdate(this);
 			}
 
 //			for (Cave cave : CivGlobal.getCaves()) {

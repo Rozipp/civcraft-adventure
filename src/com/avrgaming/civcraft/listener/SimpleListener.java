@@ -90,6 +90,7 @@ public abstract class SimpleListener implements Listener {
 		
 		ArmorListener.blockedMaterials = CivCraft.getPlugin().getConfig().getStringList("blocked");
 		new ArmorListener();
+		CivLog.info("Registred " +  SimpleListener.listeners.size() + " listeners");
     }
     
     public static final List<SimpleListener> getRegistered() {
@@ -101,12 +102,6 @@ public abstract class SimpleListener implements Listener {
     public SimpleListener() {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         SimpleListener.listeners.add(this);
-        
-        logRegister();
-    }
-    
-    protected void logRegister() {
-        plugin.getLogger().info("Registered " + getClass().getSimpleName());
     }
     
     public final void unregister() {

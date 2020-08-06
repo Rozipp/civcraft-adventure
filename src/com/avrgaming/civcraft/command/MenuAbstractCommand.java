@@ -59,7 +59,7 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 			// Integer index = aCommand.getDescription().lastIndexOf("]") + 1;
 			// String title = CivColor.LightPurple + aCommand.getString_cmd() + altComms + aCommand.getDescription().substring(0, index);
 			String title = CivColor.LightPurple + aCommand.getString_cmd() + altComms;
-			String coment = CivColor.LightGray + aCommand.getDescription().trim();
+			String coment = CivColor.LightGray + (aCommand.getDescription() != null ? aCommand.getDescription().trim() : "null");
 			// String coment = CivColor.LightGray + aCommand.getDescription().substring(index);
 			coment = coment.replace("[", CivColor.Yellow + "[");
 			coment = coment.replace("]", "]" + CivColor.LightGray);

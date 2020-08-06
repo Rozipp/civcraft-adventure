@@ -111,7 +111,6 @@ public class PlayerProximityComponent extends Component {
 		}
 
 		this.setNearbyPlayers(newSet);
-
 		return;
 	}
 }

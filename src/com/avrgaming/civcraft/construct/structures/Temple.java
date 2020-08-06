@@ -17,7 +17,6 @@ import org.bukkit.inventory.Inventory;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigConsumeLevel;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
@@ -87,7 +86,7 @@ public class Temple extends Structure {
 			}
 			multiInv.addInventory(tmp);
 		}
-		getConsumeComponent().setSource(multiInv);
+		getConsumeComponent().setMultiInventory(multiInv);
 		getConsumeComponent().setConsumeRate(1.0);
 		try {
 			Result result = getConsumeComponent().processConsumption();
@@ -137,14 +136,14 @@ public class Temple extends Structure {
 					break;
 			}
 
-			ConfigConsumeLevel lvl = null;
+			Double culture = 0.0;
 			if (result == Result.LEVELUP) {
-				lvl = CivSettings.templeLevels.get(getConsumeComponent().getLevel() - 1);
+				culture = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel() - 1);
 			} else {
-				lvl = CivSettings.templeLevels.get(getConsumeComponent().getLevel());
+				culture = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel());
 			}
 
-			int total_culture = (int) Math.round(lvl.culture * this.getTown().getCottageRate());
+			int total_culture = (int) Math.round(culture * this.getTown().getCottageRate());
 //		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) {
 //			total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
 //		}
@@ -167,10 +166,7 @@ public class Temple extends Structure {
 	}
 
 	public int getMaxCount() {
-		int level = getLevel();
-
-		ConfigConsumeLevel lvl = CivSettings.templeLevels.get(level);
-		return lvl.count;
+		return getConsumeComponent().getConsumeLevelPointMax(getConsumeComponent().getLevel());
 	}
 
 	public Result getLastResult() {
@@ -178,19 +174,11 @@ public class Temple extends Structure {
 	}
 
 	public double getCultureGenerated() {
-		int level = getLevel();
-
-		ConfigConsumeLevel lvl = CivSettings.templeLevels.get(level);
-		if (lvl == null) {
-			return 0;
-		}
-		return lvl.culture;
+		return getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel());
 	}
 
 	public void delevel() {
-		int currentLevel = getLevel();
-
-		if (currentLevel > 1) {
+		if (getLevel() > 1) {
 			getConsumeComponent().setLevel(getLevel() - 1);
 			getConsumeComponent().setCount(0);
 			getConsumeComponent().onSave();
@@ -213,4 +201,8 @@ public class Temple extends Structure {
 		getConsumeComponent().onSave();
 	}
 
+	public static int getTempleMaxLevel() {
+		return CivSettings.consumeLevels.get("template").levels.size();
+	}
+	
 }

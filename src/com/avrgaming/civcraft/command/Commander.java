@@ -24,6 +24,7 @@ import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.CultureChunk;
@@ -47,8 +48,11 @@ import com.avrgaming.civcraft.util.CivColor;
  * @author rozipp */
 public class Commander {
 
+	private static int count = 0;
+	
 	private static void addMenu(String string_cmd, CommandExecutor comm) {
 		CivCraft.getPlugin().getCommand(string_cmd).setExecutor(comm);
+		count++;
 	}
 
 	public static void initCommands() {
@@ -202,6 +206,9 @@ public class Commander {
 		addMenu("dbg", new DebugCommand());
 		addMenu("report", new ReportCommand());
 		addMenu("donate", new DonateCommand());
+		
+		CivLog.info("registred " + CommanderRegistration.count + " CustomCommands");
+		CivLog.info("registred " + count + " CommandBase");
 	}
 	// ----------------- arg utils
 

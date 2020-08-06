@@ -5,7 +5,8 @@ import java.sql.SQLException;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import com.avrgaming.civcraft.components.AttributeBase;
+import com.avrgaming.civcraft.components.AttributeStatic;
+import com.avrgaming.civcraft.components.AttributeStatic.AttributeTypeKeys;
 import com.avrgaming.civcraft.components.AttributeWarUnhappiness;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -25,7 +26,7 @@ import com.avrgaming.civcraft.util.TimeTools;
 public class TownStorageManager {
 
 	public static enum StorageType {
-		Food, Hammer, Culture, Econ, Beakers, Happy, Unhappy,
+		FOOD, HAMMER, CULTURE, ECON, BEAKERS, HAPPY, UNHAPPY,
 	}
 
 	private Town town;
@@ -77,10 +78,6 @@ public class TownStorageManager {
 		econsCash = 0;
 		town.getTreasury().deposit(depositEcons);
 		CivMessage.sendTown(town, CivColor.LightGreen + "Жители принесли в казну города " + depositEcons + " монет.");
-
-		for (StorageType type : StorageType.values()) {
-			if (attributeCache.containsKey(type)) attributeCache.get(type).clearHourAttrSources();
-		}
 	}
 
 	public void onCivtickUpdate() {
@@ -91,8 +88,8 @@ public class TownStorageManager {
 		calcAttrUnhappiness();
 
 		addCulture(calcAttrCulture() * 0.01);
-		econsCash += town.PM.getIntake(StorageType.Econ);
-		setBeakersCivtick(town.PM.getIntake(StorageType.Beakers) + (getAttrBeakers().total / 100)); // TODO отправить в циву
+		econsCash += town.PM.getIntake(StorageType.ECON);
+		setBeakersCivtick(town.PM.getIntake(StorageType.BEAKERS) + (getAttrBeakers().total / 100)); // TODO отправить в циву
 
 		processHammers();
 		processFoods();
@@ -123,7 +120,7 @@ public class TownStorageManager {
 	}
 
 	public void processFoods() {
-		double foods = Math.min(getAttrGrowth().total * 0.01, town.PM.getIntake(StorageType.Food));
+		double foods = Math.min(getAttrGrowth().total * 0.01, town.PM.getIntake(StorageType.FOOD));
 		changeFoods(foods - town.PM.getFoodsOuttake());
 	}
 
@@ -144,7 +141,7 @@ public class TownStorageManager {
 	}
 
 	public void processHammers() {
-		depositHammers(Math.min(getAttrHammer().total * 0.01, town.PM.getIntake(StorageType.Hammer)));
+		depositHammers(Math.min(getAttrHammer().total * 0.01, town.PM.getIntake(StorageType.HAMMER)));
 	}
 
 	public AttrRate calcAttrHammerRate() {
@@ -206,12 +203,8 @@ public class TownStorageManager {
 				Mine mine = (Mine) struct;
 				mines += mine.getBonusHammers();
 			}
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase ab = (AttributeBase) comp;
-					if (ab.getString("attribute").equalsIgnoreCase("HAMMERS")) structures += ab.getGenerated();
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) structures += as.getGenerated(AttributeTypeKeys.HAMMERS);
 		}
 
 		total += mines;
@@ -228,19 +221,19 @@ public class TownStorageManager {
 
 		if (total < this.baseHammers) total = this.baseHammers;
 
-		AttrSource cache = this.attributeCache.get(StorageType.Hammer);
+		AttrSource cache = this.attributeCache.get(StorageType.HAMMER);
 		if (cache == null)
 			cache = new AttrSource(sources, total, rate);
 		else {
 			cache.modifyAttrSource(sources, total, rate);
 		}
-		attributeCache.put(StorageType.Hammer, cache);
+		attributeCache.put(StorageType.HAMMER, cache);
 		return;
 	}
 
 	public AttrSource getAttrHammer() {
-		if (!attributeCache.containsKey(StorageType.Hammer)) calcAttrHammer();
-		return this.attributeCache.get(StorageType.Hammer);
+		if (!attributeCache.containsKey(StorageType.HAMMER)) calcAttrHammer();
+		return this.attributeCache.get(StorageType.HAMMER);
 	}
 
 	public void setBaseHammers(double baseHammers) {
@@ -300,8 +293,8 @@ public class TownStorageManager {
 	}
 
 	public AttrSource getAttrCulture() {
-		if (!attributeCache.containsKey(StorageType.Culture)) calcAttrCulture();
-		return attributeCache.get(StorageType.Culture);
+		if (!attributeCache.containsKey(StorageType.CULTURE)) calcAttrCulture();
+		return attributeCache.get(StorageType.CULTURE);
 	}
 
 	public double calcAttrCulture() {
@@ -314,12 +307,9 @@ public class TownStorageManager {
 		/* Grab beakers generated from structures with components. */
 		double fromStructures = 0;
 		for (Structure struct : town.BM.getStructures()) {
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase as = (AttributeBase) comp;
-					if (as.getString("attribute").equalsIgnoreCase("CULTURE")) fromStructures += as.getGenerated();
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) fromStructures += as.getGenerated(AttributeTypeKeys.CULTURE);
+
 			if (struct instanceof Temple) {
 				Temple temple = (Temple) struct;
 				fromStructures += temple.getCultureGenerated();
@@ -339,7 +329,7 @@ public class TownStorageManager {
 		total += globe_theatre;
 		sources.put("Globe theatre", globe_theatre);
 
-		double fromPeople = town.PM.getIntake(StorageType.Culture);
+		double fromPeople = town.PM.getIntake(StorageType.CULTURE);
 		total += fromPeople;
 		sources.put("Populate", fromPeople);
 
@@ -348,12 +338,12 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 
-		AttrSource cache = this.attributeCache.get(StorageType.Culture);
+		AttrSource cache = this.attributeCache.get(StorageType.CULTURE);
 		if (cache == null)
 			cache = new AttrSource(sources, total, rate);
 		else
 			cache.modifyAttrSource(sources, total, rate);
-		this.attributeCache.put(StorageType.Culture, cache);
+		this.attributeCache.put(StorageType.CULTURE, cache);
 		return cache.total;
 	}
 
@@ -402,8 +392,8 @@ public class TownStorageManager {
 	}
 
 	public AttrSource getAttrGrowth() {
-		if (!attributeCache.containsKey(StorageType.Food)) calcAttrGrowth();
-		return attributeCache.get(StorageType.Food);
+		if (!attributeCache.containsKey(StorageType.FOOD)) calcAttrGrowth();
+		return attributeCache.get(StorageType.FOOD);
 	}
 
 	public void calcAttrGrowth() {
@@ -427,15 +417,8 @@ public class TownStorageManager {
 		/* Grab any growth from structures. */
 		double structures = 0;
 		for (Structure struct : town.BM.getStructures()) {
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase as = (AttributeBase) comp;
-					if (as.getString("attribute").equalsIgnoreCase("GROWTH")) {
-						double h = as.getGenerated();
-						structures += h;
-					}
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) structures += as.getGenerated(AttributeTypeKeys.GROWTH);
 		}
 
 		total += structures;
@@ -461,12 +444,12 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 
-		AttrSource cache = this.attributeCache.get(StorageType.Food);
+		AttrSource cache = this.attributeCache.get(StorageType.FOOD);
 		if (cache == null)
 			cache = new AttrSource(sources, total, rate);
 		else
 			cache.modifyAttrSource(sources, total, rate);
-		this.attributeCache.put(StorageType.Food, cache);
+		this.attributeCache.put(StorageType.FOOD, cache);
 		return;
 	}
 
@@ -493,8 +476,8 @@ public class TownStorageManager {
 	}
 
 	public AttrSource getAttrBeakers() {
-		if (!attributeCache.containsKey(StorageType.Beakers)) calcAttrBeakers();
-		return attributeCache.get(StorageType.Beakers);
+		if (!attributeCache.containsKey(StorageType.BEAKERS)) calcAttrBeakers();
+		return attributeCache.get(StorageType.BEAKERS);
 	}
 
 	public double calcAttrBeakers() {
@@ -513,7 +496,7 @@ public class TownStorageManager {
 		total += wondersTrade;
 		sources.put("Goodies/Wonders", wondersTrade);
 
-		double fromPeople = town.PM.getIntake(StorageType.Beakers);
+		double fromPeople = town.PM.getIntake(StorageType.BEAKERS);
 		total += fromPeople;
 		sources.put("Populate", fromPeople);
 
@@ -522,12 +505,12 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 
-		AttrSource cache = this.attributeCache.get(StorageType.Beakers);
+		AttrSource cache = this.attributeCache.get(StorageType.BEAKERS);
 		if (cache == null)
 			cache = new AttrSource(sources, total, rate);
 		else
 			cache.modifyAttrSource(sources, total, rate);
-		this.attributeCache.put(StorageType.Beakers, cache);
+		this.attributeCache.put(StorageType.BEAKERS, cache);
 		return cache.total;
 	}
 
@@ -543,8 +526,8 @@ public class TownStorageManager {
 
 	/* Gets the basic amount of happiness for a town. */
 	public AttrSource getAttrHappiness() {
-		if (!attributeCache.containsKey(StorageType.Happy)) calcAttrHappiness();
-		return attributeCache.get(StorageType.Happy);
+		if (!attributeCache.containsKey(StorageType.HAPPY)) calcAttrHappiness();
+		return attributeCache.get(StorageType.UNHAPPY);
 	}
 
 	public void calcAttrHappiness() {
@@ -581,14 +564,8 @@ public class TownStorageManager {
 		/* Grab happiness generated from structures with components. */
 		double structures = 0;
 		for (Structure struct : town.BM.getStructures()) {
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase as = (AttributeBase) comp;
-					if (as.getString("attribute").equalsIgnoreCase("HAPPINESS")) {
-						structures += as.getGenerated();
-					}
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) structures += as.getGenerated(AttributeTypeKeys.HAPPINESS);
 		}
 		total += structures;
 		sources.put("Structures", structures);
@@ -601,19 +578,19 @@ public class TownStorageManager {
 
 		// TODO Governments
 
-		AttrSource cache = this.attributeCache.get(StorageType.Happy);
+		AttrSource cache = this.attributeCache.get(StorageType.HAPPY);
 		if (cache == null)
 			cache = new AttrSource(sources, total, null);
 		else
 			cache.modifyAttrSource(sources, total, null);
-		this.attributeCache.put(StorageType.Happy, cache);
+		this.attributeCache.put(StorageType.HAPPY, cache);
 		return;
 	}
 
 	/* Gets the basic amount of unhappiness for a town. */
 	public AttrSource getAttrUnhappiness() {
-		if (!attributeCache.containsKey(StorageType.Unhappy)) calcAttrUnhappiness();
-		return attributeCache.get(StorageType.Unhappy);
+		if (!attributeCache.containsKey(StorageType.UNHAPPY)) calcAttrUnhappiness();
+		return attributeCache.get(StorageType.UNHAPPY);
 	}
 
 	public void calcAttrUnhappiness() {
@@ -662,14 +639,8 @@ public class TownStorageManager {
 		/* Grab unhappiness generated from structures with components. */
 		double structures = 0;
 		for (Structure struct : town.BM.getStructures()) {
-			for (Component comp : struct.attachedComponents) {
-				if (comp instanceof AttributeBase) {
-					AttributeBase as = (AttributeBase) comp;
-					if (as.getString("attribute").equalsIgnoreCase("UNHAPPINESS")) {
-						structures += as.getGenerated();
-					}
-				}
-			}
+			AttributeStatic as = (AttributeStatic) struct.getComponent("AttributeStatic");
+			if (as != null) structures += as.getGenerated(AttributeTypeKeys.UNHAPPINESS);
 		}
 		total += structures;
 		sources.put("Structures", structures);
@@ -686,12 +657,12 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 
-		AttrSource cache = this.attributeCache.get(StorageType.Unhappy);
+		AttrSource cache = this.attributeCache.get(StorageType.UNHAPPY);
 		if (cache == null)
 			cache = new AttrSource(sources, total, null);
 		else
 			cache.modifyAttrSource(sources, total, null);
-		this.attributeCache.put(StorageType.Unhappy, cache);
+		this.attributeCache.put(StorageType.UNHAPPY, cache);
 		return;
 	}
 

@@ -15,15 +15,6 @@ quarry:
     despotism_rate: 1.5
     penalty_rate: 0.9
 
-################# Fish Hatchery Settings #################
-fishery:
-    tierMax: 10000
-    t0_rate: 1.0
-    t1_rate: 0.5
-    t2_rate: 0.05
-    t3_rate: 0.01
-    t4_rate: 0.001
-
 ################# Trommel Settings #################
 trommel:
     despotism_rate: 2.0
@@ -93,55 +84,6 @@ alch_levels:
 blacksmith:
     forge_cost: 2500.0
 
-################# Cottage Settings #################
-cottage_levels:
-   - level: 1
-     consumes:
-         - 297,1
-         - 391,1
-     count: 24
-     coins: 75.0
-
-   - level: 2
-     consumes:
-         - 297,2
-         - 391,2
-         - 392,1
-     count: 48
-     coins: 150.0
-
-   - level: 3
-     consumes:
-         - 297,2
-         - 391,3
-         - 392,2
-     count: 96
-     coins: 225.0
-
-   - level: 4
-     consumes:
-         - 297,3
-         - 391,4
-         - 392,3
-     count: 120
-     coins: 300.0
-   
-   - level: 5
-     consumes:
-         - 297,4
-         - 391,5
-         - 392,4
-     count: 144
-     coins: 375.0
-
-   - level: 6
-     consumes:
-         - 297,5
-         - 391,6
-         - 392,6
-         - 319,1
-     count: 288
-     coins: 450.0
 ################# Temple Settings #################
 temple:
     # rate which temple modifies total culture output
@@ -152,69 +94,6 @@ temple:
 
     # timeout for sacrifices. How long do they have to kill all the things?(in seconds)
     sacrifice_timeout: 30
-
-temple_levels:
-    - level: 1
-      culture: 100.00
-      consumes:
-         - 423,2
-      count: 24
-
-    - level: 2
-      culture: 200.00
-      consumes:
-         - 423,4
-      count: 48
-
-    - level: 3
-      culture: 300.00
-      consumes:
-         - 423,6
-      count: 96
-
-    - level: 4
-      culture: 400.00
-      consumes:
-         - 423,8
-      count: 120
-
-    - level: 5
-      culture: 500.00
-      consumes:
-         - 423,10
-      count: 144
-
-################# Mine Settings #################
-mine_levels:
-    - level: 1
-      hammers: 100.00
-      consumes:
-         - 331,10
-      count: 24
-   
-    - level: 2
-      hammers: 150.00
-      consumes:
-         - 331,15
-      count: 48
-    
-    - level: 3
-      hammers: 200.00
-      consumes:
-         - 331,20
-      count: 96
-    
-    - level: 4
-      hammers: 250.00
-      consumes:
-         - 331,25
-      count: 120
-    
-    - level: 5
-      hammers: 300.00
-      consumes:
-         - 331,30
-      count: 144
 
 ################# Trade Ship Settings #################
 tradeship_levels:
@@ -509,48 +388,6 @@ structures:
           attribute: 'CULTURE'
           value: '25.0'
 
-#   - id: s_townhall
-#     type: Structure
-#     template: town_hall
-#     displayName: Town Hall
-#     require_tech:
-#     gui_item_id: 49
-#     gui_slot: 45
-#     limit: 2
-#     cost: 50000.0
-#     upkeep: 0.0
-#     hammer_cost: 600
-#     points: 1000
-#     max_hitpoints: 1000
-#     allow_demolish: false
-#     strategic: true
-#     components:
-#         - name: 'AttributeStatic'
-#           type: 'direct'
-#           attribute: 'CULTURE'
-#           value: '25.0'
-#   
-#   - id: s_capitol
-#     type: Structure
-#     template: capitol
-#     displayName: Capitol
-#     require_tech:
-#     gui_item_id: 49
-#     gui_slot: 36
-#     limit: 2
-#     cost: 250000.0
-#     upkeep: 0.0
-#     hammer_cost: 600
-#     points: 6000
-#     max_hitpoints: 2000
-#     allow_demolish: false
-#     strategic: true
-#     components:
-#         - name: 'AttributeStatic'
-#           type: 'direct'
-#           attribute: 'CULTURE'
-#           value: '50.0'
-
   # - id: s_lighthouse
     # type: Structure
     # template: lighthouse
@@ -602,6 +439,9 @@ structures:
     hammer_cost: 800
     points: 1500
     max_hitpoints: 200
+    components:
+        - name: 'TransmuterComponent'
+          recipes: '1:t_clay,t_cobblestone 2:t_clay,t_cobblestone,t_granit 3:t_clay,t_cobblestone,t_granit,t_diorit 4:t_clay,t_cobblestone,t_granit,t_diorit,t_andesit'
 
   - id: ti_fish_hatchery
     type: Structure
@@ -618,6 +458,9 @@ structures:
     hammer_cost: 5000
     points: 1500
     max_hitpoints: 100
+    components:
+        - name: 'TransmuterComponent'
+          recipes: 'fishhatchery'
 
   - id: ti_quarry
     type: Structure
@@ -635,6 +478,9 @@ structures:
     hammer_cost: 5000
     points: 1500
     max_hitpoints: 100
+    components:
+        - name: 'TransmuterComponent'
+          recipes: '1:q_wod 2:q_wod,q_stone 3:q_wod,q_stone,q_iron 4:q_wod,q_stone,q_iron,q_diamond'
 
   - id: s_store
     type: Structure
@@ -809,6 +655,7 @@ structures:
     max_hitpoints: 100
     components:
         - name: 'ConsumeLevelComponent'
+          consume_id: 'cottage'
 
   - id: s_temple
     type: Structure
@@ -832,7 +679,7 @@ structures:
           type: 'direct'
           attribute: 'HAPPINESS'
           value: '5.0'
-        - name: 'ConsumeLevelComponent'
+#         - name: 'ConsumeLevelComponent'
 
   - id: s_monument
     type: Structure
@@ -991,8 +838,8 @@ structures:
     hammer_cost: 900
     points: 6200
     max_hitpoints: 300
-    components:
-        - name: 'ConsumeLevelComponent'
+#     components:
+#         - name: 'ConsumeLevelComponent'
 
   - id: ti_trade_ship
     type: Structure
@@ -1275,6 +1122,9 @@ structures:
     hammer_cost: 2500
     points: 3000
     max_hitpoints: 800
+    components:
+        - name: 'TransmuterComponent'
+          recipes: 'silkwormfarm'
 
   - id: s_ware_house
     type: Structure

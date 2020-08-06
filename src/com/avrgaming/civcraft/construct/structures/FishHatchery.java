@@ -4,21 +4,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class FishHatchery extends Structure {
 
 	private int level = 1;
-	public Transmuter transmuter;
 
 	public FishHatchery(String id, Town town) throws CivException {
 		super(id, town);
@@ -30,7 +31,6 @@ public class FishHatchery extends Structure {
 
 	@Override
 	public void delete() {
-		transmuter.stop();
 		super.delete();
 	}
 
@@ -44,10 +44,6 @@ public class FishHatchery extends Structure {
 	@Override
 	public String getMarkerIconName() {
 		return "cutlery";
-	}
-
-	public double getChance(double chance) {
-		return chance;
 	}
 
 	public int getLevel() {
@@ -104,6 +100,19 @@ public class FishHatchery extends Structure {
 	}
 
 	@Override
+	public void onSecondUpdate(CivAsyncTask task) {
+		if (!CivGlobal.fisheryEnabled) return;
+		if (getTransmuter() == null) return;
+		getTransmuter().processConsumption();
+	}
+	
+	private TransmuterComponent transmuter;
+	public TransmuterComponent getTransmuter() {
+		if (transmuter == null) transmuter = (TransmuterComponent) this.getComponent("TransmuterComponent");
+		return transmuter;
+	}
+	
+	@Override
 	public void onPostBuild() {
 		this.level = getTown().BM.saved_fish_hatchery_level;
 		for (ConstructChest chest : this.getAllChests().values()) {
@@ -116,9 +125,6 @@ public class FishHatchery extends Structure {
 			if (id < level) chest.setChestId("source");
 			if (id == 4) chest.setChestId("result");
 		}
-		transmuter = new Transmuter(this);
-		this.transmuter.addRecipe("fishhatchery");
-		if (CivGlobal.fisheryEnabled) this.transmuter.start();
 	}
 
 }

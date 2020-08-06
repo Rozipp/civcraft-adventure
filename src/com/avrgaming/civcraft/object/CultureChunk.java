@@ -27,7 +27,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.components.Attribute;
+import com.avrgaming.civcraft.components.AttributeStatic.AttributeTypeKeys;
 import com.avrgaming.civcraft.components.AttributeBiomeBase;
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
 import com.avrgaming.civcraft.components.Component;
@@ -113,15 +113,15 @@ public class CultureChunk {
 	}
 
 	public double getHappiness() {
-		return (getCultureBiomeInfo().beauty ? 1 : 0) + getAdditionalAttributes(Attribute.TypeKeys.HAPPINESS.name());
+		return (getCultureBiomeInfo().beauty ? 1 : 0) + getAdditionalAttributes(AttributeTypeKeys.HAPPINESS.name());
 	}
 
 	public double getHammers() {
-		return getCultureBiomeInfo().getHammers() + getAdditionalAttributes(Attribute.TypeKeys.HAMMERS.name());
+		return getCultureBiomeInfo().getHammers() + getAdditionalAttributes(AttributeTypeKeys.HAMMERS.name());
 	}
 
 	public double getGrowth() {
-		return getCultureBiomeInfo().getGrowth() + getAdditionalAttributes(Attribute.TypeKeys.GROWTH.name());
+		return getCultureBiomeInfo().getGrowth() + getAdditionalAttributes(AttributeTypeKeys.GROWTH.name());
 	}
 
 	private double getAdditionalAttributes(String attrType) {

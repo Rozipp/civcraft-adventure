@@ -98,8 +98,8 @@ extends ProjectileComponent {
             this.fireRate = CivSettings.getInteger(CivSettings.warConfig, "tesla_tower.fire_rate");
             
             this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
-            this.proximityComponent.setConstruct(this.construct);
             this.proximityComponent.setRadius(this.range);
+            this.proximityComponent.createComponent(this.construct);
         }
         catch (InvalidConfiguration e) {
             e.printStackTrace();

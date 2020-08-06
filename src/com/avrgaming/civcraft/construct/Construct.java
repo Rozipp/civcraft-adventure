@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
@@ -29,9 +28,9 @@ import org.bukkit.material.MaterialData;
 import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
 import com.avrgaming.civcraft.construct.structures.BuildableStatic;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -66,7 +65,6 @@ public abstract class Construct extends SQLObject {
 	private Location centerLocation;
 	private ConfigConstructInfo info;
 	private int hitpoints;
-	private boolean enabled = true;
 	private Template template;
 	private SQLObject SQLOwner;
 
@@ -82,12 +80,12 @@ public abstract class Construct extends SQLObject {
 	public ArrayList<Component> attachedComponents = new ArrayList<Component>();
 
 	public Construct(String id, SQLObject owner) throws CivException {
-		ConfigConstructInfo in = CivSettings.constructs.get(id);
-		this.setInfo(in);
+		ConfigConstructInfo cInfo = CivSettings.constructs.get(id);
+		this.setInfo(cInfo);
 		this.setSQLOwner(owner);
 		loadSettings();
 	}
-	
+
 	public String getHash() {
 		return corner.toString();
 	}
@@ -200,11 +198,7 @@ public abstract class Construct extends SQLObject {
 	public boolean isIgnoreFloating() {
 		return info.ignore_floating;
 	}
-
-	protected List<HashMap<String, String>> getComponentInfoList() {
-		return info.components;
-	}
-
+	
 	public Component getComponent(String name) {
 		for (Component comp : this.attachedComponents) {
 			if (comp.getName().equals(name)) return comp;
@@ -214,9 +208,9 @@ public abstract class Construct extends SQLObject {
 
 	public void setTemplate(Template tpl) {
 		if (this.getCorner() != null) {
-			if (tpl == null) {
+			if (tpl == null)
 				this.setCenterLocation(this.getCorner().getLocation());
-			} else
+			else
 				this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
 		}
 		this.template = tpl;
@@ -297,6 +291,7 @@ public abstract class Construct extends SQLObject {
 		Template tpl = this.getTemplate();
 		tpl.buildTemplate(getCorner());
 		tpl.buildAirBlocks(getCorner());
+		postBuild();
 	}
 
 	// ------------ abstract metods
@@ -306,10 +301,10 @@ public abstract class Construct extends SQLObject {
 	public void onHourlyUpdate(CivAsyncTask task) {
 	}
 
-	public void onCivtickUpdate() {
+	public void onCivtickUpdate(CivAsyncTask task) {
 	}
 
-	public void onSecondUpdate() {
+	public void onSecondUpdate(CivAsyncTask task) {
 	}
 
 	public abstract void processUndo() throws CivException;
@@ -323,7 +318,7 @@ public abstract class Construct extends SQLObject {
 		}
 		this.getTemplate().buildTemplate(corner);
 		this.getTemplate().buildAirBlocks(corner);
-		this.bindBlocks();
+		this.postBuild();
 		try {
 			this.saveNow();
 		} catch (SQLException var7) {
@@ -355,12 +350,11 @@ public abstract class Construct extends SQLObject {
 	@SuppressWarnings("deprecation")
 	public void loadSettings() {
 		/* Build and register all of the components. */
-		if (this.getComponentInfoList() != null) {
-			for (HashMap<String, String> compInfo : this.getComponentInfoList()) {
+		if (!info.components.isEmpty()) {
+			for (HashMap<String, String> compInfo : info.components) {
 				String className = "com.avrgaming.civcraft.components." + compInfo.get("name");
-				Class<?> someClass;
 				try {
-					someClass = Class.forName(className);
+					Class<?> someClass = Class.forName(className);
 					Component compClass = (Component) someClass.newInstance();
 					compClass.setName(compInfo.get("name"));
 					for (String key : compInfo.keySet()) {
@@ -373,17 +367,18 @@ public abstract class Construct extends SQLObject {
 			}
 		}
 
-		Construct construct = this;
-		TaskMaster.syncTask(new Runnable() {
-			// Посколько compClass.createComponent() создаеться в новом потоке, то нам надо подождать 2 секунды, перед загрузкой информации из ДБ
-			@Override
-			public void run() {
-				for (Component comp : construct.attachedComponents) {
-					comp.onLoad();
+		if (!this.attachedComponents.isEmpty()) {
+			Construct construct = this;
+			TaskMaster.syncTask(new Runnable() {
+				// Посколько compClass.createComponent() создаеться в новом потоке, то нам надо подождать 2 секунды, перед загрузкой информации из ДБ
+				@Override
+				public void run() {
+					for (Component comp : construct.attachedComponents) {
+						comp.onLoad();
+					}
 				}
-			}
-		}, 40);
-
+			}, 40);
+		}
 	}
 
 	public void bindBlocks() {
@@ -407,11 +402,15 @@ public abstract class Construct extends SQLObject {
 						BlockCoord bc = corner.getRelative(sb.getX(), y, sb.getZ());
 						construct.addConstructBlock(new BlockCoord(bc), (y != 0));
 					}
-					/* Re-run the post build on the command blocks we found. */
-					if (construct.isActive()) construct.postBuildSyncTask();
 				}
 			}
-		}, 100);
+		}, 20);
+	}
+
+	public void postBuild() {
+		CivLog.debug("postBuild");
+		bindBlocks();
+		if (this.isActive()) postBuildSyncTask();
 	}
 
 	public void postBuildSyncTask() {
@@ -523,7 +522,7 @@ public abstract class Construct extends SQLObject {
 
 	@Override
 	public void delete() {
-		this.setEnabled(false);
+		this.setDeleted(true);
 		for (Component comp : this.attachedComponents) {
 			comp.destroyComponent();
 		}
@@ -770,7 +769,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public boolean isActive() {
-		return !isDestroyed() && isEnabled();
+		return !isDestroyed();
 	}
 
 	public boolean isDestroyed() {

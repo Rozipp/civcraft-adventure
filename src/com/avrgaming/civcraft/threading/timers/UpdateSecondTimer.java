@@ -22,6 +22,7 @@ public class UpdateSecondTimer extends CivAsyncTask {
 
 	@Override
 	public void run() {
+		this.beginTime = System.currentTimeMillis();
 		if (!lock.tryLock()) return;
 		try {
 			// Loop through each structure, if it has an update function call it in another async process
@@ -29,7 +30,7 @@ public class UpdateSecondTimer extends CivAsyncTask {
 				town.onSecondUpdate(this);
 			}
 			for (Camp camp : CivGlobal.getCamps()) {
-				camp.onSecondUpdate();
+				camp.onSecondUpdate(this);
 			}
 //			for (Cave cave : CivGlobal.getCaves()) {
 //				cave.onSecondUpdate();
@@ -37,7 +38,5 @@ public class UpdateSecondTimer extends CivAsyncTask {
 		} finally {
 			lock.unlock();
 		}
-
 	}
-
 }

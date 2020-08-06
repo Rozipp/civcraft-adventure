@@ -12,9 +12,7 @@ public class AttrSource {
 
 	/* Contains a list of sources and the total. */
 	public HashMap<String, Double> sources;
-	public HashMap<String, Double> sourcesHour = new HashMap<>();
 	public double total;
-	public double totalHour = 0;
 	AttrRate rate;
 	public Date lastUpdate;
 
@@ -27,22 +25,11 @@ public class AttrSource {
 
 	public void modifyAttrSource(HashMap<String, Double> sources, double total, AttrRate rate) {
 		for (String name : sources.keySet()) {
-			if (!sourcesHour.containsKey(name))
-				sourcesHour.put(name, sources.get(name));
-			else
-				sourcesHour.put(name, sourcesHour.get(name) + sources.get(name));
 			this.sources.put(name, sources.get(name));
 		}
-		this.totalHour += total;
 		this.total = total;
 		this.rate = rate;
 		this.lastUpdate = new Date();
-	}
-
-	public void clearHourAttrSources() {
-		for (String name : sourcesHour.keySet()) {
-			sourcesHour.put(name, 0.0);
-		}
 	}
 
 	public AttrRate getRate() {
@@ -56,7 +43,7 @@ public class AttrSource {
 		out.add(CivMessage.buildSmallTitle(CivSettings.localize.localizedString("town_info_sources")));
 
 		for (String source : sources.keySet()) {
-			out.add(sourceColor + source + ": " + valueColor + df.format(sources.get(source)) + "/" + df.format(sourcesHour.get(source)));
+			out.add(sourceColor + source + ": " + valueColor + df.format(sources.get(source)));
 		}
 
 		return out;
@@ -81,7 +68,7 @@ public class AttrSource {
 		DecimalFormat df = new DecimalFormat();
 
 		out.add(CivMessage.buildSmallTitle(CivSettings.localize.localizedString("town_info_totals")));
-		out.add(sourceColor + "Total: " + valueColor + df.format(this.total) + "/" + df.format(totalHour) + sourceColor);
+		out.add(sourceColor + "Total: " + valueColor + df.format(this.total) + sourceColor);
 		return out;
 	}
 

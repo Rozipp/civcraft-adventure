@@ -23,7 +23,6 @@ import pvptimer.PvPTimer;
 
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidationChecker;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidationPunisher;
 import com.avrgaming.civcraft.construct.farm.FarmGrowthSyncTask;
@@ -102,9 +101,7 @@ public final class CivCraft extends JavaPlugin {
 		}
 
 		Commander.initCommands();
-
 		SimpleListener.registerAll();
-
 		startTimers();
 	}
 
@@ -124,7 +121,6 @@ public final class CivCraft extends JavaPlugin {
 			e.printStackTrace();
 		}
 
-		Transmuter.stopAllTransmuter();
 		TaskMaster.stopAll();
 		MobStatic.despawnAll();
 		// HandlerList.unregisterAll(this);

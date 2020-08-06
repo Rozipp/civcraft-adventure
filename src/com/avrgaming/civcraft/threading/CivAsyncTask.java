@@ -64,18 +64,16 @@ public abstract class CivAsyncTask implements Runnable {
 	public static final long TIMEOUT = 5000;
 	
 	protected boolean finished = true;
-			
+	public Long beginTime = 0L;
+	
 	public boolean isFinished() 
 	{
 		return finished;
 	}
 			
 	public void syncLoadChunk(ChunkCoord chunkCoord) throws InterruptedException {
-		
 		LoadChunkRequest request = new LoadChunkRequest(SyncLoadChunk.lock, chunkCoord);
-		
 		this.finished = false;
-		
 		SyncLoadChunk.lock.lock();
 		try {
 			SyncLoadChunk.requestQueue.add(request);
@@ -90,12 +88,10 @@ public abstract class CivAsyncTask implements Runnable {
 					CivLog.warning("Couldn't load chunk in "+TIMEOUT+" milliseconds! Retrying.");
 				}
 			}
-			
 		} finally {
 			this.finished = true;
 			SyncLoadChunk.lock.unlock();
 		}
-		
 	}
 		
 	public Inventory getChestInventory(BlockCoord blockCoord, boolean retry) throws InterruptedException, CivTaskAbortException {
@@ -132,7 +128,7 @@ public abstract class CivAsyncTask implements Runnable {
 	public Boolean updateInventory(Action action, Inventory inv, ItemStack stack, int index) throws InterruptedException  {
 		
 		UpdateInventoryRequest request = new UpdateInventoryRequest(SyncUpdateInventory.lock);
-		request.index = index;
+		request.slot = index;
 		request.stack = stack;
 		request.inv = inv;
 		request.action = action;

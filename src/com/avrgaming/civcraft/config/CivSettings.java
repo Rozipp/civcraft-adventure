@@ -38,7 +38,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.avrgaming.civcraft.construct.constructs.Camp;
-import com.avrgaming.civcraft.construct.template.ConfigTheme;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
@@ -92,9 +91,7 @@ public class CivSettings {
 	public static FileConfiguration structureConfig; /* structures.yml */
 	public static Map<Integer, ConfigGrocerLevel> grocerLevels = new HashMap<Integer, ConfigGrocerLevel>();
 	public static Map<Integer, ConfigAlchLevel> alchLevels = new HashMap<Integer, ConfigAlchLevel>();
-	public static Map<Integer, ConfigConsumeLevel> cottageLevels = new HashMap<Integer, ConfigConsumeLevel>();
-	public static Map<Integer, ConfigConsumeLevel> mineLevels = new HashMap<Integer, ConfigConsumeLevel>();
-	public static Map<Integer, ConfigConsumeLevel> templeLevels = new HashMap<Integer, ConfigConsumeLevel>();
+	public static Map<String, ConfigConsumeRecipe> consumeLevels = new HashMap<>();
 	public static Map<Integer, ConfigTradeShipLevel> tradeShipLevels = new HashMap<Integer, ConfigTradeShipLevel>();
 
 	public static FileConfiguration wonderConfig; /* wonders.yml */
@@ -142,7 +139,6 @@ public class CivSettings {
 	public static int punchoutchance;
 
 	public static FileConfiguration campConfig; /* camp.yml */
-	public static Map<Integer, ConfigConsumeLevel> longhouseLevels = new HashMap<Integer, ConfigConsumeLevel>();
 	public static Map<String, ConfigCampUpgrade> campUpgrades = new HashMap<String, ConfigCampUpgrade>();
 
 	public static FileConfiguration transmuterConfig; /* transmuter.yml */
@@ -439,6 +435,7 @@ public class CivSettings {
 
 	private static void loadConfigObjects() throws InvalidConfiguration {
 		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
+		ConfigConsumeRecipe.loadConfig(transmuterConfig, consumeLevels);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
 		ConfigCultureLevel.loadConfig(townConfig, cultureLevels);
 		ConfigConstructInfo.loadConfig(constructConfig, "constructs", constructs);
@@ -453,16 +450,12 @@ public class CivSettings {
 		ConfigCave.loadConfig(caveConfig, caves);
 		ConfigGrocerLevel.loadConfig(structureConfig, grocerLevels);
 		ConfigAlchLevel.loadConfig(structureConfig, alchLevels);
-		ConfigConsumeLevel.loadConfig(structureConfig, cottageLevels, "cottage");
-		ConfigConsumeLevel.loadConfig(structureConfig, templeLevels, "temple");
-		ConfigConsumeLevel.loadConfig(structureConfig, mineLevels, "mine");
 		ConfigLabLevel.loadConfig(structureConfig, labLevels);
 		ConfigGovernment.loadConfig(governmentConfig, governments);
 		ConfigEnchant.loadConfig(enchantConfig, enchants);
 
 		ConfigPerk.loadConfig(perkConfig, perks);
 		ConfigPerk.loadTemplates(perkConfig, templates);
-		ConfigConsumeLevel.loadConfig(campConfig, longhouseLevels, "longhouse");
 		ConfigCampUpgrade.loadConfig(campConfig, campUpgrades);
 
 		ConfigMarketItem.loadConfig(marketConfig, marketItems);
@@ -774,46 +767,17 @@ public class CivSettings {
 		return null;
 	}
 
-	public static int getCottageMaxLevel() {
-		int returnLevel = 0;
-		for (Integer level : cottageLevels.keySet()) {
-			if (returnLevel < level) returnLevel = level;
-		}
-
-		return returnLevel;
-	}
-
-	public static int getTempleMaxLevel() {
-		int returnLevel = 0;
-		for (Integer level : templeLevels.keySet()) {
-			if (returnLevel < level) returnLevel = level;
-		}
-		return returnLevel;
-	}
-
-	public static int getMineMaxLevel() {
-		int returnLevel = 0;
-		for (Integer level : mineLevels.keySet()) {
-			if (returnLevel < level) returnLevel = level;
-		}
-
-		return returnLevel;
-	}
-
 	public static int getMaxCultureLevel() {
 		int returnLevel = 0;
 		for (Integer level : cultureLevels.keySet()) {
 			if (returnLevel < level) returnLevel = level;
 		}
-
 		return returnLevel;
-
 	}
 
 	public static ConfigBiomeInfo getCultureBiome(Biome biome) {
 		ConfigBiomeInfo biomeInfo = cultureBiomes.get(biome);
 		if (biomeInfo == null) biomeInfo = cultureBiomes.get(Biome.VOID);
-
 		return biomeInfo;
 	}
 

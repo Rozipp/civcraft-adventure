@@ -1,4 +1,4 @@
-package com.avrgaming.civcraft.construct.template;
+package com.avrgaming.civcraft.config;
 
 import java.io.File;
 import java.io.FileNotFoundException;

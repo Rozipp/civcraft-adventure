@@ -44,11 +44,11 @@ import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.config.ConfigPerk;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.construct.constructs.Cannon;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.construct.structures.ArrowTower;
 import com.avrgaming.civcraft.construct.structures.BuildableStatic;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.construct.wonders.GrandShipIngermanland;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.event.EventTimer;
@@ -346,12 +346,11 @@ public class DebugCommand extends CommandBase {
 										AdminTownCommand.claimradius(spawnCapitol, center, 15);
 									}
 									struct.setTemplate(Template.getTemplate(Template.getTemplateFilePath(info.template_name, dir, null)));
-									struct.bindBlocks();
 									struct.setComplete(true);
 									struct.setHitpoints(info.max_hitpoints);
 									CivGlobal.addStructure(struct);
 									spawnCapitol.BM.addStructure(struct);
-									struct.postBuildSyncTask();
+									struct.postBuild();
 									struct.save();
 									spawnCapitol.save();
 								} else

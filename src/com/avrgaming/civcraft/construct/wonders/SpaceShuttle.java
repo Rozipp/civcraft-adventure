@@ -135,7 +135,7 @@ public class SpaceShuttle extends Wonder {
 		if (allMatch) {
 			for (final ItemStack itemStack2 : source.getContents()) {
 				if (itemStack2 != null) {
-					task.updateInventory(UpdateInventoryRequest.Action.REMOVE, source, itemStack2);
+					task.updateInventory(UpdateInventoryRequest.Action.REMOVESTACK, source, itemStack2);
 				}
 			}
 			final String fullName = player.getDisplayName();

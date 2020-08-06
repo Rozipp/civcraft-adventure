@@ -32,15 +32,15 @@ public class UpdateInventoryRequest extends AsyncRequest {
 	}
 
 	public enum Action {
-		ADD,
-		REMOVE,
-		SET,
-		REPLACE
+		ADDSTACK,
+		REMOVESTACK,
+		SETCONTENTS,
+		REPLACESTACK
 	}
 	
 	public MultiInventory multiInv;
 	public Inventory inv;
-	public int index;
+	public int slot;
 	public ItemStack[] cont;
 	public ItemStack stack;
 	public Action action;

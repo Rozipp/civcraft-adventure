@@ -137,8 +137,8 @@ public class ProjectileCannonComponent extends ProjectileComponent {
 			fireRate = CivSettings.getInteger(CivSettings.warConfig, "cannon_tower.fire_rate");
 
 			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
-			this.proximityComponent.setConstruct(construct);
 			this.proximityComponent.setRadius(range);
+			this.proximityComponent.createComponent(construct);
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}

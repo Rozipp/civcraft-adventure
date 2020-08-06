@@ -42,7 +42,6 @@ public class SyncUpdateInventory implements Runnable {
 	@Override
 	public void run() {
 
-		Boolean retBool = false;
 		if (lock.tryLock()) {
 			try {
 				for (int i = 0; i < UPDATE_LIMIT; i++) {
@@ -50,28 +49,27 @@ public class SyncUpdateInventory implements Runnable {
 					if (request == null) return;
 
 					switch (request.action) {
-					case ADD:
-						int leftovers = request.multiInv.addItem(request.stack);
-						retBool = !(leftovers > 0);
+					case ADDSTACK:
+						int leftovers = request.multiInv.addItemStackSync(request.stack);
+						request.result = !(leftovers > 0);
 						break;
-					case REMOVE:
+					case REMOVESTACK:
 						try {
-							retBool = request.multiInv.removeItem(request.stack, true);
+							request.result = request.multiInv.removeItemStackSync(request.stack, true);
 						} catch (CivException e) {
 							e.printStackTrace();
 						}
 						break;
-					case SET:
-						retBool = true;
+					case SETCONTENTS:
+						request.result = true;
 						request.inv.setContents(request.cont);
 						break;
-					case REPLACE:
-						retBool = true;
-						request.inv.setItem(request.index, request.stack);
+					case REPLACESTACK:
+						request.result = true;
+						request.inv.setItem(request.slot, request.stack);
 						break;
 					}
 
-					request.result = retBool;
 					request.finished = true;
 					request.condition.signalAll();
 				}

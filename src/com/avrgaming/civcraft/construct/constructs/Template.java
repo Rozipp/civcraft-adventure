@@ -6,7 +6,7 @@
  * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
  * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
  * obtained from AVRGAMING LLC. */
-package com.avrgaming.civcraft.construct.template;
+package com.avrgaming.civcraft.construct.constructs;
 
 import java.io.BufferedReader;
 import java.io.File;

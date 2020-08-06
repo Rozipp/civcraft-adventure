@@ -31,7 +31,6 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.interactive.BuildCallback;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -94,9 +93,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
 						List<String> l = new ArrayList<>();
 						Town town = Commander.getSelectedTown(sender);
-						CivLog.debug("arg = " + arg);
 						for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
-							CivLog.debug("sinfo = " + sinfo.id + "   displayName = " + sinfo.displayName);
 							if (sinfo.displayName.toLowerCase().startsWith(arg) && sinfo.isAvailable(town)) {
 								if (sinfo.type == ConstructType.Structure) l.add(sinfo.displayName.replace(" ", "_"));
 								if (sinfo.type == ConstructType.Wonder) {
@@ -157,9 +154,8 @@ public class BuildableCommand extends MenuAbstractCommand {
 				List<String> l = new ArrayList<>();
 				Town town = Commander.getSelectedTown(sender);
 				for (Structure struct : town.BM.getStructures()) {
-					String s = struct.getDisplayName() + " - " + struct.getCorner().toString();
-					// if (s.toLowerCase().startsWith(arg))
-					l.add(s);
+					String s = struct.getDisplayName().replace(" ", "_") + ":" + struct.getCorner().toString();
+					if (s.toLowerCase().startsWith(arg)) l.add(s);
 				}
 				return l;
 			}
@@ -167,7 +163,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
-				if (args.length < 2) {
+				if (args.length < 1) {
 					CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_demolishHeader"));
 					for (Structure struct : town.BM.getStructures()) {
 						CivMessage.send(sender, CivSettings.localize.localizedString("var_cmd_build_demolish", struct.getDisplayName(), CivColor.Yellow + struct.getCorner().toString() + CivColor.White));
@@ -175,7 +171,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 					return;
 				}
 				try {
-					String[] split = args[1].split(" - ");
+					String[] split = args[0].split(":");
 					String arg = (split.length > 1) ? split[1] : split[0];
 					BlockCoord coord = new BlockCoord(arg);
 					Structure struct = town.BM.getStructure(coord);
@@ -197,7 +193,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				Player player = Commander.getPlayer(sender);
 				Structure nearest = (Structure) CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
 				if (nearest == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
-				if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
+				if (args.length < 1 || !args[0].equalsIgnoreCase("yes")) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_demolishNearestConfirmPrompt", CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen,
 							CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen));
 					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_demolishNearestConfirmPrompt2"));

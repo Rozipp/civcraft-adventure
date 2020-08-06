@@ -61,7 +61,7 @@ public class ConfigConstructInfo {
 	}
 
 	public static void loadConfig(FileConfiguration cfg, String path, Map<String, ConfigConstructInfo> structureMap) {
-//		structureMap.clear();
+		// structureMap.clear();
 		List<Map<?, ?>> structures = cfg.getMapList(path);
 		for (Map<?, ?> struct : structures) {
 			Object obj;
@@ -102,8 +102,7 @@ public class ConfigConstructInfo {
 				}
 			}
 			structureMap.put(sinfo.id, sinfo);
-			CivLog.debug("load ConstructInfo " + sinfo.id);
 		}
-		CivLog.info("Loaded " + structureMap.size() + " structures.");
+		CivLog.info("Loaded " + structureMap.size() + " " + path + " construct.");
 	}
 }

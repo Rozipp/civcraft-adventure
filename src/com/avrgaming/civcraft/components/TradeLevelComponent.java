@@ -373,10 +373,10 @@ public class TradeLevelComponent extends Component {
 						countToConsume -= countInStackToConsume;
 						/* Consume what we can */
 						try {
-							source.removeItem(stack, false);
+							source.removeItemStackSync(stack, false);
 							if (countInStack != countInStackToConsume) {
 								stack.setAmount(countInStack - countInStackToConsume);
-								source.addItems(stack, false);
+								source.addItemStack(stack, false);
 							}
 						} catch (CivException e) {
 							e.printStackTrace();

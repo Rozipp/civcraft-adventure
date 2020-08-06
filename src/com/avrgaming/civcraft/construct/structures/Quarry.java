@@ -3,17 +3,17 @@ package com.avrgaming.civcraft.construct.structures;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class Quarry extends Structure {
 
 	public int level;
-	public Transmuter transmuter = new Transmuter(this);
 
 	public Quarry(String id, Town town) throws CivException {
 		super(id, town);
@@ -26,12 +26,7 @@ public class Quarry extends Structure {
 
 	@Override
 	public void delete() {
-		transmuter.stop();
 		super.delete();
-	}
-
-	@Override
-	public void onSecondUpdate() {
 	}
 
 	@Override
@@ -46,9 +41,34 @@ public class Quarry extends Structure {
 		return "minecart";
 	}
 
+	public int getLevel() {
+		return level;
+	}
+
 	@Override
-	public void onCivtickUpdate() {
+	public void onSecondUpdate(CivAsyncTask task) {
+		if (!CivGlobal.quarriesEnabled) return;
+		if (getTransmuter() == null) return;
+		getTransmuter().processConsumption();
+	}
+
+	@Override
+	public void onCivtickUpdate(CivAsyncTask task) {
 		modifyTransmuterChance();
+	}
+
+	private TransmuterComponent transmuter;
+
+	public TransmuterComponent getTransmuter() {
+		if (transmuter == null) transmuter = (TransmuterComponent) this.getComponent("TransmuterComponent");
+		return transmuter;
+	}
+
+	@Override
+	public void onPostBuild() {
+		this.level = getTown().BM.saved_quarry_level;
+		modifyTransmuterChance();
+		getTransmuter().setLevel(level);
 	}
 
 	public void modifyTransmuterChance() {
@@ -63,20 +83,7 @@ public class Quarry extends Structure {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
-		transmuter.setModifyChance(chance);
+		getTransmuter().setModifyChance(chance);
 	}
 
-	@Override
-	public void onPostBuild() {
-		this.level = getTown().BM.saved_quarry_level;
-		modifyTransmuterChance();
-		this.transmuter.clearRecipe();
-		for (int i = 1; i <= level; i++)
-			this.transmuter.addRecipe("quarry" + i);
-		if (CivGlobal.quarriesEnabled) this.transmuter.start();
-	}
-
-	public int getLevel() {
-		return level;
-	}
 }

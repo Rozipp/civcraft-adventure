@@ -9,7 +9,6 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 
 import com.avrgaming.civcraft.main.CivCraft;
-import com.avrgaming.civcraft.main.CivLog;
 
 /** Регистрирует класы CustomCommand как команды плагина
  * @author rozipp */
@@ -17,6 +16,7 @@ public class CommanderRegistration {
 
 	private static String fromPlugin = CivCraft.getPlugin().getName();
 	protected static CommandMap cmap;
+	public static int count = 0;
 
 	public static void register(CustomCommand custonCommand) {
 		ReflectCommand command;
@@ -26,7 +26,7 @@ public class CommanderRegistration {
 			throw new CommandNotPreparedException("Command does not have a name.");
 
 		getCommandMap().register((fromPlugin != null ? fromPlugin : ""), command);
-		CivLog.debug("register command " + custonCommand.getString_cmd());
+		count++;
 	}
 
 	private static CommandMap getCommandMap() {

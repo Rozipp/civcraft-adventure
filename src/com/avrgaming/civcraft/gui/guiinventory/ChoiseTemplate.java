@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
-import com.avrgaming.civcraft.construct.template.ConfigTheme;
+import com.avrgaming.civcraft.config.ConfigTheme;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.gui.GuiItems;

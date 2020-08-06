@@ -129,10 +129,7 @@ public class GuiItem {
 		stack = attrs.getStack();
 		ItemMeta meta = stack.getItemMeta();
 		meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		meta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
 		meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-		meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 		stack.setItemMeta(meta);
 		
 		return stack;

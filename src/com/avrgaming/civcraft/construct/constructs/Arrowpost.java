@@ -15,7 +15,6 @@ import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
@@ -101,7 +100,7 @@ public class Arrowpost extends Construct {
 			var8.printStackTrace();
 		}
 		this.getTemplate().buildTemplate(corner);
-		this.bindBlocks();
+		this.postBuild();
 		Arrowpost.arrowposts.put(this.getCorner(), this);
 	}
 

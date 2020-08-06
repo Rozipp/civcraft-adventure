@@ -15,7 +15,7 @@ import com.avrgaming.civcraft.components.TradeLevelComponent;
 import com.avrgaming.civcraft.components.TradeLevelComponent.Result;
 import com.avrgaming.civcraft.components.TradeShipResults;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -348,7 +348,7 @@ public class TradeShip extends WaterStructure {
 				}
 
 				for (ItemStack item : tradeResult.getReturnCargo()) {
-					multiInv.addItemStack(item);
+					multiInv.addItemStackAsync(item);
 				}
 				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("tradeship_successSpecail"));
 			}

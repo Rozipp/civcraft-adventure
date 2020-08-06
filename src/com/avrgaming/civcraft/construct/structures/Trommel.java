@@ -11,17 +11,17 @@ package com.avrgaming.civcraft.construct.structures;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class Trommel extends Structure {
 
 	private int level = 1;
-	public Transmuter transmuter;
 
 	public Trommel(String id, Town town) throws CivException {
 		super(id, town);
@@ -33,14 +33,13 @@ public class Trommel extends Structure {
 
 	@Override
 	public void delete() {
-		transmuter.stop();
 		super.delete();
 	}
 
 	@Override
 	public String getDynmapDescription() {
 		String out = "<u><b>" + this.getDisplayName() + "</u></b><br/>";
-		out += "Level: " + this.level;
+		out += CivSettings.localize.localizedString("Level") + " " + this.level;
 		return out;
 	}
 
@@ -50,13 +49,35 @@ public class Trommel extends Structure {
 	}
 
 	@Override
-	public void onCivtickUpdate() {
+	public void onSecondUpdate(CivAsyncTask task) {
+		if (!CivGlobal.trommelsEnabled) return;
+		if (getTransmuter() == null) return;
+//		Long begin = System.currentTimeMillis();
+//		CivLog.debug(getTransmuter().processConsumption().toString() + " after " + (System.currentTimeMillis() - begin));
+		getTransmuter().processConsumption();
+	}
+
+	@Override
+	public void onCivtickUpdate(CivAsyncTask task) {
 		modifyTransmuterChance();
+	}
+
+	private TransmuterComponent transmuter;
+	public TransmuterComponent getTransmuter() {
+		if (transmuter == null) transmuter = (TransmuterComponent) this.getComponent("TransmuterComponent");
+		return transmuter;
+	}
+
+	@Override
+	public void onPostBuild() {
+		this.level = getTown().BM.saved_trommel_level;
+		modifyTransmuterChance();
+		getTransmuter().setLevel(level);
 	}
 
 	public void modifyTransmuterChance() {
 		Double chance = 1.0;
-		chance += 0.10 * getTown().BM.saved_trommel_level;
+		chance += 0.10 * this.level;
 		double extraction = this.getTown().getBuffManager().getEffectiveDouble("buff_extraction");
 		chance += (extraction > 2) ? 2 : extraction;
 		chance += this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
@@ -67,30 +88,7 @@ public class Trommel extends Structure {
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
-		transmuter.setModifyChance(chance);
-	}
-
-	@Override
-	public void onPostBuild() {
-		transmuter = new Transmuter(this);
-		this.level = getTown().BM.saved_trommel_level;
-		modifyTransmuterChance();
-		this.addTromelRecipe(level);
-		if (CivGlobal.trommelsEnabled) this.transmuter.start();
-	}
-
-	public void addTromelRecipe(Integer level) {
-		switch (level) {
-		case 4:
-			this.transmuter.addRecipe("trommel_andesit");
-		case 3:
-			this.transmuter.addRecipe("trommel_diorit");
-		case 2:
-			this.transmuter.addRecipe("trommel_granit");
-		case 1:
-			this.transmuter.addRecipe("trommel_clay");
-			this.transmuter.addRecipe("trommel_cobblestone");
-		}
+		getTransmuter().setModifyChance(chance);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.template.Template;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;

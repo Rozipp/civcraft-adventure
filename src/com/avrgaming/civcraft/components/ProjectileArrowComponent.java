@@ -55,9 +55,8 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 			min_range = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.min_range");
 
 			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
-			this.proximityComponent.setConstruct(construct);
 			this.proximityComponent.setRadius(range);
-
+			this.proximityComponent.createComponent(construct);
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}

@@ -1,19 +1,18 @@
 package com.avrgaming.civcraft.construct.constructs;
 
+import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent;
+import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCampUpgrade;
-import com.avrgaming.civcraft.config.ConfigConsumeLevel;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.Transmuter;
 import com.avrgaming.civcraft.construct.farm.FarmChunk;
 import com.avrgaming.civcraft.construct.structures.BuildableStatic;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -50,8 +49,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import org.bukkit.ChatColor;
@@ -85,8 +82,6 @@ public class Camp extends Construct {
 	private static Integer maxFirePoints;
 	private static int raidLength;
 
-	private ConsumeLevelComponent consumeComp = null;
-
 	private HashMap<String, Resident> members = new HashMap<String, Resident>();
 	public HashSet<BlockCoord> memberProtectionBlocks = new HashSet<>();
 	/** можно ли отменить установку лагеря */
@@ -97,8 +92,6 @@ public class Camp extends Construct {
 	public HashMap<Integer, BlockCoord> firepitBlocks = new HashMap<Integer, BlockCoord>();
 	public HashSet<BlockCoord> fireFurnaceBlocks = new HashSet<BlockCoord>();
 
-	/* Transmuter */
-	List<Transmuter> trasmuters = new LinkedList<Transmuter>();
 	/** уровни пристроек в селе */
 	private HashMap<String, Integer> annexLevel = new HashMap<>();
 
@@ -134,6 +127,7 @@ public class Camp extends Construct {
 		super("c_camp", null);
 		this.load(rs);
 		this.loadSettings();
+		this.postBuild();
 	}
 
 	public static Camp newCamp(Player player, Location location) throws CivException {
@@ -195,7 +189,6 @@ public class Camp extends Construct {
 		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
 		this.firepoints = rs.getInt("firepoints");
 		this.loadUpgradeString(rs.getString("upgrades"));
-		this.bindBlocks();
 	}
 
 	public void loadUpgradeString(String upgrades) {
@@ -215,8 +208,6 @@ public class Camp extends Construct {
 
 	public void loadSettings() {
 		this.setHitpoints(getMaxHitPoints());
-		consumeComp = new ConsumeLevelComponent();
-		consumeComp.createComponent(this, false);
 		super.loadSettings();
 	}
 
@@ -245,11 +236,6 @@ public class Camp extends Construct {
 
 	@Override
 	public void delete() {
-		for (Transmuter tr : trasmuters) {
-			tr.stop();
-		}
-		trasmuters.clear();
-
 		if (this.farmChunk != null) farmChunk.delete();
 
 		for (Resident resident : this.members.values()) {
@@ -659,10 +645,6 @@ public class Camp extends Construct {
 	}
 
 	public void processLonghouse(CivAsyncTask task) {
-		if (consumeComp == null) {
-			consumeComp = new ConsumeLevelComponent();
-			consumeComp.createComponent(this, false);
-		}
 		int level = annexLevel.getOrDefault("longhouse", 0);
 		if (level == 0) return;
 		MultiInventory mInv = new MultiInventory();
@@ -678,13 +660,13 @@ public class Camp extends Construct {
 			CivMessage.sendCamp(this, "§c" + CivSettings.localize.localizedString("camp_longhouseNoChest"));
 			return;
 		}
-		consumeComp.setSource(mInv);
-		Result result = consumeComp.processConsumption(true);
-		consumeComp.onSave();
+		getConsumeLevelComponent().setMultiInventory(mInv);
+		Result result = getConsumeLevelComponent().processConsumption();
+		getConsumeLevelComponent().onSave();
 		switch (result) {
 		case STARVE:
 			CivMessage.sendCamp(this, CivColor.LightGreen + CivSettings.localize.localizedString("var_camp_yourLonghouseDown",
-					(CivColor.Rose + CivSettings.localize.localizedString("var_camp_longhouseStarved", consumeComp.getCountString()) + CivColor.LightGreen), CivSettings.CURRENCY_NAME));
+					(CivColor.Rose + CivSettings.localize.localizedString("var_camp_longhouseStarved", getConsumeLevelComponent().getCountString()) + CivColor.LightGreen), CivSettings.CURRENCY_NAME));
 			return;
 		case LEVELDOWN:
 			CivMessage.sendCamp(this, CivColor.LightGreen
@@ -702,15 +684,14 @@ public class Camp extends Construct {
 			break;
 		}
 
-		ConfigConsumeLevel lvl = null;
+		Double coins = null;
 		if (result == Result.LEVELUP) {
-			lvl = CivSettings.longhouseLevels.get(consumeComp.getLevel() - 1);
+			coins = getConsumeLevelComponent().getConsumeLevelStorageResult(getConsumeLevelComponent().getLevel() - 1);
 		} else {
-			lvl = CivSettings.longhouseLevels.get(consumeComp.getLevel());
+			coins = getConsumeLevelComponent().getConsumeLevelStorageResult(getConsumeLevelComponent().getLevel());
 		}
 
-		double total_coins = lvl.coins;
-		this.getOwnerResident().getTreasury().deposit(total_coins);
+		this.getOwnerResident().getTreasury().deposit(coins);
 
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial("mat_token_of_leadership");
 		if (craftMat != null) {
@@ -720,25 +701,25 @@ public class Camp extends Construct {
 			Resident res = CivGlobal.getResident(this.getOwnerName());
 
 			token = tag.addTag(token, res.getName());
-			mInv.addItems(token, true);
+			mInv.addItemStack(token, true);
 		}
 
 		String stateMessage = "";
 		switch (result) {
 		case GROW:
-			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_camp_longhouseGrew", consumeComp.getCountString() + CivColor.LightGreen);
+			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_camp_longhouseGrew", getConsumeLevelComponent().getCountString() + CivColor.LightGreen);
 			break;
 		case LEVELUP:
 			stateMessage = CivColor.Green + CivSettings.localize.localizedString("camp_longhouselvlUp") + CivColor.LightGreen;
 			break;
 		case MAXED:
-			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_camp_longhouseIsMaxed", consumeComp.getCountString() + CivColor.LightGreen);
+			stateMessage = CivColor.Green + CivSettings.localize.localizedString("var_camp_longhouseIsMaxed", getConsumeLevelComponent().getCountString() + CivColor.LightGreen);
 			break;
 		default:
 			break;
 		}
 
-		CivMessage.sendCamp(this, CivColor.LightGreen + CivSettings.localize.localizedString("var_camp_yourLonghouse", stateMessage, total_coins, CivSettings.CURRENCY_NAME));
+		CivMessage.sendCamp(this, CivColor.LightGreen + CivSettings.localize.localizedString("var_camp_yourLonghouse", stateMessage, coins, CivSettings.CURRENCY_NAME));
 
 		if (level == 2) {
 			// MultiInventory mInv2 = new MultiInventory();
@@ -903,12 +884,12 @@ public class Camp extends Construct {
 	}
 
 	public int getLonghouseLevel() {
-		if (consumeComp == null) return 1;
-		return consumeComp.getLevel();
+		if (getConsumeLevelComponent() == null) return 1;
+		return getConsumeLevelComponent().getLevel();
 	}
 
 	public String getLonghouseCountString() {
-		return consumeComp.getCountString();
+		return getConsumeLevelComponent().getCountString();
 	}
 
 	public String getMembersString() {
@@ -1032,19 +1013,43 @@ public class Camp extends Construct {
 		CivMessage.send(player, "TODO Нужно чтото написать");
 	}
 
+	private TransmuterComponent sifterTransmuter;
+
+	public TransmuterComponent getSifterTransmuter() {
+		if (sifterTransmuter == null) {
+			for (Component comp : this.attachedComponents) {
+				if (comp instanceof TransmuterComponent) {
+					TransmuterComponent tc = (TransmuterComponent) comp;
+					String annex = tc.getString("annex");
+					if (annex != null && annex.equalsIgnoreCase("sifter")) {
+						sifterTransmuter = tc;
+						break;
+					}
+				}
+			}
+		}
+		return sifterTransmuter;
+	}
+
+	private ConsumeLevelComponent consumeLevelComponent = null;
+
+	public ConsumeLevelComponent getConsumeLevelComponent() {
+		if (consumeLevelComponent == null) {
+			for (Component comp : this.attachedComponents) {
+				if (comp instanceof ConsumeLevelComponent) {
+					consumeLevelComponent = (ConsumeLevelComponent) comp;
+					break;
+				}
+			}
+		}
+		return consumeLevelComponent;
+	}
+
 	@Override
 	public void onPostBuild() {
-		for (Transmuter tr : trasmuters) {
-			tr.stop();
-		}
-		trasmuters.clear();
 		for (String key : annexLevel.keySet()) {
 			if (key.equals("longhouse")) continue;
-			int level = annexLevel.get(key);
-			Transmuter tr = new Transmuter(this, key);
-			tr.addRecipe(key + level);
-			trasmuters.add(tr);
-			tr.start();
+			if (key.equals("sifter")) getSifterTransmuter().setLevel(annexLevel.get(key));
 		}
 
 		if (farmChunk != null) {

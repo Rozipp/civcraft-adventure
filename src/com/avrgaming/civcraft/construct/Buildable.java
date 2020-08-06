@@ -12,9 +12,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.constructs.Template;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.template.Template;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -57,7 +57,7 @@ public abstract class Buildable extends Construct {
 		} catch (InvalidNameException | InvalidObjectException e) {
 			e.printStackTrace();
 		}
-		this.bindBlocks();
+		postBuild();
 	}
 
 	public Buildable(String id, Town town) throws CivException {
@@ -221,7 +221,7 @@ public abstract class Buildable extends Construct {
 			}
 		});
 		
-		postBuildSyncTask();
+		postBuild();
 		onComplete();
 		return;
 	}

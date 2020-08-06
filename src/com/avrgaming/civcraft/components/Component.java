@@ -19,7 +19,6 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 public class Component {
 
 	public static ConcurrentHashMap<String, ArrayList<Component>> componentsByType = new ConcurrentHashMap<String, ArrayList<Component>>();
-
 	public static ReentrantLock componentsLock = new ReentrantLock();
 
 	// Allow components to be specified in YAMLs. To do this each component must be given a name and some attributes.
@@ -70,16 +69,15 @@ public class Component {
 	}
 
 	public boolean isActive() {
-		if (construct != null) {
+		if (construct != null)
 			return construct.isActive();
-		} else {
+		else
 			return false;
-		}
 	}
 
 	public void startRegisterComponentTask(Construct constr, String name, boolean register, boolean async) {
 		Component component = this;
-		class RegisterComponentAsync implements Runnable {
+		class RegisterComponentTask implements Runnable {
 			@Override
 			public void run() {
 				Component.componentsLock.lock();
@@ -88,11 +86,11 @@ public class Component {
 					if (register) {
 						if (components == null) components = new ArrayList<Component>();
 						components.add(component);
-						if (constr != null) { constr.attachedComponents.add(component); }
+						if (constr != null) constr.attachedComponents.add(component);
 					} else {
 						if (components == null) return;
 						components.remove(component);
-						if (constr != null) { constr.attachedComponents.remove(component); }
+						if (constr != null) constr.attachedComponents.remove(component);
 					}
 					Component.componentsByType.put(name, components);
 				} finally {
@@ -100,25 +98,21 @@ public class Component {
 				}
 			}
 		}
-
-		if (async) TaskMaster.asyncTask(new RegisterComponentAsync(), 0);
-		else TaskMaster.syncTask(new RegisterComponentAsync());
+		if (async)
+			TaskMaster.asyncTask(new RegisterComponentTask(), 0);
+		else
+			TaskMaster.syncTask(new RegisterComponentTask());
 	}
 
 	public Construct getConstruct() {
 		return construct;
 	}
-	
-	public void setConstruct(Construct construct) {
-		this.construct = construct;
-	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 }

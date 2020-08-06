@@ -170,7 +170,6 @@ public class CampCommand extends MenuAbstractCommand {
 				}
 				camp.lastBuildableRefresh = now;
 				camp.repairFromTemplate();
-				camp.postBuildSyncTask();
 				CivMessage.send(sender, CivSettings.localize.localizedString("cmd_camp_refreshSuccess"));
 				resident.setNextRefresh(now.getTime() + (buildable_refresh_cooldown * 60 * 1000));
 			}

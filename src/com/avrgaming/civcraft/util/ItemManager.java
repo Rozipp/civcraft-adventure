@@ -259,8 +259,12 @@ public class ItemManager {
 			} else {
 				String gMID = CustomMaterial.getMID(stack);
 				if (!gMID.isEmpty()) return gMID.equals(umid.toLowerCase());
+				else {
+					CivLog.warning("isCorrectItemStack() \"" + umid + "\" is not material");
+					return false;
+				}
 			}
-			return false;
+			
 		}
 	}
 
