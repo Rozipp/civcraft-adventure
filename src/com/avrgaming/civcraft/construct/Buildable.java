@@ -207,6 +207,7 @@ public abstract class Buildable extends Construct {
 
 	public void finished() {
 		setComplete(true);
+		setEnabled(true);
 		updateBuildProgess();
 		save();
 		getTown().BM.removeBuildableInprogress(this);
@@ -220,7 +221,7 @@ public abstract class Buildable extends Construct {
 				tpl.buildAirBlocks(getCorner());
 			}
 		});
-		
+
 		postBuild();
 		onComplete();
 		return;

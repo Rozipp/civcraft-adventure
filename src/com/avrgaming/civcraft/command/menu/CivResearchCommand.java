@@ -45,7 +45,7 @@ public class CivResearchCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_civ_research_name");
 		this.addValidator(Validators.validLeaderAdvisor);
 
-		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_civ_research_listDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_civ_research_listDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -57,7 +57,7 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("progress").withDescription(CivSettings.localize.localizedString("cmd_civ_research_progressDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("progress").withDescription(CivSettings.localize.localizedString("cmd_civ_research_progressDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -71,18 +71,17 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("on").withDescription(CivSettings.localize.localizedString("cmd_civ_research_onDesc"))
-				.withTabCompleter(new AbstractTaber() {
-					@Override
-					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
-						List<String> l = new ArrayList<>();
-						for (ConfigTech tech : ConfigTech.getAvailableTechs(Commander.getSenderCiv(sender))) {
-							if (tech.name.toLowerCase().startsWith(arg)) l.add(tech.name);
-						}
-						return l;
-					}
-				})
-				.withExecutor(new CustonExecutor() {
+		add(new CustomCommand("on").withDescription(CivSettings.localize.localizedString("cmd_civ_research_onDesc")).withTabCompleter(new AbstractTaber() {
+			@Override
+			public List<String> getTabList(CommandSender sender, String arg) throws CivException {
+				List<String> l = new ArrayList<>();
+				for (ConfigTech tech : ConfigTech.getAvailableTechs(Commander.getSenderCiv(sender))) {
+					String name = tech.name.replace(" ", "_");
+					if (name.toLowerCase().startsWith(arg)) l.add(name);
+				}
+				return l;
+			}
+		}).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -91,14 +90,14 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				if (capitol == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_missingCapitol", civ.getName()) + " " + CivSettings.localize.localizedString("internalCommandException"));
 				if (!capitol.isValid()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_missingTownHall"));
 				if (!capitol.getCityhall().isActive()) throw new CivException(CivSettings.localize.localizedString("cmd_civ_research_incompleteTownHall"));
-				String techname = Commander.combineArgs(Commander.stripArgs(args, 1));
+				String techname = args[0].replace("_", " ");
 				ConfigTech tech = CivSettings.getTechByName(techname);
 				if (tech == null) throw new CivException(CivSettings.localize.localizedString("var_cmd_civ_research_NotFound", techname));
 				civ.startTechnologyResearch(tech);
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_research_start", tech.name));
 			}
 		}));
-		add(new CustomCommand("change").withDescription(CivSettings.localize.localizedString("cmd_civ_research_changeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("change").withDescription(CivSettings.localize.localizedString("cmd_civ_research_changeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -117,7 +116,7 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_cmd_civ_research_start", tech.name));
 			}
 		}));
-		add(new CustomCommand("finished").withDescription(CivSettings.localize.localizedString("cmd_civ_research_finishedDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("finished").withDescription(CivSettings.localize.localizedString("cmd_civ_research_finishedDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -129,7 +128,7 @@ public class CivResearchCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("era").withDescription(CivSettings.localize.localizedString("cmd_civ_research_eraDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("era").withDescription(CivSettings.localize.localizedString("cmd_civ_research_eraDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);

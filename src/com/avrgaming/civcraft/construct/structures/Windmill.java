@@ -94,7 +94,7 @@ public class Windmill extends Structure {
 			}
 
 			/* Read in the source inventory's contents. Make sure we have seeds to plant. */
-			ArrayList<ConstructChest> sources = windmill.getAllChestsById("0");
+			ArrayList<ConstructChest> sources = windmill.getChestsById("0");
 			MultiInventory source_inv = new MultiInventory();
 
 			for (ConstructChest src : sources) {

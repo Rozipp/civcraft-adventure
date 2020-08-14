@@ -41,14 +41,14 @@ public class ResidentCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_res_Name");
 
 		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_res_infoDesc")) //
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						ResidentCommand.show(sender, Commander.getResident(sender));
 					}
 				}));
 		add(new SelectorAbstractCommand("toggle", //
-				new CustonExecutor() {
+				new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Resident resident = Commander.getResident(sender);
@@ -102,14 +102,14 @@ public class ResidentCommand extends MenuAbstractCommand {
 				add("titles", CivSettings.localize.localizedString("cmd_res_toggle_titleAPIDesc"));
 			}
 		});
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_res_showDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_res_showDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 1) throw new CivException(CivSettings.localize.localizedString("cmd_res_showPrompt"));
 				ResidentCommand.show(sender, Commander.getNamedResident(args, 0));
 			}
 		}));
-		add(new CustomCommand("resetspawn").withDescription(CivSettings.localize.localizedString("cmd_res_resetspawnDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("resetspawn").withDescription(CivSettings.localize.localizedString("cmd_res_resetspawnDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -118,7 +118,7 @@ public class ResidentCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(player, CivSettings.localize.localizedString("cmd_res_resetspawnSuccess"));
 			}
 		}));
-		add(new CustomCommand("book").withAliases("b").withDescription(CivSettings.localize.localizedString("cmd_res_bookDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("book").withAliases("b").withDescription(CivSettings.localize.localizedString("cmd_res_bookDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -143,7 +143,7 @@ public class ResidentCommand extends MenuAbstractCommand {
 		}));
 
 		add(new TimezoneCustonCommand());
-		add(new CustomCommand("pvptimer").withDescription(CivSettings.localize.localizedString("cmd_res_pvptimerDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("pvptimer").withDescription(CivSettings.localize.localizedString("cmd_res_pvptimerDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -152,7 +152,7 @@ public class ResidentCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_res_pvptimerSuccess"));
 			}
 		}));
-		add(new CustomCommand("outlawed").withDescription(CivSettings.localize.localizedString("cmd_res_outlawedDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("outlawed").withDescription(CivSettings.localize.localizedString("cmd_res_outlawedDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -196,7 +196,7 @@ public class ResidentCommand extends MenuAbstractCommand {
 		public TimezoneCustonCommand() {
 			super("timezone");
 			this.setDescription(CivSettings.localize.localizedString("cmd_res_timezoneDesc"));
-			this.setExecutor(new CustonExecutor() {
+			this.setExecutor(new CustomExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					Resident resident = Commander.getResident(sender);

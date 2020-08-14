@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -48,6 +49,11 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.sessiondb.SessionEntry;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.units.ConfigUnit;
+import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -72,7 +78,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
 
 	private ConstructSign respawnSign;
-	private int index = 0;
+	private int indexTown = 0;
 
 	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
 
@@ -91,6 +97,58 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		ConstructSign structSign;
 		switch (sb.command) {
+		case "/prevunit":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_previousUnit"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("prevunit");
+			structSign.update();
+			this.addConstructSign(structSign);
+			break;
+		case "/unitname":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText(getUnitSignText(0));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("info");
+			structSign.update();
+			this.unitNameSign = structSign;
+			this.addConstructSign(structSign);
+			break;
+		case "/nextunit":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_nextUnit"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("nextunit");
+			structSign.update();
+			this.addConstructSign(structSign);
+			break;
+		case "/train":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("barracks_sign_train"));
+			structSign.setDirection(sb.getData());
+			structSign.setAction("train");
+			structSign.update();
+			this.addConstructSign(structSign);
+			break;
+		case "/progress":
+			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
+			ItemManager.setData(absCoord.getBlock(), sb.getData());
+			structSign = new ConstructSign(absCoord, this);
+			structSign.setText("");
+			structSign.setDirection(sb.getData());
+			structSign.setAction("");
+			structSign.update();
+			this.addConstructSign(structSign);
+			this.progresBar.put(Integer.valueOf(sb.keyvalues.get("id")), structSign);
+			break;
 		case "/techbar":
 			String strvalue = sb.keyvalues.get("id");
 			if (strvalue != null) granarybar[Integer.valueOf(strvalue)] = absCoord;
@@ -128,7 +186,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 		case "/next":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 			ItemManager.setData(absCoord.getBlock(), sb.getData());
-
 			structSign = new ConstructSign(absCoord, this);
 			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("capitol_sign_nextLocation"));
 			structSign.setDirection(sb.getData());
@@ -156,7 +213,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			structSign.update();
 			this.addConstructSign(structSign);
 			this.respawnSign = structSign;
-			changeIndex(index);
+			changeIndex(indexTown);
 			break;
 		case "/tohome":
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
@@ -167,7 +224,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			structSign.setAction("tohome");
 			structSign.update();
 			this.addConstructSign(structSign);
-			changeIndex(index);
 			break;
 		}
 	}
@@ -203,37 +259,58 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 		// int special_id = Integer.valueOf(sign.getAction());
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
-		if (!War.isWarTime()) return;
 
 		Boolean hasPermission = false;
 		if ((resident.getTown().GM.isMayorOrAssistant(resident)) || (resident.getCiv().GM.isLeaderOrAdviser(resident))) hasPermission = true;
 
 		switch (sign.getAction()) {
+		case "info":
+			ConfigUnit cUnit = getTown().getAvailableUnits().get(indexUnit);
+			CivMessage.send(player, "Выбран юнит " + cUnit.name);
+			for (String ss : cUnit.lore)
+				CivMessage.send(player, "" + ss);
+			break;
+		case "prevunit":
+			changeIndexUnit((indexUnit - 1));
+			break;
+		case "nextunit":
+			changeIndexUnit((indexUnit + 1));
+			break;
+		case "train":
+			if (resident.hasTown()) {
+				try {
+					train(resident);
+				} catch (CivException e) {
+					CivMessage.send(player, CivColor.Rose + e.getMessage());
+				}
+			}
+			break;
 		case "prev":
+			if (!War.isWarTime()) return;
 			if (hasPermission)
-				changeIndex((index - 1));
+				changeIndex((indexTown - 1));
 			else
 				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
 			break;
 		case "next":
+			if (!War.isWarTime()) return;
 			if (hasPermission)
-				changeIndex((index + 1));
+				changeIndex((indexTown + 1));
 			else
 				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_Sign_noPermission"));
 			break;
 		case "respawn":
+			if (!War.isWarTime()) return;
 			ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
-			if (index >= respawnables.size()) {
-				index = 0;
-				changeIndex(index);
+			if (indexTown >= respawnables.size()) {
+				indexTown = 0;
+				changeIndex(indexTown);
 				CivMessage.sendError(resident, CivSettings.localize.localizedString("capitol_cannotRespawn"));
 				return;
 			}
-
 			RespawnLocationHolder holder = getSelectedHolder();
 			int respawnTimeSeconds = this.getRespawnTime();
 			Date now = new Date();
-
 			if (resident.getLastKilledTime() != null) {
 				long secondsLeft = (resident.getLastKilledTime().getTime() + (respawnTimeSeconds * 1000)) - now.getTime();
 				if (secondsLeft > 0) {
@@ -242,19 +319,13 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 					return;
 				}
 			}
-
 			BlockCoord revive = holder.getRandomRevivePoint();
-			Location loc;
-			if (revive == null) {
-				loc = player.getBedSpawnLocation();
-			} else {
-				loc = revive.getLocation();
-			}
-
+			Location loc = (revive == null) ? player.getBedSpawnLocation() : revive.getLocation();
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
 			player.teleport(loc);
 			break;
 		case "tohome":
+			if (!War.isWarTime()) return;
 			holder = resident.getTown().getCityhall();
 			respawnTimeSeconds = this.getRespawnTime();
 			now = new Date();
@@ -267,14 +338,8 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 					return;
 				}
 			}
-
 			revive = holder.getRandomRevivePoint();
-			if (revive == null) {
-				loc = player.getBedSpawnLocation();
-			} else {
-				loc = revive.getLocation();
-			}
-
+			loc = (revive == null) ? player.getBedSpawnLocation() : revive.getLocation();
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("capitol_respawningAlert"));
 			player.teleport(loc);
 			break;
@@ -313,7 +378,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 
 	private RespawnLocationHolder getSelectedHolder() {
 		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
-		return respawnables.get(index);
+		return respawnables.get(indexTown);
 	}
 
 	private void changeIndex(int newIndex) {
@@ -322,11 +387,11 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 		if (this.respawnSign != null) {
 			try {
 				this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(newIndex).getRespawnName());
-				index = newIndex;
+				indexTown = newIndex;
 			} catch (IndexOutOfBoundsException e) {
 				if (respawnables.size() > 0) {
 					this.respawnSign.setText(CivSettings.localize.localizedString("capitol_sign_respawnAt") + "\n" + CivColor.Green + CivColor.BOLD + respawnables.get(0).getRespawnName());
-					index = 0;
+					indexTown = 0;
 				}
 			}
 			this.respawnSign.update();
@@ -477,7 +542,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			War.transferDefeated(this.getTown().getCiv(), attacker.getTown().getCiv());
 			WarStats.logCapturedCiv(attacker.getTown().getCiv(), this.getTown().getCiv());
 			War.saveDefeatedCiv(this.getCiv(), attacker.getTown().getCiv());
-
 			if (CivGlobal.isCasualMode()) {
 				HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(this.getCiv().getRandomLeaderSkull(CivSettings.localize.localizedString("var_townHall_victoryOverItem", this.getCiv().getName())));
 				for (ItemStack stack : leftovers.values()) {
@@ -523,7 +587,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	public void onControlBlockHit(Player player, ControlPoint cp) {
 		cp.getWorld().playSound(cp.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
 		cp.getWorld().playEffect(cp.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
-
 		CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_townHall_damagedControlBlock", ("(" + cp.getHitpoints() + " / " + cp.getMaxHitpoints() + ")")));
 		CivMessage.sendTown(cp.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("townHall_cbUnderAttack"));
 	}
@@ -532,7 +595,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 
 	@Override
 	public void onDamage(int amount, Player player, ConstructDamageBlock hit) {
-
 		ControlPoint cp = this.controlPoints.get(hit.getCoord());
 		Resident resident = CivGlobal.getResident(player);
 		if (cp != null) {
@@ -540,18 +602,12 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_invalid"));
 				return;
 			}
-
 			if (!cp.isDestroyed()) {
-				if (resident.isSBPermOverride())
-					cp.damage(cp.getHitpoints());
-				else
-					cp.damage(amount);
-
+				cp.damage(resident.isSBPermOverride() ? cp.getHitpoints() : amount);
 				if (cp.isDestroyed())
 					onControlBlockDestroy(player, cp);
 				else
 					onControlBlockHit(player, cp);
-
 			} else
 				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("townHall_damageCB_destroyed"));
 		} else
@@ -561,7 +617,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	public void regenControlBlocks() {
 		for (BlockCoord coord : this.controlPoints.keySet()) {
 			ItemManager.setTypeId(coord.getBlock(), CivData.OBSIDIAN);
-
 			ControlPoint cp = this.controlPoints.get(coord);
 			cp.setHitpoints(cp.getMaxHitpoints());
 		}
@@ -576,7 +631,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			e.printStackTrace();
 			return;
 		}
-
 		CivMessage.sendTown(this.getTown(), CivColor.Rose + CivColor.BOLD + CivSettings.localize.localizedString("var_townHall_invalidPunish", invalid_respawn_penalty));
 	}
 
@@ -607,25 +661,211 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	}
 
 	public void onTNTDamage(int damage) {
-		if (!this.getCiv().getDiplomacyManager().isAtWar()) {
-			return;
-		}
+		if (!this.getCiv().getDiplomacyManager().isAtWar()) return;
 		if (getHitpoints() >= damage + 1) {
 			this.setHitpoints(getHitpoints() - damage);
 			CivMessage.sendCiv(getCiv(), CivSettings.localize.localizedString("var_townHall_tntHit", this.getDisplayName(), ("(" + this.getHitpoints() + "/" + this.getMaxHitPoints() + ")")));
 		}
-
 	}
 
-	// ------------- changeIndex respawn
+	// ------------- unit
 
-	// ------------- other
+	private static final long SAVE_INTERVAL = 60 * 1000;
+
+	private int indexUnit = 0;
+	private ConstructSign unitNameSign;
+	private ConfigUnit trainingUnit = null;
+	private double currentHammers = 0.0;
+	private TreeMap<Integer, ConstructSign> progresBar = new TreeMap<Integer, ConstructSign>();
+	private Date lastSave = null;
+
+	private String getUnitSignText(int index) throws IndexOutOfBoundsException {
+		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
+		if (unitList.size() == 0) return "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Nothing") + "\n" + CivColor.LightGray + CivSettings.localize.localizedString("Available");
+		ConfigUnit unit = unitList.get(index);
+		String out = "\n";
+		double coinCost = unit.cost;
+		out += CivColor.LightPurple + unit.name + "\n";
+		out += CivColor.Yellow + coinCost + "\n";
+		out += CivColor.Yellow + CivSettings.CURRENCY_NAME;
+		return out;
+	}
+
+	private void changeIndexUnit(int newIndex) {
+		if (this.unitNameSign != null) {
+			try {
+				this.unitNameSign.setText(getUnitSignText(newIndex));
+				indexUnit = newIndex;
+			} catch (IndexOutOfBoundsException e) {
+				indexUnit = 0;
+				this.unitNameSign.setText(getUnitSignText(indexUnit));
+			}
+			this.unitNameSign.update();
+		} else {
+			CivLog.warning("Could not find unit name sign for barracks:" + this.getId() + " at " + this.getCorner());
+		}
+	}
+
+	private void train(Resident whoClicked) throws CivException {
+		if (!getTown().GM.isMayorOrAssistant(whoClicked)) throw new CivException(CivSettings.localize.localizedString("barracks_actionNoPerms"));
+		ArrayList<ConfigUnit> unitList = getTown().getAvailableUnits();
+		ConfigUnit unit = unitList.get(indexUnit);
+		if (unit == null) throw new CivException(CivSettings.localize.localizedString("barracks_unknownUnit"));
+		// TODO Добавить проверку на количество юнитов if (unit.limit != 0 && unit.limit < getTown().getUnitTypeCount(unit.id)) throw new
+		// CivException(CivSettings.localize.localizedString("var_barracks_atLimit", unit.name));
+		if (!unit.isAvailable(getTown())) throw new CivException(CivSettings.localize.localizedString("barracks_unavailable"));
+		if (this.trainingUnit != null) throw new CivException(CivSettings.localize.localizedString("var_barracks_inProgress", this.trainingUnit.name));
+		double coinCost = unit.cost;
+		if (!getTown().getTreasury().hasEnough(coinCost)) throw new CivException(CivSettings.localize.localizedString("var_barracks_tooPoor", unit.name, coinCost, CivSettings.CURRENCY_NAME));
+		getTown().getTreasury().withdraw(coinCost);
+		this.currentHammers = 0.0;
+		this.trainingUnit = unit;
+		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_barracks_begin", unit.name));
+		this.onCivtickUpdate(null);
+		this.onTechUpdate();
+	}
+
+	@Override
+	public void onTechUpdate() {
+		ConstructSign unitNameSign = this.unitNameSign;
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				unitNameSign.setText(getUnitSignText(indexUnit));
+				unitNameSign.update();
+			}
+		});
+	}
+
+	public void createUnit(ConfigUnit unit) {
+		// Find the chest inventory
+		// ArrayList<ConstructChest> chests = this.getAllChestsById("0");
+		// if (chests.size() == 0) return;
+		try {
+			UnitStatic.spawn(this.getTown(), unit.id);
+			CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_barracks_completedTraining", unit.name));
+			this.trainingUnit = null;
+			this.currentHammers = 0.0;
+			CivGlobal.getSessionDatabase().delete_all(getSessionKey());
+		} catch (CivException e) {
+			this.trainingUnit = null;
+			this.currentHammers = 0.0;
+			e.getCause().getMessage();
+			e.printStackTrace();
+			CivMessage.sendTown(getTown(), CivColor.Rose + e.getMessage());
+		}
+	}
+
+	public void updateProgressBar() {
+		double percentageDone = 0.0;
+		percentageDone = this.currentHammers / this.trainingUnit.hammer_cost;
+		int size = this.progresBar.size();
+		int textCount = (int) (size * 16 * percentageDone);
+		int textIndex = 0;
+		for (int i = 0; i < size; i++) {
+			ConstructSign structSign = this.progresBar.get(i);
+			String[] text = new String[4];
+			text[0] = "";
+			text[1] = "";
+			text[2] = "";
+			text[3] = "";
+			for (int j = 0; j < 16; j++) {
+				text[2] += (textIndex == 0) ? "[" : (textIndex == ((size * 15) + 3)) ? "]" : (textIndex < textCount) ? "=" : "_";
+				textIndex++;
+			}
+			if (i == (size / 2)) text[1] = CivColor.LightGreen + this.trainingUnit.name;
+			structSign.setText(text);
+			structSign.update();
+		}
+	}
+
+	public String getSessionKey() {
+		return this.getTown().getName() + ":" + "barracks" + ":" + this.getId();
+	}
+
+	public void saveProgress() {
+		Cityhall cityHall = this;
+		TaskMaster.asyncTask(new Runnable() {
+			@Override
+			public void run() {
+				if (cityHall.getTrainingUnit() != null) {
+					String key = getSessionKey();
+					String value = cityHall.getTrainingUnit().id + ":" + cityHall.currentHammers;
+					ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
+					if (entries.size() > 0) {
+						SessionEntry entry = entries.get(0);
+						CivGlobal.getSessionDatabase().update(entry.request_id, key, value);
+
+						/* delete any bad extra entries. */
+						for (int i = 1; i < entries.size(); i++) {
+							SessionEntry bad_entry = entries.get(i);
+							CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
+						}
+					} else {
+						cityHall.sessionAdd(key, value);
+					}
+					lastSave = new Date();
+				}
+			}
+		}, 0);
+	}
+
+	@Override
+	public void onUnload() {
+		saveProgress();
+	}
 
 	@Override
 	public void onLoad() {
-		// We must load goodies into the frame as we find them from the trade outpost's
-		// onLoad() function, otherwise we run into timing issues over which loads first.
+		String key = getSessionKey();
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
+		if (entries.size() > 0) {
+			SessionEntry entry = entries.get(0);
+			String[] values = entry.value.split(":");
+			this.trainingUnit = UnitStatic.configUnits.get(values[0]);
+			if (trainingUnit == null) {
+				CivLog.error("Couldn't find in-progress unit id:" + values[0] + " for town " + this.getTown().getName());
+				return;
+			}
+			this.currentHammers = Double.valueOf(values[1]);
+			/* delete any bad extra entries. */
+			for (int i = 1; i < entries.size(); i++) {
+				SessionEntry bad_entry = entries.get(i);
+				CivGlobal.getSessionDatabase().delete(bad_entry.request_id, key);
+			}
+		}
 	}
+
+	@Override
+	public void onCivtickUpdate(CivAsyncTask task) {
+		if (this.trainingUnit != null) {
+			// Hammers are per hour, this runs per min. We need to adjust the hammers we add.
+			double addedHammers = getTown().PM.progressBuildGetHammers(1);
+			this.currentHammers += addedHammers;
+			this.updateProgressBar();
+			Date now = new Date();
+			if (lastSave == null || ((lastSave.getTime() + SAVE_INTERVAL) < now.getTime())) this.saveProgress();
+			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
+				this.currentHammers = this.trainingUnit.hammer_cost;
+				this.createUnit(this.trainingUnit);
+			}
+		}
+	}
+
+	public void addHammers(double hammers) {
+		if (this.trainingUnit != null) {
+			this.currentHammers += hammers;
+			this.updateProgressBar();
+			Date now = new Date();
+			if (this.lastSave == null || this.lastSave.getTime() + 60000L < now.getTime()) this.saveProgress();
+			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
+				this.currentHammers = this.trainingUnit.hammer_cost;
+				this.createUnit(this.trainingUnit);
+			}
+		}
+	}
+
+	// ------------- other
 
 	@Override
 	public String getDynmapDescription() {

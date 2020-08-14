@@ -1,104 +1,190 @@
 package com.avrgaming.civcraft.command.old;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.command.Commander;
+import com.avrgaming.civcraft.command.CustomCommand;
+import com.avrgaming.civcraft.command.MenuAbstractCommand;
+import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
+import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.ItemManager;
 
-public class AdminItemCommand extends CommandBase {
+import gpl.AttributeUtil;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
-	@Override
-	public void init() {
-		command = "/ad item";
+public class AdminItemCommand extends MenuAbstractCommand {
+
+	public AdminItemCommand(String perentCommand) {
+		super(perentCommand);
 		displayName = CivSettings.localize.localizedString("adcmd_item_cmdDesc");
 
-		cs.add("enhance", CivSettings.localize.localizedString("adcmd_item_enhanceDesc"));
-		cs.add("give", CivSettings.localize.localizedString("adcmd_item_giveDesc"));
-	}
-
-	public void give_cmd() throws CivException {
-		Resident resident = getNamedResident(1);
-		String id = getNamedString(2, CivSettings.localize.localizedString("adcmd_item_givePrompt") + " materials.yml");
-		int amount = getNamedInteger(3);
-
-		Player player = CivGlobal.getPlayer(resident);
-
-		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(id);
-		if (craftMat == null) {
-			throw new CivException(CivSettings.localize.localizedString("adcmd_item_giveInvalid") + id);
-		}
-
-		ItemStack stack = CraftableCustomMaterial.spawn(craftMat);
-
-		stack.setAmount(amount);
-		HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(stack);
-		for (ItemStack is : leftovers.values()) {
-			player.getWorld().dropItem(player.getLocation(), is);
-		}
-
-		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("adcmd_item_giveSuccess"));
-	}
-
-	public void enhance_cmd() throws CivException {
-		Player player = getPlayer();
-		HashMap<String, EnchantmentCustom> enhancements = new HashMap<String, EnchantmentCustom>();
-		ItemStack inHand = getPlayer().getInventory().getItemInMainHand();
-
-		enhancements.put("soulbound", EnchantmentCustom.SoulBound);
-		enhancements.put("attack", EnchantmentCustom.Attack);
-		enhancements.put("defence", EnchantmentCustom.Defense);
-
-		if (inHand == null || ItemManager.getTypeId(inHand) == CivData.AIR) {
-			throw new CivException(CivSettings.localize.localizedString("adcmd_item_enhanceNoItem"));
-		}
-
-		if (args.length < 2) {
-			CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_item_enhancementList"));
-			String out = "";
-			for (String str : enhancements.keySet()) {
-				out += str + ", ";
+		add(new CustomCommand("showAllNBT").withDescription(CivSettings.localize.localizedString("adcmd_item_enhanceDesc")).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				ItemStack is = player.getEquipment().getItemInMainHand();
+				CivMessage.send(player, "HashCode предмета в вашер руке " + is.hashCode());
+				net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(is);
+				if (nmsStack != null && nmsStack.getTag() != null) {
+					NBTTagCompound compound = nmsStack.getTag();
+					if (compound != null) CivMessage.send(player, compound.toString());
+				}
 			}
-			CivMessage.send(sender, out);
-			return;
-		}
+		}));
+		add(new CustomCommand("setcivnbt").withDescription("[key] [value] - adds this key.").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				String key = Commander.getNamedString(args, 0, "key");
+				String value = Commander.getNamedString(args, 1, "value");
 
-		String name = getNamedString(1, "enchantname");
-		name.toLowerCase();
-		for (String str : enhancements.keySet()) {
-			if (name.equals(str)) {
-				EnchantmentCustom ench = enhancements.get(str);
-				Enchantments.addEnchantment(inHand, ench, 1);
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				if (inHand == null) throw new CivException("You must have an item in hand.");
+
+				AttributeUtil attrs = new AttributeUtil(inHand);
+				attrs.setCivCraftProperty(key, value);
+				player.getInventory().setItemInMainHand(attrs.getStack());
+				CivMessage.sendSuccess(player, "Set property.");
+			}
+		}));
+		add(new CustomCommand("getcivnbt").withDescription("[key] - gets this key").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				String key = Commander.getNamedString(args, 0, "key");
+
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				if (inHand == null) throw new CivException("You must have an item in hand.");
+
+				AttributeUtil attrs = new AttributeUtil(inHand);
+				String value = attrs.getCivCraftProperty(key);
+				CivMessage.sendSuccess(player, "property:  " + value);
+			}
+		}));
+		add(new CustomCommand("getmid").withDescription("Gets the MID of this item.").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				if (inHand == null) throw new CivException("You need an item in your hand.");
+				CivMessage.send(player, "MID:  " + CustomMaterial.getMID(inHand));
+			}
+		}));
+		add(new CustomCommand("getdura").withDescription("gets the durability of an item").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				CivMessage.send(player, "Durability: " + inHand.getDurability());
+				CivMessage.send(player, "MaxDura: " + inHand.getType().getMaxDurability());
+			}
+		}));
+		add(new CustomCommand("setdura").withDescription("sets the durability of an item").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				Integer dura = Commander.getNamedInteger(args, 0);
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				inHand.setDurability((short) dura.shortValue());
+				CivMessage.send(player, "Set Durability: " + inHand.getDurability());
+				CivMessage.send(player, "MaxDura: " + inHand.getType().getMaxDurability());
+			}
+		}));
+		add(new CustomCommand("enhance").withDescription(CivSettings.localize.localizedString("adcmd_item_enhanceDesc")).withTabCompleter(new AbstractCashedTaber() {
+			@Override
+			protected List<String> newTabList(String arg) {
+				List<String> l = new ArrayList<>();
+				for (String enchName : EnchantmentCustom.allEnchantmentCustom.keySet()) {
+					if (enchName.toLowerCase().startsWith(arg)) l.add(enchName);
+				}
+				return l;
+			}
+		}).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				ItemStack inHand = player.getInventory().getItemInMainHand();
+				if (inHand == null || ItemManager.getTypeId(inHand) == CivData.AIR) throw new CivException(CivSettings.localize.localizedString("adcmd_item_enhanceNoItem"));
+
+				if (args.length < 1) {
+					CivMessage.sendHeading(sender, CivSettings.localize.localizedString("adcmd_item_enhancementList"));
+					String out = "";
+					for (String enchName : EnchantmentCustom.allEnchantmentCustom.keySet()) {
+						out += enchName + ", ";
+					}
+					CivMessage.send(sender, out);
+					return;
+				}
+
+				String name = Commander.getNamedString(args, 0, "enchantname");
+				EnchantmentCustom ench = EnchantmentCustom.allEnchantmentCustom.get(name);
+				Integer level = null;
+				try {
+					level = Integer.parseInt(args[1]);
+				} catch (Exception e) {}
+				if (level == null) level = 1;
+				Enchantments.addEnchantment(inHand, ench, level);
 				player.getInventory().setItemInMainHand(inHand);
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_item_enhanceSuccess", name));
 				return;
 			}
-		}
+		}));
+		add(new CustomCommand("give").withDescription(CivSettings.localize.localizedString("adcmd_item_giveDesc")).withTabCompleter(new AbstractCashedTaber() {
+			@Override
+			protected List<String> newTabList(String arg) {
+				List<String> l = new ArrayList<>();
+				for (CustomMaterial customMat : CustomMaterial.getAllCustomMaterial()) {
+					String name = customMat.getId();
+					if (name.toLowerCase().startsWith(arg)) l.add(name);
+				}
+				return l;
+			}
+		}).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getNamedResident(args, 0);
+				String id = Commander.getNamedString(args, 1, CivSettings.localize.localizedString("adcmd_item_givePrompt") + " materials.yml");
+				int amount = Commander.getNamedInteger(args, 2);
+				Player player = CivGlobal.getPlayer(resident);
+				CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(id);
+				if (craftMat == null) throw new CivException(CivSettings.localize.localizedString("adcmd_item_giveInvalid") + id);
+				ItemStack stack = CraftableCustomMaterial.spawn(craftMat);
+				stack.setAmount(amount);
+				HashMap<Integer, ItemStack> leftovers = player.getInventory().addItem(stack);
+				for (ItemStack is : leftovers.values()) {
+					player.getWorld().dropItem(player.getLocation(), is);
+				}
+				CivMessage.sendSuccess(player, CivSettings.localize.localizedString("adcmd_item_giveSuccess"));
+			}
+		}));
+		add(new CustomCommand("matmap").withDescription("prints the materials map in console.").withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				CivMessage.send(sender, "Print map in console");
+				for (CustomMaterial mat : CustomMaterial.getAllCustomMaterial()) {
+					String mid = mat.getId();
+					CivLog.info("material id: " + mid + " mat: " + mat);
+				}
+			}
+		}));
 	}
-
-	@Override
-	public void doDefaultAction() throws CivException {
-		showHelp();
-	}
-
-	@Override
-	public void showHelp() {
-		showBasicHelp();
-	}
-
-	@Override
-	public void permissionCheck() throws CivException {
-
-	}
-
 }

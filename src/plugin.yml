@@ -3,12 +3,3 @@ main: com.avrgaming.civcraft.main.CivCraft
 softdepends: [HolographicDisplays]
 version: 1.8.0-Beta7
 depend: 
-
-commands:
-    ad:
-        aliases: [фв]
-    dbg:
-        aliases: []
-    report:
-        aliases:
-    donate:

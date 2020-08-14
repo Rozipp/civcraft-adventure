@@ -56,21 +56,15 @@ public class Mine extends Structure {
 	}
 
 	public ConsumeLevelComponent getConsumeComponent() {
-		if (consumeComp == null) {
-			consumeComp = (ConsumeLevelComponent) this.getComponent(ConsumeLevelComponent.class.getSimpleName());
-		}
+		if (consumeComp == null) consumeComp = (ConsumeLevelComponent) this.getComponent("ConsumeLevelComponent");
 		return consumeComp;
 	}
 
 	public Result consume(CivAsyncTask task) throws InterruptedException {
-
 		// Look for the mine's chest.
-		if (this.getChests().size() == 0) return Result.STAGNATE;
-
+		ArrayList<ConstructChest> chests = this.getChestsById("0");
+		if (chests.isEmpty()) return Result.STAGNATE;
 		MultiInventory multiInv = new MultiInventory();
-
-		ArrayList<ConstructChest> chests = this.getAllChestsById("0");
-
 		// Make sure the chest is loaded and add it to the multi inv.
 		for (ConstructChest c : chests) {
 			task.syncLoadChunk(c.getCoord().getChunkCoord());
@@ -85,7 +79,7 @@ public class Mine extends Structure {
 		getConsumeComponent().setMultiInventory(multiInv);
 		getConsumeComponent().setConsumeRate(1.0);
 		try {
-			Result result = getConsumeComponent().processConsumption();
+			Result result = getConsumeComponent().processConsumption(this.getProfesionalComponent().isWork);
 			getConsumeComponent().onSave();
 			return result;
 		} catch (IllegalStateException e) {
@@ -95,11 +89,10 @@ public class Mine extends Structure {
 	}
 
 	@Override
-	public void onHourlyUpdate(CivAsyncTask task) {
+	public void onCivtickUpdate(CivAsyncTask task) {
 		Result result = null;
 		try {
 			result = this.consume(task);
-
 			switch (result) {
 			case STARVE:
 				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_productionFell", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));

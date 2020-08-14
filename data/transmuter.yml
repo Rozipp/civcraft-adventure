@@ -269,7 +269,7 @@ consumes:
 #----------- Cottage
 - id: cottage
   source_chest: 'granary'
-  storage_type: ECON
+  storage_type: COINS
   worker_prof: MERCHANT 
   levels:
    - level: 1
@@ -371,7 +371,7 @@ consumes:
 
 - id: mine
   source_chest: 'mine'
-  storage_type: HAMMER
+  storage_type: SUPPLIES
   worker_prof: MINER 
   levels:
    - level: 1
@@ -407,8 +407,8 @@ consumes:
 
 - id: camp
   source_chest: 'longhouse1'
-  storage_type: ECON
-  worker_prof: WORKER 
+  storage_type: COINS
+  worker_prof: NOTWORK 
   levels:
    - level: 1
      source_items:

@@ -44,7 +44,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_town_set_name");
 		this.addValidator(Validators.validMayorAssistantLeader);
 
-		add(new CustomCommand("bankfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_bankfeeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("bankfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_bankfeeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -57,7 +57,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess", feeInt));
 			}
 		}));
-		add(new CustomCommand("storefee").withDescription(CivSettings.localize.localizedString("cmd_town_set_storefeeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("storefee").withDescription(CivSettings.localize.localizedString("cmd_town_set_storefeeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -70,7 +70,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess", feeInt));
 			}
 		}));
-		add(new CustomCommand("grocerfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_grocerfeeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("grocerfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_grocerfeeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -83,7 +83,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess", feeInt));
 			}
 		}));
-		add(new CustomCommand("libraryfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_libraryfeeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("libraryfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_libraryfeeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -96,7 +96,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess", feeInt));
 			}
 		}));
-		add(new CustomCommand("blacksmithfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_blacksmithfeeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("blacksmithfee").withDescription(CivSettings.localize.localizedString("cmd_town_set_blacksmithfeeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -125,7 +125,7 @@ public class TownSetCommand extends MenuAbstractCommand {
 		// CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_set_feeSuccess", feeInt));
 		// }
 		// }));
-		add(new CustomCommand("scoutrate").withDescription(CivSettings.localize.localizedString("cmd_town_set_scoutrateDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("scoutrate").withDescription(CivSettings.localize.localizedString("cmd_town_set_scoutrateDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);

@@ -172,12 +172,12 @@ public class ConsumeLevelComponent extends Component {
 		}
 	}
 
-	public Result processConsumption() {
-		lastResult = _processConsumption();
+	public Result processConsumption(boolean isWork) {
+		lastResult = _processConsumption(isWork);
 		return lastResult;
 	}
 
-	public Result _processConsumption() {
+	public Result _processConsumption(boolean isWork) {
 		// HashMap<String, MultiInventory> multInvs = foundInventory();
 		if (multInv == null) return Result.UNKNOWN;
 		ConsumeLevel consumeLevel = getConsumeLevel(this.level);
@@ -205,6 +205,7 @@ public class ConsumeLevelComponent extends Component {
 				return Result.GROW;
 			}
 		} else {
+			if (isWork) return Result.STARVE;
 			if ((this.count - 1) < 0) {
 				if (getConsumeLevelPointMax(this.level - 1) == null) return Result.STAGNATE;
 				this.level--;

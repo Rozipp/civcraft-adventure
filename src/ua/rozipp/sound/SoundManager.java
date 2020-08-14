@@ -16,7 +16,7 @@ public class SoundManager {
 
 	public static int MAX_RADIUS_CHUNK = 24;
 
-	private static HashMap<String, ConfigSound> sounds = new HashMap<String, ConfigSound>();
+	public static HashMap<String, ConfigSound> sounds = new HashMap<String, ConfigSound>();
 
 	public static void playSound(String key, Location local) {
 		Location loc = local.clone();

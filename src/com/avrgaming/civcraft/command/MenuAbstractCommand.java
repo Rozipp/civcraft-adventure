@@ -108,7 +108,7 @@ public abstract class MenuAbstractCommand extends CustomCommand {
 		return new ArrayList<>();
 	}
 
-	public class MenuCustomExecutor implements CustonExecutor {
+	public class MenuCustomExecutor implements CustomExecutor {
 		private MenuAbstractCommand perent;
 
 		public MenuCustomExecutor(MenuAbstractCommand perent) {

@@ -328,8 +328,11 @@ public class Town extends SQLObject {
 			CivMessage.sendTown(this, CivColor.Yellow + CivSettings.localize.localizedString("effectEvent_noTownHall"));
 			return;
 		}
+		
+		PM.onCivtickUpdate();
 		BM.onCivtickUpdate(task);
 		SM.onCivtickUpdate();
+		this.save();
 	}
 
 	public void onSecondUpdate(CivAsyncTask task) {

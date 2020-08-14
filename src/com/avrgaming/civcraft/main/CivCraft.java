@@ -49,7 +49,7 @@ import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.TimeTools;
 import com.avrgaming.global.scores.CalculateScoreTimer;
 import com.avrgaming.global.scores.GlobalTickEvent;
-import com.avrgaming.sls.SLSManager;
+//import com.avrgaming.sls.SLSManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public final class CivCraft extends JavaPlugin {
@@ -87,13 +87,13 @@ public final class CivCraft extends JavaPlugin {
 
 			CivGlobal.loadGlobals();
 
-			try {
-				SLSManager.init();
-			} catch (CivException e1) {
-				e1.printStackTrace();
-			} catch (InvalidConfiguration e1) {
-				e1.printStackTrace();
-			}
+//			try { //FIXME ENABLE FOR ONLINE
+//				SLSManager.init();
+//			} catch (CivException e1) {
+//				e1.printStackTrace();
+//			} catch (InvalidConfiguration e1) {
+//				e1.printStackTrace();
+//			}
 
 		} catch (InvalidConfiguration | SQLException | IOException | InvalidConfigurationException | CivException | ClassNotFoundException e) {
 			e.printStackTrace();

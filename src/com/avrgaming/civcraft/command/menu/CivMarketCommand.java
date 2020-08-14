@@ -54,7 +54,7 @@ public class CivMarketCommand extends MenuAbstractCommand {
 				}
 				return l;
 			}
-		}).withExecutor(new CustonExecutor() {
+		}).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization senderCiv = Commander.getSenderCiv(sender);
@@ -87,7 +87,7 @@ public class CivMarketCommand extends MenuAbstractCommand {
 				}
 				return null;
 			}
-		}).withExecutor(new CustonExecutor() {
+		}).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization senderCiv = Commander.getSenderCiv(sender);

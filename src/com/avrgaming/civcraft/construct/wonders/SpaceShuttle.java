@@ -74,12 +74,10 @@ public class SpaceShuttle extends Wonder {
 	}
 
 	public void startMission(final CivAsyncTask task, final Player player) throws InterruptedException {
-		if (this.getChests().size() == 0) {
-			return;
-		}
+		final Collection<ConstructChest> chests = this.getChestsById("0");
+		if (chests.isEmpty()) return;
 		CivMessage.send(player, "§5" + CivSettings.localize.localizedString("var_science_w8"));
 		final MultiInventory source = new MultiInventory();
-		final Collection<ConstructChest> chests = this.getChests();
 		for (final ConstructChest c : chests) {
 			task.syncLoadChunk(c.getCoord().getChunkCoord());
 			Inventory tmp;
@@ -116,8 +114,7 @@ public class SpaceShuttle extends Wonder {
 				}
 			}
 		}
-		final StringBuilder notMatchComponents = new StringBuilder("§cCould not start the mission '" + configSpaceMissions.name + "' with Rocket "
-				+ configSpaceRocket.name + ". Not enough components. Need more: " + "§a" + "\n");
+		final StringBuilder notMatchComponents = new StringBuilder("§cCould not start the mission '" + configSpaceMissions.name + "' with Rocket " + configSpaceRocket.name + ". Not enough components. Need more: " + "§a" + "\n");
 		for (final String component2 : split) {
 			final int count2 = Integer.parseInt(component2.replaceAll("[^\\d]", ""));
 			final String craftMatID2 = component2.replace(String.valueOf(count2), "");
@@ -139,8 +136,7 @@ public class SpaceShuttle extends Wonder {
 				}
 			}
 			final String fullName = player.getDisplayName();
-			CivMessage.sendCiv(super.getCiv(),
-					"§a" + CivSettings.localize.localizedString("var_spaceshuttle_succusess", configSpaceMissions.name, configSpaceRocket.name, fullName));
+			CivMessage.sendCiv(super.getCiv(), "§a" + CivSettings.localize.localizedString("var_spaceshuttle_succusess", configSpaceMissions.name, configSpaceRocket.name, fullName));
 			super.getCiv().setMissionActive(true);
 			return;
 		}
@@ -170,37 +166,32 @@ public class SpaceShuttle extends Wonder {
 		if (access) {
 			final String action = sign.getAction();
 			switch (action) {
-				case "runMission" : {
-					if (civ.getMissionActive()) {
-						throw new CivException(CivSettings.localize.localizedString("var_spaceshuttle_already",
-								CivSettings.spacemissions_levels.get(civ.getCurrentMission()).name));
-					}
-					if (civ.getCurrentMission() < 8) {
-						TaskMaster.asyncTask("ValidateShuttleSync", new ValidateShuttleSync(town, player), 0L);
-						break;
-					}
-					throw new CivException("§a" + CivSettings.localize.localizedString("var_spaceshuttle_end", CivSettings.spacemissions_levels.get(7).name));
+			case "runMission": {
+				if (civ.getMissionActive()) {
+					throw new CivException(CivSettings.localize.localizedString("var_spaceshuttle_already", CivSettings.spacemissions_levels.get(civ.getCurrentMission()).name));
 				}
-				case "missionProgress" : {
-					if (!civ.getMissionActive()) {
-						CivMessage.sendError(player, CivSettings.localize.localizedString("var_spaceshuttle_noProgress"));
-						break;
-					}
-					final Integer currentMission = super.getCiv().getCurrentMission();
-					final String missionName = CivSettings.spacemissions_levels.get(currentMission).name;
-					final String[] split = civ.getMissionProgress().split(":");
-					final double completedBeakers = Math.round(Double.valueOf(split[0]));
-					final double completedHammers = Math.round(Double.valueOf(split[1]));
-					final int percentageCompleteBeakers = (int) (Math.round(Double.parseDouble(split[0]))
-							/ Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_beakers) * 100.0);
-					final int percentageCompleteHammers = (int) (Math.round(Double.parseDouble(split[1]))
-							/ Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_hammers) * 100.0);
-					CivMessage.sendSuccess((CommandSender) player,
-							CivSettings.localize.localizedString("var_spaceshuttle_progress", "§c" + missionName + CivColor.RESET,
-									"§b" + completedBeakers + "§c" + "(" + percentageCompleteBeakers + "%)" + CivColor.RESET,
-									"§7" + completedHammers + "§c" + "(" + percentageCompleteHammers + "%)" + CivColor.RESET));
+				if (civ.getCurrentMission() < 8) {
+					TaskMaster.asyncTask("ValidateShuttleSync", new ValidateShuttleSync(town, player), 0L);
 					break;
 				}
+				throw new CivException("§a" + CivSettings.localize.localizedString("var_spaceshuttle_end", CivSettings.spacemissions_levels.get(7).name));
+			}
+			case "missionProgress": {
+				if (!civ.getMissionActive()) {
+					CivMessage.sendError(player, CivSettings.localize.localizedString("var_spaceshuttle_noProgress"));
+					break;
+				}
+				final Integer currentMission = super.getCiv().getCurrentMission();
+				final String missionName = CivSettings.spacemissions_levels.get(currentMission).name;
+				final String[] split = civ.getMissionProgress().split(":");
+				final double completedBeakers = Math.round(Double.valueOf(split[0]));
+				final double completedHammers = Math.round(Double.valueOf(split[1]));
+				final int percentageCompleteBeakers = (int) (Math.round(Double.parseDouble(split[0])) / Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_beakers) * 100.0);
+				final int percentageCompleteHammers = (int) (Math.round(Double.parseDouble(split[1])) / Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_hammers) * 100.0);
+				CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("var_spaceshuttle_progress", "§c" + missionName + CivColor.RESET,
+						"§b" + completedBeakers + "§c" + "(" + percentageCompleteBeakers + "%)" + CivColor.RESET, "§7" + completedHammers + "§c" + "(" + percentageCompleteHammers + "%)" + CivColor.RESET));
+				break;
+			}
 			}
 		} else {
 			CivMessage.sendError(player, CivSettings.localize.localizedString("var_spaceshuttle_noPerm", civ.getName()));

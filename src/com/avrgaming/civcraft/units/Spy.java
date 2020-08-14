@@ -40,6 +40,7 @@ import com.avrgaming.civcraft.object.MissionLogger;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
+import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.util.BookUtil;
 import com.avrgaming.civcraft.util.ChunkCoord;
@@ -426,10 +427,10 @@ public class Spy extends UnitMaterial {
 			SimpleDateFormat sdf = CivGlobal.dateFormat;
 			out += CivSettings.localize.localizedString("Time") + " " + sdf.format(new Date()) + "\n";
 			out += (CivSettings.localize.localizedString("Treasury") + " " + tc.getTown().getTreasury().getBalance() + "\n");
-			out += (CivSettings.localize.localizedString("Hammers") + " " + tc.getTown().SM.getAttrHammer().total + "\n");
-			out += (CivSettings.localize.localizedString("Culture") + " " + tc.getTown().SM.getAttrCulture().total + "\n");
-			out += (CivSettings.localize.localizedString("cmd_town_growth") + " " + tc.getTown().SM.getAttrGrowth().total + "\n");
-			out += (CivSettings.localize.localizedString("BeakersCiv") + " " + tc.getTown().SM.getAttrBeakers().total + "\n");
+			out += (CivSettings.localize.localizedString("Hammers") + " " + tc.getTown().SM.getAttr(StorageType.HAMMERS).total + "\n");
+			out += (CivSettings.localize.localizedString("Culture") + " " + tc.getTown().SM.getAttr(StorageType.CULTURE).total + "\n");
+			out += (CivSettings.localize.localizedString("cmd_town_growth") + " " + tc.getTown().SM.getAttr(StorageType.GROWTH).total + "\n");
+			out += (CivSettings.localize.localizedString("BeakersCiv") + " " + tc.getTown().SM.getAttr(StorageType.BEAKERS).total + "\n");
 			if (tc.getTown().getCiv().getResearchTech() != null) {
 				out += (CivSettings.localize.localizedString("Researching") + " " + tc.getTown().getCiv().getResearchTech().name + "\n");
 			} else {

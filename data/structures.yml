@@ -384,7 +384,6 @@ structures:
     strategic: true
     components:
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'CULTURE'
           value: '25.0'
 
@@ -404,12 +403,10 @@ structures:
     # ignore_floating: false
     # components:
         # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'GROWTH'
+          # # attribute: 'GROWTH'
           # value: '200.0'
         # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'HAMMERS'
+          # # attribute: 'HAMMERS'
           # value: '200'
 
   - id: s_bank
@@ -425,6 +422,9 @@ structures:
     hammer_cost: 1200
     points: 1500
     max_hitpoints: 200
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
   
   - id: s_trommel
     type: Structure
@@ -440,6 +440,8 @@ structures:
     points: 1500
     max_hitpoints: 200
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'MINER'
         - name: 'TransmuterComponent'
           recipes: '1:t_clay,t_cobblestone 2:t_clay,t_cobblestone,t_granit 3:t_clay,t_cobblestone,t_granit,t_diorit 4:t_clay,t_cobblestone,t_granit,t_diorit,t_andesit'
 
@@ -459,6 +461,8 @@ structures:
     points: 1500
     max_hitpoints: 100
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'FARMER'
         - name: 'TransmuterComponent'
           recipes: 'fishhatchery'
 
@@ -479,6 +483,8 @@ structures:
     points: 1500
     max_hitpoints: 100
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'MINER'
         - name: 'TransmuterComponent'
           recipes: '1:q_wod 2:q_wod,q_stone 3:q_wod,q_stone,q_iron 4:q_wod,q_stone,q_iron,q_diamond'
 
@@ -495,6 +501,9 @@ structures:
     hammer_cost: 900
     points: 2000
     max_hitpoints: 200
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
 
   - id: s_library
     type: Structure
@@ -510,10 +519,11 @@ structures:
     points: 5000
     max_hitpoints: 250
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'BEAKERS'
-          value: '50.0'
+          value: '5.0'
 
   - id: s_university
     type: Structure
@@ -529,10 +539,11 @@ structures:
     points: 5000
     max_hitpoints: 500
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'BEAKERS'
-          value: '50.0'
+          value: '5.0'
 
   - id: s_school
     type: Structure
@@ -551,10 +562,11 @@ structures:
     points: 8000
     max_hitpoints: 500
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'BEAKERS'
-          value: '50.0'
+          value: '5.0'
 
   - id: s_research_lab
     type: Structure
@@ -572,10 +584,11 @@ structures:
     points: 10000
     max_hitpoints: 1000
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'BEAKERS'
-          value: '100.0'
+          value: '10.0'
 
   - id: s_grocer
     type: Structure
@@ -590,6 +603,9 @@ structures:
     hammer_cost: 900
     points: 2500
     max_hitpoints: 200
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
 
   - id: s_alch
     type: Structure
@@ -604,6 +620,9 @@ structures:
     hammer_cost: 15000
     points: 7500
     max_hitpoints: 1500
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
 
   - id: s_blacksmith
     type: Structure
@@ -620,10 +639,11 @@ structures:
     points: 10000
     max_hitpoints: 350
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'MINER'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'HAMMERS'
-          value: '50.0'
+          value: '5.0'
   
   - id: s_granary
     type: Structure
@@ -638,6 +658,9 @@ structures:
     hammer_cost: 500
     points: 2000
     max_hitpoints: 50
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'FARMER'
 
   - id: ti_cottage
     type: Structure
@@ -654,6 +677,8 @@ structures:
     points: 1000
     max_hitpoints: 100
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
         - name: 'ConsumeLevelComponent'
           consume_id: 'cottage'
 
@@ -671,15 +696,16 @@ structures:
     points: 4700
     max_hitpoints: 250
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'ARTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'CULTURE'
-          value: '100.0'
+          value: '3.0'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
-          value: '5.0'
-#         - name: 'ConsumeLevelComponent'
+          attribute: 'HAPPY'
+          value: '1.0'
+        - name: 'ConsumeLevelComponent'
+          consume_id: 'temple'
 
   - id: s_monument
     type: Structure
@@ -696,14 +722,14 @@ structures:
     points: 1500
     max_hitpoints: 250
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'ARTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
-          value: '3.0'
+          attribute: 'HAPPY'
+          value: '1.0'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'CULTURE'
-          value: '200.0'
+          value: '6.0'
 
   - id: s_stadium
     type: Structure
@@ -721,13 +747,13 @@ structures:
     max_hitpoints: 1000
     ignore_floating: false
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'ARTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'UNHAPPINESS'
+          attribute: 'UNHAPPY'
           value: '-2.0'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
+          attribute: 'HAPPY'
           value: '2.0'
 
   # - id: s_theatre
@@ -744,12 +770,10 @@ structures:
     # ignore_floating: false
     # components:
         # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'HAPPINESS'
+          # attribute: 'HAPPY'
           # value: '2.0'
         # - name: 'AttributeStatic'
-          # type: 'direct'
-          # attribute: 'UNHAPPINESS'
+          # # attribute: 'UNHAPPY'
           # value: '-2.0'
           
   # - id: s_broadcast_tower
@@ -768,7 +792,6 @@ structures:
     # tile_improvement: true
     # components:
         # - name: 'AttributeStatic'
-          # type: 'direct'
           # attribute: 'CULTURE'
           # value: '200.0'
           
@@ -789,18 +812,17 @@ structures:
     max_hitpoints: 1000
     ignore_floating: false
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'ARTIST'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
+          attribute: 'HAPPY'
           value: '1.0'
         - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'UNHAPPINESS'
+          attribute: 'UNHAPPY'
           value: '-1.0'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'CULTURE'
-          value: '300.0'
+          value: '12.0'
           
   - id: s_shipyard
     type: Structure
@@ -817,11 +839,6 @@ structures:
     points: 7000
     max_hitpoints: 300
     ignore_floating: true
-    components:
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAMMERS'
-          value: '100'
   
   - id: ti_mine
     type: Structure
@@ -838,8 +855,11 @@ structures:
     hammer_cost: 900
     points: 6200
     max_hitpoints: 300
-#     components:
-#         - name: 'ConsumeLevelComponent'
+    components:
+        - name: 'ConsumeLevelComponent'
+          consume_id: 'mine'
+        - name: 'ProfesionalComponent'
+          prof: 'MINER'
 
   - id: ti_trade_ship
     type: Structure
@@ -859,22 +879,8 @@ structures:
     max_hitpoints: 500
     ignore_floating: true
     components:
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
-          value: '2.0'
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'CULTURE'
-          value: '10.0'
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'GROWTH'
-          value: '10.0'
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAMMERS'
-          value: '100'
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
         - name: 'TradeLevelComponent'
   
   - id: ti_farm
@@ -895,11 +901,11 @@ structures:
     destroyable: true
     ignore_floating: true
     components:
-        - name: 'ActivateOnBiome'
-          effect: 'THIS'
+        - name: 'AttributeStatic'
           attribute: 'GROWTH'
-          biomes: 'PLAINS'
-          value: '1.5'
+          value: '10'
+        - name: 'ProfesionalComponent'
+          prof: 'FARMER'
   
   - id: ti_pasture
     type: Structure
@@ -992,9 +998,6 @@ structures:
     hammer_cost: 1500
     max_hitpoints: 700
     points: 3000
-    components:
-        - name: 'AttributeWarUnhappiness'
-          value: '-1.0'
   
   - id: ti_windmill
     type: Structure
@@ -1010,6 +1013,9 @@ structures:
     hammer_cost: 3000
     points: 5000
     max_hitpoints: 350
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'FARMER'
   
   - id: s_market
     type: Structure
@@ -1026,13 +1032,8 @@ structures:
     points: 3500
     max_hitpoints: 200
     components:
-        - name: 'AttributeStatic'
-          type: 'direct'
-          attribute: 'HAPPINESS'
-          value: '1.0'
-        - name: 'AttributeRate'
-          attribute: 'TRADE'
-          value: '0.1'
+        - name: 'ProfesionalComponent'
+          prof: 'MERCHANT'
   
   - id: s_stable2
     type: Structure
@@ -1050,7 +1051,6 @@ structures:
     max_hitpoints: 300
     components:
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'HAMMERS'
           value: '50.0'
           
@@ -1069,10 +1069,11 @@ structures:
     points: 1000
     max_hitpoints: 250
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'MINER'
         - name: 'AttributeStatic'
-          type: 'direct'
           attribute: 'HAMMERS'
-          value: '100.0'
+          value: '10.0'
 
     # позволяет делать космическиемиссии
   # - id: ti_factory
@@ -1123,6 +1124,8 @@ structures:
     points: 3000
     max_hitpoints: 800
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'FARMER'
         - name: 'TransmuterComponent'
           recipes: 'silkwormfarm'
 
@@ -1157,6 +1160,8 @@ structures:
     points: 6200
     max_hitpoints: 1200
     components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
         - name: 'AttributeBiomeRadiusPerLevel'
           attribute: 'BEAKERS'
           biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'

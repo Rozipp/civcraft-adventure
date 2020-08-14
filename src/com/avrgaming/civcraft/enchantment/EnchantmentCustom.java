@@ -1,8 +1,10 @@
 package com.avrgaming.civcraft.enchantment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,7 +19,9 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class EnchantmentCustom {
-
+	
+	public static Map<String, EnchantmentCustom> allEnchantmentCustom = new HashMap<>();  
+	
 	// ---- Armor ----
 	public static EnchantmentCustom BINDING_CURSE = new EnchantmentVanilla(Enchantment.BINDING_CURSE, "Проклятие несъёмности", ItemSet.ALL, 1);
 	public static EnchantmentCustom DEPTH_STRIDER = new EnchantmentVanilla(Enchantment.DEPTH_STRIDER, "Подводная ходьба", ItemSet.BOOTS, 3, "stride");
@@ -93,6 +97,7 @@ public class EnchantmentCustom {
 		this.id = enchant.getId();
 		this.name = enchant.getName().trim();
 		if (!Enchantments.enchantmentList.containsKey(id)) Enchantments.enchantmentList.put(id, this);
+		allEnchantmentCustom.put(this.name, this);
 	}
 
 	protected EnchantmentCustom(int id, String name, String displayName, ItemSet itemSet, int maxLevel, String group) {
@@ -106,10 +111,12 @@ public class EnchantmentCustom {
 
 		if (!Enchantments.enchantmentList.containsKey(id)) Enchantments.enchantmentList.put(id, this);
 		enchantment = new EnchantmentVirtual(id);
+		allEnchantmentCustom.put(this.name, this);
 	}
 
 	protected EnchantmentCustom(final String name, String displyName, ItemSet itemSet, int maxLevel, String group) {
 		this(getNextFreeId(), name, displyName, itemSet, maxLevel, group);
+		allEnchantmentCustom.put(this.name, this);
 	}
 
 	public void addNaturalItems(final Material... materials) {

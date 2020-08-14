@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigTownUpgrade;
-import com.avrgaming.civcraft.construct.structures.Barracks;
 import com.avrgaming.civcraft.interactive.InteractiveResponse;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -65,47 +64,25 @@ public class InteractiveConfirmScroll implements InteractiveResponse {
 					SimpleDateFormat sdf = CivGlobal.dateFormat;
 					CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_processScroll_addedHammers", player.getDisplayName(), CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET,
 							CivColor.RoseBold + sdf.format(time + Calendar.getInstance().getTimeInMillis()) + CivColor.RESET));
-				} else
-					if (nd.contains("Settler")) {
-						if (town.BM.hasStructure("s_barracks")) {
-							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noBarracks", CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
-							resident.clearInteractiveMode();
-							return;
-						}
-						Barracks barracks = (Barracks) town.BM.getFirstStructureById("s_barracks");
-						if (barracks.getTrainingUnit() == null) {
-							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noBarracksInProgress", CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
-							resident.clearInteractiveMode();
-							return;
-						}
-						if (!barracks.getTrainingUnit().id.equalsIgnoreCase("u_settler")) {
-							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noBarracksNotSettler", CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET,
-									CivColor.LightBlueBold + barracks.getTrainingUnit().name + CivColor.RESET));
-							resident.clearInteractiveMode();
-							return;
-						}
-						barracks.addHammers(500.0);
-						CivMessage.sendCiv(civ,
-								CivSettings.localize.localizedString("var_processScroll_addedHammersSettler", player.getDisplayName(), CivColor.LightGreenBold + 500 + CivColor.RESET, CivColor.GoldBold + town.getName() + CivColor.RESET));
-					} else {
-						int percent = Integer.parseInt(lore.get(0).replaceAll("[^\\d]", ""));
-						String techName = nd;
-						if (civ.getResearchTech() == null) {
-							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noTechInPrg", CivColor.LightGreenBold + percent + CivColor.RESET, CivColor.YellowBold + techName + CivColor.RESET));
-							resident.clearInteractiveMode();
-							return;
-						}
-						if (!civ.getResearchTech().name.equalsIgnoreCase(techName)) {
-							CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_notThisTech", CivColor.LightGreenBold + percent + CivColor.RESET, CivColor.YellowBold + techName + CivColor.RESET,
-									CivColor.LightGrayBold + civ.getResearchTech().name + CivColor.RESET));
-							resident.clearInteractiveMode();
-							return;
-						}
-						double beakers = civ.getResearchTech().beaker_cost * ((double) percent / 100.0);
-						civ.processTech(beakers);
-						CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_processScroll_addedTech", player.getDisplayName(), CivColor.LightGreenBold + new DecimalFormat("#.##").format(beakers) + CivColor.RESET,
-								CivColor.YellowBold + techName + CivColor.RESET));
+				} else {
+					int percent = Integer.parseInt(lore.get(0).replaceAll("[^\\d]", ""));
+					String techName = nd;
+					if (civ.getResearchTech() == null) {
+						CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_noTechInPrg", CivColor.LightGreenBold + percent + CivColor.RESET, CivColor.YellowBold + techName + CivColor.RESET));
+						resident.clearInteractiveMode();
+						return;
 					}
+					if (!civ.getResearchTech().name.equalsIgnoreCase(techName)) {
+						CivMessage.sendError(resident, CivSettings.localize.localizedString("var_processScroll_notThisTech", CivColor.LightGreenBold + percent + CivColor.RESET, CivColor.YellowBold + techName + CivColor.RESET,
+								CivColor.LightGrayBold + civ.getResearchTech().name + CivColor.RESET));
+						resident.clearInteractiveMode();
+						return;
+					}
+					double beakers = civ.getResearchTech().beaker_cost * ((double) percent / 100.0);
+					civ.processTech(beakers);
+					CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_processScroll_addedTech", player.getDisplayName(), CivColor.LightGreenBold + new DecimalFormat("#.##").format(beakers) + CivColor.RESET,
+							CivColor.YellowBold + techName + CivColor.RESET));
+				}
 			} else
 				if (lore.get(0).contains("Instant Upgrade")) {
 					String st = lore.get(0);

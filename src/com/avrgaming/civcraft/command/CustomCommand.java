@@ -36,7 +36,7 @@ public class CustomCommand {
 	private String permission = null;
 	private String permissionMessage = null;
 	private List<Validator> validators = new ArrayList<>();
-	private CustonExecutor executor = null;
+	private CustomExecutor executor = null;
 	private List<AbstractTaber> tabs = new ArrayList<>();
 
 	public CustomCommand(String string_cmd) {
@@ -48,7 +48,7 @@ public class CustomCommand {
 		return this;
 	}
 
-	public CustomCommand withExecutor(CustonExecutor commandExecutor) {
+	public CustomCommand withExecutor(CustomExecutor commandExecutor) {
 		this.executor = commandExecutor;
 		return this;
 	}
@@ -126,7 +126,7 @@ public class CustomCommand {
 		return new ArrayList<>();
 	}
 
-	static public interface CustonExecutor {
+	static public interface CustomExecutor {
 		public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
 	}
 

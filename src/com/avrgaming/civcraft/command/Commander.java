@@ -3,11 +3,10 @@ package com.avrgaming.civcraft.command;
 import java.util.HashMap;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.command.CustomCommand.CustonExecutor;
+import com.avrgaming.civcraft.command.CustomCommand.CustomExecutor;
 import com.avrgaming.civcraft.command.menu.BuildableCommand;
 import com.avrgaming.civcraft.command.menu.CampCommand;
 import com.avrgaming.civcraft.command.menu.CivCommand;
@@ -50,11 +49,6 @@ public class Commander {
 
 	private static int count = 0;
 	
-	private static void addMenu(String string_cmd, CommandExecutor comm) {
-		CivCraft.getPlugin().getCommand(string_cmd).setExecutor(comm);
-		count++;
-	}
-
 	public static void initCommands() {
 		// Init commands
 		CommanderRegistration.register(new ResidentCommand("resident"));
@@ -66,7 +60,7 @@ public class Commander {
 		CommanderRegistration.register(new PlotCommand("plot"));
 		CommanderRegistration.register(new AcceptCommand("accept"));
 		CommanderRegistration.register(new DenyCommand("deny"));
-		CommanderRegistration.register(new CustomCommand("vcc").withValidator(Validators.validHasCamp).withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("vcc").withValidator(Validators.validHasCamp).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -81,7 +75,7 @@ public class Commander {
 				CivMessage.sendCampChat(camp, resident, "<%s> %s", Commander.combineArgs(args));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("cc").withValidator(Validators.validHasTown).withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("cc").withValidator(Validators.validHasTown).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -95,7 +89,7 @@ public class Commander {
 				CivMessage.sendCivChat(resident.getTown().getCiv(), resident, "<%s> %s", Commander.combineArgs(args));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("tc").withValidator(Validators.validHasCamp).withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("tc").withValidator(Validators.validHasCamp).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -109,7 +103,7 @@ public class Commander {
 				CivMessage.sendTownChat(resident.getTown(), resident, "<%s> %s", Commander.combineArgs(args));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("gc").withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("gc").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -123,7 +117,7 @@ public class Commander {
 				CivMessage.sendChat(resident, "<%s> %s", Commander.combineArgs(args));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("pay").withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("pay").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -145,7 +139,7 @@ public class Commander {
 				CivMessage.sendSuccess(payTo, CivSettings.localize.localizedString("var_cmd_pay_PaidReceiverSuccess", resident.getName(), amount, CivSettings.CURRENCY_NAME));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("here").withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("here").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -160,14 +154,14 @@ public class Commander {
 			}
 		}));
 		CommanderRegistration.register(new TradeCommand("trade"));
-		CommanderRegistration.register(new CustomCommand("kill").withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("kill").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Commander.getPlayer(sender).setHealth(0);
 				CivMessage.send(sender, CivColor.Yellow + CivColor.BOLD + CivSettings.localize.localizedString("cmd_kill_Mesage"));
 			}
 		}));
-		CommanderRegistration.register(new CustomCommand("enderchest").withAliases("echest", "eechest", "eenderchest", "endersee", "eendersee", "ec", "eec").withExecutor(new CustonExecutor() {
+		CommanderRegistration.register(new CustomCommand("enderchest").withAliases("echest", "eechest", "eenderchest", "endersee", "eendersee", "ec", "eec").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (!sender.hasPermission("civcraft.enderchest") && !sender.isOp() && !sender.hasPermission("civcraft.ec") && !PermissionGroup.hasGroup(sender.getName(), "ultra") && !PermissionGroup.hasGroup(sender.getName(), "deluxe"))
@@ -202,10 +196,10 @@ public class Commander {
 		// }
 		// }
 		// }));
-		addMenu("ad", new AdminCommand());
-		addMenu("dbg", new DebugCommand());
-		addMenu("report", new ReportCommand());
-		addMenu("donate", new DonateCommand());
+		CommanderRegistration.register(new AdminCommand("ad"));
+		CommanderRegistration.register(new DebugCommand("dbg"));
+		CommanderRegistration.register(new ReportCommand("report"));
+		CommanderRegistration.register(new DonateCommand("donate"));
 		
 		CivLog.info("registred " + CommanderRegistration.count + " CustomCommands");
 		CivLog.info("registred " + count + " CommandBase");

@@ -51,6 +51,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation.Status;
+import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.UpdateTechBar;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -525,6 +526,7 @@ public class Civilization extends SQLObject {
 	public Collection<ConfigTech> getTechs() {
 		return this.techs.values();
 	}
+	
 	// --------------- Town
 
 	public void addTown(Town town) {
@@ -931,7 +933,7 @@ public class Civilization extends SQLObject {
 	public double getBeakersCivtick() {
 		double total = 0;
 		for (Town town : this.getTowns()) {
-			total += town.SM.getBeakersCivtick();
+			total += town.SM.getAttr(StorageType.BEAKERS).total;
 		}
 		total += baseBeakers;
 		return total;
@@ -1154,6 +1156,7 @@ public class Civilization extends SQLObject {
 	}
 
 	// ------------------- endGame winers and score
+	
 	public int getTechScore() {
 		int points = 0;
 		for (ConfigTech t : this.getTechs()) {
@@ -1540,4 +1543,5 @@ public class Civilization extends SQLObject {
 		ItemStack stack = ItemManager.spawnPlayerHead(leader, message + " (" + leader + ")");
 		return stack;
 	}
+
 }

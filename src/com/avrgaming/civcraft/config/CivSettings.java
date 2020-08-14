@@ -47,6 +47,7 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.mythicmob.ConfigMobs;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.object.TownPeoplesIntakeTable;
 import com.avrgaming.civcraft.randomevents.ConfigRandomEvent;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
@@ -438,6 +439,7 @@ public class CivSettings {
 		ConfigConsumeRecipe.loadConfig(transmuterConfig, consumeLevels);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
 		ConfigCultureLevel.loadConfig(townConfig, cultureLevels);
+		TownPeoplesIntakeTable.loadConfig(townConfig);
 		ConfigConstructInfo.loadConfig(constructConfig, "constructs", constructs);
 		ConfigConstructInfo.loadConfig(structureConfig, "structures", constructs);
 		ConfigConstructInfo.loadConfig(wonderConfig, "wonders", constructs);

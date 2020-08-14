@@ -69,12 +69,9 @@ public class Temple extends Structure {
 	public Result consume(CivAsyncTask task) throws InterruptedException {
 
 		//Look for the temple's chest.
-		if (this.getChests().size() == 0) return Result.STAGNATE;
-
+		ArrayList<ConstructChest> chests = this.getChestsById("1");
+		if (chests.isEmpty()) return Result.STAGNATE;
 		MultiInventory multiInv = new MultiInventory();
-
-		ArrayList<ConstructChest> chests = this.getAllChestsById("1");
-
 		// Make sure the chest is loaded and add it to the multi inv.
 		for (ConstructChest c : chests) {
 			task.syncLoadChunk(c.getCoord().getChunkCoord());
@@ -89,7 +86,7 @@ public class Temple extends Structure {
 		getConsumeComponent().setMultiInventory(multiInv);
 		getConsumeComponent().setConsumeRate(1.0);
 		try {
-			Result result = getConsumeComponent().processConsumption();
+			Result result = getConsumeComponent().processConsumption(this.getProfesionalComponent().isWork);
 			getConsumeComponent().onSave();
 			return result;
 		} catch (IllegalStateException e) {

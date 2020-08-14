@@ -17,6 +17,9 @@ import java.util.HashMap;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import com.avrgaming.civcraft.components.Component;
+import com.avrgaming.civcraft.components.ProfesionalComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.constructs.Template;
@@ -39,7 +42,7 @@ import lombok.Setter;
 @Setter
 public class Structure extends Buildable {
 	public static String TABLE_NAME = "STRUCTURES";
-
+	
 	public Structure(String id, Town town) throws CivException {
 		super(id, town);
 	}
@@ -239,6 +242,16 @@ public class Structure extends Buildable {
 	}
 
 	// --------------- structure const
+	private ProfesionalComponent profesionalComponent;
+	
+	public ProfesionalComponent getProfesionalComponent() {
+		if (profesionalComponent == null) {
+			Component comp = getComponent("ProfesionalComponent");
+			if (comp != null) profesionalComponent = (ProfesionalComponent) comp;
+		}
+		return profesionalComponent;
+	}
+	
 	@Override
 	@Deprecated
 	public String getName() {
@@ -263,6 +276,15 @@ public class Structure extends Buildable {
 		/* Override in children */
 	}
 
+	@Override
+	public boolean isActive() {
+		return super.isActive();
+	}
+	
+	public boolean isWork() {
+		return super.isActive() && (getProfesionalComponent() == null || getProfesionalComponent().isWork);
+	}
+	
 	@Override
 	public void onComplete() {
 		/* Override in children */

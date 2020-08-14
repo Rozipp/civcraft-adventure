@@ -34,7 +34,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_town_upgrade_name");
 		this.addValidator(Validators.validMayorAssistantLeader);
 
-		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_listDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_listDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -49,7 +49,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 				list_upgrades(sender, args[0], town);
 			}
 		}));
-		add(new CustomCommand("purchased").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_purchasedDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("purchased").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_purchasedDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -61,7 +61,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_buyDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_buyDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -80,7 +80,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_upgrade_buySuccess", upgrade.name));
 			}
 		}));
-		add(new CustomCommand("resetlibrary").withDescription(CivSettings.localize.localizedString("cmd_town_reset_libraryDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("resetlibrary").withDescription(CivSettings.localize.localizedString("cmd_town_reset_libraryDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -98,7 +98,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_reset_librarySuccess"));
 			}
 		}));
-		add(new CustomCommand("resetstore").withDescription(CivSettings.localize.localizedString("cmd_town_reset_storeDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("resetstore").withDescription(CivSettings.localize.localizedString("cmd_town_reset_storeDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);

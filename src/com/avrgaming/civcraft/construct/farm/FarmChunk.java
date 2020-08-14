@@ -39,6 +39,7 @@ import com.avrgaming.civcraft.exception.InvalidBlockLocation;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
@@ -89,7 +90,7 @@ public class FarmChunk {
 	}
 
 	public double getGrowth() {
-		if (construct.getTown() != null) return construct.getTown().SM.getAttrGrowth().total;
+		if (construct.getTown() != null) return construct.getTown().SM.getAttr(StorageType.GROWTH).total;
 		if (construct instanceof Camp) return Camp.growthCampTotal;
 		return 1.0;
 	}
@@ -321,7 +322,7 @@ public class FarmChunk {
 					}
 				}
 			}
-			CivLog.debug("cropLocationCache = " + cropLocationCache.size());
+//			CivLog.debug("cropLocationCache = " + cropLocationCache.size());
 		} finally {
 			this.lock.unlock();
 		}

@@ -236,8 +236,8 @@ public class CustomItemListener extends SimpleListener {
 
 			int slot = ArrowComponent.foundShootingArrow(player.getInventory());
 			if (slot == -1) {
-				event.setCancelled(true);
-				event.setProjectile(null);
+//				event.setCancelled(true);
+//				event.setProjectile(null);
 			} else {
 				Location loc = event.getEntity().getEyeLocation();
 				Vector velocity = arrow.getVelocity();

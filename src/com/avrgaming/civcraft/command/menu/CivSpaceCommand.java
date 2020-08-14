@@ -23,13 +23,13 @@ public class CivSpaceCommand extends MenuAbstractCommand {
 		super(perentComman);
 		this.displayName = CivSettings.localize.localizedString("cmd_civ_space_name");
 		this.addValidator(Validators.validLeader);
-		add(new CustomCommand("gui").withDescription(CivSettings.localize.localizedString("cmd_civ_space_guiDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("gui").withDescription(CivSettings.localize.localizedString("cmd_civ_space_guiDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 
 			}
 		}));
-		add(new CustomCommand("complete").withDescription(CivSettings.localize.localizedString("cmd_civ_space_succusessDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("complete").withDescription(CivSettings.localize.localizedString("cmd_civ_space_succusessDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -43,7 +43,7 @@ public class CivSpaceCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, endedMissions.toString());
 			}
 		}));
-		add(new CustomCommand("future").withDescription(CivSettings.localize.localizedString("cmd_civ_space_futureDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("future").withDescription(CivSettings.localize.localizedString("cmd_civ_space_futureDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -59,7 +59,7 @@ public class CivSpaceCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, futureMissions.toString());
 			}
 		}));
-		add(new CustomCommand("progress").withAliases("calc").withDescription(CivSettings.localize.localizedString("cmd_civ_space_progressDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("progress").withAliases("calc").withDescription(CivSettings.localize.localizedString("cmd_civ_space_progressDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);

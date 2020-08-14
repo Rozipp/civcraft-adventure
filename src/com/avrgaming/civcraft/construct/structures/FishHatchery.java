@@ -2,19 +2,18 @@ package com.avrgaming.civcraft.construct.structures;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class FishHatchery extends Structure {
@@ -98,33 +97,23 @@ public class FishHatchery extends Structure {
 			CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("var_fishery_pool_msg_offline", (special_id + 1)));
 		}
 	}
-
-	@Override
-	public void onSecondUpdate(CivAsyncTask task) {
-		if (!CivGlobal.fisheryEnabled) return;
-		if (getTransmuter() == null) return;
-		getTransmuter().processConsumption();
-	}
 	
-	private TransmuterComponent transmuter;
-	public TransmuterComponent getTransmuter() {
-		if (transmuter == null) transmuter = (TransmuterComponent) this.getComponent("TransmuterComponent");
-		return transmuter;
+	@Override
+	public ArrayList<ConstructChest> getChestsById(String id) {
+		if (id.equals("result")) return getChestsById("4");
+		
+		ArrayList<ConstructChest> chests = new ArrayList<>();
+		ArrayList<ConstructChest> ch; 
+		if ((ch = getChestsById("0")) != null) chests.addAll(ch);
+		if ((ch = getChestsById("1")) != null) chests.addAll(ch);
+		if ((ch = getChestsById("2")) != null) chests.addAll(ch);
+		if ((ch = getChestsById("3")) != null) chests.addAll(ch);
+		return chests;
 	}
 	
 	@Override
 	public void onPostBuild() {
 		this.level = getTown().BM.saved_fish_hatchery_level;
-		for (ConstructChest chest : this.getAllChests().values()) {
-			int id;
-			try {
-				id = Integer.parseInt(chest.getChestId());
-			} catch (NumberFormatException e) {
-				continue;
-			}
-			if (id < level) chest.setChestId("source");
-			if (id == 4) chest.setChestId("result");
-		}
 	}
 
 }

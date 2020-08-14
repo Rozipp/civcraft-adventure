@@ -53,7 +53,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_town_outlaw_name");
 		this.addValidator(Validators.validMayorAssistantLeader);
 
-		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -78,7 +78,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 							if (s.toLowerCase().startsWith(arg)) l.add(s);
 						return l;
 					}
-				}).withExecutor(new CustonExecutor() {
+				}).withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Town town = Commander.getSelectedTown(sender);
@@ -88,7 +88,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_outlaw_removeSuccess", args[1]));
 					}
 				}));
-		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_listDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_listDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -101,7 +101,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("addall").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addallDesc")).withTabCompleter(new TownInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addall").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addallDesc")).withTabCompleter(new TownInWorldTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -116,7 +116,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_outlaw_addallalert3", args[1]));
 			}
 		}));
-		add(new CustomCommand("removeall").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_removeallDesc")).withTabCompleter(new TownInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("removeall").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_removeallDesc")).withTabCompleter(new TownInWorldTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -127,7 +127,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 				town.save();
 			}
 		}));
-		add(new CustomCommand("addallciv").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addallcivDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addallciv").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_addallcivDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -144,7 +144,7 @@ public class TownOutlawCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_outlaw_addallalert3", args[1]));
 			}
 		}));
-		add(new CustomCommand("removeallciv").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_removeallcivDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("removeallciv").withDescription(CivSettings.localize.localizedString("cmd_town_outlaw_removeallcivDesc")).withTabCompleter(new CivInWorldTaber()).withExecutor(new CustomExecutor() {
 
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {

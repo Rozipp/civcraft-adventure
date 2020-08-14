@@ -27,10 +27,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.components.AttributeStatic.AttributeTypeKeys;
-import com.avrgaming.civcraft.components.AttributeBiomeBase;
-import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
-import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBiomeInfo;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
@@ -113,44 +109,44 @@ public class CultureChunk {
 	}
 
 	public double getHappiness() {
-		return (getCultureBiomeInfo().beauty ? 1 : 0) + getAdditionalAttributes(AttributeTypeKeys.HAPPINESS.name());
+		return (getCultureBiomeInfo().beauty ? 1 : 0);// + getAdditionalAttributes(AttributeTypeKeys.HAPPINESS.name());
 	}
 
 	public double getHammers() {
-		return getCultureBiomeInfo().getHammers() + getAdditionalAttributes(AttributeTypeKeys.HAMMERS.name());
+		return getCultureBiomeInfo().getHammers();// + getAdditionalAttributes(AttributeTypeKeys.HAMMERS.name());
 	}
 
 	public double getGrowth() {
-		return getCultureBiomeInfo().getGrowth() + getAdditionalAttributes(AttributeTypeKeys.GROWTH.name());
+		return getCultureBiomeInfo().getGrowth();// + getAdditionalAttributes(AttributeTypeKeys.GROWTH.name());
 	}
 
-	private double getAdditionalAttributes(String attrType) {
-		if (getBiome() == null) return 0.0;
-
-		Component.componentsLock.lock();
-		try {
-			ArrayList<Component> attrs = Component.componentsByType.get("AttributeBiomeBase");
-			double total = 0;
-
-			if (attrs == null) {
-				return total;
-			}
-
-			for (Component comp : attrs) {
-				if (comp instanceof AttributeBiomeRadiusPerLevel) {}
-
-				if (comp instanceof AttributeBiomeBase) {
-					AttributeBiomeBase attrComp = (AttributeBiomeBase) comp;
-					if (attrComp.getAttribute().equals(attrType)) {
-						total += attrComp.getGenerated(this);
-					}
-				}
-			}
-			return total;
-		} finally {
-			Component.componentsLock.unlock();
-		}
-	}
+//	private double getAdditionalAttributes(String attrType) {
+//		if (getBiome() == null) return 0.0;
+//
+//		Component.componentsLock.lock();
+//		try {
+//			ArrayList<Component> attrs = Component.componentsByType.get("AttributeBiomeBase");
+//			double total = 0;
+//
+//			if (attrs == null) {
+//				return total;
+//			}
+//
+//			for (Component comp : attrs) {
+//				if (comp instanceof AttributeBiomeRadiusPerLevel) {}
+//
+//				if (comp instanceof AttributeBiomeBase) {
+//					AttributeBiomeBase attrComp = (AttributeBiomeBase) comp;
+//					if (attrComp.getAttribute().equals(attrType)) {
+//						total += attrComp.getGenerated(this);
+//					}
+//				}
+//			}
+//			return total;
+//		} finally {
+//			Component.componentsLock.unlock();
+//		}
+//	}
 
 	public static void showInfo(Player player) {
 		Biome biome = getBiomeFromLocation(player.getLocation());

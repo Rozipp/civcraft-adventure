@@ -44,7 +44,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_civ_group_name");
 		this.addValidator(Validators.validLeader);
 
-		add(new CustomCommand("addleared").withAliases("al").withDescription(CivSettings.localize.localizedString("cmd_civ_group_addLeaderDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addleared").withAliases("al").withDescription(CivSettings.localize.localizedString("cmd_civ_group_addLeaderDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -55,7 +55,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_civ_group_addNotify", civ.GM.leadersGroupName, civ.getName()));
 			}
 		}));
-		add(new CustomCommand("addadviser").withAliases("aa").withDescription(CivSettings.localize.localizedString("cmd_civ_group_addAdviserDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addadviser").withAliases("aa").withDescription(CivSettings.localize.localizedString("cmd_civ_group_addAdviserDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -66,7 +66,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(newMember, CivSettings.localize.localizedString("var_cmd_civ_group_addNotify", civ.GM.advisersGroupName, civ.getName()));
 			}
 		}));
-		add(new CustomCommand("removeleared").withAliases("rl").withDescription(CivSettings.localize.localizedString("cmd_civ_group_removeLeaderDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("removeleared").withAliases("rl").withDescription(CivSettings.localize.localizedString("cmd_civ_group_removeLeaderDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -78,7 +78,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_civ_group_removeNotify1", civ.GM.leadersGroupName, civ.getName()));
 			}
 		}));
-		add(new CustomCommand("removeadviser").withAliases("ra").withDescription(CivSettings.localize.localizedString("cmd_civ_group_removeAdviserDesc")).withValidator(Validators.validLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("removeadviser").withAliases("ra").withDescription(CivSettings.localize.localizedString("cmd_civ_group_removeAdviserDesc")).withValidator(Validators.validLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -88,7 +88,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.send(oldMember, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_civ_group_removeNotify1", civ.GM.advisersGroupName, civ.getName()));
 			}
 		}));
-		add(new CustomCommand("renameleaders").withDescription(CivSettings.localize.localizedString("cmd_civ_group_renameLeaderDesc")).withValidator(Validators.validLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("renameleaders").withDescription(CivSettings.localize.localizedString("cmd_civ_group_renameLeaderDesc")).withValidator(Validators.validLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -97,7 +97,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendCiv(Commander.getSenderCiv(sender), "Група лидеров цивилизации переименована на " + newName);
 			}
 		}));
-		add(new CustomCommand("renameadvisers").withDescription(CivSettings.localize.localizedString("cmd_civ_group_renameAdviserDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("renameadvisers").withDescription(CivSettings.localize.localizedString("cmd_civ_group_renameAdviserDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -117,7 +117,7 @@ public class CivGroupCommand extends MenuAbstractCommand {
 						return l;
 					}
 				})
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);

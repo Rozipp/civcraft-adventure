@@ -336,4 +336,9 @@ public class ItemManager {
 	public static boolean isPresent(final ItemStack item) {
 		return item != null && item.getType() != Material.AIR;
 	}
+
+	@SuppressWarnings("deprecation")
+	public static Integer getId(Material material) {
+		return material.getId();
+	}
 }

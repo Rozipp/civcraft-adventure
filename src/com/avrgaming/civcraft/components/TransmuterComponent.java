@@ -124,11 +124,11 @@ public class TransmuterComponent extends Component {
 		HashMap<String, MultiInventory> multInvs = new HashMap<>();
 		for (ConfigTransmuterRecipe cTranR : getRecipes()) {
 			for (SourceItem si : cTranR.sourceItems) {
-				MultiInventory sour = MultiInventory.getMultiInventoryChestSync(getConstruct().getAllChestsById(si.chest));
+				MultiInventory sour = MultiInventory.getMultiInventoryChestSync(getConstruct().getChestsById(si.chest));
 				if (sour == null || sour.getMaxSize() < 1) return null;
 				multInvs.put(si.chest, sour);
 			}
-			MultiInventory dest = MultiInventory.getMultiInventoryChestSync(getConstruct().getAllChestsById(cTranR.resultChest));
+			MultiInventory dest = MultiInventory.getMultiInventoryChestSync(getConstruct().getChestsById(cTranR.resultChest));
 			if (dest == null || dest.getMaxSize() < 1) return null;
 			multInvs.put(cTranR.resultChest, dest);
 		}

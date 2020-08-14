@@ -43,12 +43,10 @@ public class InteractiveRepairItem implements InteractiveResponse {
 	public void respond(String message, Player player) {
 		Resident resident = CivGlobal.getResident(player);
 		resident.clearInteractiveMode();
-
 		if (!message.equalsIgnoreCase("yes")) {
 			CivMessage.send(resident, CivColor.LightGray+CivSettings.localize.localizedString("interactive_repair_canceled"));
 			return;
 		}
-		
 		Barracks.repairItemInHand(cost, resident.getName(), craftMat);
 	}
 

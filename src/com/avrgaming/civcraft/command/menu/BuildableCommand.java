@@ -46,7 +46,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_build_Desc");
 		this.addValidator(Validators.validHasTown);
 
-		add(new CustomCommand("list").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_build_listDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("list").withAliases("l").withDescription(CivSettings.localize.localizedString("cmd_build_listDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_listHeader"));
@@ -103,7 +103,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 						}
 						return l;
 					}
-				}).withExecutor(new CustonExecutor() {
+				}).withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						if (args.length < 1) {
@@ -115,7 +115,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 						buildByName(sender, fullArgs);
 					}
 				}));
-		add(new CustomCommand("progress").withAliases("p").withDescription(CivSettings.localize.localizedString("cmd_build_progressDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("progress").withAliases("p").withDescription(CivSettings.localize.localizedString("cmd_build_progressDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_undoHeader"));
@@ -128,7 +128,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("repairnearest").withDescription(CivSettings.localize.localizedString("cmd_build_repairnearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("repairnearest").withDescription(CivSettings.localize.localizedString("cmd_build_repairnearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -138,7 +138,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				if (nearest == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
 				if (!nearest.isDestroyed()) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairNotDestroyed", nearest.getDisplayName(), nearest.getCorner()));
 				if (!town.getCiv().hasTechnologys(nearest.getRequiredTechnology())) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_repairMissingTech", nearest.getDisplayName(), nearest.getCorner()));
-				if (args.length < 2 || !args[1].equalsIgnoreCase("yes")) {
+				if (args.length < 1 || !args[0].equalsIgnoreCase("yes")) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_repairConfirmPrompt", CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen,
 							CivColor.Yellow + nearest.getCorner() + CivColor.LightGreen, CivColor.Yellow + nearest.getRepairCost() + CivColor.LightGreen, CivColor.Yellow + CivSettings.CURRENCY_NAME + CivColor.LightGreen));
 					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("cmd_build_repairConfirmPrompt2"));
@@ -159,7 +159,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				}
 				return l;
 			}
-		}).withExecutor(new CustonExecutor() {
+		}).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -186,7 +186,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("demolishnearest").withDescription(CivSettings.localize.localizedString("cmd_build_demolishnearestDesc")).withValidator(Validators.validMayor).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("demolishnearest").withDescription(CivSettings.localize.localizedString("cmd_build_demolishnearestDesc")).withValidator(Validators.validMayor).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -204,7 +204,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(player, nearest.getDisplayName() + " at " + nearest.getCorner() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
 			}
 		}));
-		add(new CustomCommand("refreshnearest").withDescription(CivSettings.localize.localizedString("cmd_build_refreshnearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("refreshnearest").withDescription(CivSettings.localize.localizedString("cmd_build_refreshnearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -213,7 +213,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				town.BM.refreshNearestBuildable(resident);
 			}
 		}));
-		add(new CustomCommand("validatenearest").withDescription(CivSettings.localize.localizedString("cmd_build_validateNearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("validatenearest").withDescription(CivSettings.localize.localizedString("cmd_build_validateNearestDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -226,7 +226,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				buildable.validateAsyncTask(player);
 			}
 		}));
-		add(new CustomCommand("calc").withDescription(CivSettings.localize.localizedString("cmd_build_calc_Desc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("calc").withDescription(CivSettings.localize.localizedString("cmd_build_calc_Desc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				// Town town = Commander.getSelectedTown(sender);

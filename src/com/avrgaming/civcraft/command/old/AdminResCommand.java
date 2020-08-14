@@ -20,10 +20,14 @@ package com.avrgaming.civcraft.command.old;
 
 import java.sql.SQLException;
 
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import com.avrgaming.civcraft.command.Commander;
+import com.avrgaming.civcraft.command.CustomCommand;
+import com.avrgaming.civcraft.command.MenuAbstractCommand;
+import com.avrgaming.civcraft.command.taber.CampNameTaber;
+import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
+import com.avrgaming.civcraft.command.taber.TownInWorldTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.AlreadyRegisteredException;
@@ -34,155 +38,79 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 
-public class AdminResCommand extends CommandBase {
+public class AdminResCommand extends MenuAbstractCommand {
 
-	@Override
-	public void init() {
-		command = "/ad res";
+	public AdminResCommand(String perentCommand) {
+		super(perentCommand);
 		displayName = CivSettings.localize.localizedString("adcmd_res_Name");
-		
-		cs.add("settown", CivSettings.localize.localizedString("adcmd_res_setTownDesc"));
-		cs.add("setcamp", CivSettings.localize.localizedString("adcmd_res_setcampDesc"));
-		cs.add("cleartown", CivSettings.localize.localizedString("adcmd_res_clearTownDesc"));
-		cs.add("enchant", CivSettings.localize.localizedString("adcmd_res_enchantDesc"));
-		cs.add("rename", CivSettings.localize.localizedString("adcmd_res_renameDesc"));
-	}
-	
-	public void rename_cmd() throws CivException {
-		Resident resident = getNamedResident(1);
-		String newName = getNamedString(2, CivSettings.localize.localizedString("adcmd_res_renamePrompt"));
-
-		
-		
-		Resident newResident = CivGlobal.getResident(newName);
-		if (newResident != null) {
-			throw new CivException(CivSettings.localize.localizedString("var_adcmd_res_renameExists",newResident.getName(),resident.getName()));
-		}
-		
-		/* Create a dummy resident to make sure name is valid. */
-		try {
-			new Resident(null, newName);
-		} catch (InvalidNameException e1) {
-			throw new CivException(CivSettings.localize.localizedString("adcmd_res_renameInvalid"));
-		}
-		
-		/* Delete the old resident object. */
-		try {
-			resident.delete();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new CivException(e.getMessage());
-		}
-		
-		/* Remove resident from CivGlobal tables. */
-		CivGlobal.removeResident(resident);
-		
-		/* Change the resident's name. */
-		try {
-			resident.setName(newName);
-		} catch (InvalidNameException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("internalCommandException")+" "+e.getMessage());
-		}
-		
-		/* Resave resident to DB and global tables. */
-		CivGlobal.addResident(resident);
-		resident.save();
-		
-		CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_res_renameSuccess"));
-	}
-	
-	public void enchant_cmd() throws CivException {
-		Player player = getPlayer();
-		String enchant = getNamedString(1, CivSettings.localize.localizedString("adcmd_res_enchantHeading"));
-		int level = getNamedInteger(2);
-		
-		
-		ItemStack stack = player.getInventory().getItemInMainHand();
-		Enchantment ench = Enchantment.getByName(enchant);
-		if (ench == null) {
-			String out ="";
-			for (Enchantment ench2 : Enchantment.values()) {
-				out += ench2.getName()+",";
+		add(new CustomCommand("settown").withDescription(CivSettings.localize.localizedString("adcmd_res_setTownDesc")).withTabCompleter(new ResidentInWorldTaber()).withTabCompleter(new TownInWorldTaber())
+				.withExecutor(new CustomExecutor() {
+					@Override
+					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+						Resident resident = Commander.getNamedResident(args, 0);
+						Town town = Commander.getNamedTown(args, 1);
+						if (resident.hasTown()) resident.getTown().removeResident(resident);
+						try {
+							town.addResident(resident);
+						} catch (AlreadyRegisteredException e) {
+							e.printStackTrace();
+							throw new CivException(CivSettings.localize.localizedString("adcmd_res_settownErrorInTown"));
+						}
+						town.save();
+						resident.save();
+						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setTownSuccess", resident.getName(), town.getName()));
+					}
+				}));
+		add(new CustomCommand("setcamp").withDescription(CivSettings.localize.localizedString("adcmd_res_setcampDesc")).withTabCompleter(new ResidentInWorldTaber()).withTabCompleter(new CampNameTaber()).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getNamedResident(args, 0);
+				Camp camp = Commander.getNamedCamp(args, 1);
+				if (resident.hasCamp()) resident.getCamp().removeMember(resident);
+				camp.addMember(resident);
+				camp.save();
+				resident.save();
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setcampSuccess", resident.getName(), camp.getName()));
 			}
-			throw new CivException(CivSettings.localize.localizedString("var_adcmd_res_enchantInvalid1",enchant,out));
-		}
-		
-		stack.addUnsafeEnchantment(ench, level);
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("adcmd_res_enchantSuccess"));
+		}));
+		add(new CustomCommand("cleartown").withDescription(CivSettings.localize.localizedString("adcmd_res_clearTownDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getNamedResident(args, 0);
+				if (resident.hasTown()) resident.getTown().removeResident(resident);
+				resident.save();
+				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_cleartownSuccess", resident.getName()));
+			}
+		}));
+		add(new CustomCommand("rename").withDescription(CivSettings.localize.localizedString("adcmd_res_renameDesc")).withTabCompleter(new ResidentInWorldTaber()).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Resident resident = Commander.getNamedResident(args, 0);
+				String newName = Commander.getNamedString(args, 1, CivSettings.localize.localizedString("adcmd_res_renamePrompt"));
+				Resident newResident = CivGlobal.getResident(newName);
+				if (newResident != null) throw new CivException(CivSettings.localize.localizedString("var_adcmd_res_renameExists", newResident.getName(), resident.getName()));
+				try {/* Create a dummy resident to make sure name is valid. */
+					new Resident(null, newName);
+				} catch (InvalidNameException e1) {
+					throw new CivException(CivSettings.localize.localizedString("adcmd_res_renameInvalid"));
+				}
+				try {/* Delete the old resident object. */
+					resident.delete();
+				} catch (SQLException e) {
+					e.printStackTrace();
+					throw new CivException(e.getMessage());
+				}
+				CivGlobal.removeResident(resident);/* Remove resident from CivGlobal tables. */
+				try {/* Change the resident's name. */
+					resident.setName(newName);
+				} catch (InvalidNameException e) {
+					e.printStackTrace();
+					throw new CivException(CivSettings.localize.localizedString("internalCommandException") + " " + e.getMessage());
+				}
+				CivGlobal.addResident(resident); /* Resave resident to DB and global tables. */
+				resident.save();
+				CivMessage.send(sender, CivSettings.localize.localizedString("adcmd_res_renameSuccess"));
+			}
+		}));
 	}
-	
-	public void cleartown_cmd() throws CivException {
-		if (args.length < 2) {
-			throw new CivException(CivSettings.localize.localizedString("EnterPlayerName"));
-		}
-				
-		Resident resident = getNamedResident(1);
-		
-		if (resident.hasTown()) {
-			resident.getTown().removeResident(resident);
-		}
-		
-		resident.save();
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_cleartownSuccess",resident.getName()));
-
-	}
-	
-	public void setcamp_cmd() throws CivException {		
-		Resident resident = getNamedResident(1);
-		Camp camp = getNamedCamp(2);
-
-		if (resident.hasCamp()) {
-			resident.getCamp().removeMember(resident);
-		}		
-		
-		camp.addMember(resident);
-		
-		camp.save();
-		resident.save();
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setcampSuccess",resident.getName(),camp.getName()));
-	}
-	
-	
-	public void settown_cmd() throws CivException {
-		
-		if (args.length < 3) {
-			throw new CivException(CivSettings.localize.localizedString("adcmd_res_settownPrompt"));
-		}
-		
-		Resident resident = getNamedResident(1);
-
-		Town town = getNamedTown(2);
-
-		if (resident.hasTown()) {
-			resident.getTown().removeResident(resident);
-		}
-		
-		try {
-			town.addResident(resident);
-		} catch (AlreadyRegisteredException e) {
-			e.printStackTrace();
-			throw new CivException(CivSettings.localize.localizedString("adcmd_res_settownErrorInTown"));
-		}
-		
-		town.save();
-		resident.save();
-		CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_adcmd_res_setTownSuccess",resident.getName(),town.getName()));
-	}
-	
-	@Override
-	public void doDefaultAction() throws CivException {
-		showHelp();
-	}
-
-	@Override
-	public void showHelp() {
-		showBasicHelp();
-	}
-
-	@Override
-	public void permissionCheck() throws CivException {
-		
-	}
-
 }

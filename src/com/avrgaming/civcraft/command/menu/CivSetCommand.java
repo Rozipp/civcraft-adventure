@@ -38,7 +38,7 @@ public class CivSetCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_civ_set_Name");
 		this.addValidator(Validators.validLeaderAdvisor);
 
-		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_set_taxesDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_set_taxesDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -54,7 +54,7 @@ public class CivSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_civ_set_taxesSuccess") + " " + args[0] + " " + "%");
 			}
 		}));
-		add(new CustomCommand("science").withDescription(CivSettings.localize.localizedString("cmd_civ_set_scienceDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("science").withDescription(CivSettings.localize.localizedString("cmd_civ_set_scienceDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -68,7 +68,7 @@ public class CivSetCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_civ_set_scienceSuccess", args[0]));
 			}
 		}));
-		add(new CustomCommand("color").withDescription(CivSettings.localize.localizedString("cmd_civ_set_colorDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("color").withDescription(CivSettings.localize.localizedString("cmd_civ_set_colorDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);

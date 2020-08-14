@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -71,13 +70,13 @@ public abstract class Construct extends SQLObject {
 	public String invalidLayerMessage = "";
 	public boolean validated = false;
 	protected boolean valid = false;
-	public HashMap<Integer, ConstructLayer> layerValidPercentages = new HashMap<Integer, ConstructLayer>();
+	public HashMap<Integer, ConstructLayer> layerValidPercentages = new HashMap<>();
 
-	protected Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<BlockCoord, ConstructSign>();
-	private Map<BlockCoord, ConstructChest> constructChests = new ConcurrentHashMap<BlockCoord, ConstructChest>();
-	protected Map<BlockCoord, Boolean> constructBlocks = new ConcurrentHashMap<BlockCoord, Boolean>();
+	protected Map<BlockCoord, ConstructSign> constructSigns = new ConcurrentHashMap<>();
+	private Map<String, ArrayList<ConstructChest>> constructChests = new ConcurrentHashMap<>();
+	protected Map<BlockCoord, Boolean> constructBlocks = new ConcurrentHashMap<>();
 
-	public ArrayList<Component> attachedComponents = new ArrayList<Component>();
+	public ArrayList<Component> attachedComponents = new ArrayList<>();
 
 	public Construct(String id, SQLObject owner) throws CivException {
 		ConfigConstructInfo cInfo = CivSettings.constructs.get(id);
@@ -198,10 +197,10 @@ public abstract class Construct extends SQLObject {
 	public boolean isIgnoreFloating() {
 		return info.ignore_floating;
 	}
-	
+
 	public Component getComponent(String name) {
 		for (Component comp : this.attachedComponents) {
-			if (comp.getName().equals(name)) return comp;
+			if (name.equals(comp.getName())) return comp;
 		}
 		return null;
 	}
@@ -526,12 +525,12 @@ public abstract class Construct extends SQLObject {
 		for (Component comp : this.attachedComponents) {
 			comp.destroyComponent();
 		}
-		synchronized (this.constructChests) {
-			Set<BlockCoord> deleteObject = this.constructChests.keySet();
-			for (BlockCoord bcoord : deleteObject) {
-				this.constructChests.get(bcoord).delete();
-				this.constructChests.remove(bcoord);
+		synchronized (constructChests) {
+			for (String chestId : constructChests.keySet()) {
+				for (ConstructChest chest : constructChests.get(chestId))
+					chest.delete();
 			}
+			constructChests = null;
 		}
 
 		synchronized (this.constructSigns) {
@@ -608,31 +607,10 @@ public abstract class Construct extends SQLObject {
 						continue;
 					}
 
-					Random rand = new Random();
-
-					// Each block has a 70% chance to turn into Air
-					if (rand.nextInt(100) <= 70) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
-
-					// Each block has a 30% chance to turn into gravel
-					if (rand.nextInt(100) <= 30) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
-
-					// Each block has a 10% chance of starting a fire
-					if (rand.nextInt(100) <= 10) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.FIRE);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
+					double nextrand = CivCraft.civRandom.nextDouble();
 
 					// Each block has a 0.1% chance of launching an explosion effect
-					if (rand.nextInt(1000) <= 1) {
+					if (nextrand <= 0.002) {
 						FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
 						FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
 						for (int i = 0; i < 3; i++) {
@@ -642,6 +620,24 @@ public abstract class Construct extends SQLObject {
 								e.printStackTrace();
 							}
 						}
+					}
+					// Each block has a 10% chance of starting a fire
+					if (nextrand <= 0.05) {
+						ItemManager.setTypeId(coord.getBlock(), CivData.FIRE);
+						ItemManager.setData(coord.getBlock(), 0, true);
+						continue;
+					}
+					// Each block has a 30% chance to turn into gravel
+					if (nextrand <= 0.2) {
+						ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
+						ItemManager.setData(coord.getBlock(), 0, true);
+						continue;
+					}
+					// Each block has a 70% chance to turn into Air
+					if (nextrand <= 0.8) {
+						ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
+						ItemManager.setData(coord.getBlock(), 0, true);
+						continue;
 					}
 				}
 			}
@@ -669,42 +665,25 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
+		// Children override
 	}
 
 	// ------------ ConstructChest
 	public void addChest(ConstructChest chest) {
-		this.constructChests.put(chest.getCoord(), chest);
+		ArrayList<ConstructChest> chests = constructChests.get(chest.getChestId());
+		if (chests == null) chests = new ArrayList<ConstructChest>();
+		chests.add(chest);
+		constructChests.put(chest.getChestId(), chests);
+		// if (getTown() != null) getTown().addChest();
 		CivGlobal.addConstructChest(chest);
 	}
 
-	public ConstructChest getChest(BlockCoord bcoord) {
-		return this.constructChests.get(bcoord);
-	}
-
-	public ArrayList<ConstructChest> getAllChestsById(String id) {
-		ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
-		for (ConstructChest chest : this.constructChests.values()) {
-			if (chest.getChestId().equalsIgnoreCase(id)) chests.add(chest);
-		}
-		return chests;
-	}
-
-	public ArrayList<ConstructChest> getAllChestsById(String[] ids) {
-		final ArrayList<ConstructChest> chests = new ArrayList<ConstructChest>();
-		for (final ConstructChest chest : this.constructChests.values()) {
-			for (String i : ids) {
-				if (chest.getChestId() == i && chest != null) chests.add(chest);
-			}
-		}
-		return chests;
-	}
-
-	public Collection<ConstructChest> getChests() {
-		return this.constructChests.values();
-	}
-
-	public Map<BlockCoord, ConstructChest> getAllChests() {
-		return this.constructChests;
+	public ArrayList<ConstructChest> getChestsById(String id) {
+		ArrayList<ConstructChest> chests = constructChests.get(id);
+		if (chests == null)
+			return new ArrayList<ConstructChest>();
+		else
+			return chests;
 	}
 
 	// --------------- Damage

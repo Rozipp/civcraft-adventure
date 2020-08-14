@@ -38,7 +38,6 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.BukkitObjects;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
 
 public class Blacksmith extends Structure {
@@ -312,6 +311,4 @@ public class Blacksmith extends Structure {
 		player.updateInventory();
 	}
 
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
-	}
 }

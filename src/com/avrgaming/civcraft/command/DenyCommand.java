@@ -35,7 +35,7 @@ public class DenyCommand extends CustomCommand {
 	public DenyCommand(String perentComman) {
 		super(perentComman);
 		this.setAliases("no");
-		this.setExecutor(new CustonExecutor() {
+		this.setExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (!(sender instanceof Player)) throw new CivException(CivSettings.localize.localizedString("cmd_MustBePlayer"));

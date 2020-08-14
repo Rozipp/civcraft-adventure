@@ -52,7 +52,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 		// add(new CustomCommand("renameassistant").withDescription("[new Name] переименовать групу ассистентов меров"));
 		// add(new CustomCommand("renamedefault").withDescription("[new Name] переименовать стандарнтую групу"));
 
-		add(new CustomCommand("new").withDescription(CivSettings.localize.localizedString("cmd_town_group_newDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("new").withDescription(CivSettings.localize.localizedString("cmd_town_group_newDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				String arg = Commander.getNamedString(args, 0, CivSettings.localize.localizedString("cmd_town_group_newPrompt"));
@@ -67,7 +67,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_group_newSuccess", arg));
 			}
 		}));
-		add(new CustomCommand("rename").withDescription("[OldGroupName][NewGroupName] Переименовать групу").withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("rename").withDescription("[OldGroupName][NewGroupName] Переименовать групу").withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -77,7 +77,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, "Група " + args[0] + " переименована на " + args[1]);
 			}
 		}));
-		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_group_addDesc")).withTabCompleter(new ResidentInTownTaber()).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_town_group_addDesc")).withTabCompleter(new ResidentInTownTaber()).withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -90,7 +90,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				if (resident != senderResident) CivMessage.sendSuccess(resident, CivSettings.localize.localizedString("var_cmd_town_group_addAlert", grp.getName(), grp.getTown().getName()));
 			}
 		}));
-		add(new CustomCommand("remove").withDescription(CivSettings.localize.localizedString("cmd_town_group_removeDesc")).withTabCompleter(new ResidentInTownTaber()).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("remove").withDescription(CivSettings.localize.localizedString("cmd_town_group_removeDesc")).withTabCompleter(new ResidentInTownTaber()).withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -103,7 +103,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				if (resident != senderResident) CivMessage.send(resident, CivColor.Rose + CivSettings.localize.localizedString("var_cmd_town_group_removeAlert", grp.getName(), grp.getTown().getName()));
 			}
 		}));
-		add(new CustomCommand("delete").withAliases("del").withDescription(CivSettings.localize.localizedString("cmd_town_group_deleteDesc")).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("delete").withAliases("del").withDescription(CivSettings.localize.localizedString("cmd_town_group_deleteDesc")).withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -114,7 +114,7 @@ public class TownGroupCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_group_deleteSuccess") + " " + args[0]);
 			}
 		}));
-		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_town_group_infoDesc")).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_town_group_infoDesc")).withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);

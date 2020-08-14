@@ -1,5 +1,8 @@
 package com.avrgaming.civcraft.command.old;
 
+import com.avrgaming.civcraft.command.Commander;
+import com.avrgaming.civcraft.command.CustomCommand;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.util.ItemManager;
@@ -9,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -22,20 +24,25 @@ import ru.muffincolor.DonateAPI;
 
 import java.util.HashMap;
 
-public class DonateCommand implements CommandExecutor, Listener {
+public class DonateCommand extends CustomCommand implements Listener {
 
-    private static Inventory inventory;
+    public DonateCommand(String string_cmd) {
+		super(string_cmd);
+		this.setExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Player player = Commander.getPlayer(sender);
+				inventory = Bukkit.createInventory(null, 54,  ChatColor.YELLOW + "Донат меню. " + ChatColor.DARK_GRAY + "Ваш баланс: " + DonateAPI.getBalance(player.getName()));
+				generateMenu(player, inventory);
+		        player.openInventory(inventory);
+		        
+			}
+		});
+		Bukkit.getPluginManager().registerEvents(this, CivCraft.getPlugin());
+	}
+
+	private static Inventory inventory;
     private static HashMap<Integer, Integer> itemsCost = new HashMap<>();
-
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        inventory = Bukkit.createInventory(null, 54,  ChatColor.YELLOW + "Донат меню. " + ChatColor.DARK_GRAY + "Ваш баланс: " + DonateAPI.getBalance(commandSender.getName()));
-        generateMenu((Player) commandSender, inventory);
-        Player player = (Player) commandSender;
-        player.openInventory(inventory);
-        Bukkit.getPluginManager().registerEvents(this, CivCraft.getPlugin());
-        return true;
-    }
 
     public static void generateMenu(Player player, Inventory inventory) {
         // ---

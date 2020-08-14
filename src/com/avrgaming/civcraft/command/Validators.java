@@ -18,6 +18,8 @@ import com.avrgaming.civcraft.object.TownChunk;
  * @author rozipp */
 public class Validators {
 
+	/** Разрешает выполнение админских команд связынных.*/
+	public static Validator validAdmin = new ValidAdmin();
 	/** Разрешает выполнение команд связынных с созданием или удалением валюты. Обычно это модераторы и админы */
 	public static Validator validEcon = new ValidEcon();
 	/** Разрешает команду всем, кто находиться в городе */
@@ -41,6 +43,18 @@ public class Validators {
 	/** Разрешаеть команду хозяивам кемпов */
 	public static Validator validCampOwner = new ValidCampOwner();
 
+	private static class ValidAdmin implements Validator {
+		@Override
+		public void isValide(CommandSender sender) throws CivException {
+			if (!(sender instanceof ConsoleCommandSender)) {
+				Player player = Commander.getPlayer(sender);
+				if (!player.isOp() || !player.hasPermission(CivSettings.MINI_ADMIN) || !player.hasPermission(CivSettings.MODERATOR)) {
+					throw new CivException(CivSettings.localize.localizedString("cmd_MustBeOP"));
+				}
+			}
+		}
+	}
+	
 	private static class ValidEcon implements Validator {
 		@Override
 		public void isValide(CommandSender sender) throws CivException {

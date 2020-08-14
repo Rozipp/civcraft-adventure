@@ -51,7 +51,7 @@ public class CivInfoCommand extends MenuAbstractCommand {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_info_name");
 
-		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_civ_info_upkeepDesc")).withValidator(Validators.validLeaderAdvisor).withTabCompleter(new TownInCivTaber()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("upkeep").withDescription(CivSettings.localize.localizedString("cmd_civ_info_upkeepDesc")).withValidator(Validators.validLeaderAdvisor).withTabCompleter(new TownInCivTaber()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -90,7 +90,7 @@ public class CivInfoCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_info_taxesDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("taxes").withDescription(CivSettings.localize.localizedString("cmd_civ_info_taxesDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);
@@ -101,7 +101,7 @@ public class CivInfoCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_civ_info_beakersDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("beakers").withDescription(CivSettings.localize.localizedString("cmd_civ_info_beakersDesc")).withValidator(Validators.validLeaderAdvisor).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				DecimalFormat df = new DecimalFormat("#.#");
@@ -118,7 +118,7 @@ public class CivInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("online").withDescription(CivSettings.localize.localizedString("cmd_civ_info_onlineDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("online").withDescription(CivSettings.localize.localizedString("cmd_civ_info_onlineDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getSenderCiv(sender);

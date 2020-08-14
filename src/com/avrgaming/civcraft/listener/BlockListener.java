@@ -659,6 +659,8 @@ public class BlockListener extends SimpleListener {
 			return;
 		}
 
+		if (resident.isSBPermOverride()) return;
+		
 		BlockCoord bcoord = new BlockCoord(event.getBlock().getLocation());
 		ConstructBlock cb = CivGlobal.getConstructBlock(bcoord);
 		if (cb != null) {
@@ -681,8 +683,6 @@ public class BlockListener extends SimpleListener {
 				return;
 			}
 		}
-
-		if (resident.isSBPermOverride()) return;
 
 		ConstructSign structSign = CivGlobal.getConstructSign(bcoord);
 		if (structSign != null) {

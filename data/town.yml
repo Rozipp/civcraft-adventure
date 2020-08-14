@@ -54,6 +54,31 @@ town:
 # culture to beaker conversion ratio.
 beakers_per_culture: 0.1
 
+peoples_intake_table:
+   - prof: UNHAPPINES
+   - prof: BUILDER
+     FOODS: 1
+   - prof: NOTWORK
+     FOODS: 2
+     SUPPLIES: 1
+     CULTURE: 2
+     COINS: 2
+     BEAKERS: 2
+   - prof: FARMER
+     FOODS: 4
+   - prof: MINER
+     FOODS: 1
+     SUPPLIES: 4
+   - prof: ARTIST
+     FOODS: 1
+     CULTURE: 10
+   - prof: MERCHANT
+     FOODS: 1
+     COINS: 10
+   - prof: SCIENTIST
+     FOODS: 1
+     BEAKERS: 10
+
 # Culture levels for towns
 # level: - this entries' level number
 # amount - amount of culture needed for this level

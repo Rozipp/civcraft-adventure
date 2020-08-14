@@ -53,7 +53,7 @@ public class PlotCommand extends MenuAbstractCommand {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_plot_Name");
 
-		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_plot_infoDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_plot_infoDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -74,7 +74,7 @@ public class PlotCommand extends MenuAbstractCommand {
 				if ("fire".toLowerCase().startsWith(arg)) l.add("fire");
 				return l;
 			}
-		}).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
+		}).withValidator(Validators.validPlotOwner).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				TownChunk tc = Commander.getStandingTownChunk(sender);
@@ -127,7 +127,7 @@ public class PlotCommand extends MenuAbstractCommand {
 						if ("no".toLowerCase().startsWith(arg)) l.add("no");
 						return l;
 					}
-				}).withExecutor(new CustonExecutor() {
+				}).withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Player player = (Player) sender;
@@ -183,7 +183,7 @@ public class PlotCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_plot_perm_setSuccess", node.getType(), on, args[1]));
 					}
 				}));
-		add(new CustomCommand("addgroup").withDescription(CivSettings.localize.localizedString("cmd_plot_addgroupDesc")).withValidator(Validators.validPlotOwner).withTabCompleter(new GroupInTown()).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addgroup").withDescription(CivSettings.localize.localizedString("cmd_plot_addgroupDesc")).withValidator(Validators.validPlotOwner).withTabCompleter(new GroupInTown()).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				TownChunk tc = Commander.getStandingTownChunk(sender);
@@ -196,7 +196,7 @@ public class PlotCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_plot_addgroupSuccess", grp.getName()));
 			}
 		}));
-		add(new CustomCommand("setowner").withDescription(CivSettings.localize.localizedString("cmd_plot_setowner")).withTabCompleter(new ResidentInWorldTaber()).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setowner").withDescription(CivSettings.localize.localizedString("cmd_plot_setowner")).withTabCompleter(new ResidentInWorldTaber()).withValidator(Validators.validPlotOwner).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				TownChunk tc = Commander.getStandingTownChunk(sender);
@@ -214,7 +214,7 @@ public class PlotCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_plot_setownerSuccess", args[1]));
 			}
 		}));
-		add(new CustomCommand("farminfo").withDescription(CivSettings.localize.localizedString("cmd_plot_farminfoDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("farminfo").withDescription(CivSettings.localize.localizedString("cmd_plot_farminfoDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				DecimalFormat df = new DecimalFormat("#.#");
@@ -245,7 +245,7 @@ public class PlotCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CustomCommand("removegroup").withDescription(CivSettings.localize.localizedString("cmd_plot_removegroupDesc")).withTabCompleter(new GroupInTown()).withValidator(Validators.validPlotOwner)
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						TownChunk tc = Commander.getStandingTownChunk(sender);
@@ -258,7 +258,7 @@ public class PlotCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_plot_removegroupSuccess", grp.getName()));
 					}
 				}));
-		add(new CustomCommand("cleargroups").withDescription(CivSettings.localize.localizedString("cmd_plot_cleargroupsDesc")).withValidator(Validators.validPlotOwner).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("cleargroups").withDescription(CivSettings.localize.localizedString("cmd_plot_cleargroupsDesc")).withValidator(Validators.validPlotOwner).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				TownChunk tc = Commander.getStandingTownChunk(sender);

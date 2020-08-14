@@ -43,13 +43,13 @@ public class EconCommand extends MenuAbstractCommand {
 		this.setAliases("money");
 		displayName = CivSettings.localize.localizedString("cmd_econ_Name");
 
-		add(new CustomCommand("help").withDescription(CivSettings.localize.localizedString("cmd_econ_addDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("help").withDescription(CivSettings.localize.localizedString("cmd_econ_addDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				showBasicHelp(sender);
 			}
 		}));
-		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_econ_addDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("add").withDescription(CivSettings.localize.localizedString("cmd_econ_addDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -63,7 +63,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("give").withDescription(CivSettings.localize.localizedString("cmd_econ_giveDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("give").withDescription(CivSettings.localize.localizedString("cmd_econ_giveDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -77,7 +77,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("set").withDescription(CivSettings.localize.localizedString("cmd_econ_setDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("set").withDescription(CivSettings.localize.localizedString("cmd_econ_setDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -91,7 +91,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("sub").withDescription(CivSettings.localize.localizedString("cmd_econ_subDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("sub").withDescription(CivSettings.localize.localizedString("cmd_econ_subDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -106,7 +106,7 @@ public class EconCommand extends MenuAbstractCommand {
 			}
 		}));
 
-		add(new CustomCommand("addtown").withDescription(CivSettings.localize.localizedString("cmd_econ_addtownDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addtown").withDescription(CivSettings.localize.localizedString("cmd_econ_addtownDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -120,7 +120,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("settown").withDescription(CivSettings.localize.localizedString("cmd_econ_settownDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("settown").withDescription(CivSettings.localize.localizedString("cmd_econ_settownDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -134,7 +134,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("subtown").withDescription(CivSettings.localize.localizedString("cmd_econ_subtownDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("subtown").withDescription(CivSettings.localize.localizedString("cmd_econ_subtownDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -149,7 +149,7 @@ public class EconCommand extends MenuAbstractCommand {
 			}
 		}));
 
-		add(new CustomCommand("addciv").withDescription(CivSettings.localize.localizedString("cmd_econ_addcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("addciv").withDescription(CivSettings.localize.localizedString("cmd_econ_addcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -163,7 +163,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("setciv").withDescription(CivSettings.localize.localizedString("cmd_econ_setcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setciv").withDescription(CivSettings.localize.localizedString("cmd_econ_setcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException(CivSettings.localize.localizedString("cmd_econ_ProvideNameAndNumberPrompt"));
@@ -177,7 +177,7 @@ public class EconCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("subciv").withDescription(CivSettings.localize.localizedString("cmd_econ_subcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("subciv").withDescription(CivSettings.localize.localizedString("cmd_econ_subcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) 
@@ -193,7 +193,7 @@ public class EconCommand extends MenuAbstractCommand {
 			}
 		}));
 
-		add(new CustomCommand("setdebt").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebtDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setdebt").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebtDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getNamedResident(args,0);
@@ -204,7 +204,7 @@ public class EconCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("SetSuccess"));
 			}
 		}));
-		add(new CustomCommand("setdebttown").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebttownDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setdebttown").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebttownDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getNamedTown(args,0);
@@ -215,7 +215,7 @@ public class EconCommand extends MenuAbstractCommand {
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("SetSuccess"));
 			}
 		}));
-		add(new CustomCommand("setdebtciv").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebtcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("setdebtciv").withDescription(CivSettings.localize.localizedString("cmd_econ_setdebtcivDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Civilization civ = Commander.getNamedCiv(args,0);
@@ -227,7 +227,7 @@ public class EconCommand extends MenuAbstractCommand {
 			}
 		}));
 
-		add(new CustomCommand("clearalldebt").withDescription(CivSettings.localize.localizedString("cmd_econ_clearAllDebtDesc")).withValidator(Validators.validEcon).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("clearalldebt").withDescription(CivSettings.localize.localizedString("cmd_econ_clearAllDebtDesc")).withValidator(Validators.validEcon).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				for (Civilization civ : CivGlobal.getCivs()) {

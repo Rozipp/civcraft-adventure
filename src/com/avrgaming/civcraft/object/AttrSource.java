@@ -2,7 +2,6 @@ package com.avrgaming.civcraft.object;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -14,22 +13,11 @@ public class AttrSource {
 	public HashMap<String, Double> sources;
 	public double total;
 	AttrRate rate;
-	public Date lastUpdate;
 
 	public AttrSource(HashMap<String, Double> sources, double total, AttrRate rate) {
 		this.sources = sources;
 		this.total = total;
 		this.rate = rate;
-		this.lastUpdate = new Date();
-	}
-
-	public void modifyAttrSource(HashMap<String, Double> sources, double total, AttrRate rate) {
-		for (String name : sources.keySet()) {
-			this.sources.put(name, sources.get(name));
-		}
-		this.total = total;
-		this.rate = rate;
-		this.lastUpdate = new Date();
 	}
 
 	public AttrRate getRate() {

@@ -101,4 +101,9 @@ public class Farm extends Structure {
 		TaskMaster.asyncTask(new AsyncTask(missedGrowths), 0);
 	}
 
+	public double getBonusFoods() {
+		// TODO Автоматически созданная заглушка метода
+		return 0;
+	}
+
 }

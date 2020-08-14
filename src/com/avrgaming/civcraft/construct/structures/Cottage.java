@@ -105,7 +105,7 @@ public class Cottage extends Structure {
 
 		for (Structure struct : this.getTown().BM.getStructures()) {
 			if (struct instanceof Granary) {
-				ArrayList<ConstructChest> chests = struct.getAllChestsById("1");
+				ArrayList<ConstructChest> chests = struct.getChestsById("1");
 
 				// Make sure the chunk is loaded and add it to the inventory.
 				try {
@@ -133,7 +133,7 @@ public class Cottage extends Structure {
 		getConsumeComponent().setConsumeRate(cottage_consume_mod);
 		Result result = Result.STAGNATE;
 		try {
-			result = getConsumeComponent().processConsumption();
+			result = getConsumeComponent().processConsumption(this.getProfesionalComponent().isWork);
 			getConsumeComponent().onSave();
 		} catch (IllegalStateException e) {
 			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTown().getName() + " and Location: " + this.getCorner(), e);

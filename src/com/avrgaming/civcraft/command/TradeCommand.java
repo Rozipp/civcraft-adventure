@@ -21,7 +21,7 @@ public class TradeCommand extends CustomCommand {
 	public TradeCommand(String string_cmd) {
 		super(string_cmd);
 		withUsage(CivColor.LightPurple + string_cmd + " " + CivColor.Yellow + CivSettings.localize.localizedString("cmd_trade_resName") + " " + CivColor.LightGray + CivSettings.localize.localizedString("cmd_trade_cmdDesc"));
-		withExecutor(new CustonExecutor() {
+		withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident trader = Commander.getResident(sender);

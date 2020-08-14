@@ -22,7 +22,7 @@ public class TownEventCommand extends MenuAbstractCommand {
 	public TownEventCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_town_event_name");
-		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_event_showDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("show").withDescription(CivSettings.localize.localizedString("cmd_town_event_showDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -44,7 +44,7 @@ public class TownEventCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("activate").withDescription(CivSettings.localize.localizedString("cmd_town_event_activateDesc")).withValidator(Validators.validMayorAssistant).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("activate").withDescription(CivSettings.localize.localizedString("cmd_town_event_activateDesc")).withValidator(Validators.validMayorAssistant).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);

@@ -16,7 +16,7 @@ public abstract class SelectorAbstractCommand extends CustomCommand {
 	private List<String> selectorCommands = new ArrayList<>();
 	private List<String> selectorDescriptions = new ArrayList<>();
 
-	public SelectorAbstractCommand(String string_cmd, CustonExecutor executor) {
+	public SelectorAbstractCommand(String string_cmd, CustomExecutor executor) {
 		super(string_cmd);
 		initSubCommands();
 		this.withTabCompleter(new SelectorCustomTaber());
@@ -30,10 +30,10 @@ public abstract class SelectorAbstractCommand extends CustomCommand {
 		selectorDescriptions.add(description);
 	}
 
-	private class SelectorCustomExecutor implements CustonExecutor {
-		private CustonExecutor executor;
+	private class SelectorCustomExecutor implements CustomExecutor {
+		private CustomExecutor executor;
 
-		public SelectorCustomExecutor(CustonExecutor executor) {
+		public SelectorCustomExecutor(CustomExecutor executor) {
 			this.executor = executor;
 		}
 

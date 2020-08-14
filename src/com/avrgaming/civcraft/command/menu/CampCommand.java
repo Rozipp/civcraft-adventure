@@ -45,7 +45,7 @@ public class CampCommand extends MenuAbstractCommand {
 		this.displayName = CivSettings.localize.localizedString("Camp");
 		this.addValidator(Validators.validHasCamp);
 
-		add(new CustomCommand("undo").withDescription(CivSettings.localize.localizedString("cmd_camp_undoDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("undo").withDescription(CivSettings.localize.localizedString("cmd_camp_undoDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Player player = Commander.getPlayer(sender);
@@ -64,7 +64,7 @@ public class CampCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CustomCommand("add").withAliases("a").withDescription(CivSettings.localize.localizedString("cmd_camp_addDesc")).withValidator(Validators.validCampOwner).withTabCompleter(new ResidentInWorldTaber())
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Camp camp = Commander.getCurrentCamp(sender);
@@ -82,7 +82,7 @@ public class CampCommand extends MenuAbstractCommand {
 					}
 				}));
 		add(new CustomCommand("remove").withAliases("r").withDescription(CivSettings.localize.localizedString("cmd_camp_removeDesc")).withValidator(Validators.validCampOwner).withTabCompleter(new ResidentInCampTaber())
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Camp camp = Commander.getCurrentCamp(sender);
@@ -93,7 +93,7 @@ public class CampCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_camp_removeSuccess", resident.getName()));
 					}
 				}));
-		add(new CustomCommand("leave").withDescription(CivSettings.localize.localizedString("cmd_camp_leaveDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("leave").withDescription(CivSettings.localize.localizedString("cmd_camp_leaveDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -106,7 +106,7 @@ public class CampCommand extends MenuAbstractCommand {
 			}
 		}));
 		add(new CustomCommand("setowner").withDescription(CivSettings.localize.localizedString("cmd_camp_setownerDesc")).withTabCompleter(new ResidentInCampTaber()).withValidator(Validators.validCampOwner)
-				.withExecutor(new CustonExecutor() {
+				.withExecutor(new CustomExecutor() {
 					@Override
 					public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 						Camp camp = Commander.getCurrentCamp(sender);
@@ -118,7 +118,7 @@ public class CampCommand extends MenuAbstractCommand {
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_camp_setownerSuccess", newLeader.getName()));
 					}
 				}));
-		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_camp_infoDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("info").withAliases("i").withDescription(CivSettings.localize.localizedString("cmd_camp_infoDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Camp camp = Commander.getCurrentCamp(sender);
@@ -141,7 +141,7 @@ public class CampCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, Commander.makeInfoString(info, CivColor.Green, CivColor.LightGreen));
 			}
 		}));
-		add(new CustomCommand("disband").withDescription(CivSettings.localize.localizedString("cmd_camp_disbandDesc")).withValidator(Validators.validCampOwner).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("disband").withDescription(CivSettings.localize.localizedString("cmd_camp_disbandDesc")).withValidator(Validators.validCampOwner).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Camp camp = Commander.getCurrentCamp(sender);
@@ -151,7 +151,7 @@ public class CampCommand extends MenuAbstractCommand {
 		}));
 
 		add(new upgradeCampMenu("upgrade").withDescription(CivSettings.localize.localizedString("cmd_camp_upgradeDesc")).withValidator(Validators.validCampOwner));
-		add(new CustomCommand("refresh").withDescription(CivSettings.localize.localizedString("cmd_camp_refreshDesc")).withValidator(Validators.validCampOwner).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("refresh").withDescription(CivSettings.localize.localizedString("cmd_camp_refreshDesc")).withValidator(Validators.validCampOwner).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -174,7 +174,7 @@ public class CampCommand extends MenuAbstractCommand {
 				resident.setNextRefresh(now.getTime() + (buildable_refresh_cooldown * 60 * 1000));
 			}
 		}));
-		add(new CustomCommand("location").withDescription(CivSettings.localize.localizedString("cmd_camp_locationDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("location").withDescription(CivSettings.localize.localizedString("cmd_camp_locationDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -187,7 +187,7 @@ public class CampCommand extends MenuAbstractCommand {
 				}
 			}
 		}));
-		add(new CustomCommand("teleport").withAliases("tp").withExecutor(new CustonExecutor() {
+		add(new CustomCommand("teleport").withAliases("tp").withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Resident resident = Commander.getResident(sender);
@@ -202,7 +202,7 @@ public class CampCommand extends MenuAbstractCommand {
 				teleportPlayerTaskCamp.run(true);
 			}
 		}));
-		add(new CustomCommand("chat").withAliases("c").withDescription(CivSettings.localize.localizedString("cmd_camp_chatDesc")).withExecutor(new CustonExecutor() {
+		add(new CustomCommand("chat").withAliases("c").withDescription(CivSettings.localize.localizedString("cmd_camp_chatDesc")).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Bukkit.dispatchCommand(sender, "vcc");
@@ -223,14 +223,14 @@ public class CampCommand extends MenuAbstractCommand {
 
 		public upgradeCampMenu(String perentComman) {
 			super(perentComman);
-			add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_listDesc")).withExecutor(new CustonExecutor() {
+			add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_listDesc")).withExecutor(new CustomExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_camp_upgrade_list"));
 					list_upgrades(sender);
 				}
 			}));
-			add(new CustomCommand("purchased").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_purchasedDesc")).withExecutor(new CustonExecutor() {
+			add(new CustomCommand("purchased").withDescription(CivSettings.localize.localizedString("cmd_camp_upgrade_purchasedDesc")).withExecutor(new CustomExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					Camp camp = Commander.getCurrentCamp(sender);
@@ -253,7 +253,7 @@ public class CampCommand extends MenuAbstractCommand {
 					}
 					return l;
 				}
-			}).withExecutor(new CustonExecutor() {
+			}).withExecutor(new CustomExecutor() {
 				@Override
 				public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 					Camp camp = Commander.getCurrentCamp(sender);

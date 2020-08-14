@@ -19,7 +19,6 @@ import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.components.Tagged;
-import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -291,7 +290,7 @@ public class Camp extends Construct {
 
 	// ------------ delete
 	public void destroy() {
-		this.fancyCampBlockDestory();
+		this.fancyDestroyConstructBlocks();
 		this.delete();
 	}
 
@@ -400,7 +399,7 @@ public class Camp extends Construct {
 						chestId = "sifternull";
 						break;
 					}
-					ConstructChest structChest = this.getChest(absCoord);
+					ConstructChest structChest = CivGlobal.getConstructChest(absCoord);
 					if (structChest == null) structChest = new ConstructChest(absCoord, this);
 					structChest.setChestId(chestId);
 					this.addChest(structChest);
@@ -649,7 +648,7 @@ public class Camp extends Construct {
 		if (level == 0) return;
 		MultiInventory mInv = new MultiInventory();
 
-		ArrayList<ConstructChest> chests = this.getAllChestsById("longhouse1");
+		ArrayList<ConstructChest> chests = this.getChestsById("longhouse1");
 		// Make sure the chunk is loaded and add it to the inventory.
 		for (ConstructChest c : chests) {
 			Block b = c.getCoord().getBlock();
@@ -661,7 +660,7 @@ public class Camp extends Construct {
 			return;
 		}
 		getConsumeLevelComponent().setMultiInventory(mInv);
-		Result result = getConsumeLevelComponent().processConsumption();
+		Result result = getConsumeLevelComponent().processConsumption(false);
 		getConsumeLevelComponent().onSave();
 		switch (result) {
 		case STARVE:
@@ -783,41 +782,40 @@ public class Camp extends Construct {
 	// this.ownerName = owner.getUid().toString();
 	// }
 
-	public void fancyCampBlockDestory() {
-		for (BlockCoord coord : this.getConstructBlocks().keySet()) {
-			if (this.getChest(coord) != null) continue;
-			if (this.getSign(coord) != null) continue;
-			if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
-			if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
-				ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
-				continue;
-			}
-
-			double nextrand = CivCraft.civRandom.nextDouble();
-			// Each block has a 1% chance of launching an explosion effect
-			if (nextrand <= 0.002) {
-				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
-				FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
-				try {
-					fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
-				} catch (Exception var8) {
-					var8.printStackTrace();
-				}
-			}
-			if (nextrand <= 0.05) {
-				ItemManager.setTypeId(coord.getBlock(), 51);
-				continue; // Each block has a 5% chance of starting a fire
-			}
-			if (nextrand <= 0.2) {
-				ItemManager.setTypeId((Block) coord.getBlock(), 13);
-				continue; // Each block has a 20% chance to turn into gravel
-			}
-			if (nextrand <= 0.8) {
-				ItemManager.setTypeId(coord.getBlock(), 0);
-				continue; // Each block has a 80% chance of clear
-			}
-		}
-	}
+//	public void fancyCampBlockDestory() {
+//		for (BlockCoord coord : this.getConstructBlocks().keySet()) {
+//			
+//			if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
+//			if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
+//				ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
+//				continue;
+//			}
+//
+//			double nextrand = CivCraft.civRandom.nextDouble();
+//			// Each block has a 1% chance of launching an explosion effect
+//			if (nextrand <= 0.002) {
+//				FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
+//				FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
+//				try {
+//					fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
+//				} catch (Exception var8) {
+//					var8.printStackTrace();
+//				}
+//			}
+//			if (nextrand <= 0.05) {
+//				ItemManager.setTypeId(coord.getBlock(), 51);
+//				continue; // Each block has a 5% chance of starting a fire
+//			}
+//			if (nextrand <= 0.2) {
+//				ItemManager.setTypeId((Block) coord.getBlock(), 13);
+//				continue; // Each block has a 20% chance to turn into gravel
+//			}
+//			if (nextrand <= 0.8) {
+//				ItemManager.setTypeId(coord.getBlock(), 0);
+//				continue; // Each block has a 80% chance of clear
+//			}
+//		}
+//	}
 
 	public void createControlPoint(BlockCoord absCoord, String info) {
 		Location centerLoc = absCoord.getLocation();

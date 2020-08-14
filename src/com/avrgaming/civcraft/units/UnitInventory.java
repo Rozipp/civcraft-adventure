@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -17,16 +16,15 @@ import com.avrgaming.civcraft.object.Town;
 public class UnitInventory {
 	public Town town;
 	public Inventory guiInventory = null;
-	public Chest chest = null;
 	public Set<Integer> unitList = new HashSet<>();
 
 	public UnitInventory(Town town) {
 		this.town = town;
 	}
 
-	public void buildInventory() {
+	public void buildInventory(Player player) {
 		if (guiInventory == null) {
-			guiInventory = UnitInventoryListener.createInventory(chest, "Юниты города  " + town.getName());
+			guiInventory = UnitInventoryListener.createInventory(player, "Юниты города  " + town.getName());
 		}
 		guiInventory.clear();
 		List<Integer> deleteUnit = new ArrayList<Integer>();
@@ -49,7 +47,6 @@ public class UnitInventory {
 				guiInventory.addItem(UnitStatic.respawn(uo.getId()));
 				continue;
 			}
-
 			guiInventory.addItem(UnitInventoryListener.buildGuiUnit(uo));
 		}
 		for (Integer uId : deleteUnit) {
@@ -58,8 +55,7 @@ public class UnitInventory {
 	}
 
 	public void showUnits(Player player) throws CivException {
-		if (chest == null) throw new CivException("У вас нет бараков");
-		buildInventory();
+		buildInventory(player);
 		player.openInventory(guiInventory);
 	}
 

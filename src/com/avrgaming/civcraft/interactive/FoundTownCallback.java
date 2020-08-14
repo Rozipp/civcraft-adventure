@@ -64,6 +64,7 @@ public class FoundTownCallback implements CallbackInterface {
 				cityhall.setTemplate(tpl);
 
 				BuildableStatic.buildPlayerPreview(player, cityhall);
+				GuiInventory.closeInventory(player);
 				CivMessage.send(player, CivColor.LightGreen + CivColor.BOLD + CivSettings.localize.localizedString("build_checking_position"));
 				TaskMaster.asyncTask(new StructureValidator(player, cityhall, this), 0);
 				return;
