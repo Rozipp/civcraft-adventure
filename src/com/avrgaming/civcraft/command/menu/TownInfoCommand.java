@@ -219,6 +219,28 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, cultureSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
 			}
 		}));
+		add(new CustomCommand("foods").withDescription(CivSettings.localize.localizedString("cmd_town_info_cultureDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Town town = Commander.getSelectedTown(sender);
+				AttrSource foodsSources = town.SM.getAttr(StorageType.FOODS);
+				CivMessage.sendHeading(sender, "FIXME " + CivSettings.localize.localizedString("cmd_town_info_cultureHeading"));
+				CivMessage.send(sender, foodsSources.getSourceDisplayString(CivColor.Green, CivColor.LightGreen));
+				CivMessage.send(sender, foodsSources.getRateDisplayString(CivColor.Green, CivColor.LightGreen));
+				CivMessage.send(sender, foodsSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
+			}
+		}));
+		add(new CustomCommand("supplies").withDescription(CivSettings.localize.localizedString("cmd_town_info_cultureDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				Town town = Commander.getSelectedTown(sender);
+				AttrSource suppliesSources = town.SM.getAttr(StorageType.SUPPLIES);
+				CivMessage.sendHeading(sender, "FIXME " + CivSettings.localize.localizedString("cmd_town_info_cultureHeading"));
+				CivMessage.send(sender, suppliesSources.getSourceDisplayString(CivColor.Green, CivColor.LightGreen));
+				CivMessage.send(sender, suppliesSources.getRateDisplayString(CivColor.Green, CivColor.LightGreen));
+				CivMessage.send(sender, suppliesSources.getTotalDisplayString(CivColor.Green, CivColor.LightGreen));
+			}
+		}));
 		add(new CustomCommand("mine").withDescription(CivSettings.localize.localizedString("cmd_town_info_mineDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {

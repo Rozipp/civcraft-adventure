@@ -55,7 +55,7 @@ public class Structure extends Buildable {
 		Structure struct;
 		if (rs != null) id = rs.getString("type_id");
 		String[] splitId = id.split("_");
-		String name = Structure.class.getPackageName() + ".";
+		String name = "com.avrgaming.civcraft.construct.structures.";
 		int length = splitId.length;
 		for (int i = 1; i < length; i++) {
 			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();

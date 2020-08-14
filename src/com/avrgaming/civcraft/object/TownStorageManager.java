@@ -244,10 +244,9 @@ public class TownStorageManager {
 		total *= rate.total;
 
 		Integer eat = town.PM.getFoodsOuttake();
-		total += eat;
+		total -= eat;
 		sources.put("Peoples eat", eat.doubleValue());
 
-		if (total < this.baseHammers) total = this.baseHammers;
 		lastAttrCache.put(StorageType.FOODS, new AttrSource(sources, total, rate));
 		return;
 	}
