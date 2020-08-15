@@ -757,26 +757,32 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	}
 
 	public void updateProgressBar() {
-		double percentageDone = 0.0;
-		percentageDone = this.currentHammers / this.trainingUnit.hammer_cost;
-		int size = this.progresBar.size();
-		int textCount = (int) (size * 16 * percentageDone);
-		int textIndex = 0;
-		for (int i = 0; i < size; i++) {
-			ConstructSign structSign = this.progresBar.get(i);
-			String[] text = new String[4];
-			text[0] = "";
-			text[1] = "";
-			text[2] = "";
-			text[3] = "";
-			for (int j = 0; j < 16; j++) {
-				text[2] += (textIndex == 0) ? "[" : (textIndex == ((size * 15) + 3)) ? "]" : (textIndex < textCount) ? "=" : "_";
-				textIndex++;
+		Cityhall cityhall = this;
+		TaskMaster.syncTask(new Runnable() {
+			@Override
+			public void run() {
+				double percentageDone = 0.0;
+				percentageDone = cityhall.currentHammers / cityhall.trainingUnit.hammer_cost;
+				int size = cityhall.progresBar.size();
+				int textCount = (int) (size * 16 * percentageDone);
+				int textIndex = 0;
+				for (int i = 0; i < size; i++) {
+					ConstructSign structSign = cityhall.progresBar.get(i);
+					String[] text = new String[4];
+					text[0] = "";
+					text[1] = "";
+					text[2] = "";
+					text[3] = "";
+					for (int j = 0; j < 16; j++) {
+						text[2] += (textIndex == 0) ? "[" : (textIndex == ((size * 15) + 3)) ? "]" : (textIndex < textCount) ? "=" : "_";
+						textIndex++;
+					}
+					if (i == (size / 2)) text[1] = CivColor.LightGreen + cityhall.trainingUnit.name;
+					structSign.setText(text);
+					structSign.update();
+				}				
 			}
-			if (i == (size / 2)) text[1] = CivColor.LightGreen + this.trainingUnit.name;
-			structSign.setText(text);
-			structSign.update();
-		}
+		});
 	}
 
 	public String getSessionKey() {
@@ -844,19 +850,6 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			this.updateProgressBar();
 			Date now = new Date();
 			if (lastSave == null || ((lastSave.getTime() + SAVE_INTERVAL) < now.getTime())) this.saveProgress();
-			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
-				this.currentHammers = this.trainingUnit.hammer_cost;
-				this.createUnit(this.trainingUnit);
-			}
-		}
-	}
-
-	public void addHammers(double hammers) {
-		if (this.trainingUnit != null) {
-			this.currentHammers += hammers;
-			this.updateProgressBar();
-			Date now = new Date();
-			if (this.lastSave == null || this.lastSave.getTime() + 60000L < now.getTime()) this.saveProgress();
 			if (this.currentHammers >= this.trainingUnit.hammer_cost) {
 				this.currentHammers = this.trainingUnit.hammer_cost;
 				this.createUnit(this.trainingUnit);

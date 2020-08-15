@@ -27,8 +27,8 @@ public class TownPeoplesManager {
 		FARMER, // Добывает пищю на фермах
 		ARTIST, // Приносят культуру в театрах
 		MERCHANT, // Приносят деньги в котеджах
-		SCIENTIST,// Приносят науку в библиотеках
-		UNIT // 
+		SCIENTIST, // Приносят науку в библиотеках
+		UNIT //
 	}
 
 	private Town town;
@@ -94,8 +94,15 @@ public class TownPeoplesManager {
 	private void calcUnhappines() {
 		town.SM.calcAttrHappiness();
 		town.SM.calcAttrUnhappiness();
+		int newUnhappiness = (int) (town.SM.getAttr(StorageType.UNHAPPY).total - town.SM.getAttr(StorageType.HAPPY).total);
+		if (newUnhappiness < 0) newUnhappiness = 0;
 		int oldUnhappiness = getPeoplesProfCount(Prof.UNHAPPINES);
-		peoples.put(Prof.UNHAPPINES, oldUnhappiness);
+		if (oldUnhappiness == newUnhappiness) return;
+		if (oldUnhappiness < newUnhappiness) {
+			this.addProfPeoples(Prof.UNHAPPINES, newUnhappiness - oldUnhappiness);
+		} else {
+			this.removeProfPeople(Prof.UNHAPPINES, newUnhappiness - oldUnhappiness);
+		}
 	}
 
 	public String peopesToString() {
