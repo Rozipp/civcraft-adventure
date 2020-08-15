@@ -52,8 +52,6 @@ import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Relation.Status;
 import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.UpdateTechBar;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -271,6 +269,9 @@ public class Civilization extends SQLObject {
 
 	public void onCivtickUpdate() {
 		processBeakers();
+		for (Town town : getTowns()) {
+			town.getCityhall().updateResearchSign();
+		}
 	}
 
 	// -------------------- load save
@@ -439,7 +440,6 @@ public class Civilization extends SQLObject {
 
 	public void processTech(double beakers) {
 		if (beakers == 0) return;
-		TaskMaster.asyncTask(new UpdateTechBar(this), 0);
 		setResearchProgress(getResearchProgress() + beakers);
 
 		if (getResearchProgress() >= getResearchTech().getAdjustedBeakerCost(this)) {
@@ -480,7 +480,6 @@ public class Civilization extends SQLObject {
 				CivMessage.sendCiv(this, "§e" + CivSettings.localize.localizedString("civ_research_queuePrefix") + CivSettings.localize.localizedString("civ_research_queueSucussesStarted", tech.name));
 				this.getTreasury().withdraw(tech.getAdjustedTechCost(this));
 				this.save();
-				TaskMaster.asyncTask(new UpdateTechBar(this), 0L);
 			}
 			return;
 		}
@@ -511,7 +510,6 @@ public class Civilization extends SQLObject {
 		this.setResearchProgress(0.0);
 
 		this.getTreasury().withdraw(cost);
-		TaskMaster.asyncTask(new UpdateTechBar(this), 0);
 	}
 
 	public double getSciencePercentage() {
@@ -526,7 +524,7 @@ public class Civilization extends SQLObject {
 	public Collection<ConfigTech> getTechs() {
 		return this.techs.values();
 	}
-	
+
 	// --------------- Town
 
 	public void addTown(Town town) {
@@ -1156,7 +1154,7 @@ public class Civilization extends SQLObject {
 	}
 
 	// ------------------- endGame winers and score
-	
+
 	public int getTechScore() {
 		int points = 0;
 		for (ConfigTech t : this.getTechs()) {

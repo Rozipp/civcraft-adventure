@@ -91,7 +91,7 @@ public class TownBuildableManager {
 				if (buildable.isNextProgressBuild()) {
 					buildable.validCanProgressBuild();
 					int neadHammers = Math.min(buildable.getNeadHammersToComplit(), town.SM.getSupplies());
-					int hammers = town.PM.progressBuildGetHammers(neadHammers);
+					int hammers = town.PM.progressBuildGetSupplies(neadHammers);
 					town.SM.withdrawSupplies(hammers);
 					buildable.progressBuild(hammers);
 				}

@@ -26,7 +26,7 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
+import com.avrgaming.civcraft.util.SimpleBlock.SimpleType;
 
 public class RecoverStructuresAsyncTask implements Runnable {
 
@@ -50,7 +50,7 @@ public class RecoverStructuresAsyncTask implements Runnable {
 
 				if (ignoreBlocks.contains(ItemManager.getTypeId(nextBlock))) continue;
 				if (ignoreBlocks.contains(sb.getType())) continue;
-				if (sb.specialType != Type.NORMAL) continue;
+				if (sb.specialType != SimpleType.NORMAL) continue;
 				if (sb.isAir()) continue;
 
 				if (ItemManager.getTypeId(nextBlock) != sb.getType()) return true;

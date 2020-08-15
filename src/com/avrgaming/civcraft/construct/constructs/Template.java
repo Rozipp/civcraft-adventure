@@ -40,7 +40,7 @@ import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
+import com.avrgaming.civcraft.util.SimpleBlock.SimpleType;
 import com.google.common.collect.Sets;
 
 import lombok.Getter;
@@ -122,7 +122,7 @@ public class Template {
 				if (locTypeSplit.length > 2) {
 					// The first character on special signs needs to be a /.
 					if (locTypeSplit[2] != null && !locTypeSplit[2].equals("") && locTypeSplit[2].charAt(0) == '/') {
-						sblock.specialType = SimpleBlock.Type.COMMAND;
+						sblock.specialType = SimpleBlock.SimpleType.COMMAND;
 
 						// Got a command, save it.
 						sblock.command = locTypeSplit[2];
@@ -147,7 +147,7 @@ public class Template {
 						this.commandBlockRelativeLocations.add(sblock);
 
 					} else {
-						sblock.specialType = SimpleBlock.Type.LITERAL;
+						sblock.specialType = SimpleBlock.SimpleType.LITERAL;
 						// Literal sign, copy the sign into the simple block
 						for (int i = 0; i < 4; i++)
 							try {
@@ -216,7 +216,7 @@ public class Template {
 						Sign sign = (Sign) block.getState();
 						String firstLine = sign.getLine(0);
 						if (!firstLine.isEmpty() && firstLine.charAt(0) == '/') {
-							sb.specialType = Type.COMMAND;
+							sb.specialType = SimpleType.COMMAND;
 							sb.command = firstLine;
 							for (int i = 1; i < 4; i++) {
 								String[] split = sign.getLine(i).split(":");
@@ -224,7 +224,7 @@ public class Template {
 								sb.keyvalues.put(split[0], split[1]);
 							}
 						} else {
-							sb.specialType = Type.LITERAL;
+							sb.specialType = SimpleType.LITERAL;
 							for (int i = 0; i < 4; i++)
 								sb.message[i] = sign.getLine(i).replace(",", "");
 						}
@@ -531,7 +531,7 @@ public class Template {
 		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
 		for (SimpleBlock sb : this.commandBlockRelativeLocations) {
 			SimpleBlock sbt = new SimpleBlock(corner, sb);
-			sbt.specialType = Type.COMMANDDBG;
+			sbt.specialType = SimpleType.COMMANDDBG;
 			sbs.add(sbt);
 		}
 		SyncBuildUpdateTask.queueSimpleBlock(sbs);

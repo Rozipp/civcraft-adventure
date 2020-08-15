@@ -20,7 +20,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
+import com.avrgaming.civcraft.util.SimpleBlock.SimpleType;
 
 public class RecoverStructureSyncTask implements Runnable {
 
@@ -43,7 +43,7 @@ public class RecoverStructureSyncTask implements Runnable {
 		Block cornerBlock = struct.getCorner().getBlock();
 		for (int y = 0; y < tpl.size_y; y++) {
 			for (SimpleBlock sb : tpl.blocks.get(y)) {
-				if (sb.specialType != Type.NORMAL) continue;
+				if (sb.specialType != SimpleType.NORMAL) continue;
 				Block nextBlock = cornerBlock.getRelative(sb.x, y, sb.z);
 
 				if (ItemManager.getTypeId(nextBlock) != sb.getType()) {

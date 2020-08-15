@@ -479,7 +479,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 		CivMessage.send(sender, CivColor.Green + "Население города: " + CivColor.LightGreen + town.PM.getPeoplesTotal()//
 				+ CivColor.Green + "  Стакан еды: " + CivColor.LightGreen + town.SM.getFoodBasket() + "(" + (lastFood < 0 ? CivColor.Rose : "+") + lastFood + (lastFood < 0 ? CivColor.LightGreen : "") + ")/"
 				+ town.SM.getFoodBasketSize()//
-				+ CivColor.Green + "  Склад материалов: " + CivColor.LightGreen + town.SM.getSupplies() + "(+" + town.SM.getAttr(StorageType.HAMMERS).total + ")");
+				+ CivColor.Green + "  Склад материалов: " + CivColor.LightGreen + town.SM.getSupplies() + "(+" + town.SM.getAttr(StorageType.SUPPLIES).total + ")");
 
 		if (resident == null || civ.hasResident(resident) || isAdmin) {
 			String color = CivColor.LightGreen;
@@ -508,7 +508,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			try {
 				String s = "";
 				for (Prof prof : town.PM.getPeoplesPriority()) {
-					s += prof.toString() + ":" + town.PM.getPeoplesProfCount(prof) + town.PM.getPeoplesWorker(prof) + ", ";
+					s += CivColor.LightGreen + prof.toString() + ": " + CivColor.LightBlue + town.PM.getPeoplesProfCount(prof) + CivColor.LightGray + "(" + town.PM.getPeoplesWorker(prof) + CivColor.LightGreen + "), ";
 				}
 				CivMessage.send(sender, CivColor.Green + "Население города: " + CivColor.LightGreen + s);
 				CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Treasury") + " " + CivColor.LightGreen + town.getBalance() + " " + CivSettings.CURRENCY_NAME + "   " + CivColor.Green

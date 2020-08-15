@@ -35,7 +35,7 @@ import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.util.TimeTools;
-import com.avrgaming.civcraft.util.SimpleBlock.Type;
+import com.avrgaming.civcraft.util.SimpleBlock.SimpleType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -173,7 +173,7 @@ public abstract class Buildable extends Construct {
 				SimpleBlock sb = new SimpleBlock(getCorner(), sbnext);
 
 				if (!Template.isAttachable(sb.getMaterial())) sbs.add(sb);
-				if (sb.getType() != CivData.AIR && sb.specialType != Type.COMMAND) addConstructBlock(new BlockCoord(sb), sb.y != 0);
+				if (sb.getType() != CivData.AIR && sb.specialType != SimpleType.COMMAND) addConstructBlock(new BlockCoord(sb), sb.y != 0);
 			}
 
 			// Add all of the blocks from this tick to the sync task.

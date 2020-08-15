@@ -27,13 +27,14 @@ public class TownPeoplesManager {
 		FARMER, // Добывает пищю на фермах
 		ARTIST, // Приносят культуру в театрах
 		MERCHANT, // Приносят деньги в котеджах
-		SCIENTIST// Приносят науку в библиотеках
+		SCIENTIST,// Приносят науку в библиотеках
+		UNIT // 
 	}
 
 	private Town town;
 
 	private Integer foodsPeoplesOuttake = 1; // Каждый житель потребляет столько пищи в тик
-	private Integer hammersWorkerOuttake = 1; // Каждый Рабочий может взять на стройку столько материалов в тик
+	private Integer suppliesWorkerOuttake = 1; // Каждый Рабочий может взять на стройку столько материалов в тик
 
 	private EnumMap<Prof, Integer> peoples = new EnumMap<>(Prof.class);
 	private EnumMap<Prof, Integer> peoplesWork = new EnumMap<>(Prof.class);
@@ -44,7 +45,7 @@ public class TownPeoplesManager {
 	public TownPeoplesManager(Town town) {
 		this.town = town;
 		intakeTable = TownPeoplesIntakeTable.createTownPeoplesIntakeTable();
-		peoplesPriority = Arrays.asList(Prof.BUILDER, Prof.MINER, Prof.MERCHANT, Prof.ARTIST, Prof.SCIENTIST, Prof.FARMER, Prof.UNHAPPINES);
+		peoplesPriority = Arrays.asList(Prof.BUILDER, Prof.MINER, Prof.MERCHANT, Prof.ARTIST, Prof.SCIENTIST, Prof.FARMER, Prof.UNIT, Prof.UNHAPPINES);
 		for (Prof prof : Prof.values()) {
 			this.peoples.put(prof, 0);
 		}
@@ -84,7 +85,7 @@ public class TownPeoplesManager {
 
 		setPeoplesWorker(Prof.NOTWORK, 0);
 		for (Prof prof : Prof.values()) {
-			if (prof == Prof.NOTWORK || prof == Prof.UNHAPPINES) continue;
+			if (prof == Prof.NOTWORK || prof == Prof.UNHAPPINES || prof == Prof.UNIT) continue;
 			int notWork = getPeoplesProfCount(prof) - getPeoplesWorker(prof);
 			modifyPeoplesWorker(Prof.NOTWORK, notWork);
 		}
@@ -165,17 +166,17 @@ public class TownPeoplesManager {
 		return peoplesPriority;
 	}
 
-	public int progressBuildGetHammers(int neadHammers) {
-		if (neadHammers == 0) return 0;
-		int neadBuilder = 1 + (neadHammers - 1) / hammersWorkerOuttake;
+	public int progressBuildGetSupplies(int neadSupplies) {
+		if (neadSupplies == 0) return 0;
+		int neadBuilder = 1 + (neadSupplies - 1) / suppliesWorkerOuttake;
 		int builderWork = Math.min(getPeoplesWorker(Prof.NOTWORK), neadBuilder);
 		modifyPeoplesWorker(Prof.NOTWORK, -builderWork);
 		modifyPeoplesWorker(Prof.BUILDER, +builderWork);
-		return Math.min(builderWork * hammersWorkerOuttake, neadHammers);
+		return Math.min(builderWork * suppliesWorkerOuttake, neadSupplies);
 	}
 
 	public int calcHammerPerCivtick() {
-		return getPeoplesProfCount(Prof.NOTWORK) * hammersWorkerOuttake;
+		return getPeoplesProfCount(Prof.NOTWORK) * suppliesWorkerOuttake;
 	}
 
 	// ----------- private Peoples

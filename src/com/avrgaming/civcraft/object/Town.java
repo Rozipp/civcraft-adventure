@@ -330,8 +330,10 @@ public class Town extends SQLObject {
 		}
 		
 		PM.onCivtickUpdate();
+		getCityhall().onUnitCivtickUpdate();
 		BM.onCivtickUpdate(task);
 		SM.onCivtickUpdate();
+		getCityhall().updateFoodBasket();
 		this.save();
 	}
 
@@ -424,6 +426,7 @@ public class Town extends SQLObject {
 
 			CivGlobal.processCulture();
 			SM.onCivtickUpdate();
+			this.PM.bornPeoples(1);
 			this.saveNow();
 			return;
 		} catch (SQLException e2) {

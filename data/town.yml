@@ -56,6 +56,7 @@ beakers_per_culture: 0.1
 
 peoples_intake_table:
    - prof: UNHAPPINES
+   - prof: UNIT
    - prof: BUILDER
      FOODS: 1
    - prof: NOTWORK

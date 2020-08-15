@@ -13,7 +13,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -49,9 +51,10 @@ import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.object.TownPeoplesManager.Prof;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.civcraft.util.BlockCoord;
@@ -60,14 +63,10 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.FireworkEffectPlayer;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import com.avrgaming.civcraft.util.SimpleBlock.SimpleType;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarStats;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
 public class Cityhall extends Structure implements RespawnLocationHolder {
 
 	private BlockCoord[] granarybar = new BlockCoord[10];
@@ -747,6 +746,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 			this.trainingUnit = null;
 			this.currentHammers = 0.0;
 			CivGlobal.getSessionDatabase().delete_all(getSessionKey());
+			getTown().PM.hirePeoples(Prof.UNIT, 1);
 		} catch (CivException e) {
 			this.trainingUnit = null;
 			this.currentHammers = 0.0;
@@ -788,9 +788,9 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 		TaskMaster.asyncTask(new Runnable() {
 			@Override
 			public void run() {
-				if (cityHall.getTrainingUnit() != null) {
+				if (cityHall.trainingUnit != null) {
 					String key = getSessionKey();
-					String value = cityHall.getTrainingUnit().id + ":" + cityHall.currentHammers;
+					String value = cityHall.trainingUnit.id + ":" + cityHall.currentHammers;
 					ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
 					if (entries.size() > 0) {
 						SessionEntry entry = entries.get(0);
@@ -836,11 +836,10 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 		}
 	}
 
-	@Override
-	public void onCivtickUpdate(CivAsyncTask task) {
+	public void onUnitCivtickUpdate() {
 		if (this.trainingUnit != null) {
 			// Hammers are per hour, this runs per min. We need to adjust the hammers we add.
-			double addedHammers = getTown().PM.progressBuildGetHammers(1);
+			double addedHammers = getTown().PM.progressBuildGetSupplies((int) this.trainingUnit.hammer_cost);
 			this.currentHammers += addedHammers;
 			this.updateProgressBar();
 			Date now = new Date();
@@ -866,6 +865,92 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	}
 
 	// ------------- other
+
+	private int lastFoodBasketCount = -1;
+	private int lastPeopleTotal = -1;
+	private int lastPercentageDone = -1;
+	private ConfigTech lastResearchTech = new ConfigTech();
+
+	public void updateFoodBasket() {
+		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+
+		if (!this.isActive()) return;
+		Town town = getTown();
+		SimpleBlock sb;
+		/* Get the number of blocks to light up. */
+		int size = this.granarybar.length;
+		int blockCount = (int) (1.0 * size * town.SM.getFoodBasket() / town.SM.getFoodBasketSize());
+		if (lastFoodBasketCount != blockCount) {
+			for (int i = 0; i < size; i++) {
+				BlockCoord bcoord = this.granarybar[i];
+				if (bcoord == null) continue;/* tech bar DNE, might not be finished yet. */
+				sb = new SimpleBlock(bcoord, null);
+				if (i <= blockCount)
+					sb.setTypeAndData(CivData.WOOL, CivData.DATA_WOOL_GREEN);
+				else
+					sb.setTypeAndData(CivData.WOOL, CivData.DATA_WOOL_BLACK);
+				sbs.add(sb);
+				this.addConstructBlock(this.granarybar[i], false);
+			}
+			lastFoodBasketCount = blockCount;
+		}
+
+		if (lastPeopleTotal != town.PM.getPeoplesTotal()) {
+			if (this.technameSign != null) {
+				ConstructSign sign = this.technameSign;
+				sb = new SimpleBlock(CivData.WALL_SIGN, sign.getDirection());
+				sb.setBlockCoord(sign.getCoord());
+				sb.specialType = SimpleType.LITERAL;
+				sb.message[0] = "Население города";
+				sb.message[1] = "";
+				sb.message[2] = "" + town.PM.getPeoplesTotal();
+				sb.message[3] = "";
+				sbs.add(sb);
+				this.addConstructBlock(sign.getCoord(), false);
+			}
+			lastPeopleTotal = town.PM.getPeoplesTotal();
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+	}
+
+	public void updateResearchSign() {
+		Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
+
+		if (!this.isActive()) return;
+		ConstructSign sign = this.techdataSign;
+		if (sign != null) {
+			SimpleBlock sb = new SimpleBlock(CivData.WALL_SIGN, sign.getDirection());
+			Civilization civ = getCiv();
+			if (civ.getResearchTech() == null) {
+				if (lastResearchTech != civ.getResearchTech()) {
+					sb.setBlockCoord(sign.getCoord());
+					sb.specialType = SimpleType.LITERAL;
+					sb.message[0] = CivSettings.localize.localizedString("UpdateTechBar_sign_Use");
+					sb.message[1] = "/civ research";
+					sb.message[2] = CivSettings.localize.localizedString("UpdateTechBar_sign_toStart");
+					sb.message[3] = CivSettings.localize.localizedString("UpdateTechBar_sign_Researching");
+					sbs.add(sb);
+					this.addConstructBlock(sign.getCoord(), false);
+					lastResearchTech = civ.getResearchTech();
+				}
+			} else {
+				int percentageDone = (int) Math.round(civ.getResearchProgress() / civ.getResearchTech().getAdjustedBeakerCost(civ) * 100);
+				if (lastPercentageDone != percentageDone) {
+					sb.setBlockCoord(sign.getCoord());
+					sb.specialType = SimpleType.LITERAL;
+					sb.message[0] = CivSettings.localize.localizedString("Researching");
+					sb.message[1] = civ.getResearchTech().name;
+					sb.message[2] = CivSettings.localize.localizedString("UpdateTechBar_sign_Percent") + " " + CivSettings.localize.localizedString("UpdateTechBar_sign_Complete");
+					sb.message[3] = "" + percentageDone + "%";
+					sbs.add(sb);
+					this.addConstructBlock(sign.getCoord(), false);
+				}
+				lastPercentageDone = percentageDone;
+				lastResearchTech = civ.getResearchTech();
+			}
+		}
+		SyncBuildUpdateTask.queueSimpleBlock(sbs);
+	}
 
 	@Override
 	public String getDynmapDescription() {

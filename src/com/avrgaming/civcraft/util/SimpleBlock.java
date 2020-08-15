@@ -29,7 +29,7 @@ public class SimpleBlock {
 	// public static final int CHEST = 2;
 	// public static final int SIGN_LITERAL = 3;
 
-	public enum Type {
+	public enum SimpleType {
 		NORMAL, COMMAND, LITERAL, COMMANDDBG
 	}
 
@@ -39,7 +39,7 @@ public class SimpleBlock {
 	public int y;
 	public int z;
 
-	public Type specialType;
+	public SimpleType specialType;
 	public String command;
 	public String message[] = new String[4];
 	public String worldname;
@@ -55,7 +55,7 @@ public class SimpleBlock {
 		this.worldname = block.getWorld().getName();
 		this.type = ItemManager.getTypeId(block);
 		this.data = ItemManager.getData(block);
-		this.specialType = Type.NORMAL;
+		this.specialType = SimpleType.NORMAL;
 	}
 
 	public SimpleBlock(BlockCoord bc, SimpleBlock sb) {
@@ -66,6 +66,8 @@ public class SimpleBlock {
 			this.worldname = bc.getWorld().getName();
 			this.type = 0;
 			this.data = 0;
+			this.specialType = SimpleType.NORMAL;
+			return;
 		}
 		this.x = bc.getX() + sb.x;
 		this.y = bc.getY() + sb.y;
@@ -88,13 +90,13 @@ public class SimpleBlock {
 		this.z = Integer.valueOf(split[3]);
 		this.type = type;
 		this.data = data;
-		this.specialType = Type.NORMAL;
+		this.specialType = SimpleType.NORMAL;
 	}
 
 	public SimpleBlock(int type, int data) {
 		this.type = (short) type;
 		this.data = (byte) data;
-		this.specialType = Type.NORMAL;
+		this.specialType = SimpleType.NORMAL;
 	}
 
 	public SimpleBlock(String worldname, int x, int y, int z, int type, int data) {
@@ -104,7 +106,7 @@ public class SimpleBlock {
 		this.z = z;
 		this.type = type;
 		this.data = (byte) data;
-		this.specialType = Type.NORMAL;
+		this.specialType = SimpleType.NORMAL;
 	}
 
 	public String getKey() {

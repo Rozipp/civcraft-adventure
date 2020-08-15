@@ -374,7 +374,7 @@ public class DebugCommand extends MenuAbstractCommand {
 									for (SimpleBlock sb : tpl.blocks.get(y)) {
 										BlockCoord next = corner.getRelative(sb.getX(), y, sb.getZ());
 
-										if (sb.specialType.equals(SimpleBlock.Type.COMMAND)) {
+										if (sb.specialType.equals(SimpleBlock.SimpleType.COMMAND)) {
 											String buildableName = sb.command.replace("/", "");
 
 											ConfigConstructInfo info = CivSettings.getConstructInfoByName(buildableName);
@@ -412,7 +412,7 @@ public class DebugCommand extends MenuAbstractCommand {
 											struct.save();
 											spawnCapitol.save();
 										} else
-											if (sb.specialType.equals(SimpleBlock.Type.LITERAL)) {
+											if (sb.specialType.equals(SimpleBlock.SimpleType.LITERAL)) {
 												try {
 													Block block = next.getBlock();
 													ItemManager.setTypeIdAndData(block, sb.getType(), sb.getData(), false);

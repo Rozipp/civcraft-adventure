@@ -395,7 +395,7 @@ public abstract class Construct extends SQLObject {
 				for (int y = 0; y < tpl.size_y; y++) {
 					for (SimpleBlock sb : tpl.blocks.get(y)) {
 						if (sb.getType() == CivData.AIR) continue;
-						if (sb.specialType == SimpleBlock.Type.COMMAND) continue;
+						if (sb.specialType == SimpleBlock.SimpleType.COMMAND) continue;
 						sbs.add(new SimpleBlock(corner, sb));
 
 						BlockCoord bc = corner.getRelative(sb.getX(), y, sb.getZ());
