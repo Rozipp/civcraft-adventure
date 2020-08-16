@@ -13,7 +13,7 @@ base:
     normal_speed: 0.2
 
 # если юнита не использовали указанное количество минут, то он возвращаеться в бараки    
-unit_time_diactivate: 30
+unit_time_diactivate: 2
 
 # Special information per unit
 unit_info:
@@ -471,7 +471,7 @@ units:
     cost: 2.0
     hammer_cost: 5.0
     limit: 3
-    item_id: 2256
+    item_id: 2257
     item_data: 0
     lore:
         - 'Лучник - это основной воин дальнего боя. Прекрасно'
@@ -490,7 +490,7 @@ units:
     cost: 2.0
     hammer_cost: 5.0
     limit: 3
-    item_id: 2256
+    item_id: 2258
     item_data: 0
     lore:
         - 'Воин - это основной воин ближнего боя. Мастер'

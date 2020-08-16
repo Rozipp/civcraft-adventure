@@ -757,6 +757,7 @@ public class Cityhall extends Structure implements RespawnLocationHolder {
 	}
 
 	public void updateProgressBar() {
+		if (this.trainingUnit == null) return;
 		Cityhall cityhall = this;
 		TaskMaster.syncTask(new Runnable() {
 			@Override

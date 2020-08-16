@@ -180,6 +180,9 @@ public class UnitStatic {
 		case "swordattack":
 			Enchantments.addEnchantment(stack, EnchantmentCustom.Attack, value);
 			break;
+		case "archerswordattack":
+			Enchantments.addEnchantment(stack, EnchantmentCustom.Attack, value);
+			break;
 		case "critical":
 			Enchantments.addEnchantment(stack, EnchantmentCustom.Critical, value);
 			break;

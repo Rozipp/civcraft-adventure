@@ -82,10 +82,11 @@ public class TownPeoplesManager {
 			if (get > 0) modifyPeoplesWorker(prof, get);
 			pComponent.isWork = (get > 0);
 		}
-
+		
+		setPeoplesWorker(Prof.UNIT, getPeoplesProfCount(Prof.UNIT));
 		setPeoplesWorker(Prof.NOTWORK, 0);
 		for (Prof prof : Prof.values()) {
-			if (prof == Prof.NOTWORK || prof == Prof.UNHAPPINES || prof == Prof.UNIT) continue;
+			if (prof == Prof.NOTWORK || prof == Prof.UNHAPPINES) continue;
 			int notWork = getPeoplesProfCount(prof) - getPeoplesWorker(prof);
 			modifyPeoplesWorker(Prof.NOTWORK, notWork);
 		}
