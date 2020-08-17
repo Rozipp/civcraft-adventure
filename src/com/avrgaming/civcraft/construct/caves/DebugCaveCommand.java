@@ -1,4 +1,4 @@
-package com.avrgaming.civcraft.command.old;
+package com.avrgaming.civcraft.construct.caves;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,7 +11,7 @@ import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCave;
-import com.avrgaming.civcraft.construct.caves.Cave;
+//import com.avrgaming.civcraft.construct.caves.Cave;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;

@@ -28,16 +28,13 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;
 
-@SuppressWarnings("deprecation")
 public class Attack extends ItemComponent {
 
 	@Override
 	public void onPrepareCreate(AttributeUtil attrs) {
-
 		// Add generic attack damage of 0 to clear the default lore on item.
 		attrs.add(Attribute.newBuilder().name("Attack").type(AttributeType.GENERIC_ATTACK_DAMAGE).amount(0).build());
 		attrs.addLore(CivColor.Rose + "" + this.getDouble("value") + " " + CivSettings.localize.localizedString("itemLore_Attack"));
-		return;
 	}
 
 	@Override
@@ -50,6 +47,7 @@ public class Attack extends ItemComponent {
 	}
 
 	@Override
+	@Deprecated
 	public void onAttack(EntityDamageByEntityEvent event, ItemStack inHand) {
 		double dmg = this.getDouble("value");
 		double extraAtt = 0.0;
@@ -58,8 +56,8 @@ public class Attack extends ItemComponent {
 		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Poison)) PoisonEnchantment.onAttack(event);
 		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.Levitate)) LevitateEnchantment.onAttack(event);
 		if (Enchantments.hasEnchantment(inHand, EnchantmentCustom.LightningStrike)) LevitateEnchantment.onAttack(event);
-		
-		dmg = dmg * event.getOriginalDamage(DamageModifier.BASE);
+
+		dmg *= event.getOriginalDamage(DamageModifier.BASE);
 		
 		if (event.getDamager() instanceof Player) {
 			resident = CivGlobal.getResident(((Player) event.getDamager()));

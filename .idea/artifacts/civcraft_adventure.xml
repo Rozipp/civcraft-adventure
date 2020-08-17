@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="civcraft-adventure">
+    <output-path>$USER_HOME$/civcraft/plugins</output-path>
+    <root id="archive" name="civcraft-adventure.jar">
+      <element id="module-output" name="civcraft-adventure" />
+      <element id="directory" name="data">
+        <element id="dir-copy" path="$PROJECT_DIR$/data" />
+      </element>
+      <element id="directory" name="localization">
+        <element id="dir-copy" path="$PROJECT_DIR$/localization" />
+      </element>
+    </root>
+  </artifact>
+</component>
