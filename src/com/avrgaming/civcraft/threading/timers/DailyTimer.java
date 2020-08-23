@@ -1,35 +1,8 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.threading.timers;
-
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.wonders.Colosseum;
-import com.avrgaming.civcraft.construct.wonders.NotreDame;
-import com.avrgaming.civcraft.construct.wonders.StatueOfZeus;
-import com.avrgaming.civcraft.construct.wonders.TheColossus;
-import com.avrgaming.civcraft.construct.wonders.Wonder;
+import com.avrgaming.civcraft.construct.wonders.*;
 import com.avrgaming.civcraft.endgame.EndGameCheckTask;
 import com.avrgaming.civcraft.event.DailyEvent;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -41,6 +14,11 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
+
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DailyTimer implements Runnable {
 
@@ -95,61 +73,55 @@ public class DailyTimer implements Runnable {
 	}
 
 	private void payCivUpkeep() {
-
+		label:
 		for (Wonder wonder : CivGlobal.getWonders()) {
 			if (wonder != null) {
-				if (wonder.getConfigId().equals("w_colossus")) {
-					try {
-						((TheColossus) wonder).processCoinsFromCulture();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else
-					if (wonder.getConfigId().equals("w_notre_dame")) {
+				switch (wonder.getConfigId()) {
+					case "w_colossus":
+						try {
+							wonder.processCoinsFromCulture();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
+					case "w_notre_dame":
 						try {
 							((NotreDame) wonder).processPeaceTownCoins();
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else
-						if (wonder.getConfigId().equals("w_colosseum")) {
-							try {
-								((Colosseum) wonder).processCoinsFromColosseum();
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						} else
-							if (wonder.getConfigId().equals("w_neuschwanstein")) {
-								try {
-									wonder.processCoinsFromNeuschwanstein();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-								break;
-							} else
-								if (wonder.getConfigId().equals("w_statue_of_zeus")) {
-									try {
-										((StatueOfZeus) wonder).processBonuses();
-										break;
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
+						break;
+					case "w_colosseum":
+						try {
+							wonder.processCoinsFromColosseum();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
+					case "w_neuschwanstein":
+						try {
+							wonder.processCoinsFromNeuschwanstein();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break label;
+					case "w_statue_of_zeus":
+						try {
+							((StatueOfZeus) wonder).processBonuses();
+							break;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
+				}
 			}
 		}
 
 		for (Civilization civ : CivGlobal.getCivs()) {
-			if (civ.isAdminCiv()) {
-				continue;
-			}
-
+			if (civ.isAdminCiv()) continue;
 			try {
-				double total = 0;
-
-				total = civ.payUpkeep();
-				if (civ.getTreasury().inDebt()) {
-					civ.incrementDaysInDebt();
-				}
+				double total = civ.payUpkeep();
+				if (civ.getTreasury().inDebt()) civ.incrementDaysInDebt();
 				CivMessage.sendCiv(civ, CivColor.Yellow + CivSettings.localize.localizedString("var_daily_civUpkeep", total, CivSettings.CURRENCY_NAME));
 				civ.save();
 			} catch (Exception e) {
@@ -161,15 +133,11 @@ public class DailyTimer implements Runnable {
 	private void payTownUpkeep() {
 		for (Town t : CivGlobal.getTowns()) {
 			try {
-				double total = 0;
-				total = t.payUpkeep();
-				if (t.inDebt()) {
-					t.incrementDaysInDebt();
-				}
+				double total = t.payUpkeep();
+				if (t.inDebt()) t.incrementDaysInDebt();
 
 				t.save();
 				CivMessage.sendTown(t, CivColor.Yellow + CivSettings.localize.localizedString("var_daily_townUpkeep", total, CivSettings.CURRENCY_NAME));
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -177,24 +145,19 @@ public class DailyTimer implements Runnable {
 	}
 
 	private void collectTownTaxes() {
-
 		for (Civilization civ : CivGlobal.getCivs()) {
 			if (civ.isAdminCiv()) continue;
-
 			double total = 0;
 			for (Town t : civ.getTowns()) {
 				try {
 					double taxrate = t.getDepositCiv().getIncomeTaxRate();
 					double townTotal = 0;
-
 					double taxesToCiv = total * taxrate;
 					townTotal -= taxesToCiv;
 					CivMessage.sendTown(t, CivSettings.localize.localizedString("var_daily_residentTaxes", townTotal, CivSettings.CURRENCY_NAME));
 					t.depositTaxed(townTotal);
 
-					if (t.getDepositCiv().getId() == civ.getId()) {
-						total += taxesToCiv;
-					}
+					if (t.getDepositCiv().getId() == civ.getId()) total += taxesToCiv;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

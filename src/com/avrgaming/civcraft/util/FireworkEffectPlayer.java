@@ -1,4 +1,3 @@
-// XXX GPL TODO?
 package com.avrgaming.civcraft.util;
 
 import java.lang.reflect.Method;
@@ -44,19 +43,12 @@ public class FireworkEffectPlayer {
     private Method nms_world_broadcastEntityEffect = null;
     private Method firework_getHandle = null;
     
-    /**
-     * Play a pretty firework at the location with the FireworkEffect when called
-     * @param world
-     * @param loc
-     * @param fe
-     * @throws Exception
-     */
     public void playFirework(World world, Location loc, FireworkEffect fe) throws Exception {
         // Bukkity load (CraftFirework)
-        Firework fw = (Firework) world.spawn(loc, Firework.class);
+        Firework fw = world.spawn(loc, Firework.class);
         // the net.minecraft.server.World
-        Object nms_world = null;
-        Object nms_firework = null;
+        Object nms_world;
+        Object nms_firework;
         /*
          * The reflection part, this gives us access to funky ways of messing around with things
          */
@@ -77,7 +69,7 @@ public class FireworkEffectPlayer {
          * Now we mess with the metadata, allowing nice clean spawning of a pretty firework (look, pretty lights!)
          */
         // metadata load
-        FireworkMeta data = (FireworkMeta) fw.getFireworkMeta();
+        FireworkMeta data = fw.getFireworkMeta();
         // clear existing
         data.clearEffects();
         // power of one
@@ -90,18 +82,12 @@ public class FireworkEffectPlayer {
          * Finally, we broadcast the entity effect then kill our fireworks object
          */
         // invoke with arguments
-        nms_world_broadcastEntityEffect.invoke(nms_world, new Object[] {nms_firework, (byte) 17});
+        nms_world_broadcastEntityEffect.invoke(nms_world, nms_firework, (byte) 17);
         // remove from the game
        // fw.
         fw.remove();
     }
     
-    /**
-     * Internal method, used as shorthand to grab our method in a nice friendly manner
-     * @param cl
-     * @param method
-     * @return Method (or null)
-     */
     private static Method getMethod(Class<?> cl, String method) {
         for(Method m : cl.getMethods()) {
             if(m.getName().equals(method)) {

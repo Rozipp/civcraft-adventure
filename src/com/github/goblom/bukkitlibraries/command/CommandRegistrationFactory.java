@@ -35,13 +35,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.plugin.Plugin;
 
-/** TODO: Write documentation
+/**
  * @author Goblom */
 public class CommandRegistrationFactory {
 
 	private static CommandMap cmap;
 
-	private String commandLabel;
+	private final String commandLabel;
 	private String description;
 	private List<String> aliases;
 	private String usage;
@@ -118,7 +118,7 @@ public class CommandRegistrationFactory {
 		command.setExecutor(this.commandExecutor);
 	}
 
-	private final CommandMap getCommandMap() {
+	private CommandMap getCommandMap() {
 		if (cmap == null) {
 			try {
 				final Field f = Bukkit.getServer().getClass().getDeclaredField("commandMap");
@@ -128,10 +128,9 @@ public class CommandRegistrationFactory {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else
-			if (cmap != null) {
-				return cmap;
-			}
+		} else {
+			return cmap;
+		}
 		return getCommandMap();
 	}
 
@@ -170,7 +169,7 @@ public class CommandRegistrationFactory {
 	}
 
 	@SuppressWarnings("serial")
-	public class CommandNotPreparedException extends RuntimeException {
+	public static class CommandNotPreparedException extends RuntimeException {
 		public CommandNotPreparedException(String message) {
 			super(message);
 		}

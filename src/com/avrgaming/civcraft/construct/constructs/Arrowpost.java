@@ -1,24 +1,11 @@
 package com.avrgaming.civcraft.construct.constructs;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.avrgaming.civcraft.construct.Template;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.exception.InvalidObjectException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -28,10 +15,19 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Arrowpost extends Construct {
 
-	public static HashMap<BlockCoord, Construct> arrowposts = new HashMap<BlockCoord, Construct>();
+	public static HashMap<BlockCoord, Construct> arrowposts = new HashMap<>();
 
 	ProjectileArrowComponent arrowComponent;
 	Set<BlockCoord> turretLocation = new HashSet<>();
@@ -42,7 +38,7 @@ public class Arrowpost extends Construct {
 		}
 	}
 
-	public Arrowpost(Player player) throws CivException {
+	public Arrowpost(Player player) {
 		super("c_arrowpost", CivGlobal.getResident(player).getCiv());
 	}
 
@@ -77,10 +73,8 @@ public class Arrowpost extends Construct {
 
 	@Override
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
-		switch (sb.command) {
-		case "/towerfire":
+		if (sb.command.equals("/towerfire")) {
 			turretLocation.add(absCoord);
-			break;
 		}
 	}
 
@@ -106,33 +100,16 @@ public class Arrowpost extends Construct {
 	}
 
 	@Override
-	public void processUndo() throws CivException {
-		// TODO Автоматически созданная заглушка метода
-
-	}
-
-	@Override
-	public String getDynmapDescription() {
-		// TODO Автоматически созданная заглушка метода
-		return null;
-	}
-
-	@Override
 	public String getMarkerIconName() {
-		// TODO Автоматически созданная заглушка метода
 		return null;
 	}
 
 	@Override
-	public void onLoad() throws CivException {
-		// TODO Автоматически созданная заглушка метода
-
+	public void onLoad() {
 	}
 
 	@Override
 	public void onUnload() {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 
 	@Override
@@ -141,30 +118,23 @@ public class Arrowpost extends Construct {
 
 		if (getHitpoints() <= 0) {
 			destroy();
-			return;
 		}
 	}
 
 	@Override
 	public void onDamageNotification(Player player, ConstructDamageBlock hit) {
-		// TODO Автоматически созданная заглушка метода
-
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, InvalidNameException, InvalidObjectException, CivException {
-		// TODO Автоматически созданная заглушка метода
-
+	public void load(ResultSet rs) {
 	}
 
 	@Override
-	public void saveNow() throws SQLException {
-		// TODO Автоматически созданная заглушка метода
-
+	public void saveNow() {
 	}
 
 	@Override
-	public Location repositionCenter(Location center, Template tpl) throws CivException {
+	public Location repositionCenter(Location center, Template tpl) {
 		Location loc = center.clone();
 		String dir = tpl.getDirection();
 		double x_size = tpl.getSize_x();
