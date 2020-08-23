@@ -13,8 +13,8 @@ public class Levitate {
     protected int taskID;
     protected long startTime;
     protected String name;
-    private Player player;
-    private long levitateTime;
+    private final Player player;
+    private final long levitateTime;
 
     public Levitate(Player player, long levitateTime) {
         this.player = player;
@@ -28,7 +28,7 @@ public class Levitate {
         }
         this.startTime = Calendar.getInstance().getTimeInMillis();
         this.player.setAllowFlight(true);
-        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)CivCraft.getPlugin(), () -> {
+        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(CivCraft.getPlugin(), () -> {
             if (!this.player.isOnline() || this.player.isDead()) {
                 Bukkit.getScheduler().cancelTask(this.taskID);
                 return;
@@ -43,15 +43,12 @@ public class Levitate {
         , 0L, 0L);
     }
 
-    public void stop() {
-    }
-
-    class LevitateDown {
+    static class LevitateDown {
         protected int taskDownID;
         protected long startDownTime;
         protected String plName;
-        private Player playerToDown;
-        private long levitateDownTime;
+        private final Player playerToDown;
+        private final long levitateDownTime;
 
         public LevitateDown(Player player, long levitateTime) {
             this.playerToDown = player;
@@ -64,7 +61,7 @@ public class Levitate {
                 throw new IllegalStateException("Player is offline");
             }
             this.startDownTime = Calendar.getInstance().getTimeInMillis();
-            this.taskDownID = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)CivCraft.getPlugin(), () -> {
+            this.taskDownID = Bukkit.getScheduler().scheduleSyncRepeatingTask(CivCraft.getPlugin(), () -> {
                 if (!this.playerToDown.isOnline()) {
                     Bukkit.getScheduler().cancelTask(this.taskDownID);
                     return;

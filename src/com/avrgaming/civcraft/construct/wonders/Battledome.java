@@ -164,12 +164,4 @@ public class Battledome extends Wonder {
 		// TODO Clear entities bound to us?
 	}
 
-	@Override
-	protected void removeBuffs() {
-	}
-
-	@Override
-	protected void addBuffs() {		
-	}
-
 }

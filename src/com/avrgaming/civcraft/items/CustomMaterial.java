@@ -1,11 +1,3 @@
-/************************************************************************* AVRGAMING LLC __________________
- *
- * [2013] AVRGAMING LLC All Rights Reserved.
- *
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.items;
 
 import com.avrgaming.civcraft.config.ConfigCraftableMaterial;
@@ -21,8 +13,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -31,18 +24,15 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public abstract class CustomMaterial {
 
     public static final String MID_TAG = CivColor.Black + "MID";
-    protected static Map<String, CustomMaterial> materials = new HashMap<String, CustomMaterial>();
-    protected static Map<String, BaseCustomMaterial> unitMaterials = new HashMap<String, BaseCustomMaterial>();
-    protected static Map<String, BaseCustomMaterial> craftableMaterials = new HashMap<String, BaseCustomMaterial>();
-    private final LinkedList<String> lore = new LinkedList<String>();
+    protected static Map<String, CustomMaterial> materials = new HashMap<>();
+    protected static Map<String, BaseCustomMaterial> unitMaterials = new HashMap<>();
+    protected static Map<String, BaseCustomMaterial> craftableMaterials = new HashMap<>();
+    private final LinkedList<String> lore = new LinkedList<>();
     private String id;
     private int typeID;
     private short damage;
@@ -209,9 +199,7 @@ public abstract class CustomMaterial {
     public void setLore(String[] lore) {
         this.lore.clear();
         if (lore != null) {
-            for (String str : lore) {
-                this.lore.add(str);
-            }
+            Collections.addAll(this.lore, lore);
         }
     }
 
@@ -225,15 +213,12 @@ public abstract class CustomMaterial {
 
     public void applyAttributes(AttributeUtil attrs) {
         /* This is called when the item is created via the LoreMaterial.spawn() command. Can optionally be overriden by classes. */
-        return;
     }
 
     /** Можно ли использовать предмет с этим типом инвентаря */
     public abstract boolean isCanUseInventoryTypes(Inventory inv);
 
     /* Events for this Material */
-    public abstract void onHit(EntityDamageByEntityEvent event); /* Called when this is the item in-hand */
-
     public abstract void onInteract(PlayerInteractEvent event);
 
     public abstract void onInteractEntity(PlayerInteractEntityEvent event);

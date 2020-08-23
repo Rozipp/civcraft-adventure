@@ -5,7 +5,7 @@ import org.bukkit.*;
 
 public class AntiAutofish implements Runnable
 {
-    public Player player;
+    public final Player player;
     
     public AntiAutofish(final Player player) {
         this.player = player;

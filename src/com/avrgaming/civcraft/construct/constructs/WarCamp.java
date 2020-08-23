@@ -100,10 +100,6 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void processUndo() {
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		return null;
 	}

@@ -38,21 +38,8 @@ public class SpaceShuttle extends Wonder {
 	}
 
 	@Override
-	public void loadSettings() {
-		super.loadSettings();
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		return null;
-	}
-
-	@Override
-	protected void removeBuffs() {
-	}
-
-	@Override
-	protected void addBuffs() {
 	}
 
 	@Override

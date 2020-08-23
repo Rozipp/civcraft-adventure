@@ -740,7 +740,7 @@ public class Camp extends Construct {
 	}
 
 	public Resident getMember(String name) {
-		return (Resident) this.members.get(name);
+		return this.members.get(name);
 	}
 
 	public boolean hasMember(String name) {
@@ -819,11 +819,6 @@ public class Camp extends Construct {
 
 	public void sessionAdd(String key, String value) {
 		CivGlobal.getSessionDatabase().add(key, value, 0, 0, 0);
-	}
-
-	// XXX TODO make sure these all work...
-	@Override
-	public void processUndo() {
 	}
 
 	@Override

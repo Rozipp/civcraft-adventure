@@ -10,11 +10,6 @@ public class SilkwormFarm extends Structure {
 	}
 
 	@Override
-	public void delete() {
-		super.delete();
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		return "";
 	}
@@ -24,7 +19,4 @@ public class SilkwormFarm extends Structure {
 		return "bighouse";
 	}
 
-	@Override
-	public void onPostBuild() {
-	}
 }

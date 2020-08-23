@@ -34,9 +34,9 @@ public class AttributeUtil {
 	public enum Operation {
 		ADD_NUMBER(0), MULTIPLY_PERCENTAGE(1), ADD_PERCENTAGE(2);
 
-		private int id;
+		private final int id;
 
-		private Operation(int id) {
+		Operation(int id) {
 			this.id = id;
 		}
 
@@ -58,7 +58,7 @@ public class AttributeUtil {
 	// private List<String> lore = new LinkedList<String>();
 
 	public static class AttributeType {
-		private static ConcurrentMap<String, AttributeType> LOOKUP = Maps.newConcurrentMap();
+		private static final ConcurrentMap<String, AttributeType> LOOKUP = Maps.newConcurrentMap();
 		public static final AttributeType GENERIC_MAX_HEALTH = new AttributeType("generic.maxHealth").register();
 		public static final AttributeType GENERIC_FOLLOW_RANGE = new AttributeType("generic.followRange").register();
 		public static final AttributeType GENERIC_ATTACK_DAMAGE = new AttributeType("generic.attackDamage").register();
@@ -104,7 +104,7 @@ public class AttributeUtil {
 	}
 
 	public static class Attribute {
-		private NBTTagCompound data;
+		private final NBTTagCompound data;
 
 		private Attribute(Builder builder) {
 			data = new NBTTagCompound();
@@ -280,25 +280,21 @@ public class AttributeUtil {
 	 * @param index - the index to look up.
 	 * @return The attribute at that index. */
 	public Attribute get(int index) {
-		return new Attribute((NBTTagCompound) attributes.get(index));
+		return new Attribute(attributes.get(index));
 	}
 
 	// We can't make Attributes itself iterable without splitting it up into separate classes
 	public Iterable<Attribute> values() {
 		final List<NBTBase> list = getList();
 
-		return new Iterable<Attribute>() {
-			@Override
-			public Iterator<Attribute> iterator() {
-				// Generics disgust me sometimes
-				return Iterators.transform(list.iterator(), new Function<NBTBase, Attribute>() {
-
-					@Override
-					public Attribute apply(@Nullable NBTBase data) {
-						return new Attribute((NBTTagCompound) data);
-					}
-				});
-			}
+		return () -> {
+			// Generics disgust me sometimes
+			return Iterators.transform(list.iterator(), new Function<NBTBase, Attribute>() {
+				@Override
+				public Attribute apply(@Nullable NBTBase data) {
+					return new Attribute((NBTTagCompound) data);
+				}
+			});
 		};
 	}
 
@@ -427,7 +423,7 @@ public class AttributeUtil {
 	public String getName() {
 		NBTTagCompound displayCompound = nmsStack.getTag().getCompound("display");
 		if (displayCompound == null) displayCompound = new NBTTagCompound();
-		return displayCompound.getString("Name").toString().replace("\"", "");
+		return displayCompound.getString("Name").replace("\"", "");
 	}
 
 	public void setNBT(String key, String value) {

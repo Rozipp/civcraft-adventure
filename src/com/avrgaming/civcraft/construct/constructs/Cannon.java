@@ -1,11 +1,20 @@
 package com.avrgaming.civcraft.construct.constructs;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-
+import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.*;
+import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivData;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
+import com.avrgaming.civcraft.util.*;
+import com.avrgaming.civcraft.war.War;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -16,30 +25,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.main.CivData;
-import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.FireWorkTask;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.TimeTools;
-import com.avrgaming.civcraft.war.War;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.util.HashMap;
 
 @Setter
 @Getter
 public class Cannon extends Construct {
 
-	public static HashMap<BlockCoord, Construct> cannons = new HashMap<BlockCoord, Construct>();
+	public static HashMap<BlockCoord, Construct> cannons = new HashMap<>();
 
 	private ConstructSign fireSignLocation;
 	private ConstructSign angleSignLocation;
@@ -89,7 +83,7 @@ public class Cannon extends Construct {
 		}
 	}
 
-	public Cannon(Player player) throws CivException {
+	public Cannon(Player player) {
 		super("c_cannon", CivGlobal.getResident(player).getCiv());
 	}
 
@@ -254,10 +248,6 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	public void processUndo() throws CivException {
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		return null;
 	}
@@ -268,7 +258,7 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	public void onLoad() throws CivException {
+	public void onLoad() {
 	}
 
 	@Override
@@ -276,7 +266,7 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, CivException {
+	public void load(ResultSet rs) {
 	}
 
 	@Override
@@ -284,11 +274,11 @@ public class Cannon extends Construct {
 	}
 
 	@Override
-	public void saveNow() throws SQLException {
+	public void saveNow() {
 	}
 
 	@Override
-	public Location repositionCenter(Location center, Template tpl) throws CivException {
+	public Location repositionCenter(Location center, Template tpl) {
 		Location loc = center.clone();
 		String dir = tpl.getDirection();
 		double x_size = tpl.getSize_x();
@@ -339,7 +329,7 @@ public class Cannon extends Construct {
 		}
 	}
 
-	public void processFire(PlayerInteractEvent event) throws CivException {
+	public void processFire(PlayerInteractEvent event) {
 		if (this.shotCooldown > 0) {
 			CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("cannon_waitForCooldown"));
 			return;
@@ -361,12 +351,11 @@ public class Cannon extends Construct {
 					}
 				}
 				CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("cannon_notLoaded"));
-				return;
 			} else {
 				event.setCancelled(true);
 				event.getPlayer().updateInventory();
-				return;
 			}
+			return;
 		} else {
 			CivMessage.send(event.getPlayer(), CivSettings.localize.localizedString("cannon_fireAway"));
 			cannonLocation.setDirection(direction);
@@ -376,7 +365,7 @@ public class Cannon extends Construct {
 			this.shotCooldown = maxCooldown;
 
 			class SyncTask implements Runnable {
-				Cannon cannon;
+				final Cannon cannon;
 
 				public SyncTask(Cannon cannon) {
 					this.cannon = cannon;
@@ -400,7 +389,7 @@ public class Cannon extends Construct {
 		updateFireSign();
 	}
 
-	public void processAngle(PlayerInteractEvent event) throws CivException {
+	public void processAngle(PlayerInteractEvent event) {
 		if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 			this.angle -= STEP;
 			if (this.angle < minAngle) {
@@ -430,7 +419,7 @@ public class Cannon extends Construct {
 		updateAngleSign();
 	}
 
-	public void processPower(PlayerInteractEvent event) throws CivException {
+	public void processPower(PlayerInteractEvent event) {
 		if (event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 			this.power -= STEP;
 			if (this.power < minPower) this.power = minPower;
@@ -472,7 +461,6 @@ public class Cannon extends Construct {
 
 		if (getHitpoints() <= 0) {
 			destroy();
-			return;
 		}
 
 	}

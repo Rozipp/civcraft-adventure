@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
  * @author rozipp */
 public abstract class AbstractCashedTaber implements AbstractTaber {
 
-	protected Map<String, List<String>> cashTabList = new LinkedHashMap<>();
+	protected final Map<String, List<String>> cashTabList = new LinkedHashMap<>();
 
 	protected List<String> addTabList(String arg, List<String> tabList) {
 		if (tabList.isEmpty()) {

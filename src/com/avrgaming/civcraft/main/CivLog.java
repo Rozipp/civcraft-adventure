@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -112,7 +113,7 @@ public class CivLog {
             pasteConnection.setRequestMethod("PUT");
             pasteConnection.setDoOutput(true);
             final OutputStream out = pasteConnection.getOutputStream();
-            out.write(contents.getBytes("UTF-8"));
+            out.write(contents.getBytes(StandardCharsets.UTF_8));
             out.flush();
             return new BufferedReader(new InputStreamReader(pasteConnection.getInputStream())).readLine();
         }

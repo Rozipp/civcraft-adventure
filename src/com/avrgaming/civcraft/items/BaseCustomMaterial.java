@@ -34,7 +34,7 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
     protected ConfigMaterial configMaterial;
 
     /* Components that are registered to this object. */
-    public HashMap<String, ItemComponent> components = new HashMap<String, ItemComponent>();
+    public HashMap<String, ItemComponent> components = new HashMap<>();
 
     public BaseCustomMaterial(String id, int typeID, short damage) {
         super(id, typeID, damage);
@@ -42,10 +42,8 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 
     public static void buildStaticMaterials() {
         /* Loads in materials from configuration file. */
-        return;
     }
 
-    @SuppressWarnings("deprecation")
     public void buildComponents() {
         List<HashMap<String, String>> compInfoList = this.configMaterial.components;
         if (compInfoList != null) {
@@ -65,19 +63,13 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 
                     itemCompClass.createComponent();
                     this.components.put(itemCompClass.getName(), itemCompClass);
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    @Override
-    public void onHit(EntityDamageByEntityEvent event) {
     }
 
     @Override
@@ -169,7 +161,6 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
         for (ItemComponent comp : this.components.values()) {
             comp.onPrepareCreate(attrUtil);
         }
-        return;
     }
 
     public ConfigMaterial getConfigMaterial() {
@@ -251,9 +242,6 @@ public abstract class BaseCustomMaterial extends CustomMaterial {
 
     public boolean isVanilla() {
         return ((ConfigCraftableMaterial) this.configMaterial).vanilla;
-    }
-
-    public void rebuildLore() {
     }
 
     @Override

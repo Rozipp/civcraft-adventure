@@ -9,5 +9,5 @@ import com.avrgaming.civcraft.exception.CivException;
 /** Интерфейс для класов дополнения по клавише Tab
  * @author rozipp */
 public interface AbstractTaber {
-	public List<String> getTabList(CommandSender sender, String arg) throws CivException;
+	List<String> getTabList(CommandSender sender, String arg) throws CivException;
 }

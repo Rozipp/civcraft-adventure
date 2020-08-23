@@ -15,7 +15,8 @@ import com.avrgaming.civcraft.main.CivMessage;
 
 import lombok.Getter;
 import lombok.Setter;
-
+@Setter
+@Getter
 /**
  * <p>
  * Общий клас для команд. После создания команды,добавление параметров возможно как через сеттеры (set...()), так через билдеры (with..())
@@ -23,10 +24,8 @@ import lombok.Setter;
  * @param executor    - вызываться при выполнении команды. Обязательный параметр.
  * @param description - хранит описание, для вывода в help-е подменю - List<String> aliases - Вариванты альтернативных команд
  * @param validator   - Проверка команды на доступность для CommandSender. Обрабатываються в порядке добавления;
- * @param tab         - Класы дополнения клавишей Tab. Обрабатываються в порядке добавления
+ * @param tabs         - Класы дополнения клавишей Tab. Обрабатываються в порядке добавления
  * @author rozipp */
-@Setter
-@Getter
 public class CustomCommand {
 
 	private String string_cmd;
@@ -126,8 +125,8 @@ public class CustomCommand {
 		return new ArrayList<>();
 	}
 
-	static public interface CustomExecutor {
-		public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
+	public interface CustomExecutor {
+		void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException;
 	}
 
 }

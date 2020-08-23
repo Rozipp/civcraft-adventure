@@ -1,41 +1,4 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.config;
-
-import localize.Localize;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Material;
-import org.bukkit.block.Biome;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.avrgaming.civcraft.construct.constructs.Camp;
 import com.avrgaming.civcraft.exception.CivException;
@@ -53,8 +16,20 @@ import com.avrgaming.civcraft.units.ConfigUnit;
 import com.avrgaming.civcraft.units.UnitCustomMaterial;
 import com.avrgaming.civcraft.units.UnitStatic;
 import com.avrgaming.global.perks.Perk;
-
+import localize.Localize;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Material;
+import org.bukkit.block.Biome;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.plugin.java.JavaPlugin;
 import ua.rozipp.sound.SoundManager;
+
+import java.io.*;
+import java.net.URL;
+import java.util.*;
 
 public class CivSettings {
 
@@ -68,8 +43,6 @@ public class CivSettings {
 	public static final int CIV_DEBT_TOWN_SELL_DAYS = 21;
 	public static final int TOWN_DEBT_GRACE_DAYS = 7;
 	public static final int TOWN_DEBT_SELL_DAYS = 14;
-	public static int avaliable = 1;
-	public static int avaliableInst = 2;
 	public static boolean hasHoloDisp;
 
 	/* cached for faster access. */
@@ -77,94 +50,90 @@ public class CivSettings {
 	// public static float metal_speed;
 
 	public static FileConfiguration townConfig; /* town.yml */
-	public static Map<Integer, ConfigCultureLevel> cultureLevels = new HashMap<Integer, ConfigCultureLevel>();
-	public static Map<String, ConfigTownUpgrade> townUpgrades = new TreeMap<String, ConfigTownUpgrade>();
+	public static Map<Integer, ConfigCultureLevel> cultureLevels = new HashMap<>();
+	public static Map<String, ConfigTownUpgrade> townUpgrades = new TreeMap<>();
 
 	public static FileConfiguration civConfig; /* civ.yml */
-	public static Map<String, ConfigEndCondition> endConditions = new HashMap<String, ConfigEndCondition>();
+	public static Map<String, ConfigEndCondition> endConditions = new HashMap<>();
 
 	public static FileConfiguration cultureConfig; /* culture.yml */
-	private static EnumMap<Biome, ConfigBiomeInfo> cultureBiomes = new EnumMap<>(Biome.class);
+	private static final EnumMap<Biome, ConfigBiomeInfo> cultureBiomes = new EnumMap<>(Biome.class);
 
 	public static FileConfiguration constructConfig; /* construct.yml */
-	public static Map<String, ConfigConstructInfo> constructs = new HashMap<String, ConfigConstructInfo>();
+	public static Map<String, ConfigConstructInfo> constructs = new HashMap<>();
 
 	public static FileConfiguration structureConfig; /* structures.yml */
-	public static Map<Integer, ConfigGrocerLevel> grocerLevels = new HashMap<Integer, ConfigGrocerLevel>();
-	public static Map<Integer, ConfigAlchLevel> alchLevels = new HashMap<Integer, ConfigAlchLevel>();
+	public static Map<Integer, ConfigGrocerLevel> grocerLevels = new HashMap<>();
+	public static Map<Integer, ConfigAlchLevel> alchLevels = new HashMap<>();
 	public static Map<String, ConfigConsumeRecipe> consumeLevels = new HashMap<>();
-	public static Map<Integer, ConfigTradeShipLevel> tradeShipLevels = new HashMap<Integer, ConfigTradeShipLevel>();
+	public static Map<Integer, ConfigTradeShipLevel> tradeShipLevels = new HashMap<>();
 
 	public static FileConfiguration wonderConfig; /* wonders.yml */
-	public static Map<String, ConfigWonderBuff> wonderBuffs = new HashMap<String, ConfigWonderBuff>();
+	public static Map<String, ConfigWonderBuff> wonderBuffs = new HashMap<>();
 
 	public static FileConfiguration techsConfig; /* techs.yml */
-	public static Map<String, ConfigTech> techs = new HashMap<String, ConfigTech>();
-	public static Map<Integer, ConfigTechItem> techItems = new HashMap<Integer, ConfigTechItem>();
-	public static Map<String, ConfigTechPotion> techPotions = new HashMap<String, ConfigTechPotion>();
+	public static Map<String, ConfigTech> techs = new HashMap<>();
+	public static Map<Integer, ConfigTechItem> techItems = new HashMap<>();
+	public static Map<String, ConfigTechPotion> techPotions = new HashMap<>();
 
 	public static FileConfiguration caveConfig; /* cave.yml */
-	public static Map<String, ConfigCave> caves = new HashMap<String, ConfigCave>();
+	public static Map<String, ConfigCave> caves = new HashMap<>();
 
 	public static FileConfiguration buffConfig;
-	public static Map<String, ConfigBuff> buffs = new HashMap<String, ConfigBuff>();
+	public static Map<String, ConfigBuff> buffs = new HashMap<>();
 
 	public static FileConfiguration mobsConfig;
-	public static Map<String, ConfigMobs> mobs = new HashMap<String, ConfigMobs>();
+	public static Map<String, ConfigMobs> mobs = new HashMap<>();
 
 	public static FileConfiguration unitConfig; /* units.yml */
-	public static Map<String, ConfigMission> missions = new HashMap<String, ConfigMission>();
+	public static Map<String, ConfigMission> missions = new HashMap<>();
 
 	public static FileConfiguration governmentConfig; /* governments.yml */
-	public static Map<String, ConfigGovernment> governments = new HashMap<String, ConfigGovernment>();
+	public static Map<String, ConfigGovernment> governments = new HashMap<>();
 
-	public static HashSet<Material> switchItems = new HashSet<Material>();
-	public static Map<Material, Integer> restrictedItems = new HashMap<Material, Integer>();
-	public static Map<Material, Integer> blockPlaceExceptions = new HashMap<Material, Integer>();
-	public static HashSet<EntityType> playerEntityWeapons = new HashSet<EntityType>();
-	public static HashSet<Integer> alwaysCrumble = new HashSet<Integer>();
+	public static HashSet<Material> switchItems = new HashSet<>();
+	public static Map<Material, Integer> restrictedItems = new HashMap<>();
+	public static Map<Material, Integer> blockPlaceExceptions = new HashMap<>();
+	public static HashSet<EntityType> playerEntityWeapons = new HashSet<>();
+	public static HashSet<Integer> alwaysCrumble = new HashSet<>();
 
 	public static FileConfiguration warConfig; /* war.yml */
 
 	public static FileConfiguration scoreConfig; /* score.yml */
 
 	public static FileConfiguration perkConfig; /* perks.yml */
-	public static Map<String, ConfigPerk> perks = new HashMap<String, ConfigPerk>();
-	public static Map<String, ConfigPerk> templates = new HashMap<String, ConfigPerk>();
+	public static Map<String, ConfigPerk> perks = new HashMap<>();
+	public static Map<String, ConfigPerk> templates = new HashMap<>();
 
 	public static FileConfiguration enchantConfig; /* enchantments.yml */
-	public static Map<String, ConfigEnchant> enchants = new HashMap<String, ConfigEnchant>();
-	public static float speedtoe_speed;
-	public static double speedtoe_consume;
-	public static int thorhammerchance;
-	public static int punchoutchance;
+	public static Map<String, ConfigEnchant> enchants = new HashMap<>();
 
 	public static FileConfiguration campConfig; /* camp.yml */
-	public static Map<String, ConfigCampUpgrade> campUpgrades = new HashMap<String, ConfigCampUpgrade>();
+	public static Map<String, ConfigCampUpgrade> campUpgrades = new HashMap<>();
 
 	public static FileConfiguration transmuterConfig; /* transmuter.yml */
 	public static HashMap<String, ConfigTransmuterRecipe> transmuterRecipes = new HashMap<>();
 
 	public static FileConfiguration marketConfig; /* market.yml */
-	public static Map<Integer, ConfigMarketItem> marketItems = new HashMap<Integer, ConfigMarketItem>();
+	public static Map<Integer, ConfigMarketItem> marketItems = new HashMap<>();
 
-	public static Set<ConfigStableItem> stableItems = new HashSet<ConfigStableItem>();
-	public static HashMap<Integer, ConfigStableHorse> horses = new HashMap<Integer, ConfigStableHorse>();
+	public static Set<ConfigStableItem> stableItems = new HashSet<>();
+	public static HashMap<Integer, ConfigStableHorse> horses = new HashMap<>();
 
 	public static FileConfiguration happinessConfig; /* happiness.yml */
-	public static HashMap<Integer, ConfigTownHappinessLevel> townHappinessLevels = new HashMap<Integer, ConfigTownHappinessLevel>();
+	public static HashMap<Integer, ConfigTownHappinessLevel> townHappinessLevels = new HashMap<>();
 
 	public static FileConfiguration craftableMaterialsConfig; /* materials.yml */
-	public static HashMap<String, ConfigCraftableMaterial> craftableMaterials = new HashMap<String, ConfigCraftableMaterial>();
+	public static HashMap<String, ConfigCraftableMaterial> craftableMaterials = new HashMap<>();
 	public static FileConfiguration unitMaterialsConfig; /* unitmaterials.yml */
-	public static HashMap<String, ConfigUnitMaterial> unitMaterials = new HashMap<String, ConfigUnitMaterial>();
+	public static HashMap<String, ConfigUnitMaterial> unitMaterials = new HashMap<>();
 
 	public static FileConfiguration randomEventsConfig; /* randomevents.yml */
-	public static HashMap<String, ConfigRandomEvent> randomEvents = new HashMap<String, ConfigRandomEvent>();
-	public static ArrayList<String> randomEventIDs = new ArrayList<String>();
+	public static HashMap<String, ConfigRandomEvent> randomEvents = new HashMap<>();
+	public static ArrayList<String> randomEventIDs = new ArrayList<>();
 
 	public static FileConfiguration fishingConfig; /* fishing.yml */
-	public static ArrayList<ConfigFishing> fishingDrops = new ArrayList<ConfigFishing>();
+	public static ArrayList<ConfigFishing> fishingDrops = new ArrayList<>();
 
 	public static FileConfiguration soundConfig; /* sound.yml */
 
@@ -174,9 +143,9 @@ public class CivSettings {
 	public static double emerald_rate;
 	public static double startingCoins;
 
-	public static ArrayList<String> kitItems = new ArrayList<String>();
-	public static HashSet<Material> removedRecipies = new HashSet<Material>();
-	public static HashSet<Material> restrictedUndoBlocks = new HashSet<Material>();
+	public static ArrayList<String> kitItems = new ArrayList<>();
+	public static HashSet<Material> removedRecipies = new HashSet<>();
+	public static HashSet<Material> restrictedUndoBlocks = new HashSet<>();
 	public static boolean hasVanishNoPacket = false;
 
 	public static final String MINI_ADMIN = "civ.admin";
@@ -198,22 +167,20 @@ public class CivSettings {
 
 	public static Localize localize;
 
-	public static boolean hasCustomMobs = false;
-
 	public static Material previewMaterial = Material.GLASS;
 	public static Integer scaffoldingType = 7;
 	public static Integer scaffoldingData = 0;
 	public static Boolean showPreview = true;
 
-	public static Map<String, ConfigNewspaper> newspapers = new HashMap<String, ConfigNewspaper>();
+	public static Map<String, ConfigNewspaper> newspapers = new HashMap<>();
 
 	public static FileConfiguration missionsConfig;
-	public static Map<Integer, ConfigSpaceMissions> spacemissions_levels = new HashMap<Integer, ConfigSpaceMissions>();
-	public static Map<Integer, ConfigSpaceRocket> spaceRocket_name = new HashMap<Integer, ConfigSpaceRocket>();
-	public static Map<String, ConfigSpaceCraftMat> space_crafts = new HashMap<String, ConfigSpaceCraftMat>();
-	public static Map<Integer, ConfigLabLevel> labLevels = new HashMap<Integer, ConfigLabLevel>();
+	public static Map<Integer, ConfigSpaceMissions> spacemissions_levels = new HashMap<>();
+	public static Map<Integer, ConfigSpaceRocket> spaceRocket_name = new HashMap<>();
+	public static Map<String, ConfigSpaceCraftMat> space_crafts = new HashMap<>();
+	public static Map<Integer, ConfigLabLevel> labLevels = new HashMap<>();
 
-	public static void init(JavaPlugin plugin) throws FileNotFoundException, IOException, InvalidConfigurationException, InvalidConfiguration {
+	public static void init(JavaPlugin plugin) throws IOException, InvalidConfigurationException, InvalidConfiguration {
 		CivSettings.plugin = (CivCraft) plugin;
 
 		String languageFile = CivSettings.getStringBase("localization_file");
@@ -385,7 +352,7 @@ public class CivSettings {
 		}
 	}
 
-	public static FileConfiguration loadCivConfig(String filepath) throws FileNotFoundException, IOException, InvalidConfigurationException {
+	public static FileConfiguration loadCivConfig(String filepath) throws IOException, InvalidConfigurationException {
 		File file = new File(plugin.getDataFolder().getPath() + "/data/" + filepath);
 		if (!file.exists()) {
 			CivLog.warning("Configuration file:" + filepath + " was missing. Streaming to disk from Jar.");
@@ -399,7 +366,7 @@ public class CivSettings {
 		return cfg;
 	}
 
-	private static void loadConfigFiles() throws FileNotFoundException, IOException, InvalidConfigurationException {
+	private static void loadConfigFiles() throws IOException, InvalidConfigurationException {
 		townConfig = loadCivConfig("town.yml");
 		civConfig = loadCivConfig("civ.yml");
 		cultureConfig = loadCivConfig("culture.yml");
@@ -428,13 +395,13 @@ public class CivSettings {
 		soundConfig = loadCivConfig("sound.yml");
 	}
 
-	public static void reloadPerks() throws FileNotFoundException, IOException, InvalidConfigurationException, InvalidConfiguration {
+	public static void reloadPerks() throws IOException, InvalidConfigurationException {
 		perkConfig = loadCivConfig("perks.yml");
 		ConfigPerk.loadConfig(perkConfig, perks);
 		ConfigPerk.loadTemplates(perkConfig, templates);
 	}
 
-	private static void loadConfigObjects() throws InvalidConfiguration {
+	private static void loadConfigObjects() {
 		ConfigTransmuterRecipe.loadConfig(transmuterConfig, transmuterRecipes);
 		ConfigConsumeRecipe.loadConfig(transmuterConfig, consumeLevels);
 		ConfigTownUpgrade.loadConfig(townConfig, townUpgrades);
@@ -544,7 +511,6 @@ public class CivSettings {
 		switchItems.add(Material.REDSTONE_COMPARATOR);
 		switchItems.add(Material.REDSTONE_COMPARATOR_ON);
 		switchItems.add(Material.REDSTONE_COMPARATOR_OFF);
-		switchItems.add(Material.TRAPPED_CHEST);
 		switchItems.add(Material.GOLD_PLATE);
 		switchItems.add(Material.IRON_PLATE);
 		switchItems.add(Material.IRON_TRAPDOOR);
@@ -608,12 +574,12 @@ public class CivSettings {
 			BufferedReader br = new BufferedReader(new FileReader("plugins/CivCraft/genid.data"));
 			genid = br.readLine();
 			br.close();
-		} catch (IOException e) {}
+		} catch (IOException ignored) {}
 		return genid;
 	}
 
 	public static Double getDoubleStructure(String path) {
-		Double ret;
+		double ret;
 		try {
 			ret = getDouble(structureConfig, path);
 		} catch (InvalidConfiguration e) {
@@ -624,7 +590,7 @@ public class CivSettings {
 	}
 
 	public static Boolean getBooleanStructure(String path) {
-		Boolean ret;
+		boolean ret;
 		try {
 			ret = getBoolean(structureConfig, path);
 		} catch (InvalidConfiguration e) {
@@ -635,7 +601,7 @@ public class CivSettings {
 	}
 
 	public static int getIntegerStructure(String path) {
-		Integer ret;
+		int ret;
 		try {
 			ret = getInteger(structureConfig, path);
 		} catch (InvalidConfiguration e) {
@@ -646,7 +612,7 @@ public class CivSettings {
 	}
 
 	public static Integer getIntegerGovernment(String path) {
-		Integer ret;
+		int ret;
 		try {
 			ret = getInteger(governmentConfig, path);
 		} catch (InvalidConfiguration e) {
@@ -659,8 +625,7 @@ public class CivSettings {
 	public static Integer getInteger(FileConfiguration cfg, String path) throws InvalidConfiguration {
 		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration integer " + path);
 
-		int data = cfg.getInt(path);
-		return data;
+		return cfg.getInt(path);
 	}
 
 	public static String getString(FileConfiguration cfg, String path) throws InvalidConfiguration {
@@ -672,15 +637,13 @@ public class CivSettings {
 	public static double getDouble(FileConfiguration cfg, String path) throws InvalidConfiguration {
 		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration double " + path);
 
-		double data = cfg.getDouble(path);
-		return data;
+		return cfg.getDouble(path);
 	}
 
 	public static boolean getBoolean(FileConfiguration cfg, String path) throws InvalidConfiguration {
 		if (!cfg.contains(path)) throw new InvalidConfiguration("Could not get configuration boolean " + path);
 
-		boolean data = cfg.getBoolean(path);
-		return data;
+		return cfg.getBoolean(path);
 	}
 
 	public static String getNameCheckRegex() throws InvalidConfiguration {

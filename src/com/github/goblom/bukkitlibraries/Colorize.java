@@ -42,7 +42,7 @@ public class Colorize {
     public static String getRandomColorCode(boolean withExtra) {
         char[] toRandomize = (withExtra ? ALL_COLORS : COLORS);
 
-        return "&" + String.valueOf(toRandomize[RANDOM.nextInt(toRandomize.length)]);
+        return "&" + toRandomize[RANDOM.nextInt(toRandomize.length)];
     }
 
     public static Stylize style(String toStyle) {
@@ -61,7 +61,7 @@ public class Colorize {
             StringBuilder sb = new StringBuilder();
 
             for (char c : toStyle.toCharArray()) {
-                sb.append(Colorize.getRandomColorCode(false) + String.valueOf(c));
+                sb.append(Colorize.getRandomColorCode(false)).append(c);
             }
 
             return ChatColor.translateAlternateColorCodes('&', sb.toString());
@@ -87,7 +87,7 @@ public class Colorize {
             StringBuilder sb = new StringBuilder();
             boolean a = true;
             for (char c : toStyle.toCharArray()) {
-                sb.append(a ? colorOne : colorTwo);
+                sb.append(colorOne);
                 sb.append(c);
             }
             

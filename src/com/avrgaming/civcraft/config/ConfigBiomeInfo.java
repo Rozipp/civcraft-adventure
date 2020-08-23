@@ -11,11 +11,11 @@ import com.avrgaming.civcraft.main.CivLog;
 
 public class ConfigBiomeInfo {
 
-	static enum Surface {
+	enum Surface {
 		hills(1, 1), mountainous(0, 2), oceanic(1, 0), plains(2, 0), swampland(1, 0), none(0, 0);
 
-		private int food;
-		private int hammer;
+		private final int food;
+		private final int hammer;
 
 		Surface(int f, int h) {
 			this.food = f;
@@ -23,11 +23,11 @@ public class ConfigBiomeInfo {
 		}
 	}
 
-	static enum Humidity {
+	enum Humidity {
 		forests(0, 3), irrigation(4, 0), none(0, 0);
 
-		private int food;
-		private int hammer;
+		private final int food;
+		private final int hammer;
 
 		Humidity(int f, int h) {
 			this.food = f;
@@ -35,11 +35,11 @@ public class ConfigBiomeInfo {
 		}
 	}
 
-	static enum Climate {
+	enum Climate {
 		frozen(-1, 0), jungles(0, 2), desert(-1, -1), mesa(0, 1), savanna(1, 1), normal(0, 0);
 
-		private int food;
-		private int hammer;
+		private final int food;
+		private final int hammer;
 
 		Climate(int f, int h) {
 			this.food = f;
@@ -66,7 +66,7 @@ public class ConfigBiomeInfo {
 			biome.humidity = Humidity.valueOf((String) cl.get("humidity"));
 			biome.climate = Climate.valueOf((String) cl.get("climate"));
 			String beauty = (String) cl.get("beauty");
-			biome.beauty = (beauty.equals("beauty")) ? true : false;
+			biome.beauty = beauty.equals("beauty");
 			biome.mobs = (String) cl.get("mobs");
 
 			culture_biomes.put(biome.biome, biome);
@@ -76,12 +76,12 @@ public class ConfigBiomeInfo {
 
 	public double getHammers() {
 		int hammers = surface.hammer + humidity.hammer + climate.hammer;
-		return hammers > 0 ? hammers : 0;
+		return Math.max(hammers, 0);
 	}
 
 	public double getGrowth() {
 		int food = surface.food + humidity.food + climate.food;
-		return food > 0 ? food : 0;
+		return Math.max(food, 0);
 	}
 
 }

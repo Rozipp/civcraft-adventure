@@ -17,11 +17,6 @@ public class Quarry extends Structure {
 	}
 
 	@Override
-	public void delete() {
-		super.delete();
-	}
-
-	@Override
 	public String getDynmapDescription() {
 		String out = "<u><b>" + this.getDisplayName() + "</u></b><br/>";
 		out += CivSettings.localize.localizedString("Level") + " " + level;

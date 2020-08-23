@@ -4,7 +4,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.threading.tasks.DelayMoveInventoryItem;
@@ -37,7 +36,7 @@ public abstract class UnitMaterial extends CustomMaterial implements CooldownFin
 
     public static final int LAST_SLOT = 8;
     public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
-    private ConfigUnit configUnit = null;
+    private final ConfigUnit configUnit;
 
     public UnitMaterial(String id, ConfigUnit configUnit) {
         super(id, configUnit.item_id, (short) configUnit.item_data);
@@ -61,10 +60,6 @@ public abstract class UnitMaterial extends CustomMaterial implements CooldownFin
     public void onBlockPlaced(BlockPlaceEvent event) {
         event.setCancelled(true);
         CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("unitMaterial_cannotPlace"));
-    }
-
-    @Override
-    public void onHit(EntityDamageByEntityEvent event) {
     }
 
     @Override

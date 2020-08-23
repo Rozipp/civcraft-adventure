@@ -1,46 +1,20 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.command.dbg;
 
-import com.avrgaming.civcraft.command.admin.AdminTownCommand;
-import com.avrgaming.civcraft.construct.Buildable;
-import gpl.AttributeUtil;
-import ua.rozipp.sound.ConfigSound;
-import ua.rozipp.sound.SoundManager;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
 import com.avrgaming.civcraft.command.MenuAbstractCommand;
 import com.avrgaming.civcraft.command.Validators;
+import com.avrgaming.civcraft.command.admin.AdminTownCommand;
 import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
 import com.avrgaming.civcraft.command.taber.CivInWorldTaber;
 import com.avrgaming.civcraft.command.taber.ResidentInWorldTaber;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.structures.ArrowTower;
-import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.construct.wonders.GrandShipIngermanland;
@@ -66,6 +40,24 @@ import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import gpl.AttributeUtil;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import ua.rozipp.sound.ConfigSound;
+import ua.rozipp.sound.SoundManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DebugCommand extends MenuAbstractCommand {
 
@@ -115,12 +107,12 @@ public class DebugCommand extends MenuAbstractCommand {
 				for (Town town : CivGlobal.getTowns()) {
 					for (Structure struct : town.BM.getStructures()) {
 						if (struct instanceof ArrowTower) {
-							((ArrowTower) struct).setPower(Float.valueOf(args[1]));
+							((ArrowTower) struct).setPower(Float.parseFloat(args[1]));
 						}
 					}
 					for (Wonder wonder : town.BM.getWonders()) {
 						if (wonder instanceof GrandShipIngermanland) {
-							((GrandShipIngermanland) wonder).setArrorPower(Float.valueOf(args[1]));
+							((GrandShipIngermanland) wonder).setArrorPower(Float.parseFloat(args[1]));
 						}
 					}
 				}
@@ -130,7 +122,7 @@ public class DebugCommand extends MenuAbstractCommand {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				if (args.length < 2) throw new CivException("Enter an x and z");
-				Commander.getPlayer(sender).getWorld().unloadChunk(Integer.valueOf(args[0]), Integer.valueOf(args[1]));
+				Commander.getPlayer(sender).getWorld().unloadChunk(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
 				CivMessage.sendSuccess(sender, "unloaded.");
 			}
 		}));
@@ -259,7 +251,7 @@ public class DebugCommand extends MenuAbstractCommand {
 				String theme = (args.length == 3) ? args[2] : null;
 				ConfigConstructInfo sinfo = CivSettings.getConstructInfoByName(build_name);
 
-				String filepath = null;
+				String filepath;
 				if (sinfo != null)
 					filepath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
 				else
@@ -330,7 +322,7 @@ public class DebugCommand extends MenuAbstractCommand {
 					capitol.GM.init();
 					try {
 						capitol.addResident(resident);
-					} catch (AlreadyRegisteredException e) {}
+					} catch (AlreadyRegisteredException ignored) {}
 					capitol.GM.addMayor(resident);
 
 					civ.addTown(capitol);
@@ -346,11 +338,11 @@ public class DebugCommand extends MenuAbstractCommand {
 					CivGlobal.addCiv(civ);
 
 					class BuildSpawnTask implements Runnable {
-						CommandSender sender;
-						int start_x;
-						int start_y;
-						int start_z;
-						Town spawnCapitol;
+						final CommandSender				sender;
+						final int start_x;
+						final int start_y;
+						final int start_z;
+						final Town spawnCapitol;
 
 						public BuildSpawnTask(CommandSender sender, int x, int y, int z, Town capitol) {
 							this.sender = sender;
@@ -392,11 +384,11 @@ public class DebugCommand extends MenuAbstractCommand {
 											}
 
 											CivMessage.send(sender, "Setting up " + buildableName);
-											int yShift = 0;
-											String lines[] = sb.getKeyValueString().split(",");
-											String split[] = lines[0].split(":");
+											int yShift;
+											String[] lines = sb.getKeyValueString().split(",");
+											String[] split = lines[0].split(":");
 											String dir = split[0];
-											yShift = Integer.valueOf(split[1]);
+											yShift = Integer.parseInt(split[1]);
 
 											Location loc = next.getLocation();
 											loc.setY(loc.getY() + yShift);

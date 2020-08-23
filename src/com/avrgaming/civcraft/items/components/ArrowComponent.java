@@ -92,7 +92,6 @@ public class ArrowComponent extends ItemComponent {
 	public void onPrepareCreate(AttributeUtil attrs) {
 		// Add generic attack damage of 0 to clear the default lore on item.
 		attrs.addLore("Клик для выбора типа стрелы");
-		return;
 	}
 
 	@Override

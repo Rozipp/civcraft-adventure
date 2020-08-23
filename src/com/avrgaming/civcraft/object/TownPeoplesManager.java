@@ -1,25 +1,19 @@
 package com.avrgaming.civcraft.object;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bukkit.ChatColor;
-
 import com.avrgaming.civcraft.components.ProfesionalComponent;
 import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
+import org.bukkit.ChatColor;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public class TownPeoplesManager {
 
-	public static enum Prof {
+	public enum Prof {
 		UNHAPPINES, // Несчасные жители не работают
 		BUILDER, // Обычные рабочие строят здания
 		NOTWORK, // Ими временно становяться строители которые ничего не строят. Они добывают всего по чучуть
@@ -31,13 +25,13 @@ public class TownPeoplesManager {
 		UNIT //
 	}
 
-	private Town town;
+	private final Town town;
 
 	private Integer foodsPeoplesOuttake = 1; // Каждый житель потребляет столько пищи в тик
 	private Integer suppliesWorkerOuttake = 1; // Каждый Рабочий может взять на стройку столько материалов в тик
 
-	private EnumMap<Prof, Integer> peoples = new EnumMap<>(Prof.class);
-	private EnumMap<Prof, Integer> peoplesWork = new EnumMap<>(Prof.class);
+	private final EnumMap<Prof, Integer> peoples = new EnumMap<>(Prof.class);
+	private final EnumMap<Prof, Integer> peoplesWork = new EnumMap<>(Prof.class);
 
 	private List<Prof> peoplesPriority = new ArrayList<>();
 	public TownPeoplesIntakeTable intakeTable;
@@ -160,10 +154,6 @@ public class TownPeoplesManager {
 		for (Integer count : peoples.values())
 			peoplesTotal += count;
 		return peoplesTotal;
-	}
-
-	public Map<Prof, Integer> getPeoples() {
-		return peoples;
 	}
 
 	public Integer getPeoplesProfCount(Prof prof) {

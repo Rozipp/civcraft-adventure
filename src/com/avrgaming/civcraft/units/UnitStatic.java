@@ -1,11 +1,3 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
 import java.lang.reflect.Constructor;
@@ -63,16 +55,14 @@ public class UnitStatic {
 	public static HashMap<String, ConfigUnit> configUnits = new HashMap<>();
 	public static HashMap<String, ConfigUnitComponent> configUnitComponents = new HashMap<>();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes"})
 	public static void init() {
 		for (ConfigUnit cu : configUnits.values()) {
 			String name = "com.avrgaming.civcraft.units." + cu.class_name.replace(" ", "_");
 			try {
-				Class cls = null;
-				cls = Class.forName(name);
-				Class partypes[] = { String.class, ConfigUnit.class };
-				Constructor cntr = cls.getConstructor(partypes);
-				Object arglist[] = { cu.id, cu };
+				Class[] partypes = { String.class, ConfigUnit.class };
+				Constructor cntr = Class.forName(name).getConstructor(partypes);
+				Object[] arglist = { cu.id, cu };
 				cntr.newInstance(arglist);
 			} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				CivLog.error("-----Class '" + name + "' creation error-----");
@@ -237,7 +227,7 @@ public class UnitStatic {
 			if (isother == null)
 				inv.setItem(UnitMaterial.LAST_SLOT, is);
 			else {
-				Boolean swap = !is.equals(isother);
+				boolean swap = !is.equals(isother);
 
 				inv.remove(is);
 				is = initLoreStatic(is, uo);
@@ -285,7 +275,7 @@ public class UnitStatic {
 		return CraftItemStack.asCraftMirror(nmsStack);
 	}
 
-	/** @Возвращает информацию из NBTTag'а под ключем "unit_id" */
+	/** Возвращает информацию из NBTTag'а под ключем "unit_id" */
 	public static int getUnitIdNBTTag(ItemStack stack) {
 		net.minecraft.server.v1_12_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
 		if (nmsStack != null && nmsStack.getTag() != null) {
@@ -304,7 +294,7 @@ public class UnitStatic {
 		ItemStack st = player.getInventory().getItem(UnitMaterial.LAST_SLOT);
 		if (st != null) {
 			final CustomMaterial material = CustomMaterial.getCustomMaterial(st);
-			if (material != null && material instanceof UnitMaterial) return st;
+			if (material instanceof UnitMaterial) return st;
 		}
 		List<Integer> items = findAllUnits(player.getInventory());
 		return (items.size() > 0) ? player.getInventory().getItem(items.get(0)) : null;
@@ -312,11 +302,11 @@ public class UnitStatic {
 
 	/** находит всех предметов класа UnitMaterial в инвентаре игрока */
 	public static List<Integer> findAllUnits(final Inventory inv) {
-		List<Integer> items = new ArrayList<Integer>();
+		List<Integer> items = new ArrayList<>();
 		for (final ItemStack stack : inv.getContents()) {
 			if (stack != null) {
 				final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-				if (material != null && material instanceof UnitMaterial) items.add(inv.first(stack));
+				if (material instanceof UnitMaterial) items.add(inv.first(stack));
 			}
 		}
 		return items;
@@ -331,7 +321,7 @@ public class UnitStatic {
 			ItemStack stack = player.getInventory().getItem(i);
 			if (Enchantments.hasEnchantment(stack, EnchantmentCustom.UnitItem)) {
 				String mid = CustomMaterial.getMID(stack);
-				if (mid != null) ammunitionSlot.put(mid, i);
+				ammunitionSlot.put(mid, i);
 				player.getInventory().setItem(i, null);
 			}
 		}
@@ -350,7 +340,7 @@ public class UnitStatic {
 		ItemStack stack = findUnit(player);
 		if (stack != null) {
 			final CustomMaterial material = CustomMaterial.getCustomMaterial(stack);
-			if (material != null && material instanceof UnitMaterial && ((UnitMaterial) material).getConfigUnit().id.equalsIgnoreCase(id)) {
+			if (material instanceof UnitMaterial && ((UnitMaterial) material).getConfigUnit().id.equalsIgnoreCase(id)) {
 				player.getInventory().remove(stack);
 			}
 			player.updateInventory();
@@ -401,9 +391,8 @@ public class UnitStatic {
 
 	public static boolean _isWearingFullLeather(final Player player, String ss) {
 		ItemStack[] armorContents = player.getInventory().getArmorContents();
-		int length = armorContents.length;
-		for (int i = 0; i < length; ++i) {
-			final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(armorContents[i]);
+		for (ItemStack armorContent : armorContents) {
+			final CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(armorContent);
 			if (craftMat == null) return false;
 			if (!craftMat.getConfigId().contains(ss)) return false;
 		}

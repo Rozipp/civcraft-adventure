@@ -1,11 +1,3 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.util;
 
 import java.util.HashMap;
@@ -33,21 +25,19 @@ public class SimpleBlock {
 		NORMAL, COMMAND, LITERAL, COMMANDDBG
 	}
 
-	private int type = 0;
-	private byte data = 0;
+	private int type;
+	private byte data;
 	public int x;
 	public int y;
 	public int z;
 
 	public SimpleType specialType;
 	public String command;
-	public String message[] = new String[4];
+	public String[] message = new String[4];
 	public String worldname;
 	public Buildable buildable;
-	public Map<String, String> keyvalues = new HashMap<String, String>();
+	public Map<String, String> keyvalues = new HashMap<>();
 
-	/** Construct the block with its type.
-	 * @param block */
 	public SimpleBlock(Block block) {
 		this.x = block.getX();
 		this.y = block.getY();
@@ -85,9 +75,9 @@ public class SimpleBlock {
 	public SimpleBlock(String hash, int type, byte data) {
 		String[] split = hash.split(",");
 		this.worldname = split[0];
-		this.x = Integer.valueOf(split[1]);
-		this.y = Integer.valueOf(split[2]);
-		this.z = Integer.valueOf(split[3]);
+		this.x = Integer.parseInt(split[1]);
+		this.y = Integer.parseInt(split[2]);
+		this.z = Integer.parseInt(split[3]);
 		this.type = type;
 		this.data = data;
 		this.specialType = SimpleType.NORMAL;
@@ -119,7 +109,7 @@ public class SimpleBlock {
 
 	/** @return the type */
 	public int getType() {
-		return (int) type;
+		return type;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -139,7 +129,7 @@ public class SimpleBlock {
 
 	/** @return the data */
 	public int getData() {
-		return (int) data;
+		return data;
 	}
 
 	/** @param data the data to set */
