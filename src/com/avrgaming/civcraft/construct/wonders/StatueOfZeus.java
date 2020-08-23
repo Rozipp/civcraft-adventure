@@ -1,14 +1,10 @@
 
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import com.avrgaming.civcraft.components.ProjectileLightningComponent;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
@@ -17,11 +13,7 @@ public class StatueOfZeus
 extends Wonder {
     ProjectileLightningComponent teslaComponent;
 
-    public StatueOfZeus(ResultSet rs) throws SQLException, CivException {
-        super(rs);
-    }
-
-    public StatueOfZeus(String id, Town town) throws CivException {
+    public StatueOfZeus(String id, Town town) {
         super(id, town);
     }
 
@@ -35,7 +27,7 @@ extends Wonder {
 
     public int getDamage() {
         double rate = 1.0;
-        if (this.getTown().getBuffManager().hasBuff("buff_powerstation")) {
+        if (this.getTownOwner().getBuffManager().hasBuff("buff_powerstation")) {
             rate = 1.4;
         }
         return (int)((double)this.teslaComponent.getDamage() * rate);
@@ -48,11 +40,11 @@ extends Wonder {
     @Override
     public int getMaxHitPoints() {
         double rate = 1.0;
-        if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
-            rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+        if (this.getTownOwner().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
+            rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
         }
-        if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
-            rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
+        if (this.getTownOwner().getBuffManager().hasBuff("buff_barricade")) {
+            rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_barricade");
         }
         return (int)((double)this.getInfo().max_hitpoints * rate);
     }
@@ -64,14 +56,14 @@ extends Wonder {
 
     @Override
     protected void removeBuffs() {
-        this.removeBuffFromTown(this.getTown(), "buff_statue_of_zeus_tower_range");
-        this.removeBuffFromTown(this.getTown(), "buff_statue_of_zeus_struct_regen");
+        this.removeBuffFromTown(this.getTownOwner(), "buff_statue_of_zeus_tower_range");
+        this.removeBuffFromTown(this.getTownOwner(), "buff_statue_of_zeus_struct_regen");
     }
 
     @Override
     protected void addBuffs() {
-        this.addBuffToTown(this.getTown(), "buff_statue_of_zeus_tower_range");
-        this.addBuffToTown(this.getTown(), "buff_statue_of_zeus_struct_regen");
+        this.addBuffToTown(this.getTownOwner(), "buff_statue_of_zeus_tower_range");
+        this.addBuffToTown(this.getTownOwner(), "buff_statue_of_zeus_struct_regen");
     }
 
     public void processBonuses() {
@@ -85,12 +77,12 @@ extends Wonder {
             totalCoins += coins;
         }
         if (totalCoins != 0) {
-            this.getTown().getTreasury().deposit(totalCoins);
-            this.getTown().SM.addCulture(totalCulture);
+            this.getTownOwner().getTreasury().deposit(totalCoins);
+            this.getTownOwner().SM.addCulture(totalCulture);
             int captured = totalCulture / culture;
-            CivMessage.sendCiv(this.getCiv(), CivSettings.localize.localizedString("var_statue_of_zeus_addedCoinsAndCulture",
+            CivMessage.sendCiv(this.getCivOwner(), CivSettings.localize.localizedString("var_statue_of_zeus_addedCoinsAndCulture",
             		CivColor.LightGreen + totalCulture + CivColor.RESET, CivColor.Gold + totalCoins + " " + CivSettings.CURRENCY_NAME + CivColor.RESET, CivColor.Rose + captured + CivColor.RESET,
-            		CivColor.Yellow + this.getTown().getName() + CivColor.RESET));
+            		CivColor.Yellow + this.getTownOwner().getName() + CivColor.RESET));
         }
     }
 }

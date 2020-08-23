@@ -9,7 +9,11 @@
 package com.avrgaming.civcraft.command.menu;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.avrgaming.civcraft.command.taber.AbstractCashedTaber;
+import com.avrgaming.civcraft.command.taber.AbstractTaber;
+import com.avrgaming.civcraft.config.ConfigTech;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -34,7 +38,19 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 		displayName = CivSettings.localize.localizedString("cmd_town_upgrade_name");
 		this.addValidator(Validators.validMayorAssistantLeader);
 
-		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_listDesc")).withExecutor(new CustomExecutor() {
+		add(new CustomCommand("list").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_listDesc"))
+				.withTabCompleter(new AbstractCashedTaber() {
+					@Override
+					protected List<String> newTabList(String arg) {
+						ArrayList<String> l =new ArrayList<>();
+						for (String category : ConfigTownUpgrade.categories.keySet()) {
+							String s = category.replace(" ", "_");
+							if (s.startsWith(arg)) l.add(s);
+						}
+						return l;
+					}
+				})
+				.withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
@@ -61,18 +77,32 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 				CivMessage.send(sender, out);
 			}
 		}));
-		add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_buyDesc")).withExecutor(new CustomExecutor() {
+		add(new CustomCommand("buy").withDescription(CivSettings.localize.localizedString("cmd_town_upgrade_buyDesc"))
+				.withTabCompleter(new AbstractTaber() {
+					@Override
+					public List<String> getTabList(CommandSender sender, String arg) throws CivException {
+						List<String> l = new ArrayList<>();
+						Town town = Commander.getSelectedTown(sender);
+						for (ConfigTownUpgrade upgrade : CivSettings.townUpgrades.values()) {
+							if (upgrade.isAvailable(town)) {
+								String name = upgrade.name.replace(" ", "_");
+								if (name.toLowerCase().startsWith(arg)) l.add(name);
+							}
+						}
+						return l;
+					}
+				}).withExecutor(new CustomExecutor() {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
-				if (args.length < 2) {
+				if (args.length < 1) {
 					list_upgrades(sender, "all", town);
 					CivMessage.send(sender, CivSettings.localize.localizedString("cmd_town_upgrade_buyHeading"));
 					return;
 				}
-				String combinedArgs = Commander.combineArgs(args);
-				ConfigTownUpgrade upgrade = CivSettings.getUpgradeByNameRegex(town, combinedArgs);
-				if (upgrade == null) throw new CivException(CivSettings.localize.localizedString("cmd_town_upgrade_buyInvalid") + " " + combinedArgs);
+				String upgradename = args[0].replace("_", " ");
+				ConfigTownUpgrade upgrade = CivSettings.getUpgradeByName(upgradename);
+				if (upgrade == null) throw new CivException(CivSettings.localize.localizedString("cmd_town_upgrade_buyInvalid") + " " + upgradename);
 				if (town.hasUpgrade(upgrade.id)) throw new CivException(CivSettings.localize.localizedString("cmd_town_upgrade_buyOwned"));
 
 				// TODO make upgrades take time by using hammers.
@@ -121,7 +151,7 @@ public class TownUpgradeCommand extends MenuAbstractCommand {
 	private void list_upgrades(CommandSender sender, String category, Town town) throws CivException {
 		if (!ConfigTownUpgrade.categories.containsKey(category.toLowerCase()) && !category.equalsIgnoreCase("all")) throw new CivException(CivSettings.localize.localizedString("var_cmd_town_upgrade_listnoCat", category));
 		for (ConfigTownUpgrade upgrade : CivSettings.townUpgrades.values()) {
-			if (category.equalsIgnoreCase("all") || upgrade.category.equalsIgnoreCase(category)) {
+			if (category.equalsIgnoreCase("all") || upgrade.category.equalsIgnoreCase(category.replace("_"," "))) {
 				if (upgrade.isAvailable(town)) CivMessage.send(sender, upgrade.name + " " + CivColor.LightGray + CivSettings.localize.localizedString("Cost") + " " + CivColor.Yellow + upgrade.cost);
 			}
 		}

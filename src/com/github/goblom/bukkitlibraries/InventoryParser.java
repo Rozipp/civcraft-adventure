@@ -130,9 +130,6 @@ public class InventoryParser {
                         if (meta.hasDisplayName()) playerConfig.set("Contents." + i + ".ItemMeta.Display-Name", meta.getDisplayName());
                         if (meta.hasLore()) playerConfig.set("Contents." + i + ".ItemMeta.Lore", meta.getLore());
                         if (meta.hasEnchants()) {
-//                            for (Enchantment enchant : meta.getEnchants().keySet()) {
-//                                playerConfig.set("Contents." + i + ".ItemMeta.Enchantment." + enchant.getName() + ".Level", meta.getEnchantLevel(enchant));
-//                            }
                             for (Enchantment enchant : item.getEnchantments().keySet()) {
                                 playerConfig.set("Contents." + i + ".ItemMeta.Enchantment." + enchant.getName() + ".Level", item.getEnchantmentLevel(enchant));
                             }

@@ -1,20 +1,6 @@
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.bukkit.entity.LivingEntity;
-
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
@@ -23,23 +9,24 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.LoadBattledomeEntityTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
+import org.bukkit.entity.LivingEntity;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Battledome extends Wonder {
 
 	/* Global Battle-dome chunks */
-	public static Map<ChunkCoord, Battledome> battledomeChunks = new ConcurrentHashMap<ChunkCoord, Battledome>();
-	public static Map<UUID, Battledome> battledomeEntities = new ConcurrentHashMap<UUID, Battledome>();
+	public static Map<ChunkCoord, Battledome> battledomeChunks = new ConcurrentHashMap<>();
+	public static Map<UUID, Battledome> battledomeEntities = new ConcurrentHashMap<>();
 
 	/* Chunks bound to this Battle-dome. */
-	public HashSet<ChunkCoord> chunks = new HashSet<ChunkCoord>();
-	public HashSet<UUID> entities = new HashSet<UUID>();
+	public HashSet<ChunkCoord> chunks = new HashSet<>();
+	public HashSet<UUID> entities = new HashSet<>();
 	public ReentrantLock lock = new ReentrantLock(); 
 
-	public Battledome(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public Battledome(String id, Town town) throws CivException {
+	public Battledome(String id, Town town) {
 		super(id, town);
 	}
 	
@@ -74,7 +61,7 @@ public class Battledome extends Wonder {
 		this.entities.clear();
 		this.chunks.clear();
 		
-		LinkedList<UUID> removeUs = new LinkedList<UUID>();
+		LinkedList<UUID> removeUs = new LinkedList<>();
 		for (UUID id : battledomeEntities.keySet()) {
 			Battledome battledome = battledomeEntities.get(id);
 			if (battledome == this) {
@@ -109,9 +96,9 @@ public class Battledome extends Wonder {
 	
 	public void saveEntity(String worldName, UUID id) {
 		class AsyncTask implements Runnable {
-			Battledome battledome;
-			UUID id;
-			String worldName;
+			final Battledome battledome;
+			final UUID id;
+			final String worldName;
 			
 			public AsyncTask(Battledome battledome, UUID id, String worldName) {
 				this.battledome = battledome;
@@ -136,15 +123,14 @@ public class Battledome extends Wonder {
 	}
 	
 	public void loadEntities() {
-		Queue<SessionEntry> entriesToLoad = new LinkedList<SessionEntry>();
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getEntityKey());
-		entriesToLoad.addAll(entries);
+		Queue<SessionEntry> entriesToLoad = new LinkedList<>(entries);
 		TaskMaster.syncTask(new LoadBattledomeEntityTask(entriesToLoad, this));
 	}
 	
 	public void onEntityDeath(LivingEntity entity) {
 		class AsyncTask implements Runnable {
-			LivingEntity entity;
+			final LivingEntity entity;
 			
 			public AsyncTask(LivingEntity entity) {
 				this.entity = entity;

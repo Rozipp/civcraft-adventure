@@ -61,7 +61,7 @@ public class Settler extends UnitMaterial {
 
 		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
 		try {
-			new FoundTownCallback(event.getPlayer());
+			CivGlobal.getResident(event.getPlayer()).setPendingCallback(new FoundTownCallback(event.getPlayer()));
 		} catch (CivException e) {
 			CivMessage.sendError(event.getPlayer(), e.getMessage());
 		}

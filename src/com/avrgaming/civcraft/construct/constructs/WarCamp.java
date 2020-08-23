@@ -1,29 +1,10 @@
 package com.avrgaming.civcraft.construct.constructs;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import org.bukkit.Color;
-import org.bukkit.Effect;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.construct.ConstructBlock;
 import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.construct.structures.RespawnLocationHolder;
+import com.avrgaming.civcraft.construct.RespawnLocationHolder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -31,25 +12,30 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.ControlPoint;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.FireworkEffectPlayer;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
+import com.avrgaming.civcraft.util.*;
 import com.avrgaming.civcraft.war.War;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 @Setter
 @Getter
 public class WarCamp extends Construct implements RespawnLocationHolder {
 
 	public static final String RESTORE_NAME = "special:WarCamps";
-	private ArrayList<BlockCoord> respawnPoints = new ArrayList<BlockCoord>();
-	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<BlockCoord, ControlPoint>();
+	private ArrayList<BlockCoord> respawnPoints = new ArrayList<>();
+	protected HashMap<BlockCoord, ControlPoint> controlPoints = new HashMap<>();
 
-	public WarCamp(Resident resident) throws CivException {
+	public WarCamp(Resident resident) {
 		super("c_warcamp", resident.getCiv());
 	}
 
@@ -72,8 +58,8 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	// ----------- build
 	public void createWarCamp(Player player) throws CivException {
 		this.build(player);
-		this.getCiv().addWarCamp(this);
-		this.getCiv().setLastWarCampCreated(System.currentTimeMillis());
+		this.getCivOwner().addWarCamp(this);
+		this.getCivOwner().setLastWarCampCreated(System.currentTimeMillis());
 
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("warcamp_createSuccess"));
 		ItemStack newStack = new ItemStack(Material.AIR);
@@ -114,7 +100,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void processUndo() throws CivException {
+	public void processUndo() {
 	}
 
 	@Override
@@ -128,7 +114,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void onLoad() throws CivException {
+	public void onLoad() {
 	}
 
 	@Override
@@ -136,7 +122,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void load(ResultSet rs) throws SQLException, CivException {
+	public void load(ResultSet rs) {
 	}
 
 	@Override
@@ -144,7 +130,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 	}
 
 	@Override
-	public void saveNow() throws SQLException {
+	public void saveNow() {
 	}
 
 	public void createControlPoint(BlockCoord absCoord, String info) {
@@ -180,7 +166,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 					world.playSound(hit.getCoord().getLocation(), Sound.BLOCK_ANVIL_USE, 0.2f, 1);
 					world.playEffect(hit.getCoord().getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 					CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("warcamp_hitControlBlock") + " (" + cp.getHitpoints() + " / " + cp.getMaxHitpoints() + ")");
-					CivMessage.sendCiv(getCiv(), CivColor.Yellow + CivSettings.localize.localizedString("warcamp_controlBlockUnderAttack"));
+					CivMessage.sendCiv(getCivOwner(), CivColor.Yellow + CivSettings.localize.localizedString("warcamp_controlBlockUnderAttack"));
 				}
 			} else
 				CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("camp_controlBlockAlreadyDestroyed"));
@@ -208,28 +194,28 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 		boolean allDestroyed = true;
 		for (ControlPoint c : this.controlPoints.values()) {
-			if (c.isDestroyed() == false) {
+			if (!c.isDestroyed()) {
 				allDestroyed = false;
 				break;
 			}
 		}
 
 		if (allDestroyed) {
-			CivMessage.sendCiv(this.getCiv(), CivColor.Rose + CivSettings.localize.localizedString("warcamp_ownDestroyed"));
+			CivMessage.sendCiv(this.getCivOwner(), CivColor.Rose + CivSettings.localize.localizedString("warcamp_ownDestroyed"));
 			this.delete();
 		} else {
-			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("warcamp_enemyControlBlockDestroyed") + " " + getCiv().getName() + CivSettings.localize.localizedString("warcamp_name"));
-			CivMessage.sendCiv(getCiv(), CivColor.Rose + CivSettings.localize.localizedString("warcamp_ownControlBlockDestroyed"));
+			CivMessage.sendCiv(attacker.getTown().getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("warcamp_enemyControlBlockDestroyed") + " " + getCivOwner().getName() + CivSettings.localize.localizedString("warcamp_name"));
+			CivMessage.sendCiv(getCivOwner(), CivColor.Rose + CivSettings.localize.localizedString("warcamp_ownControlBlockDestroyed"));
 		}
 
 	}
 
 	@Override
 	public void delete() {
-		this.getCiv().getWarCamps().remove(this);
+		this.getCivOwner().getWarCamps().remove(this);
 		try {
 			this.undoFromTemplate();
-		} catch (IOException | CivException e) {
+		} catch (CivException e) {
 			this.fancyDestroyConstructBlocks();
 		}
 		super.delete();
@@ -242,7 +228,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 
 	@Override
 	public List<BlockCoord> getRespawnPoints() {
-		return this.getRespawnPoints();
+		return respawnPoints;
 	}
 
 	@Override
@@ -276,7 +262,7 @@ public class WarCamp extends Construct implements RespawnLocationHolder {
 			e.printStackTrace();
 			return 0;
 		}
-		long milisecLeft = (rebuild_timeout * 60000) - (System.currentTimeMillis() - this.getCiv().getLastWarCampCreated());
+		long milisecLeft = (rebuild_timeout * 60000) - (System.currentTimeMillis() - this.getCivOwner().getLastWarCampCreated());
 		if (milisecLeft <= 0) return 0;
 		return (int) (milisecLeft / 60000);
 	}

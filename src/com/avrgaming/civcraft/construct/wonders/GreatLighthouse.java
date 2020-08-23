@@ -1,32 +1,23 @@
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class GreatLighthouse extends Wonder {
 
-	public GreatLighthouse(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public GreatLighthouse(String id, Town town)
-			throws CivException {
+	public GreatLighthouse(String id, Town town) {
 		super(id, town);
 	}
 
 	@Override
 	protected void addBuffs() {
-		addBuffToTown(this.getTown(), "buff_great_lighthouse_tower_range");
-		addBuffToCiv(this.getCiv(), "buff_great_lighthouse_trade_ship_income");
+		addBuffToTown(this.getTownOwner(), "buff_great_lighthouse_tower_range");
+		addBuffToCiv(this.getCivOwner(), "buff_great_lighthouse_trade_ship_income");
 	}
 	
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromTown(this.getTown(), "buff_great_lighthouse_tower_range");
-		removeBuffFromCiv(this.getCiv(), "buff_great_lighthouse_trade_ship_income");
+		removeBuffFromTown(this.getTownOwner(), "buff_great_lighthouse_tower_range");
+		removeBuffFromCiv(this.getCivOwner(), "buff_great_lighthouse_trade_ship_income");
 	}
 	
 	@Override

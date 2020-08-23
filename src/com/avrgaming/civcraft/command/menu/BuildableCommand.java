@@ -82,7 +82,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 					} else {
 						Wonder wonder = CivGlobal.getWonderByConfigId(sinfo.id);
 						CivMessage.send(sender, CivColor.LightGray + sinfo.displayName + " Cost: " + sinfo.cost + " - "
-								+ CivSettings.localize.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTown().getName(), wonder.getTown().getCiv().getName()));
+								+ CivSettings.localize.localizedString("var_cmd_build_listWonderAlreadyBuild", wonder.getTownOwner().getName(), wonder.getTownOwner().getCiv().getName()));
 					}
 				}
 			}
@@ -179,8 +179,8 @@ public class BuildableCommand extends MenuAbstractCommand {
 						CivMessage.send(sender, CivColor.Rose + " " + CivSettings.localize.localizedString("NoStructureAt") + " " + arg);
 						return;
 					}
-					struct.getTown().BM.demolish(struct, false);
-					CivMessage.sendTown(struct.getTown(), struct.getDisplayName() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
+					struct.getTownOwner().BM.demolish(struct, false);
+					CivMessage.sendTown(struct.getTownOwner(), struct.getDisplayName() + " " + CivSettings.localize.localizedString("adcmd_build_demolishComplete"));
 				} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
 					CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_build_demolishFormatError"));
 				}
@@ -219,7 +219,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 				Player player = Commander.getPlayer(sender);
 				Resident resident = Commander.getResident(sender);
 				Buildable buildable = CivGlobal.getNearestBuildable(player.getLocation());
-				if (buildable.getTown() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
+				if (buildable.getTownOwner() != resident.getTown()) throw new CivException(CivSettings.localize.localizedString("cmd_build_validateNearestYourTownOnly"));
 				if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("cmd_build_validatenearestNotDuringWar"));
 				if (buildable.isIgnoreFloating()) throw new CivException(CivSettings.localize.localizedString("var_cmd_build_validateNearestExempt", buildable.getDisplayName()));
 				CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_cmd_build_validateNearestSuccess", buildable.getDisplayName(), buildable.getCenterLocation().toVector()));

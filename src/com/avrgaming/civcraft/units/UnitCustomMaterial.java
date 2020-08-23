@@ -8,6 +8,7 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -56,36 +57,9 @@ public class UnitCustomMaterial extends BaseCustomMaterial {
 	}
 
 	@Override
-	public void onDropItem(PlayerDropItemEvent event) {
-		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && Cooldown.isCooldown(event.getItemDrop().getItemStack())) {
-			event.setCancelled(true);
-			event.getItemDrop().setItemStack(null);
-		}
-	}
-
-	@Override
 	public void onPickupItem(EntityPickupItemEvent event) {
 		ItemComponent ic = components.get("Cooldown");
 		if (ic != null && Cooldown.isCooldown(event.getItem().getItemStack())) event.setCancelled(true);
-	}
-
-	@Override
-	public void onInvItemPickup(InventoryClickEvent event, Inventory fromInv, ItemStack stack) {
-		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
-	}
-
-	@Override
-	public void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack) {
-		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
-	}
-
-	@Override
-	public void onInvItemDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
-		ItemComponent ic = components.get("Cooldown");
-		if (ic != null && Cooldown.isCooldown(stack)) event.setCancelled(true);
 	}
 
 	public int getSocketSlot() {

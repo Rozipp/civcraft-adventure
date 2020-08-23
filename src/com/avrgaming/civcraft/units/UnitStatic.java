@@ -86,13 +86,11 @@ public class UnitStatic {
 		if (um == null) throw new CivException(CivColor.Red + CivSettings.localize.localizedString("barracks_errorUnknown"));
 
 		UnitObject uo = new UnitObject(configUnitId, town);
+		town.unitInventory.addUnit(uo.getId());
 		CivGlobal.addUnitObject(uo);
 	}
 
-	public static ItemStack respawn(int id) {
-		UnitObject uo = CivGlobal.getUnitObject(id);
-		if (uo == null) return null;
-
+	public static ItemStack respawn(UnitObject uo) {
 		UnitMaterial um = UnitStatic.getUnit(uo.getConfigUnitId());
 
 		ItemStack is = CustomMaterial.spawn(um);

@@ -1,24 +1,13 @@
 
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.RespawnLocationHolder;
+import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-
-import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
@@ -27,16 +16,20 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Stable2 extends Structure {
 	private ConstructSign respawnSign;
 	private int index = 0;
 
-	public Stable2(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public Stable2(String id, Town town) throws CivException {
+	public Stable2(String id, Town town) {
 		super(id, town);
 	}
 
@@ -46,12 +39,12 @@ public class Stable2 extends Structure {
 	}
 
 	private RespawnLocationHolder getSelectedHolder() {
-		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+		ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 		return respawnables.get(this.index);
 	}
 
 	private void changeIndex(int newIndex) {
-		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+		ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 		if (this.respawnSign != null) {
 			block4: {
 				try {
@@ -80,13 +73,13 @@ public class Stable2 extends Structure {
 			return;
 		}
 		Boolean hasPermission = false;
-		Civilization civ = this.getTown().getCiv();
+		Civilization civ = this.getTownOwner().getCiv();
 		if (civ.hasResident(resident)) {
 			hasPermission = true;
 		}
 		switch (sign.getAction()) {
 		case "prev": {
-			if (hasPermission.booleanValue()) {
+			if (hasPermission) {
 				this.changeIndex(this.index - 1);
 				break;
 			}
@@ -94,7 +87,7 @@ public class Stable2 extends Structure {
 			break;
 		}
 		case "next": {
-			if (hasPermission.booleanValue()) {
+			if (hasPermission) {
 				this.changeIndex(this.index + 1);
 				break;
 			}
@@ -103,7 +96,7 @@ public class Stable2 extends Structure {
 		}
 		case "respawn": {
 			long timeNow;
-			ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+			ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 			if (this.index >= respawnables.size()) {
 				this.index = 0;
 				this.changeIndex(this.index);
@@ -111,7 +104,7 @@ public class Stable2 extends Structure {
 				return;
 			}
 			respawnables.get(this.index).getRandomRevivePoint();
-			if (!hasPermission.booleanValue()) {
+			if (!hasPermission) {
 				CivMessage.sendError(resident, CivSettings.localize.localizedString("stable_Sign_noPermission"));
 				return;
 			}
@@ -140,7 +133,7 @@ public class Stable2 extends Structure {
 				return;
 			}
 			nextTeleport = timeNow + 120000L;
-			CivMessage.send((Object) player, CivColor.Green + CivSettings.localize.localizedString("stable_respawningAlert"));
+			CivMessage.send(player, CivColor.Green + CivSettings.localize.localizedString("stable_respawningAlert"));
 			player.teleport(placeToTeleport);
 			resident.getTreasury().withdraw(2000.0);
 			resident.setNextTeleport(nextTeleport);
@@ -156,7 +149,7 @@ public class Stable2 extends Structure {
 			ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
 			ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
 			ConstructSign structSign = new ConstructSign(absCoord, this);
-			structSign.setText("\n" + (Object) ChatColor.BOLD + (Object) ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_nextLocation"));
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_nextLocation"));
 			structSign.setDirection(commandBlock.getData());
 			structSign.setAction("next");
 			structSign.update();
@@ -167,7 +160,7 @@ public class Stable2 extends Structure {
 			ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
 			ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
 			ConstructSign structSign = new ConstructSign(absCoord, this);
-			structSign.setText("\n" + (Object) ChatColor.BOLD + (Object) ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_previousLocation"));
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_previousLocation"));
 			structSign.setDirection(commandBlock.getData());
 			structSign.setAction("prev");
 			structSign.update();
@@ -198,13 +191,13 @@ public class Stable2 extends Structure {
 			e.printStackTrace();
 			return;
 		}
-		CivMessage.sendTown(this.getTown(), CivColor.RoseBold + CivSettings.localize.localizedString("stable_cannotSupport1") + " " + CivSettings.localize.localizedString("var_stable_cannotSupport2", invalid_respawn_penalty));
+		CivMessage.sendTown(this.getTownOwner(), CivColor.RoseBold + CivSettings.localize.localizedString("stable_cannotSupport1") + " " + CivSettings.localize.localizedString("var_stable_cannotSupport2", invalid_respawn_penalty));
 	}
 
 	@Override
 	public boolean isValid() {
-		if (this.getCiv().isAdminCiv()) return true;
-		for (Town town : this.getCiv().getTowns()) {
+		if (this.getCivOwner().isAdminCiv()) return true;
+		for (Town town : this.getCivOwner().getTowns()) {
 			if (!town.isValid()) return false;
 		}
 		return super.isValid();

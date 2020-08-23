@@ -111,7 +111,7 @@ public class CannonProjectile {
 												+ " (" + cb.getOwner().getHitpoints() + "/" + cb.getOwner().getMaxHitPoints() + ")");
 							}
 
-							CivMessage.sendCiv(resident.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cannonProjectile_hitSuccess", ((Buildable) cb.getOwner()).getTown().getName(), cb.getOwner().getDisplayName())
+							CivMessage.sendCiv(resident.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cannonProjectile_hitSuccess", ((Buildable) cb.getOwner()).getTownOwner().getName(), cb.getOwner().getDisplayName())
 									+ " (" + cb.getOwner().getHitpoints() + "/" + cb.getOwner().getMaxHitPoints() + ")");
 						}
 					}

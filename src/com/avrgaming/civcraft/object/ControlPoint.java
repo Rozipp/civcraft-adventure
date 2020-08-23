@@ -64,12 +64,12 @@ public class ControlPoint implements ConstructDamageBlock{
 
 	@Override
 	public Town getTown() {
-		return construct.getTown();
+		return construct.getTownOwner();
 	}
 
 	@Override
 	public Civilization getCiv() {
-		return construct.getCiv();
+		return construct.getCivOwner();
 	}
 
 	@Override

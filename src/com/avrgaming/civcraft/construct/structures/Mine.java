@@ -1,25 +1,9 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import org.bukkit.inventory.Inventory;
-
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
-import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -28,21 +12,18 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.MultiInventory;
+import org.bukkit.inventory.Inventory;
+
+import java.util.ArrayList;
 
 public class Mine extends Structure {
 
-	private ConsumeLevelComponent consumeComp = null;
-
-	public Mine(String id, Town town) throws CivException {
+	public Mine(String id, Town town) {
 		super(id, town);
 	}
 
-	public Mine(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
 	public String getkey() {
-		return getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
+		return getTownOwner().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}
 
 	@Override
@@ -53,11 +34,6 @@ public class Mine extends Structure {
 	@Override
 	public String getMarkerIconName() {
 		return "hammer";
-	}
-
-	public ConsumeLevelComponent getConsumeComponent() {
-		if (consumeComp == null) consumeComp = (ConsumeLevelComponent) this.getComponent("ConsumeLevelComponent");
-		return consumeComp;
 	}
 
 	public Result consume(CivAsyncTask task) throws InterruptedException {
@@ -83,34 +59,34 @@ public class Mine extends Structure {
 			getConsumeComponent().onSave();
 			return result;
 		} catch (IllegalStateException e) {
-			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTown().getName() + " and Location: " + this.getCorner(), e);
+			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTownOwner().getName() + " and Location: " + this.getCorner(), e);
 			return Result.STAGNATE;
 		}
 	}
 
 	@Override
 	public void onCivtickUpdate(CivAsyncTask task) {
-		Result result = null;
+		Result result;
 		try {
 			result = this.consume(task);
 			switch (result) {
 			case STARVE:
-				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_productionFell", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
+				CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_productionFell", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
 				break;
 			case LEVELDOWN:
-				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_lostalvl", getConsumeComponent().getLevel()));
+				CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_lostalvl", getConsumeComponent().getLevel()));
 				break;
 			case STAGNATE:
-				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_stagnated", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
+				CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_mine_stagnated", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
 				break;
 			case GROW:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_productionGrew", getConsumeComponent().getLevel(), getConsumeComponent().getCountString()));
+				CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_productionGrew", getConsumeComponent().getLevel(), getConsumeComponent().getCountString()));
 				break;
 			case LEVELUP:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_lvlUp", getConsumeComponent().getLevel()));
+				CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_lvlUp", getConsumeComponent().getLevel()));
 				break;
 			case MAXED:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_maxed", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
+				CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_mine_maxed", getConsumeComponent().getLevel(), CivColor.LightGreen + getConsumeComponent().getCountString()));
 				break;
 			default:
 				break;
@@ -136,7 +112,7 @@ public class Mine extends Structure {
 		if (attrBiome != null) base = attrBiome.getBaseValue();
 
 		double rate = 1;
-		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
+		rate += this.getTownOwner().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
 		return (rate * base);
 	}
 

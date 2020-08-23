@@ -83,18 +83,6 @@ materials:
           ingredients:
               - ingred_id: '4:0'
                 count: 9
-          # ingredients:
-              # - ingred_id: '1
-                # data: 1
-                # count: 9
-          # ingredients:
-              # - ingred_id: '1
-                # data: 3
-                # count: 9
-          # ingredients:
-              # - ingred_id: '1
-                # data: 5
-                # count: 9
 
         - id: 'mat_refined_feathers'
           item_id: '406:0'

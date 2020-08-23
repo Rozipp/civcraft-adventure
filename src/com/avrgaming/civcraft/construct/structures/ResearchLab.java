@@ -1,22 +1,15 @@
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 
 public class ResearchLab extends Structure {
 	
-	public ResearchLab(String id, Town town) throws CivException {
+	public ResearchLab(String id, Town town) {
 		super(id, town);
 	}
 
-	public ResearchLab(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-	
 	@Override
 	public String getMarkerIconName() {
 		return "warning";
@@ -41,16 +34,16 @@ public class ResearchLab extends Structure {
 	}
 	
 	protected void removeBuffs() {
-		this.removeBuffFromTown(this.getTown(), "buff_profit_sharing");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_profit_sharing");
 	}
 
 	protected void addBuffs() {
-		this.addBuffToTown(this.getTown(), "buff_profit_sharing");
+		this.addBuffToTown(this.getTownOwner(), "buff_profit_sharing");
 	}
 	
 	protected void addBuffToTown(Town town, String id) {
 		try {
-			town.getBuffManager().addBuff(id, id, this.getDisplayName()+" in "+this.getTown().getName());
+			town.getBuffManager().addBuff(id, id, this.getDisplayName()+" in "+this.getTownOwner().getName());
 		} catch (CivException e) {
 			e.printStackTrace();
 		}

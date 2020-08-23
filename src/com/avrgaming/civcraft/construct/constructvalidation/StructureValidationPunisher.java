@@ -18,7 +18,7 @@ public class StructureValidationPunisher implements Runnable {
 		Iterator<Entry<BlockCoord, Structure>> structIter = CivGlobal.getStructureIterator();
 		while (structIter.hasNext()) {
 			Structure struct = structIter.next().getValue();
-			if (struct.getCiv().isAdminCiv()) {
+			if (struct.getCivOwner().isAdminCiv()) {
 				continue;
 			}
 		

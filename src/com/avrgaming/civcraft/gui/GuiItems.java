@@ -1,22 +1,15 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.gui;
 
 import java.lang.reflect.Constructor;
 
+import gpl.AttributeUtil;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.util.ItemManager;
 
 public class GuiItems {
-	public static final int MAX_INV_SIZE = 54;
 	public static final int INV_ROW_COUNT = 9;
 
 	public static GuiItem newGuiItem(ItemStack stack) {
@@ -25,6 +18,32 @@ public class GuiItems {
 
 	public static GuiItem newGuiItem() {
 		return new GuiItem();
+	}
+
+	public static ItemStack addGui(ItemStack stack, String name) {
+		return ItemManager.setProperty(stack, "GUI", name);
+	}
+	public static ItemStack addGuiAction(ItemStack stack, String action) {
+		return ItemManager.setProperty(stack, "GUI_ACTION", action);
+	}
+
+	public static ItemStack addGuiAtributes(ItemStack stack, String name,  String action) {
+		AttributeUtil attrs = new AttributeUtil(stack);
+		attrs.setCivCraftProperty("GUI", name);
+		attrs.addLore("GUI:" + name);
+		if (action!= null) {
+			attrs.setCivCraftProperty("GUI_ACTION", action);
+			attrs.addLore("GUI_ACTION:" + action);
+		}
+
+		return attrs.getStack();
+	}
+
+	public static ItemStack removeGuiAtributes(ItemStack stack) {
+		AttributeUtil attrs = new AttributeUtil(stack);
+		attrs.removeCivCraftProperty("GUI");
+		attrs.removeCivCraftProperty("GUI_ACTION");
+		return attrs.getStack();
 	}
 
 	public static boolean isGUIItem(ItemStack stack) {
@@ -39,13 +58,13 @@ public class GuiItems {
 		return ItemManager.getProperty(stack, "GUI_ACTION_DATA:" + key);
 	}
 
-	public static void processAction(String action, ItemStack stack, InventoryClickEvent event) {
+	public static void processAction(String action, ItemStack stack, Player player) {
 		/* Get class name from reflection and perform assigned action */
 		try {
 			Class<?> clazz = Class.forName("com.avrgaming.civcraft.gui.action." + action);
 			Constructor<?> constructor = clazz.getConstructor();
 			GuiItemAction instance = (GuiItemAction) constructor.newInstance();
-			instance.performAction(event, stack);
+			instance.performAction(player, stack);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

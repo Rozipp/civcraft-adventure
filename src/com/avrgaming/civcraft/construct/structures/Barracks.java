@@ -1,20 +1,5 @@
-/************************************************************************* AVRGAMING LLC __________________
- *
- * [2013] AVRGAMING LLC All Rights Reserved.
- *
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
@@ -31,15 +16,16 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class Barracks extends Structure {
 
-	public Barracks(String id, Town town) throws CivException {
+	public Barracks(String id, Town town) {
 		super(id, town);
-	}
-
-	public Barracks(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -51,10 +37,8 @@ public class Barracks extends Structure {
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
 		Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
-		switch (sign.getAction()) {
-		case "repair_item":
+		if (sign.getAction().equals("repair_item")) {
 			repairItem(player, resident, event);
-			break;
 		}
 	}
 
@@ -82,7 +66,6 @@ public class Barracks extends Structure {
 				InteractiveRepairItem repairItem = new InteractiveRepairItem(totalCost, player.getName(), craftMat);
 				repairItem.displayMessage();
 				resident.setInteractiveMode(repairItem);
-				return;
 			} catch (InvalidConfiguration e) {
 				e.printStackTrace();
 				throw new CivException(CivSettings.localize.localizedString("internalException"));
@@ -119,8 +102,7 @@ public class Barracks extends Structure {
 	@Override
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
 		ConstructSign structSign;
-		switch (sb.command) {
-		case "/repair":
+		if (sb.command.equals("/repair")) {
 			ItemManager.setTypeId(absCoord.getBlock(), sb.getType());
 			ItemManager.setData(absCoord.getBlock(), sb.getData());
 			structSign = new ConstructSign(absCoord, this);
@@ -129,8 +111,6 @@ public class Barracks extends Structure {
 			structSign.setAction("repair_item");
 			structSign.update();
 			this.addConstructSign(structSign);
-			break;
-
 		}
 	}
 }

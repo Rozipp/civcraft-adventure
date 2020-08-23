@@ -1,30 +1,4 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.components.ProjectileCannonComponent;
 import com.avrgaming.civcraft.config.CivSettings;
@@ -34,18 +8,19 @@ import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class CannonTower extends Structure {
 
 	ProjectileCannonComponent cannonComponent;
 	Set<BlockCoord> turretLocation = new HashSet<>();
 
-	public CannonTower(String id, Town town) throws CivException {
+	public CannonTower(String id, Town town) {
 		super(id, town);
-	}
-
-	public CannonTower(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -55,23 +30,21 @@ public class CannonTower extends Structure {
 
 	public int getDamage() {
 		double rate = 1;
-		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
+		rate += this.getTownOwner().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
 		return (int) (cannonComponent.getDamage() * rate);
 	}
 
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
-		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_barricade")) rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_barricade");
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
 
 	public void commandBlockRelatives(BlockCoord absCoord, SimpleBlock sb) {
-		switch (sb.command) {
-		case "/towerfire":
+		if ("/towerfire".equals(sb.command)) {
 			turretLocation.add(absCoord);
-			break;
 		}
 	}
 
@@ -81,7 +54,7 @@ public class CannonTower extends Structure {
 		try {
 			double build_distanceSqr = Math.pow(CivSettings.getDouble(CivSettings.warConfig, "cannon_tower.build_distance"), 2);
 
-			for (Town town : this.getTown().getCiv().getTowns()) {
+			for (Town town : this.getTownOwner().getCiv().getTowns()) {
 				for (Structure struct : town.BM.getStructures()) {
 					if (struct instanceof CannonTower) {
 						Location center = struct.getCenterLocation();

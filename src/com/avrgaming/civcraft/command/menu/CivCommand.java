@@ -63,6 +63,7 @@ public class CivCommand extends MenuAbstractCommand {
 	public CivCommand(String perentComman) {
 		super(perentComman);
 		displayName = CivSettings.localize.localizedString("cmd_civ_name");
+		this.setAliases("c");
 
 		add(new CustomCommand("townlist").withDescription(CivSettings.localize.localizedString("cmd_civ_townlistDesc")).withValidator(Validators.validHasTown).withExecutor(new CustomExecutor() {
 			@Override

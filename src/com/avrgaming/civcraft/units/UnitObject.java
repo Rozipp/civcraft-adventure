@@ -261,7 +261,7 @@ public class UnitObject extends SQLObject {
 	}
 
 	// --------------------
-	public void used(Resident res, ItemStack is) {
+	public void used(Resident res) {
 		this.lastResident = res;
 		this.lastActivate = System.currentTimeMillis();
 		save();

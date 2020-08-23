@@ -1,46 +1,19 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.TreeMap;
-
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
 
+import java.util.TreeMap;
+
 public class TheGreatPyramid extends Wonder {
 
-	
-	public TheGreatPyramid(String id, Town town)
-			throws CivException {
+	public TheGreatPyramid(String id, Town town) {
 		super(id, town);
 	}
 
-	public TheGreatPyramid(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
 	private Civilization calculateNearestCivilization() {
-		TreeMap<Double, Civilization> civMaps = CivGlobal.findNearestCivilizations(this.getTown());
+		TreeMap<Double, Civilization> civMaps = CivGlobal.findNearestCivilizations(this.getTownOwner());
 		Civilization nearestCiv = null;
 		if (civMaps.size() > 0) {
 			nearestCiv = civMaps.firstEntry().getValue();
@@ -50,10 +23,10 @@ public class TheGreatPyramid extends Wonder {
 	
 	@Override
 	protected void addBuffs() {
-		addBuffToTown(this.getTown(), "buff_pyramid_cottage_consume");
-		addBuffToTown(this.getTown(), "buff_pyramid_cottage_bonus");
-		addBuffToCiv(this.getCiv(), "buff_pyramid_culture");
-		addBuffToTown(this.getTown(), "buff_pyramid_leech");
+		addBuffToTown(this.getTownOwner(), "buff_pyramid_cottage_consume");
+		addBuffToTown(this.getTownOwner(), "buff_pyramid_cottage_bonus");
+		addBuffToCiv(this.getCivOwner(), "buff_pyramid_culture");
+		addBuffToTown(this.getTownOwner(), "buff_pyramid_leech");
 		Civilization nearest = calculateNearestCivilization();
 		if (nearest != null) {
 			addBuffToCiv(nearest, "debuff_pyramid_leech");
@@ -62,10 +35,10 @@ public class TheGreatPyramid extends Wonder {
 	
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromTown(this.getTown(), "buff_pyramid_cottage_consume");
-		removeBuffFromTown(this.getTown(), "buff_pyramid_cottage_bonus");
-		removeBuffFromCiv(this.getCiv(), "buff_pyramid_culture");
-		removeBuffFromTown(this.getTown(), "buff_pyramid_leech");
+		removeBuffFromTown(this.getTownOwner(), "buff_pyramid_cottage_consume");
+		removeBuffFromTown(this.getTownOwner(), "buff_pyramid_cottage_bonus");
+		removeBuffFromCiv(this.getCivOwner(), "buff_pyramid_culture");
+		removeBuffFromTown(this.getTownOwner(), "buff_pyramid_leech");
 		Civilization nearest = calculateNearestCivilization();
 		if (nearest != null) {
 			removeBuffFromCiv(nearest, "debuff_pyramid_leech");

@@ -84,13 +84,13 @@ public class FarmChunk {
 	}
 
 	public String getNameOwner() {
-		if (construct.getTown() != null) return construct.getTown().getName();
+		if (construct.getTownOwner() != null) return construct.getTownOwner().getName();
 		if (construct instanceof Camp) return "Camp " + construct.getName();
 		return construct.getName();
 	}
 
 	public double getGrowth() {
-		if (construct.getTown() != null) return construct.getTown().SM.getAttr(StorageType.GROWTH).total;
+		if (construct.getTownOwner() != null) return construct.getTownOwner().SM.getAttr(StorageType.GROWTH).total;
 		if (construct instanceof Camp) return Camp.growthCampTotal;
 		return 1.0;
 	}

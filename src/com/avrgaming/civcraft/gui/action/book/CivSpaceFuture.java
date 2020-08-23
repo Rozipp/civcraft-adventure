@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.gui.action.book;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -24,8 +23,7 @@ public class CivSpaceFuture implements GuiItemAction {
 	public static GuiInventory guiInventory;
 
 	@Override
-	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player) event.getWhoClicked();
+	public void performAction(Player player, ItemStack stack) {
 		try {
 			Resident interactor = CivGlobal.getResident(player);
 			Civilization civ = interactor.getCiv();

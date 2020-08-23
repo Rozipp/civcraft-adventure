@@ -22,7 +22,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import com.avrgaming.civcraft.construct.Buildable;
+import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 
 import lombok.Getter;
@@ -30,41 +32,35 @@ import lombok.Getter;
 @Getter
 public class NonMemberFeeComponent extends Component {
 
-	private Buildable buildable;
 	private double feeRate = 0.05;
 	
-	public NonMemberFeeComponent(Buildable buildable) {
-		this.buildable = buildable;
-	}
-	
-	
 	private String getKey() {
-		return buildable.getDisplayName()+":"+buildable.getId()+":"+"fee";
+		return getConstruct().getDisplayName()+":"+getConstruct().getId()+":"+"fee";
 	}
 	
 	@Override
 	public void onLoad() {
+		CivLog.debug("onLoad component " + this.typeName);
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 		
 		if (entries.size() == 0) {
-			buildable.sessionAdd(getKey(), ""+feeRate);
+			getConstruct().sessionAdd(getKey(), ""+feeRate);
 			return;
 		}
 		
 		feeRate = Double.valueOf(entries.get(0).value);
-		
 	}
 
 	@Override
 	public void onSave() {
-		
+		CivLog.debug("onSave component " + this.typeName);
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getKey());
 		
 		if (entries.size() == 0) {
-			buildable.sessionAdd(getKey(), ""+feeRate);
+			getConstruct().sessionAdd(getKey(), ""+feeRate);
 			return;
 		}
-		CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), ""+feeRate);		
+		CivGlobal.getSessionDatabase().update(entries.get(0).request_id, getKey(), ""+feeRate);
 	}
 
 

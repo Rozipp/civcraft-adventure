@@ -1,36 +1,5 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
-import java.util.HashMap;
-import java.util.List;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Result;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
@@ -41,311 +10,252 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.threading.tasks.DelayMoveInventoryItem;
 import com.avrgaming.civcraft.util.CivColor;
 import gpl.AttributeUtil;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event.Result;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
-/** Клас предметов которые выступают в качестве юнитов */
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Клас предметов которые выступают в качестве юнитов
+ */
 public abstract class UnitMaterial extends CustomMaterial implements CooldownFinisher {
 
-	private ConfigUnit configUnit = null;
-	public static final int LAST_SLOT = 8;
-	public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
+    public static final int LAST_SLOT = 8;
+    public static HashMap<String, UnitMaterial> unitMaterials = new HashMap<>();
+    private ConfigUnit configUnit = null;
 
-	// =============== init Unit
-	public abstract void initLore(AttributeUtil attrs, UnitObject uo);
+    public UnitMaterial(String id, ConfigUnit configUnit) {
+        super(id, configUnit.item_id, (short) configUnit.item_data);
+        this.configUnit = configUnit;
+        this.setName(configUnit.name);
+        unitMaterials.put(this.getId(), this);
+    }
 
-	public abstract void initUnitObject(UnitObject uo);
+    // =============== init Unit
+    public abstract void initLore(AttributeUtil attrs, UnitObject uo);
 
-	public UnitMaterial(String id, ConfigUnit configUnit) {
-		super(id, configUnit.item_id, (short) configUnit.item_data);
-		this.configUnit = configUnit;
-		this.setName(configUnit.name);
-		unitMaterials.put(this.getId(), this);
-	}
+    public abstract void initUnitObject(UnitObject uo);
 
-	public ConfigUnit getConfigUnit() {
-		return configUnit;
-	}
+    public ConfigUnit getConfigUnit() {
+        return configUnit;
+    }
 
-	// ============== extends CustomMaterial @Override
+    // ============== extends CustomMaterial @Override
 
-	@Override
-	public void onBlockBreak(BlockBreakEvent event) {
-	}
+    @Override
+    public void onBlockPlaced(BlockPlaceEvent event) {
+        event.setCancelled(true);
+        CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("unitMaterial_cannotPlace"));
+    }
 
-	@Override
-	public void onBlockDamage(BlockDamageEvent event) {
-	}
+    @Override
+    public void onHit(EntityDamageByEntityEvent event) {
+    }
 
-	@Override
-	public void onBlockInteract(PlayerInteractEvent event) {
-	}
+    @Override
+    public void onHeld(PlayerItemHeldEvent event) {
+    }
 
-	@Override
-	public void onBlockPlaced(BlockPlaceEvent event) {
-		event.setCancelled(true);
-		CivMessage.sendError(event.getPlayer(), CivSettings.localize.localizedString("unitMaterial_cannotPlace"));
-	}
+    @Override
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+    }
 
-	@Override
-	public void onHit(EntityDamageByEntityEvent event) {
-	}
+    @Override
+    public void onCraftItem(CraftItemEvent event) {
+        CivMessage.sendError(event.getWhoClicked(), CivSettings.localize.localizedString("unitItem_cannotCraft"));
+        event.setCancelled(true);
+    }
 
-	@Override
-	public void onHold(PlayerItemHeldEvent event) {
-	}
+    @Override
+    public void finishCooldown(Player player, ItemStack stack) {
+        Resident resident = CivGlobal.getResident(player);
+        UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+        if (resident.isUnitActive()) {
+            // Деактивация юнита
+            resident.setUnitObjectId(0);
+            UnitStatic.removeChildrenItems(player);
+            CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
 
-	@Override
-	public void onInteractEntity(PlayerInteractEntityEvent event) {
-	}
+            uo.used(resident);
+        } else {
+            // Активация юнита
+            uo.used(resident);
+            resident.setUnitObjectId(uo.getId());
+            uo.dressAmmunitions(player);
+            CivMessage.send(player, CivColor.LightGreenBold + "Юнит активирован ");
+        }
 
-	@Override
-	public void onCraftItem(CraftItemEvent event) {
-		CivMessage.sendError(event.getWhoClicked(), CivSettings.localize.localizedString("unitItem_cannotCraft"));
-		event.setCancelled(true);
-	}
+        UnitStatic.updateUnitForPlaeyr(player);
+        resident.calculateWalkingModifier(player);
+        UnitStatic.setModifiedMovementSpeed(player);
+        UnitStatic.setModifiedJumping(player);
+    }
 
-	@Override
-	public void finishCooldown(Player player, ItemStack stack) {
-		Resident resident = CivGlobal.getResident(player);
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-		if (resident.isUnitActive()) {
-			// Деактивация юнита
-			resident.setUnitObjectId(0);
-			UnitStatic.removeChildrenItems(player);
-			CivMessage.send(player, CivColor.LightGreenBold + "Юнит деактивирован");
+    @Override
+    public void onInteract(PlayerInteractEvent event) {
+        event.setCancelled(true);
+        event.setUseInteractedBlock(Result.DENY);
+        event.setUseItemInHand(Result.DENY);
+        Player player = event.getPlayer();
+        ItemStack stack = event.getItem();
+        // Cooldown cooldown = Cooldown.getCooldown(stack);
+        // if (cooldown != null) {
+        // CivMessage.sendError(player, "Подождите " + cooldown.getTime() + " секунд");
+        // return;
+        // }
+        UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+        if (uo == null) {
+            CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
+            return;
+        }
+        try {
+            uo.validateUnitUse(player);
+            uo.validLastActivate();
+        } catch (CivException e) {
+            uo.setLastActivate(0);
+            UnitStatic.removeUnit(player, uo.getConfigUnitId());
+            CivMessage.send(player, e.getMessage());
+            return;
+        }
 
-			uo.used(resident, stack);
-		} else {
-			// Активация юнита
-			uo.used(resident, stack);
-			resident.setUnitObjectId(uo.getId());
-			uo.dressAmmunitions(player);
-			CivMessage.send(player, CivColor.LightGreenBold + "Юнит активирован ");
-		}
+        // Cooldown.startCooldown(player, stack, 5, this);
+        finishCooldown(player, stack);
+    }
 
-		UnitStatic.updateUnitForPlaeyr(player);
-		resident.calculateWalkingModifier(player);
-		UnitStatic.setModifiedMovementSpeed(player);
-		UnitStatic.setModifiedJumping(player);
-	}
+    @Override
+    public boolean onDropItem(Player player, ItemStack stack) {
+        CivMessage.sendError(player, "Этот предмет нельзя выбросить");
+        return true;
+    }
 
-	@Override
-	public void onInteract(PlayerInteractEvent event) {
-		event.setCancelled(true);
-		event.setUseInteractedBlock(Result.DENY);
-		event.setUseItemInHand(Result.DENY);
-		Player player = event.getPlayer();
-		ItemStack stack = event.getItem();
-		// Cooldown cooldown = Cooldown.getCooldown(stack);
-		// if (cooldown != null) {
-		// CivMessage.sendError(player, "Подождите " + cooldown.getTime() + " секунд");
-		// return;
-		// }
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-		if (uo == null) {
-			CivMessage.send(player, "Юнит не найден. Можно спокойно выбросить этото предмет на мусорку");
-			return;
-		}
-		try {
-			uo.validateUnitUse(player);
-			uo.validLastActivate();
-		} catch (CivException e) {
-			uo.setLastActivate(0);
-			UnitStatic.removeUnit(player, uo.getConfigUnitId());
-			CivMessage.send(player, e.getMessage());
-			return;
-		}
+    @Override
+    public void onPickupItem(EntityPickupItemEvent event) {
+        // поднятие с земли предмета
+        // if (event.getEntity() instanceof Player) {
+        // Player player = (Player) event.getEntity();
+        // Resident res = CivGlobal.getResident(player);
+        // if (res.isUnitActive()) {
+        // CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", this.getConfigUnit().name));
+        // event.setCancelled(true);
+        // player.updateInventory();
+        // return;
+        // }
+        // ItemStack stack = event.getItem().getItemStack();
+        // UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
+        // if (uo == null) {
+        // CivMessage.sendErrorNoRepeat(player, "Юнит не найден.");
+        // event.setCancelled(true);
+        // player.updateInventory();
+        // return;
+        // }
+        // try {
+        // uo.validateUnitUse(player);
+        // } catch (Exception e) {
+        // CivMessage.sendErrorNoRepeat(player, e.getMessage());
+        // event.setCancelled(true);
+        // player.updateInventory();
+        // return;
+        // }
+        // // Prevent dropping in two unit materials.
+        // // Если у игрока уже есть юнит в инвентаре, то нового не ложим
+        // List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
+        // if (slots.size() != 0) {
+        // CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
+        // event.setCancelled(true);
+        // player.getInventory().remove(stack);
+        // player.getWorld().dropItem(player.getLocation().add(player.getLocation().getDirection().multiply(2)), stack);
+        // player.updateInventory();
+        // return;
+        // } else {
+        // DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
+        // return;
+        // }
+        // } else {
+        event.setCancelled(true);
+        // }
+    }
 
-		// Cooldown.startCooldown(player, stack, 5, this);
-		finishCooldown(player, stack);
-	}
+    @Override
+    public boolean onInvItemPickup(Cancellable event, Player player, Inventory fromInv, ItemStack stack) {
+        // Забераем предмет из инвентаря
+        if (fromInv.getHolder() instanceof Player) {
+            if (CivGlobal.getResident(player).isUnitActive()) {
+                CivMessage.sendError(player, "сперва нужно отключить юнита");
+                return true;
+            }
+        }
+        CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack)).used(CivGlobal.getResident(player));
+        return false;
+    }
 
-	@Override
-	public void onDropItem(PlayerDropItemEvent event) {
-		Player player = (Player) event.getPlayer();
-		CivMessage.sendError(player, "Этот предмет нельзя выбросить");
-		event.setCancelled(true);
-		player.updateInventory();
-		return;
-	}
+    @Override
+    public boolean onInvItemDrop(Cancellable event, Player player, Inventory toInv, ItemStack stack) {
+        // Ложим предмет в инвентарь
+        if (!this.isCanUseInventoryTypes(toInv)) {
+            CivMessage.sendError(player, "Нельзя использовать этот предмет в инвентаре " + toInv.getType());
+            return true;
+        }
+        if (toInv.getType() == InventoryType.PLAYER) {
+            List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
+            if (slots.size() > 0) {
+                if (!toInv.getItem(slots.get(0)).equals(stack)) {
+                    CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
+                    return true;
+                }
+            }
+            DelayMoveInventoryItem.beginTaskSwap(event, player, stack, LAST_SLOT);
+        }
+        CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack)).used(CivGlobal.getResident(player));
+        return false;
+    }
 
-	@Override
-	public void onPickupItem(EntityPickupItemEvent event) {
-		// поднятие с земли предмета
-		// if (event.getEntity() instanceof Player) {
-		// Player player = (Player) event.getEntity();
-		// Resident res = CivGlobal.getResident(player);
-		// if (res.isUnitActive()) {
-		// CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave", this.getConfigUnit().name));
-		// event.setCancelled(true);
-		// player.updateInventory();
-		// return;
-		// }
-		// ItemStack stack = event.getItem().getItemStack();
-		// UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-		// if (uo == null) {
-		// CivMessage.sendErrorNoRepeat(player, "Юнит не найден.");
-		// event.setCancelled(true);
-		// player.updateInventory();
-		// return;
-		// }
-		// try {
-		// uo.validateUnitUse(player);
-		// } catch (Exception e) {
-		// CivMessage.sendErrorNoRepeat(player, e.getMessage());
-		// event.setCancelled(true);
-		// player.updateInventory();
-		// return;
-		// }
-		// // Prevent dropping in two unit materials.
-		// // Если у игрока уже есть юнит в инвентаре, то нового не ложим
-		// List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
-		// if (slots.size() != 0) {
-		// CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
-		// event.setCancelled(true);
-		// player.getInventory().remove(stack);
-		// player.getWorld().dropItem(player.getLocation().add(player.getLocation().getDirection().multiply(2)), stack);
-		// player.updateInventory();
-		// return;
-		// } else {
-		// DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
-		// return;
-		// }
-		// } else {
-		event.setCancelled(true);
-		// }
-	}
+    @Override
+    public void onItemSpawn(ItemSpawnEvent event) {
+    }
 
-	@Override
-	public void onInvItemDrop(InventoryClickEvent event, Inventory toInv, ItemStack stack) {
-		// Ложим предмет в инвентарь
-		if (!(event.getWhoClicked() instanceof Player)) {
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			return;
-		}
-		Player player = (Player) event.getWhoClicked();
-		if (!this.isCanUseInventoryTypes(toInv)) {
-			CivMessage.sendError(player, "Нельзя использовать этот предмет в инвентаре " + toInv.getType());
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			player.updateInventory();
-			return;
-		}
-		if (toInv.getType() == InventoryType.PLAYER) {
-			List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
-			if (slots.size() != 0) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
-				event.setCancelled(true);
-				// player.getInventory().remove(stack);
-				// player.getWorld().dropItem(player.getLocation().add(player.getLocation().getDirection().multiply(2)), stack);
-				player.updateInventory();
-				return;
-			} else {
-				if (event.getSlot() != LAST_SLOT) DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
-				onItemToPlayer(player, stack);
-			}
-		}
-	}
+    @Override
+    public boolean onAttack(EntityDamageByEntityEvent event, ItemStack stack) {
+        return false;
+    }
 
-	public void onInvItemDrag(InventoryDragEvent event, Inventory toInv, ItemStack stack) {
-		// Протягиванием юнитов вообще не используем
-		if (event.isCancelled()) return;
-		if (event.getRawSlots().size() != 1) {
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			return;
-		}
-		if (!(event.getWhoClicked() instanceof Player)) {
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			return;
-		}
-		Player player = (Player) event.getWhoClicked();
-		if (!this.isCanUseInventoryTypes(toInv)) {
-			CivMessage.sendError(player, "Нельзя использовать этот предмет в инвентаре " + toInv.getType());
-			event.setCancelled(true);
-			event.setResult(Result.DENY);
-			player.updateInventory();
-			return;
-		}
-		if (toInv.getType() == InventoryType.PLAYER) {
-			List<Integer> slots = UnitStatic.findAllUnits(player.getInventory());
-			if (slots.size() != 0) {
-				CivMessage.sendError(player, CivSettings.localize.localizedString("var_unitMaterial_errorHave"));
-				event.setCancelled(true);
-				// player.getInventory().remove(stack);
-				// player.getWorld().dropItem(player.getLocation().add(player.getLocation().getDirection().multiply(2)), stack);
-				player.updateInventory();
-				return;
-			} else {
-				DelayMoveInventoryItem.beginTask(player, stack, LAST_SLOT);
-				onItemToPlayer(player, stack);
-			}
-		}
-	}
+    @Override
+    public void onPlayerDeath(EntityDeathEvent event, ItemStack stack) {
+    }
 
-	@Override
-	public void onInvItemPickup(InventoryClickEvent event, Inventory fromInv, ItemStack stack) {
-		// Забераем предмет из инвентаря
-		if (event.isCancelled()) return;
+    @Override
+    public boolean isCanUseInventoryTypes(Inventory inv) {
+        switch (inv.getType()) {
+            case CHEST:
+            case ENDER_CHEST:
+            case PLAYER:
+                return true;
+            default:
+                return false;
+        }
+    }
 
-		if (fromInv.getHolder() instanceof Player) {
-			Player player = (Player) fromInv.getHolder();
-			if (CivGlobal.getResident(player).isUnitActive()) {
-				CivMessage.sendError(player, "сперва нужно отключить юнита");
-				event.setCancelled(true);
-				event.setResult(Result.DENY);
-				player.updateInventory();
-				return;
-			}
-			onItemFromPlayer(player, stack);
-		}
-	}
+    @Override
+    public void onInventoryClose(InventoryCloseEvent event) {
+    }
 
-	@Override
-	public void onItemSpawn(ItemSpawnEvent event) {
-	}
-
-	@Override
-	public boolean onAttack(EntityDamageByEntityEvent event, ItemStack stack) {
-		return false;
-	}
-
-	@Override
-	public void onPlayerDeath(EntityDeathEvent event, ItemStack stack) {
-	}
-
-	@Override
-	public boolean isCanUseInventoryTypes(Inventory inv) {
-		CivLog.debug("inv.getType() = " + inv.getType());
-		switch (inv.getType()) {
-		case CHEST:
-		case ENDER_CHEST:
-		case PLAYER:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	@Override
-	public void onInventoryClose(InventoryCloseEvent event) {
-	}
-
-	/* Called when a unit material is added to a player. */
-	public void onItemToPlayer(Player player, ItemStack stack) {
-		UnitObject uo = CivGlobal.getUnitObject(UnitStatic.getUnitIdNBTTag(stack));
-		uo.used(CivGlobal.getResident(player), stack);
-		CivLog.debug("onItemToPlayer");
-	}
-
-	/* Called when a unit material is removed from a player. */
-	public void onItemFromPlayer(Player player, ItemStack stack) {
-	}
-
-	public String getTirToString(String mid) {
-		int tir = 0;
-		if (mid != null && !mid.isEmpty()) tir = CivSettings.craftableMaterials.get(mid).tier;
-		return CivColor.Green + ((tir != 0) ? "T" + tir : "--");
-	}
+    public String getTirToString(String mid) {
+        int tir = 0;
+        if (mid != null && !mid.isEmpty()) tir = CivSettings.craftableMaterials.get(mid).tier;
+        return CivColor.Green + ((tir != 0) ? "T" + tir : "--");
+    }
 }

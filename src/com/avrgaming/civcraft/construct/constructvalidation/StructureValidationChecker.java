@@ -1,14 +1,13 @@
 package com.avrgaming.civcraft.construct.constructvalidation;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.war.War;
+
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class StructureValidationChecker implements Runnable {
 
@@ -26,12 +25,8 @@ public class StructureValidationChecker implements Runnable {
 			if (!struct.isActive()) continue;
 			if (struct.isIgnoreFloating()) continue;
 
-			try {
 				CivLog.warning("Doing a structure validate... " + struct.getDisplayName());
 				struct.validateAsyncTask(null);
-			} catch (CivException e) {
-				e.printStackTrace();
-			}
 
 			synchronized (this) {
 				try {

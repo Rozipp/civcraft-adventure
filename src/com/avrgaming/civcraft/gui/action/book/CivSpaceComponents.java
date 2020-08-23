@@ -2,7 +2,6 @@
 package com.avrgaming.civcraft.gui.action.book;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigSpaceRocket;
@@ -16,8 +15,7 @@ import com.avrgaming.civcraft.util.ItemManager;
 
 public class CivSpaceComponents implements GuiItemAction {
 	@Override
-	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player) event.getWhoClicked();
+	public void performAction(Player player, ItemStack stack) {
 		try {
 			GuiInventory guiInventory = new GuiInventory(player, null, null)//
 					.setRow(1)//

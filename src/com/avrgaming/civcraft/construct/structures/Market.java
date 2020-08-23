@@ -1,34 +1,4 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMarketItem;
@@ -43,21 +13,26 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Market extends Structure {
 
-	public HashMap<Integer, LinkedList<ConstructSign>> signIndex = new HashMap<Integer, LinkedList<ConstructSign>>();
+	public HashMap<Integer, LinkedList<ConstructSign>> signIndex = new HashMap<>();
 	
 	public static int BULK_AMOUNT = 64;
 		
-	public Market(String id, Town town) throws CivException {
+	public Market(String id, Town town) {
 		super(id, town);
 	}
 
-	public Market(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-	
 	@Override
 	public void delete() {
 		super.delete();
@@ -79,7 +54,6 @@ public class Market extends Structure {
 					market.setSignText(sign, item);
 					} catch (ClassCastException e) {
 						CivLog.error("Can't cast structure sign to sign for market update. "+sign.getCoord().getX()+" "+sign.getCoord().getY()+" "+sign.getCoord().getZ());
-						continue;
 					}
 				}
 			}
@@ -97,7 +71,7 @@ public class Market extends Structure {
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
 		
-		Integer id = Integer.valueOf(sign.getType());
+		int id = Integer.parseInt(sign.getType());
 		ConfigMarketItem item = CivSettings.marketItems.get(id);
 		Resident resident = CivGlobal.getResident(player);
 
@@ -213,7 +187,7 @@ public class Market extends Structure {
 		
 		LinkedList<ConstructSign> signs = this.signIndex.get(id);
 		if (signs == null) {
-			signs = new LinkedList<ConstructSign>();
+			signs = new LinkedList<>();
 		}
 	
 		signs.add(structSign);

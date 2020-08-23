@@ -1,31 +1,23 @@
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 
 public class Colosseum extends Wonder {
 
-	public Colosseum(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public Colosseum(String id, Town town) throws CivException {
+	public Colosseum(String id, Town town) {
 		super(id, town);
 	}
 
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromCiv(this.getCiv(), "buff_colosseum_happiness_to_towns");
-		removeBuffFromTown(this.getTown(), "buff_colosseum_happiness_for_town");
+		removeBuffFromCiv(this.getCivOwner(), "buff_colosseum_happiness_to_towns");
+		removeBuffFromTown(this.getTownOwner(), "buff_colosseum_happiness_for_town");
 	}
 
 	@Override
 	protected void addBuffs() {
-		addBuffToCiv(this.getCiv(), "buff_colosseum_happiness_to_towns");
-		addBuffToTown(this.getTown(), "buff_colosseum_happiness_for_town");
+		addBuffToCiv(this.getCivOwner(), "buff_colosseum_happiness_to_towns");
+		addBuffToTown(this.getTownOwner(), "buff_colosseum_happiness_for_town");
 	}
 	
 	@Override

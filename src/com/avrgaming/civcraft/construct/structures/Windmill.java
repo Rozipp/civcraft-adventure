@@ -1,21 +1,4 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Random;
-
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
@@ -32,6 +15,12 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Windmill extends Structure {
 
@@ -39,42 +28,34 @@ public class Windmill extends Structure {
 		WHEAT, CARROTS, POTATOES
 	}
 
-	public Windmill(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public Windmill(String id, Town town) throws CivException {
+	public Windmill(String id, Town town) {
 		super(id, town);
 	}
 
 	@Override
 	public void onCivtickUpdate(CivAsyncTask task) {
-		Windmill windmill = this;
 		/* Fire a sync task to perform this. */
-		TaskMaster.syncTask(new Runnable() {
-			@Override
-			public void run() {
-				/* Find adjacent farms, get their chunk snapshots and continue processing in our thread. */
-				ChunkCoord ccB = new ChunkCoord(windmill.getCorner());
-				ArrayList<ChunkSnapshot> snapshots = new ArrayList<ChunkSnapshot>();
+		TaskMaster.syncTask(() -> {
+			/* Find adjacent farms, get their chunk snapshots and continue processing in our thread. */
+			ChunkCoord ccB = new ChunkCoord(this.getCorner());
+			ArrayList<ChunkSnapshot> snapshots = new ArrayList<>();
 
-				int[][] move = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 1 }, { -1, -1 }, { -1, 1 }, { 1, -1 } };
-				for (int i = 0; i < 8; i++) {
-					ChunkCoord cc = ccB.getRelative(move[i][0], move[i][1]);
-					FarmChunk farmChunk = CivGlobal.getFarmChunk(cc);
-					if (farmChunk != null) snapshots.add(farmChunk.getChunk().getChunkSnapshot());
-				}
-				if (snapshots.size() == 0) return;
-				/* Fire off an async task to do some post processing. */
-				TaskMaster.asyncTask("", new WindmillPreProcessTask(windmill, snapshots), 0);
+			int[][] move = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 1 }, { -1, -1 }, { -1, 1 }, { 1, -1 } };
+			for (int i = 0; i < 8; i++) {
+				ChunkCoord cc = ccB.getRelative(move[i][0], move[i][1]);
+				FarmChunk farmChunk = CivGlobal.getFarmChunk(cc);
+				if (farmChunk != null) snapshots.add(farmChunk.getChunk().getChunkSnapshot());
 			}
+			if (snapshots.size() == 0) return;
+			/* Fire off an async task to do some post processing. */
+			TaskMaster.asyncTask("", new WindmillPreProcessTask(this, snapshots), 0);
 		}, 0);
 	}
 
-	class WindmillPreProcessTask extends CivAsyncTask {
+	static class WindmillPreProcessTask extends CivAsyncTask {
 
-		private ArrayList<ChunkSnapshot> snapshots;
-		private Windmill windmill;
+		private final ArrayList<ChunkSnapshot> snapshots;
+		private final Windmill windmill;
 
 		public WindmillPreProcessTask(Windmill windmill, ArrayList<ChunkSnapshot> snaphots) {
 			this.snapshots = snaphots;
@@ -86,8 +67,8 @@ public class Windmill extends Structure {
 			int plant_max;
 			try {
 				plant_max = CivSettings.getInteger(CivSettings.structureConfig, "windmill.plant_max");
-				if (windmill.getCiv().hasTechnologys("tech_machinery")) plant_max *= 2;
-				if (windmill.getTown().getBuffManager().hasBuff("buff_farm")) plant_max *= 2;
+				if (windmill.getCivOwner().hasTechnologys("tech_machinery")) plant_max *= 2;
+				if (windmill.getTownOwner().getBuffManager().hasBuff("buff_farm")) plant_max *= 2;
 			} catch (InvalidConfiguration e) {
 				e.printStackTrace();
 				return;
@@ -129,7 +110,6 @@ public class Windmill extends Structure {
 					potatoCount += stack.getAmount();
 					break;
 				default:
-					continue;
 				}
 			}
 
@@ -140,7 +120,7 @@ public class Windmill extends Structure {
 			plant_max = Math.min((breadCount + carrotCount + potatoCount), plant_max);
 
 			/* Read snapshots and find blocks that can be planted. */
-			ArrayList<BlockCoord> blocks = new ArrayList<BlockCoord>();
+			ArrayList<BlockCoord> blocks = new ArrayList<>();
 			for (ChunkSnapshot snapshot : this.snapshots) {
 				for (int x = 0; x < 16; x++) {
 					for (int z = 0; z < 16; z++) {
@@ -153,7 +133,7 @@ public class Windmill extends Structure {
 				}
 			}
 
-			ArrayList<BlockCoord> plantBlocks = new ArrayList<BlockCoord>();
+			ArrayList<BlockCoord> plantBlocks = new ArrayList<>();
 			/* Select up to plant_max of these blocks to be planted. */
 			Random rand = new Random();
 			for (int i = 0; i < plant_max; i++) {
@@ -167,7 +147,7 @@ public class Windmill extends Structure {
 		}
 	}
 
-	class WindmillPostProcessSyncTask implements Runnable {
+	static class WindmillPostProcessSyncTask implements Runnable {
 		ArrayList<BlockCoord> plantBlocks;
 		Windmill windmill;
 		int breadCount;
@@ -271,7 +251,6 @@ public class Windmill extends Structure {
 					potatoCount--;
 					ItemManager.setTypeId(coord.getBlock(), CivData.POTATOES);
 					ItemManager.setData(coord.getBlock(), 0, true);
-					continue;
 				}
 			}
 		}

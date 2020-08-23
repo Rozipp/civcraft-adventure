@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import com.avrgaming.civcraft.construct.*;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -16,10 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.CannonProjectile;
-import com.avrgaming.civcraft.construct.Construct;
-import com.avrgaming.civcraft.construct.ConstructDamageBlock;
-import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -129,7 +126,7 @@ public class Cannon extends Construct {
 	public void delete() {
 		try {
 			this.undoFromTemplate();
-		} catch (IOException | CivException e) {
+		} catch (CivException e) {
 			this.fancyDestroyConstructBlocks();
 		}
 		super.delete();
@@ -323,7 +320,7 @@ public class Cannon extends Construct {
 
 		Resident resident = CivGlobal.getResident(player);
 
-		if (resident.getCiv() != getCiv()) throw new CivException(CivSettings.localize.localizedString("cannon_notMember"));
+		if (resident.getCiv() != getCivOwner()) throw new CivException(CivSettings.localize.localizedString("cannon_notMember"));
 	}
 
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {

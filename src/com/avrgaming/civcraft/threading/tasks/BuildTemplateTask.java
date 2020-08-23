@@ -1,38 +1,36 @@
 package com.avrgaming.civcraft.threading.tasks;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class BuildTemplateTask implements Runnable {
-	private Template tpl;
-	private BlockCoord cornerBlock;
+	private final Template tpl;
+	private final BlockCoord cornerBlock;
 
-	private static Set<BuildTemplateTask> listTask = new HashSet<BuildTemplateTask>();
-
-	private Queue<SimpleBlock> syncBlockQueue = new LinkedList<SimpleBlock>();
+	private final Queue<SimpleBlock> syncBlockQueue = new LinkedList<>();
 	int builtBlockCount = 0;
 	boolean buildAir;
-	
-	private final int MAX_BLOCKS_PER_TICK = CivSettings.getIntBase("update_limit_for_sync_build_task");
-	private final int SLEEP = 100;
+	boolean delete;
 
-	public static Boolean isFinished(BuildTemplateTask stt) {
-		return !listTask.contains(stt);
-	}
+	private final int MAX_BLOCKS_PER_TICK = CivSettings.getIntBase("update_limit_for_sync_build_task");
+	private final int SLEEP = 100; /* Wait for a period of time. */
 
 	public BuildTemplateTask(Template tpl, BlockCoord cornerBlock, boolean buildAir) {
+		this(tpl, cornerBlock, buildAir,false);
+	}
+
+	public BuildTemplateTask(Template tpl, BlockCoord cornerBlock, boolean buildAir, boolean delete) {
 		this.tpl = tpl;
 		this.cornerBlock = cornerBlock;
 		this.buildAir = buildAir;
+		this.delete = delete;
 	}
 
 	private void oneLayer(Template tpl, int size_x, int y, int size_z) throws InterruptedException {
@@ -55,13 +53,12 @@ public class BuildTemplateTask implements Runnable {
 			SyncBuildUpdateTask.queueSimpleBlock(syncBlockQueue);
 			syncBlockQueue.clear();
 			builtBlockCount = 0;
-			Thread.sleep(SLEEP); /* Wait for a period of time. */
+			Thread.sleep(SLEEP);
 		}
 	}
 
 	@Override
 	public void run() {
-		listTask.add(this);
 		try {
 			oneLayer(null, tpl.size_x, tpl.size_y - 1, tpl.size_z); // Для того что бы не сыпался песок сверху. Верхний
 																	// слой устанавливается на барьер.
@@ -75,10 +72,9 @@ public class BuildTemplateTask implements Runnable {
 			syncBlockQueue.clear();
 			
 			if (buildAir) tpl.buildAirBlocks(cornerBlock);
+			if (delete) Template.deleteFilePath(tpl.filepath);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} finally {
-			listTask.remove(this);
 		}
 	}
 }

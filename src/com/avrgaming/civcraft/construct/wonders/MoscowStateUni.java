@@ -1,25 +1,17 @@
 
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigEnchant;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class MoscowStateUni extends Wonder {
-	public MoscowStateUni(final String id, final Town town) throws CivException {
+	public MoscowStateUni(final String id, final Town town) {
 		super(id, town);
-	}
-
-	public MoscowStateUni(final ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -47,14 +39,14 @@ public class MoscowStateUni extends Wonder {
 
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromCiv(this.getCiv(), "buff_moscowstateuni_extra_beakers");
-		this.removeBuffFromTown(this.getTown(), "buff_moscowstateuni_profit_sharing");
+		this.removeBuffFromCiv(this.getCivOwner(), "buff_moscowstateuni_extra_beakers");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_moscowstateuni_profit_sharing");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToCiv(this.getCiv(), "buff_moscowstateuni_extra_beakers");
-		this.addBuffToTown(this.getTown(), "buff_moscowstateuni_profit_sharing");
+		this.addBuffToCiv(this.getCivOwner(), "buff_moscowstateuni_extra_beakers");
+		this.addBuffToTown(this.getTownOwner(), "buff_moscowstateuni_profit_sharing");
 	}
 
 	@Override

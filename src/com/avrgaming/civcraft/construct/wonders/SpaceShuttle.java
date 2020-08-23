@@ -4,26 +4,6 @@
 
 package com.avrgaming.civcraft.construct.wonders;
 
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.BlockCoord;
-import org.bukkit.command.CommandSender;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Inventory;
-import java.util.Collection;
-import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.threading.sync.ValidateShuttleSync;
-import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest;
-import com.avrgaming.civcraft.object.Resident;
-
-import java.util.HashMap;
-
-import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.util.MultiInventory;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigSpaceMissions;
 import com.avrgaming.civcraft.config.ConfigSpaceRocket;
@@ -34,20 +14,27 @@ import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.items.CraftableCustomMaterial;
 import com.avrgaming.civcraft.items.CustomMaterial;
-
-import org.bukkit.entity.Player;
-import com.avrgaming.civcraft.threading.CivAsyncTask;
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.object.Civilization;
+import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.sync.ValidateShuttleSync;
+import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest;
+import com.avrgaming.civcraft.util.*;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 public class SpaceShuttle extends Wonder {
-	protected SpaceShuttle(String id, Town town) throws CivException {
+	protected SpaceShuttle(String id, Town town) {
 		super(id, town);
-	}
-
-	public SpaceShuttle(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -89,9 +76,9 @@ public class SpaceShuttle extends Wonder {
 			}
 			source.addInventory(tmp);
 		}
-		final ConfigSpaceRocket configSpaceRocket = CivSettings.spaceRocket_name.get(super.getCiv().getCurrentMission());
-		final ConfigSpaceMissions configSpaceMissions = CivSettings.spacemissions_levels.get(super.getCiv().getCurrentMission());
-		final HashMap<String, Integer> components = new HashMap<String, Integer>();
+		final ConfigSpaceRocket configSpaceRocket = CivSettings.spaceRocket_name.get(super.getCivOwner().getCurrentMission());
+		final ConfigSpaceMissions configSpaceMissions = CivSettings.spacemissions_levels.get(super.getCivOwner().getCurrentMission());
+		final HashMap<String, Integer> components = new HashMap<>();
 		final String[] split2;
 		final String[] split = split2 = configSpaceRocket.components.split(":");
 		for (final String component : split2) {
@@ -100,7 +87,7 @@ public class SpaceShuttle extends Wonder {
 			components.put(craftMatID, count);
 		}
 		boolean allMatch = true;
-		final HashMap<String, Integer> multiInvContents = new HashMap<String, Integer>();
+		final HashMap<String, Integer> multiInvContents = new HashMap<>();
 		for (final ItemStack itemStack : source.getContents()) {
 			if (itemStack != null) {
 				final CustomMaterial loreMaterial = CustomMaterial.getCustomMaterial(itemStack);
@@ -136,8 +123,8 @@ public class SpaceShuttle extends Wonder {
 				}
 			}
 			final String fullName = player.getDisplayName();
-			CivMessage.sendCiv(super.getCiv(), "§a" + CivSettings.localize.localizedString("var_spaceshuttle_succusess", configSpaceMissions.name, configSpaceRocket.name, fullName));
-			super.getCiv().setMissionActive(true);
+			CivMessage.sendCiv(super.getCivOwner(), "§a" + CivSettings.localize.localizedString("var_spaceshuttle_succusess", configSpaceMissions.name, configSpaceRocket.name, fullName));
+			super.getCivOwner().setMissionActive(true);
 			return;
 		}
 		CivMessage.send(player, notMatchComponents.toString());
@@ -160,8 +147,8 @@ public class SpaceShuttle extends Wonder {
 		if (resident == null) access = false;
 		if (!(sign.getOwner() instanceof Buildable)) return;
 
-		Civilization civ = ((Buildable) sign.getOwner()).getCiv();
-		Town town = ((Buildable) sign.getOwner()).getTown();
+		Civilization civ = sign.getOwner().getCivOwner();
+		Town town = sign.getOwner().getTownOwner();
 		if (!civ.GM.isLeader(resident)) access = false;
 		if (access) {
 			final String action = sign.getAction();
@@ -181,14 +168,14 @@ public class SpaceShuttle extends Wonder {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("var_spaceshuttle_noProgress"));
 					break;
 				}
-				final Integer currentMission = super.getCiv().getCurrentMission();
+				final Integer currentMission = super.getCivOwner().getCurrentMission();
 				final String missionName = CivSettings.spacemissions_levels.get(currentMission).name;
 				final String[] split = civ.getMissionProgress().split(":");
-				final double completedBeakers = Math.round(Double.valueOf(split[0]));
-				final double completedHammers = Math.round(Double.valueOf(split[1]));
+				final double completedBeakers = Math.round(Double.parseDouble(split[0]));
+				final double completedHammers = Math.round(Double.parseDouble(split[1]));
 				final int percentageCompleteBeakers = (int) (Math.round(Double.parseDouble(split[0])) / Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_beakers) * 100.0);
 				final int percentageCompleteHammers = (int) (Math.round(Double.parseDouble(split[1])) / Double.parseDouble(CivSettings.spacemissions_levels.get(civ.getCurrentMission()).require_hammers) * 100.0);
-				CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("var_spaceshuttle_progress", "§c" + missionName + CivColor.RESET,
+				CivMessage.sendSuccess(player, CivSettings.localize.localizedString("var_spaceshuttle_progress", "§c" + missionName + CivColor.RESET,
 						"§b" + completedBeakers + "§c" + "(" + percentageCompleteBeakers + "%)" + CivColor.RESET, "§7" + completedHammers + "§c" + "(" + percentageCompleteHammers + "%)" + CivColor.RESET));
 				break;
 			}

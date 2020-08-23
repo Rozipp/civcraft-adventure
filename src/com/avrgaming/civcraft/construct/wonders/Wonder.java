@@ -1,26 +1,10 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.wonders;
-
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigBuff;
 import com.avrgaming.civcraft.config.ConfigWonderBuff;
 import com.avrgaming.civcraft.construct.Buildable;
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -33,21 +17,16 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.SimpleBlock;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+
 public class Wonder extends Buildable {
 
-	public static String TABLE_NAME = "WONDERS";
 	private ConfigWonderBuff wonderBuffs = null;
 
-	public Wonder(String id, Town town) throws CivException {
+	public Wonder(String id, Town town) {
 		super(id, town);
-	}
-
-	public Wonder(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public static Wonder newWonder(ResultSet rs) throws CivException, SQLException {
-		return _newWonder(rs.getString("type_id"), null, rs);
 	}
 
 	public void loadSettings() {
@@ -58,32 +37,12 @@ public class Wonder extends Buildable {
 		}
 	}
 
-	public static void init() throws SQLException {
-		if (!SQL.hasTable(TABLE_NAME)) {
-			String table_create = "CREATE TABLE " + SQL.tb_prefix + TABLE_NAME + " (" //
-					+ "`id` int(11) unsigned NOT NULL auto_increment,"//
-					+ "`type_id` mediumtext NOT NULL,"//
-					+ "`town_id` int(11) DEFAULT NULL,"//
-					+ "`complete` bool NOT NULL DEFAULT '0',"//
-					+ "`hammersCompleted` int(11) DEFAULT NULL, "//
-					+ "`cornerBlockHash` mediumtext DEFAULT NULL,"//
-					+ "`template_name` mediumtext DEFAULT NULL, " //
-					+ "`hitpoints` int(11) DEFAULT '100'," //
-					+ "PRIMARY KEY (`id`)" + ")";
-
-			SQL.makeTable(table_create);
-			CivLog.info("Created " + TABLE_NAME + " table");
-		} else {
-			CivLog.info(TABLE_NAME + " table OK!");
-		}
-	}
-
 	@Override
 	public void load(ResultSet rs) throws SQLException, CivException {
 		this.setId(rs.getInt("id"));
 		this.setInfo(CivSettings.constructs.get(rs.getString("type_id")));
 		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
-		if (this.getTown() == null) {
+		if (this.getTownOwner() == null) {
 			// CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder
 			// "+this.getDisplayName()+" ID:"+this.getId());
 			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for wonder " + this.getDisplayName() + " ID:" + this.getId());
@@ -95,11 +54,11 @@ public class Wonder extends Buildable {
 		this.setComplete(rs.getBoolean("complete"));
 		this.setHammersCompleted(rs.getInt("hammersCompleted"));
 
-		this.getTown().BM.addWonder(this);
+		this.getTownOwner().BM.addBuildable(this);
 
 		this.startWonderOnLoad();
 
-		if (this.isComplete() == false) {
+		if (!this.isComplete()) {
 			try {
 				this.startBuildTask();
 			} catch (Exception e) {
@@ -110,9 +69,9 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void saveNow() throws SQLException {
-		HashMap<String, Object> hashmap = new HashMap<String, Object>();
+		HashMap<String, Object> hashmap = new HashMap<>();
 		hashmap.put("type_id", this.getConfigId());
-		hashmap.put("town_id", this.getTown().getId());
+		hashmap.put("town_id", this.getTownOwner().getId());
 		hashmap.put("complete", this.isComplete());
 		hashmap.put("hammersCompleted", this.getHammersCompleted());
 		hashmap.put("cornerBlockHash", this.getCorner().toString());
@@ -123,34 +82,22 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void delete() {
-		if (this.getTown() != null) {
+		if (this.getTownOwner() != null) {
 			if (this.wonderBuffs != null) {
 				for (ConfigBuff buff : this.wonderBuffs.buffs) {
-					this.getTown().getBuffManager().removeBuff(buff.id);
+					this.getTownOwner().getBuffManager().removeBuff(buff.id);
 				}
 			}
 		}
 		super.delete();
 
-		if (this.getTown() != null) this.getTown().BM.removeWonder(this);
-		CivGlobal.removeWonder(this);
+		if (this.getTownOwner() != null) this.getTownOwner().BM.removeBuildable(this);
+		CivGlobal.removeConstruct(this);
 
 		try {
 			SQL.deleteNamedObject(this, TABLE_NAME);
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void updateBuildProgess() {
-		if (this.getId() != 0) {
-			HashMap<String, Object> struct_hm = new HashMap<String, Object>();
-			struct_hm.put("id", this.getId());
-			struct_hm.put("type_id", this.getConfigId());
-			struct_hm.put("complete", this.isComplete());
-			struct_hm.put("hammersCompleted", this.getHammersCompleted());
-			SQL.updateNamedObjectAsync(this, struct_hm, TABLE_NAME);
 		}
 	}
 
@@ -174,20 +121,20 @@ public class Wonder extends Buildable {
 	}
 
 	@Override
-	public void processUndo() throws CivException {
+	public void processUndo() {
 		try {
 			this.undoFromTemplate();
-		} catch (IOException e1) {
+		} catch (CivException e1) {
 			e1.printStackTrace();
-			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("wonder_undo_error"));
+			CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("wonder_undo_error"));
 			this.fancyDestroyConstructBlocks();
 		}
 
-		CivMessage.global(CivSettings.localize.localizedString("var_wonder_undo_broadcast", (CivColor.LightGreen + this.getDisplayName() + CivColor.White), this.getTown().getName(), this.getTown().getCiv().getName()));
+		CivMessage.global(CivSettings.localize.localizedString("var_wonder_undo_broadcast", (CivColor.LightGreen + this.getDisplayName() + CivColor.White), this.getTownOwner().getName(), this.getTownOwner().getCiv().getName()));
 
 		double refund = this.getCost();
-		this.getTown().depositDirect(refund);
-		CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_structure_undo_refund", this.getTown().getName(), refund, CivSettings.CURRENCY_NAME));
+		this.getTownOwner().depositDirect(refund);
+		CivMessage.sendTown(getTownOwner(), CivSettings.localize.localizedString("var_structure_undo_refund", this.getTownOwner().getName(), refund, CivSettings.CURRENCY_NAME));
 
 		this.deleteWithUndo();
 	}
@@ -205,181 +152,9 @@ public class Wonder extends Buildable {
 	public void onDestroy() {
 		if (!CivGlobal.isCasualMode()) {
 			// can be overriden in subclasses.
-			CivMessage.global(CivSettings.localize.localizedString("var_wonder_destroyed", this.getDisplayName(), this.getTown().getName()));
+			CivMessage.global(CivSettings.localize.localizedString("var_wonder_destroyed", this.getDisplayName(), this.getTownOwner().getName()));
 			this.deleteWithFancy();
 		}
-	}
-
-	public static Wonder newWonder(Player player, Location location, String id, Town town) throws CivException {
-		Wonder wonder;
-		try {
-			wonder = _newWonder(id, town, null);
-		} catch (SQLException e) {
-			throw new CivException("SQLException");
-		}
-		wonder.initDefaultTemplate(location);
-		town.BM.checkIsTownCanBuildBuildable(wonder);
-		wonder.checkBlockPermissionsAndRestrictions(player);
-		return wonder;
-	}
-
-	public static Wonder _newWonder(String id, Town town, ResultSet rs) throws CivException, SQLException {
-		Wonder wonder;
-		switch (id) {
-		case "w_pyramid":
-			if (rs == null) {
-				wonder = new TheGreatPyramid(id, town);
-			} else {
-				wonder = new TheGreatPyramid(rs);
-			}
-			break;
-		case "w_greatlibrary":
-			if (rs == null) {
-				wonder = new GreatLibrary(id, town);
-			} else {
-				wonder = new GreatLibrary(rs);
-			}
-			break;
-		case "w_oracle":
-			if (rs == null) {
-				wonder = new Oracle(id, town);
-			} else {
-				wonder = new Oracle(rs);
-			}
-			break;
-		case "w_hanginggardens":
-			if (rs == null) {
-				wonder = new TheHangingGardens(id, town);
-			} else {
-				wonder = new TheHangingGardens(rs);
-			}
-			break;
-		case "w_colossus":
-			if (rs == null) {
-				wonder = new TheColossus(id, town);
-			} else {
-				wonder = new TheColossus(rs);
-			}
-			break;
-		case "w_notre_dame":
-			if (rs == null) {
-				wonder = new NotreDame(id, town);
-			} else {
-				wonder = new NotreDame(rs);
-			}
-			break;
-		case "w_chichen_itza":
-			if (rs == null) {
-				wonder = new ChichenItza(id, town);
-			} else {
-				wonder = new ChichenItza(rs);
-			}
-			break;
-		case "w_council_of_eight":
-			if (rs == null) {
-				wonder = new CouncilOfEight(id, town);
-			} else {
-				wonder = new CouncilOfEight(rs);
-			}
-			break;
-		case "w_colosseum":
-			if (rs == null) {
-				wonder = new Colosseum(id, town);
-			} else {
-				wonder = new Colosseum(rs);
-			}
-			break;
-		case "w_globe_theatre":
-			if (rs == null) {
-				wonder = new GlobeTheatre(id, town);
-			} else {
-				wonder = new GlobeTheatre(rs);
-			}
-			break;
-		case "w_great_lighthouse":
-			if (rs == null) {
-				wonder = new GreatLighthouse(id, town);
-			} else {
-				wonder = new GreatLighthouse(rs);
-			}
-			break;
-		case "w_mother_tree":
-			if (rs == null) {
-				wonder = new MotherTree(id, town);
-			} else {
-				wonder = new MotherTree(rs);
-			}
-			break;
-		case "w_grand_ship_ingermanland":
-			if (rs == null) {
-				wonder = new GrandShipIngermanland(id, town);
-			} else {
-				wonder = new GrandShipIngermanland(rs);
-			}
-			break;
-		case "w_battledome":
-			if (rs == null) {
-				wonder = new Battledome(id, town);
-			} else {
-				wonder = new Battledome(rs);
-			}
-			break;
-		case "w_stock_exchange":
-			if (rs == null) {
-				wonder = new StockExchange(id, town);
-				break;
-			}
-			wonder = new StockExchange(rs);
-			break;
-		case "w_burj":
-			if (rs == null) {
-				wonder = new Burj(id, town);
-				break;
-			}
-			wonder = new Burj(rs);
-			break;
-		case "w_grandcanyon":
-			if (rs == null) {
-				wonder = new GrandCanyon(id, town);
-				break;
-			}
-			wonder = new GrandCanyon(rs);
-			break;
-		case "w_statue_of_zeus":
-			if (rs == null) {
-				wonder = new StatueOfZeus(id, town);
-				break;
-			}
-			wonder = new StatueOfZeus(rs);
-			break;
-		case "w_space_shuttle":
-			if (rs == null) {
-				wonder = new SpaceShuttle(id, town);
-				break;
-			}
-			wonder = new SpaceShuttle(rs);
-			break;
-		case "w_moscow_state_uni":
-			if (rs == null) {
-				wonder = new MoscowStateUni(id, town);
-				break;
-			}
-			wonder = new MoscowStateUni(rs);
-			break;
-		case "w_neuschwanstein":
-			if (rs == null) {
-				wonder = new Neuschwanstein(id, town);
-				break;
-			}
-			wonder = new Neuschwanstein(rs);
-			break;
-
-		default:
-			throw new CivException(CivSettings.localize.localizedString("wonder_unknwon_type") + " " + id);
-		}
-
-		wonder.loadSettings();
-		return wonder;
 	}
 
 	public void addWonderBuffsToTown() {
@@ -387,7 +162,7 @@ public class Wonder extends Buildable {
 		if (this.wonderBuffs == null) return;
 		for (ConfigBuff buff : this.wonderBuffs.buffs) {
 			try {
-				this.getTown().getBuffManager().addBuff("wonder:" + this.getDisplayName() + ":" + this.getCorner() + ":" + buff.id, buff.id, this.getDisplayName());
+				this.getTownOwner().getBuffManager().addBuff("wonder:" + this.getDisplayName() + ":" + this.getCorner() + ":" + buff.id, buff.id, this.getDisplayName());
 			} catch (CivException e) {
 				e.printStackTrace();
 			}
@@ -417,22 +192,19 @@ public class Wonder extends Buildable {
 
 	private void startWonderOnLoad() {
 		Wonder wonder = this;
-		TaskMaster.syncTask(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					wonder.onLoad();
-				} catch (Exception e) {
-					CivLog.error(e.getMessage());
-					e.printStackTrace();
-				}
+		TaskMaster.syncTask(() -> {
+			try {
+				wonder.onLoad();
+			} catch (Exception e) {
+				CivLog.error(e.getMessage());
+				e.printStackTrace();
 			}
 		}, 2000);
 	}
 
 	protected void addBuffToTown(Town town, String id) {
 		try {
-			town.getBuffManager().addBuff(id, id, this.getDisplayName() + " in " + this.getTown().getName());
+			town.getBuffManager().addBuff(id, id, this.getDisplayName() + " in " + this.getTownOwner().getName());
 		} catch (CivException e) {
 			e.printStackTrace();
 		}
@@ -462,16 +234,16 @@ public class Wonder extends Buildable {
 
 	public void processCoinsFromCulture() {
 		int cultureCount = 0;
-		for (Town t : this.getCiv().getTowns()) {
+		for (Town t : this.getCivOwner().getTowns()) {
 			cultureCount += t.getCultureChunks().size();
 		}
 
-		double coinsPerCulture = Double.valueOf(CivSettings.buffs.get("buff_colossus_coins_from_culture").value);
+		double coinsPerCulture = Double.parseDouble(CivSettings.buffs.get("buff_colossus_coins_from_culture").value);
 
 		double total = coinsPerCulture * cultureCount;
-		this.getCiv().getTreasury().deposit(total);
+		this.getCivOwner().getTreasury().deposit(total);
 
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colossus_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, cultureCount));
+		CivMessage.sendCiv(this.getCivOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colossus_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, cultureCount));
 	}
 
 	public void processCoinsFromColosseum() {
@@ -479,12 +251,12 @@ public class Wonder extends Buildable {
 		for (Civilization civ : CivGlobal.getCivs()) {
 			townCount += civ.getTownCount();
 		}
-		double coinsPerTown = Double.valueOf(CivSettings.buffs.get("buff_colosseum_coins_from_towns").value);
+		double coinsPerTown = Double.parseDouble(CivSettings.buffs.get("buff_colosseum_coins_from_towns").value);
 
 		double total = coinsPerTown * townCount;
-		this.getCiv().getTreasury().deposit(total);
+		this.getCivOwner().getTreasury().deposit(total);
 
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colosseum_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, townCount));
+		CivMessage.sendCiv(this.getCivOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_colosseum_generatedCoins", (CivColor.Yellow + total + CivColor.LightGreen), CivSettings.CURRENCY_NAME, townCount));
 	}
 
 	public void processCoinsFromNeuschwanstein() {
@@ -498,8 +270,8 @@ public class Wonder extends Buildable {
 		}
 		double coinsPerTown = 2000.0;
 		double total = coinsPerTown * castleCount;
-		this.getCiv().getTreasury().deposit(total);
-		CivMessage.sendCiv(this.getCiv(), CivColor.LightGreen + CivSettings.localize.localizedString("var_neuschwanstein_generatedCoins", "§e" + total + "§a", CivSettings.CURRENCY_NAME, castleCount, "§b" + this.getTown().getName()));
+		this.getCivOwner().getTreasury().deposit(total);
+		CivMessage.sendCiv(this.getCivOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_neuschwanstein_generatedCoins", "§e" + total + "§a", CivSettings.CURRENCY_NAME, castleCount, "§b" + this.getTownOwner().getName()));
 	}
 
 	@Override
@@ -514,16 +286,16 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void validCanProgressBuild() throws CivException {
-		if (getTown().getMotherCiv() != null) {
+		if (getTownOwner().getMotherCiv() != null) {
 			this.setNextProgressBuild(30); // 30 min notify.
-			throw new CivException(CivSettings.localize.localizedString("var_buildAsync_wonderHaltedConquered", getTown().getCiv().getName()));
+			throw new CivException(CivSettings.localize.localizedString("var_buildAsync_wonderHaltedConquered", getTownOwner().getCiv().getName()));
 		}
-		Buildable inProgress = getTown().BM.getBuildablePoolInProgress().get(0);
+		Buildable inProgress = getTownOwner().BM.getBuildablePoolInProgress().get(0);
 		if (inProgress != null && inProgress != this) {
 			this.setNextProgressBuild(1);
 			throw new CivException(CivSettings.localize.localizedString("var_buildAsync_wonderHaltedOtherConstruction", inProgress.getDisplayName()));
 		}
-		if (!getTown().isValid()) {
+		if (!getTownOwner().isValid()) {
 			this.setNextProgressBuild(10);
 			throw new CivException(CivSettings.localize.localizedString("buildAsync_wonderHaltedNoTownHall"));
 		}
@@ -533,11 +305,11 @@ public class Wonder extends Buildable {
 			return; // wonder aborted via function above, no need to abort again.
 		}
 		if (isDestroyed()) {
-			CivMessage.sendTown(getTown(), CivSettings.localize.localizedString("var_buildAsync_destroyed", getDisplayName()));
+			CivMessage.sendTown(getTownOwner(), CivSettings.localize.localizedString("var_buildAsync_destroyed", getDisplayName()));
 			abortBuild();
 			return;
 		}
-		if (getTown().getMotherCiv() != null) {
+		if (getTownOwner().getMotherCiv() != null) {
 			// Can't build wonder while we're conquered.
 			// TODO continue;
 		}
@@ -550,17 +322,17 @@ public class Wonder extends Buildable {
 
 	public void finished() {
 		if (this.checkOtherWonderAlreadyBuilt()) {
-			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_buildAsync_wonderFarAway", getDisplayName()));
+			CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_buildAsync_wonderFarAway", getDisplayName()));
 
 			// Refund the town half the cost of the wonder.
 			double refund = (int) (getCost() / 2);
-			getTown().depositDirect(refund);
+			getTownOwner().depositDirect(refund);
 
-			CivMessage.sendTown(getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_wonderRefund", refund, CivSettings.CURRENCY_NAME));
+			CivMessage.sendTown(getTownOwner(), CivColor.Yellow + CivSettings.localize.localizedString("var_buildAsync_wonderRefund", refund, CivSettings.CURRENCY_NAME));
 			abortBuild();
 			return;
 		}
-		CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completedWonder", CivColor.Red + getCiv().getName() + CivColor.RESET, "§6" + getTown().getName() + CivColor.RESET, "§a" + getDisplayName() + CivColor.RESET));
+		CivMessage.global(CivSettings.localize.localizedString("var_buildAsync_completedWonder", CivColor.Red + getCivOwner().getName() + CivColor.RESET, "§6" + getTownOwner().getName() + CivColor.RESET, "§a" + getDisplayName() + CivColor.RESET));
 		super.finished();
 	}
 
@@ -569,7 +341,7 @@ public class Wonder extends Buildable {
 		if (obj == null) return false;
 		if (obj instanceof Wonder) {
 			Wonder struct = (Wonder) obj;
-			if (struct.getId() == this.getId()) return true;
+			return struct.getId() == this.getId();
 		}
 		return false;
 	}

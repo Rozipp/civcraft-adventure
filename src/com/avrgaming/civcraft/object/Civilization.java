@@ -10,17 +10,10 @@ package com.avrgaming.civcraft.object;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.avrgaming.civcraft.construct.Buildable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -36,8 +29,7 @@ import com.avrgaming.civcraft.config.ConfigTech;
 //import com.avrgaming.civcraft.construct.caves.CaveStatus.StatusType;
 import com.avrgaming.civcraft.construct.constructs.WarCamp;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
-import com.avrgaming.civcraft.construct.structures.RespawnLocationHolder;
-import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.RespawnLocationHolder;
 import com.avrgaming.civcraft.construct.wonders.Neuschwanstein;
 import com.avrgaming.civcraft.construct.wonders.StockExchange;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
@@ -200,7 +192,8 @@ public class Civilization extends SQLObject {
 			this.GM.delete();
 
 			/* Delete all of our towns. */
-			for (Town t : getTowns()) {
+			for (Iterator<Town> it = getTowns().iterator(); it.hasNext(); ) {
+				Town t = it.next();
 				t.delete();
 			}
 
@@ -215,7 +208,7 @@ public class Civilization extends SQLObject {
 		}
 	}
 
-	public void createCiv(Player player, Town town, Structure structure) throws CivException {
+	public void createCiv(Player player, Town town, Buildable buildable) throws CivException {
 		Resident resident = CivGlobal.getResident(player);
 		CraftableCustomMaterial craftMat = CraftableCustomMaterial.getCraftableCustomMaterial(player.getInventory().getItemInMainHand());
 		if (craftMat == null || !craftMat.hasComponent("FoundCivilization")) throw new CivException(CivSettings.localize.localizedString("civ_found_notItem"));
@@ -233,7 +226,7 @@ public class Civilization extends SQLObject {
 			/* Save this civ in the db and hashtable. */
 			try {
 				town.setCiv(this);
-				town.createTown(resident, structure);
+				town.createTown(resident, buildable);
 				this.setCapitolId(town.getId());
 			} catch (CivException e) {
 				e.printStackTrace();
@@ -419,6 +412,7 @@ public class Civilization extends SQLObject {
 	public boolean hasTechnologys(String require_tech) {
 		if (require_tech != null) {
 			for (String str : require_tech.split(",")) {
+				CivLog.debug("hasTechnologys " + str);
 				if (!hasTech(str)) return false;
 			}
 		}

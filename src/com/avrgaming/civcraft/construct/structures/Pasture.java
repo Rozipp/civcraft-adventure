@@ -1,22 +1,6 @@
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -26,27 +10,29 @@ import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.LoadPastureEntityTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Pasture extends Structure {
 
 	/* Global pasture chunks */
-	public static Map<ChunkCoord, Pasture> pastureChunks = new ConcurrentHashMap<ChunkCoord, Pasture>();
-	public static Map<UUID, Pasture> pastureEntities = new ConcurrentHashMap<UUID, Pasture>();
+	public static Map<ChunkCoord, Pasture> pastureChunks = new ConcurrentHashMap<>();
+	public static Map<UUID, Pasture> pastureEntities = new ConcurrentHashMap<>();
 	
 	/* Chunks bound to this pasture. */
-	public HashSet<ChunkCoord> chunks = new HashSet<ChunkCoord>();
-	public HashSet<UUID> entities = new HashSet<UUID>();
+	public HashSet<ChunkCoord> chunks = new HashSet<>();
+	public HashSet<UUID> entities = new HashSet<>();
 	public ReentrantLock lock = new ReentrantLock(); 
 	
 	private int pendingBreeds = 0;
 	
-	public Pasture(String id, Town town)
-			throws CivException {
+	public Pasture(String id, Town town) {
 		super(id, town);
-	}
-
-	public Pasture(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	public int getMobCount() {
@@ -100,7 +86,7 @@ public class Pasture extends Structure {
 		this.entities.clear();
 		this.chunks.clear();
 		
-		LinkedList<UUID> removeUs = new LinkedList<UUID>();
+		LinkedList<UUID> removeUs = new LinkedList<>();
 		for (UUID id : pastureEntities.keySet()) {
 			Pasture pasture = pastureEntities.get(id);
 			if (pasture == this) {
@@ -120,7 +106,7 @@ public class Pasture extends Structure {
 	}
 	
 	@Override
-	public void onLoad() throws CivException {
+	public void onLoad() {
 		bindPastureChunks();
 		loadEntities();
 	}
@@ -151,9 +137,9 @@ public class Pasture extends Structure {
 	
 	public void saveEntity(String worldName, UUID id) {
 		class AsyncTask implements Runnable {
-			Pasture pasture;
-			UUID id;
-			String worldName;
+			final Pasture pasture;
+			final UUID id;
+			final String worldName;
 			
 			public AsyncTask(Pasture pasture, UUID id, String worldName) {
 				this.pasture = pasture;
@@ -178,15 +164,14 @@ public class Pasture extends Structure {
 	}
 	
 	public void loadEntities() {
-		Queue<SessionEntry> entriesToLoad = new LinkedList<SessionEntry>();
 		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(getEntityKey());
-		entriesToLoad.addAll(entries);
+		Queue<SessionEntry> entriesToLoad = new LinkedList<>(entries);
 		TaskMaster.syncTask(new LoadPastureEntityTask(entriesToLoad, this));
 	}
 	
 	public void onEntityDeath(LivingEntity entity) {
 		class AsyncTask implements Runnable {
-			LivingEntity entity;
+			final LivingEntity entity;
 			
 			public AsyncTask(LivingEntity entity) {
 				this.entity = entity;

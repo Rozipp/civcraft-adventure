@@ -1,35 +1,21 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
 
+import com.avrgaming.civcraft.components.SignSelectionActionInterface;
+import com.avrgaming.civcraft.components.SignSelectionComponent;
+import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.config.ConfigStableHorse;
+import com.avrgaming.civcraft.config.ConfigStableItem;
+import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.main.CivMessage;
+import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.util.*;
 import gpl.HorseModifier;
 import gpl.HorseModifier.HorseType;
 import gpl.HorseModifier.HorseVariant;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_12_R1.util.HashTreeSet;
 import org.bukkit.entity.Horse;
@@ -37,47 +23,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
-import com.avrgaming.civcraft.components.SignSelectionActionInterface;
-import com.avrgaming.civcraft.components.SignSelectionComponent;
-import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigStableHorse;
-import com.avrgaming.civcraft.config.ConfigStableItem;
-import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Stable extends Structure {
 
 	public static Integer FEE_MIN = 5;
 	public static Integer FEE_MAX = 100;
-	private HashMap<Integer, SignSelectionComponent> signSelectors = new HashMap<Integer, SignSelectionComponent>();
+	private final HashMap<Integer, SignSelectionComponent> signSelectors = new HashMap<>();
 	private BlockCoord horseSpawnCoord;
 	private BlockCoord muleSpawnCoord;
-	private NonMemberFeeComponent nonMemberFeeComponent;
 
-	public HashTreeSet<ChunkCoord> chunks = new HashTreeSet<ChunkCoord>();
-	public static Map<ChunkCoord, Stable> stableChunks = new ConcurrentHashMap<ChunkCoord, Stable>();
+	public HashTreeSet<ChunkCoord> chunks = new HashTreeSet<>();
+	public static Map<ChunkCoord, Stable> stableChunks = new ConcurrentHashMap<>();
 
-	public Stable(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onLoad();
-	}
-
-	public Stable(Location center, String id, Town town) throws CivException {
+	public Stable(String id, Town town) {
 		super(id, town);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onSave();
 	}
 
 	public void bindStableChunks() {
@@ -101,7 +63,7 @@ public class Stable extends Structure {
 	}
 
 	@Override
-	public void onLoad() throws CivException {
+	public void onLoad() {
 		bindStableChunks();
 	}
 
@@ -123,8 +85,8 @@ public class Stable extends Structure {
 		signSelectors.put(2, itemVender);
 
 		class buyHorseAction implements SignSelectionActionInterface {
-			int horse_id;
-			double cost;
+			final int horse_id;
+			final double cost;
 
 			public buyHorseAction(int horse_id, double cost) {
 				this.horse_id = horse_id;
@@ -138,7 +100,7 @@ public class Stable extends Structure {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("stable_unknownHorse"));
 					return;
 				}
-				if (horse_id >= 5 && !getCiv().hasTechnologys("tech_military_science")) {
+				if (horse_id >= 5 && !getCivOwner().hasTechnologys("tech_military_science")) {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("stable_missingTech_MilitaryScience"));
 					return;
 				}
@@ -146,14 +108,14 @@ public class Stable extends Structure {
 				Resident resident = CivGlobal.getResident(player);
 
 				double paid;
-				if (resident.getTown() != getTown()) {
+				if (resident.getTown() != getTownOwner()) {
 					if (!resident.getTreasury().hasEnough(getItemCost(cost))) {
 						CivMessage.sendError(player, CivSettings.localize.localizedString("var_config_marketItem_notEnoughCurrency", (getItemCost(cost) + " " + CivSettings.CURRENCY_NAME)));
 						return;
 					}
 
 					resident.getTreasury().withdraw(getItemCost(cost));
-					getTown().depositTaxed(getFeeToTown(cost));
+					getTownOwner().depositTaxed(getFeeToTown(cost));
 					CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_taxes_paid", getFeeToTown(cost), CivSettings.CURRENCY_NAME));
 					paid = getItemCost(cost);
 				} else {
@@ -180,11 +142,11 @@ public class Stable extends Structure {
 				mod.setVariant(HorseVariant.valueOf(horse.variant));
 				HorseModifier.setHorseSpeed(mod.getHorse(), horse.speed);
 				((Horse) mod.getHorse()).setJumpStrength(horse.jump);
-				((Horse) mod.getHorse()).getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horse.health);
-				((Horse) mod.getHorse()).setHealth(horse.health);
+				mod.getHorse().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(horse.health);
+				mod.getHorse().setHealth(horse.health);
 				((Horse) mod.getHorse()).setOwner(player);
-				((Horse) mod.getHorse()).setCustomName(horse.name);
-				((Horse) mod.getHorse()).setCustomNameVisible(true);
+				mod.getHorse().setCustomName(horse.name);
+				mod.getHorse().setCustomNameVisible(true);
 
 				CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_stable_buySuccess", paid, CivSettings.CURRENCY_NAME));
 			}
@@ -192,8 +154,8 @@ public class Stable extends Structure {
 
 		class buyItemAction implements SignSelectionActionInterface {
 
-			int item_id;
-			double cost;
+			final int item_id;
+			final double cost;
 
 			public buyItemAction(int item_id, double cost) {
 				this.item_id = item_id;
@@ -204,13 +166,13 @@ public class Stable extends Structure {
 			public void process(Player player) {
 
 				Resident resident = CivGlobal.getResident(player);
-				if ((item_id >= 417 && item_id <= 419) && !getCiv().hasTechnologys("tech_military_science")) {
+				if ((item_id >= 417 && item_id <= 419) && !getCivOwner().hasTechnologys("tech_military_science")) {
 					CivMessage.sendError(player, CivSettings.localize.localizedString("stable_missingTech_MilitaryScience"));
 					return;
 				}
 
 				double paid;
-				if (resident.getTown() != getTown()) {
+				if (resident.getTown() != getTownOwner()) {
 					if (!resident.getTreasury().hasEnough(getItemCost(cost))) {
 						CivMessage.sendError(player, CivSettings.localize.localizedString("var_config_marketItem_notEnoughCurrency", (getItemCost(cost) + " " + CivSettings.CURRENCY_NAME)));
 						return;
@@ -248,11 +210,11 @@ public class Stable extends Structure {
 			}
 			if (item.item_id == 0) {
 				comp.addItem(
-						new String[] { CivColor.LightGreen + item.name, CivSettings.localize.localizedString("stable_sign_buyFor"), "" + item.cost, CivSettings.localize.localizedString("Fee:") + this.nonMemberFeeComponent.getFeeString() },
+						new String[] { CivColor.LightGreen + item.name, CivSettings.localize.localizedString("stable_sign_buyFor"), "" + item.cost, CivSettings.localize.localizedString("Fee:") + this.getNonMemberFeeComponent().getFeeString() },
 						new buyHorseAction(item.horse_id, item.cost));
 			} else {
 				comp.addItem(
-						new String[] { CivColor.LightGreen + item.name, CivSettings.localize.localizedString("stable_sign_buyFor"), "" + item.cost, CivSettings.localize.localizedString("Fee:") + this.nonMemberFeeComponent.getFeeString() },
+						new String[] { CivColor.LightGreen + item.name, CivSettings.localize.localizedString("stable_sign_buyFor"), "" + item.cost, CivSettings.localize.localizedString("Fee:") + this.getNonMemberFeeComponent().getFeeString() },
 						new buyItemAction(item.item_id, item.cost));
 			}
 		}
@@ -263,7 +225,7 @@ public class Stable extends Structure {
 	}
 
 	private double getFeeToTown(double cost) {
-		return cost * this.nonMemberFeeComponent.getFeeRate();
+		return cost * this.getNonMemberFeeComponent().getFeeRate();
 	}
 
 	@Override
@@ -290,7 +252,7 @@ public class Stable extends Structure {
 	@Override
 	public void updateSignText() {
 		for (SignSelectionComponent comp : signSelectors.values()) {
-			comp.setMessageAllItems(3, CivSettings.localize.localizedString("Fee:") + " " + this.nonMemberFeeComponent.getFeeString());
+			comp.setMessageAllItems(3, CivSettings.localize.localizedString("Fee:") + " " + this.getNonMemberFeeComponent().getFeeString());
 		}
 	}
 
@@ -327,7 +289,7 @@ public class Stable extends Structure {
 			this.addConstructSign(structSign);
 			CivGlobal.addConstructSign(structSign);
 
-			selectorIndex = Integer.valueOf(sb.keyvalues.get("id"));
+			selectorIndex = Integer.parseInt(sb.keyvalues.get("id"));
 			signComp = signSelectors.get(selectorIndex);
 			if (signComp != null) {
 				signComp.setActionSignCoord(absCoord);
@@ -361,7 +323,7 @@ public class Stable extends Structure {
 	}
 
 	public void setNonResidentFee(double d) {
-		this.nonMemberFeeComponent.setFeeRate(d);
+		this.getNonMemberFeeComponent().setFeeRate(d);
 	}
 
 }

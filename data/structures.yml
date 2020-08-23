@@ -423,8 +423,9 @@ structures:
     points: 1500
     max_hitpoints: 200
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'MERCHANT'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'MERCHANT'
   
   - id: s_trommel
     type: Structure
@@ -502,8 +503,9 @@ structures:
     points: 2000
     max_hitpoints: 200
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'MERCHANT'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'MERCHANT'
 
   - id: s_library
     type: Structure
@@ -519,11 +521,12 @@ structures:
     points: 5000
     max_hitpoints: 250
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'SCIENTIST'
-        - name: 'AttributeStatic'
-          attribute: 'BEAKERS'
-          value: '5.0'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'SCIENTIST'
+      - name: 'AttributeStatic'
+        attribute: 'BEAKERS'
+        value: '5.0'
 
   - id: s_university
     type: Structure
@@ -604,8 +607,9 @@ structures:
     points: 2500
     max_hitpoints: 200
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'MERCHANT'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'MERCHANT'
 
   - id: s_alch
     type: Structure
@@ -621,8 +625,9 @@ structures:
     points: 7500
     max_hitpoints: 1500
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'MERCHANT'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'MERCHANT'
 
   - id: s_blacksmith
     type: Structure
@@ -639,11 +644,12 @@ structures:
     points: 10000
     max_hitpoints: 350
     components:
-        - name: 'ProfesionalComponent'
-          prof: 'MINER'
-        - name: 'AttributeStatic'
-          attribute: 'HAMMERS'
-          value: '5.0'
+      - name: 'NonMemberFeeComponent'
+      - name: 'ProfesionalComponent'
+        prof: 'MINER'
+      - name: 'AttributeStatic'
+        attribute: 'HAMMERS'
+        value: '5.0'
   
   - id: s_granary
     type: Structure

@@ -1,18 +1,10 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.threading.tasks;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
-import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Ищет инвентаре предмет того же типа что stack и меняет его в инвентаре игрока
@@ -20,64 +12,73 @@ import com.avrgaming.civcraft.threading.TaskMaster;
  */
 public class DelayMoveInventoryItem implements Runnable {
 
-	/*
-	 * Sometimes we want to preform an action on an inventory after a very short
-	 * delay. For example, if we want to lock an item to a slot, we cannot cancel
-	 * the move event since that results in the item being 'dropped' on the ground.
-	 * Instead we have to let the move event complete, and then issue another action
-	 * to move the item back.
-	 */
+    /*
+     * Sometimes we want to preform an action on an inventory after a very short
+     * delay. For example, if we want to lock an item to a slot, we cannot cancel
+     * the move event since that results in the item being 'dropped' on the ground.
+     * Instead we have to let the move event complete, and then issue another action
+     * to move the item back.
+     */
 
-	public int toSlot;
-	public Player player;
-	public ItemStack stack;
+    private final Cancellable event;
+    private final int toSlot;
+    private final Inventory inventory;
+    private final Player player;
+    private final ItemStack stack;
+    private final Action action;
 
-	public DelayMoveInventoryItem(Player player, int toSlot, ItemStack stack) {
-		this.toSlot = toSlot;
-		this.player = player;
-		this.stack = stack;
-	}
+    public DelayMoveInventoryItem(Cancellable event, Player player, Inventory inventory, ItemStack stack, int toSlot, Action action) {
+        this.action = action;
+        this.event = event;
+        this.player = player;
+        this.inventory = inventory;
+        this.toSlot = toSlot;
+        this.stack = stack.clone();
+    }
 
-	public static void beginTask(Player player, ItemStack is, int slot) {
-		TaskMaster.syncTask(new DelayMoveInventoryItem(player, slot, is), 1);
-	}
+    public static void beginTaskSwap(Cancellable event, Player player, ItemStack stack, int slot) {
+        TaskMaster.syncTask(new DelayMoveInventoryItem(event, player, player.getInventory(), stack, slot, Action.SWAP), 1);
+    }
 
-	@Override
-	public void run() {
-		int fromSlot = -1;
-		CustomMaterial loreMat = CustomMaterial.getCustomMaterial(stack);
-		if (loreMat == null) {
-			for (ItemStack is : player.getInventory()) {
-				if (is == null)
-					continue;
-				if (is.equals(stack)) {
-					fromSlot = player.getInventory().first(is);
-					break;
-				}
-			}
-		} else {
-			for (ItemStack is : player.getInventory()) {
-				if (is == null)
-					continue;
-				CustomMaterial lm = CustomMaterial.getCustomMaterial(is);
-				if (lm == null)
-					continue;
-				if (lm.getId() == loreMat.getId()) {
-					fromSlot = player.getInventory().first(is);
-					break;
-				}
-			}
-		}
-		if (fromSlot == -1)
-			return;
+    public static void beginTaskRespawn(Cancellable event, Player player, Inventory inventory, ItemStack stack, int slot) {
+        TaskMaster.syncTask(new DelayMoveInventoryItem(event, player, inventory, stack, slot, Action.RESPAWN), 1);
+    }
 
-		ItemStack fromStack = player.getInventory().getItem(fromSlot);
-		ItemStack toStack = player.getInventory().getItem(toSlot);
+    @Override
+    public void run() {
+        if (event.isCancelled())            return;
 
-		if (fromStack != null) {
-			player.getInventory().setItem(toSlot, fromStack);
-			player.getInventory().setItem(fromSlot, toStack);
-		}
-		player.updateInventory();
-	}
+        if (action == Action.RESPAWN) {
+            inventory.setItem(toSlot, stack);
+            player.updateInventory();
+            return;
+        }
+
+        if (action == Action.SWAP) {
+            int fromSlot = -1;
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack is = inventory.getItem(i);
+                if (is == null) continue;
+                if (is.equals(stack)) {
+                    fromSlot = i;
+                    break;
+                }
+            }
+
+            if (fromSlot == -1) return;
+            if (fromSlot == toSlot) return;
+            player.updateInventory();
+            ItemStack fromStack = inventory.getItem(fromSlot);
+            ItemStack toStack = inventory.getItem(toSlot);
+            if (fromStack != null) {
+                inventory.setItem(toSlot, fromStack);
+                inventory.setItem(fromSlot, toStack);
+            }
+            player.updateInventory();
+        }
+    }
+
+    enum Action {
+        SWAP, RESPAWN
+    }
 }

@@ -1,26 +1,5 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
@@ -34,11 +13,16 @@ import com.avrgaming.civcraft.threading.tasks.NotificationTask;
 import com.avrgaming.civcraft.units.Equipments;
 import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.units.UnitStatic;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.BukkitObjects;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.TimeTools;
+import com.avrgaming.civcraft.util.*;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class Blacksmith extends Structure {
 
@@ -48,31 +32,17 @@ public class Blacksmith extends Structure {
 	public static double YIELD_RATE = 1.25;
 
 	private Date lastUse = new Date();
-	private NonMemberFeeComponent nonMemberFeeComponent;
-	public static HashMap<BlockCoord, Blacksmith> blacksmithAnvils = new HashMap<BlockCoord, Blacksmith>();
 
-	public Blacksmith(String id, Town town) throws CivException {
+	public Blacksmith(String id, Town town) {
 		super(id, town);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onSave();
-	}
-
-	public Blacksmith(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onLoad();
-	}
-
-	public double getNonResidentFee() {
-		return nonMemberFeeComponent.getFeeRate();
 	}
 
 	public void setNonResidentFee(double nonResidentFee) {
-		this.nonMemberFeeComponent.setFeeRate(nonResidentFee);
+		this.getNonMemberFeeComponent().setFeeRate(nonResidentFee);
 	}
 
 	private String getNonResidentFeeString() {
-		return CivSettings.localize.localizedString("Fee:") + " " + ((int) (this.nonMemberFeeComponent.getFeeRate() * 100) + "%").toString();
+		return CivSettings.localize.localizedString("Fee:") + " " + ((int) (this.getNonMemberFeeComponent().getFeeRate() * 100) + "%");
 	}
 
 	@Override
@@ -87,7 +57,7 @@ public class Blacksmith extends Structure {
 
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
-		int special_id = Integer.valueOf(sign.getAction());
+		int special_id = Integer.parseInt(sign.getAction());
 		Date now = new Date();
 		long diff = now.getTime() - lastUse.getTime();
 		diff /= 1000;
@@ -114,7 +84,7 @@ public class Blacksmith extends Structure {
 	public void updateSignText() {
 		double cost = CivSettings.getDoubleStructure("blacksmith.forge_cost");
 		for (ConstructSign sign : getSigns()) {
-			int special_id = Integer.valueOf(sign.getAction());
+			int special_id = Integer.parseInt(sign.getAction());
 			switch (special_id) {
 				case 0 :
 					sign.setText(CivSettings.localize.localizedString("rightClickDisabled"));
@@ -160,7 +130,7 @@ public class Blacksmith extends Structure {
 
 	/* Deposit forge will take the current item in the player's hand and deposit its information into the sessionDB. It will store the item's id, data, and
 	 * damage. */
-	public void deposit_forge(Player player) throws CivException {
+	public void deposit_forge(Player player) {
 		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("rightClickDisabled"));
 	}
 
@@ -191,7 +161,6 @@ public class Blacksmith extends Structure {
 		uo.rebuildUnitItem(player);
 		UnitStatic.updateUnitForPlaeyr(player);
 		CivMessage.sendSuccess(player, "Аммуниция одета удачно");
-		return;
 	}
 
 	/* Take the itemstack in hand and deposit it into the session DB. */
@@ -205,7 +174,7 @@ public class Blacksmith extends Structure {
 
 		// Only members can use the smelter
 		Resident res = CivGlobal.getResident(player.getName());
-		if (!res.hasTown() || this.getTown() != res.getTown()) {
+		if (!res.hasTown() || this.getTownOwner() != res.getTown()) {
 			throw new CivException(CivSettings.localize.localizedString("blacksmith_smelt_notMember"));
 		}
 
@@ -238,11 +207,11 @@ public class Blacksmith extends Structure {
 	public void withdrawSmelt(Player player) throws CivException {
 
 		String key = getkey(player, this, "smelt");
-		ArrayList<SessionEntry> entries = null;
+		ArrayList<SessionEntry> entries;
 
 		// Only members can use the smelter
 		Resident res = CivGlobal.getResident(player.getName());
-		if (!res.hasTown() || this.getTown() != res.getTown()) {
+		if (!res.hasTown() || this.getTownOwner() != res.getTown()) {
 			throw new CivException(CivSettings.localize.localizedString("blacksmith_smelt_notMember"));
 		}
 
@@ -253,12 +222,12 @@ public class Blacksmith extends Structure {
 		}
 
 		Inventory inv = player.getInventory();
-		HashMap<Integer, ItemStack> leftovers = null;
+		HashMap<Integer, ItemStack> leftovers;
 
 		for (SessionEntry se : entries) {
-			String split[] = se.value.split(":");
-			int itemId = Integer.valueOf(split[0]);
-			double amount = Double.valueOf(split[1]);
+			String[] split = se.value.split(":");
+			int itemId = Integer.parseInt(split[0]);
+			double amount = Double.parseDouble(split[1]);
 			long now = System.currentTimeMillis();
 			int secondsBetween = CivGlobal.getSecondsBetween(se.time, now);
 
@@ -274,7 +243,7 @@ public class Blacksmith extends Structure {
 			}
 
 			ItemStack stack = new ItemStack(itemId, (int) amount, (short) 0);
-			if (stack != null) leftovers = inv.addItem(stack);
+			leftovers = inv.addItem(stack);
 
 			// If this stack was successfully withdrawn, delete it from the DB.
 			if (leftovers.size() == 0) {

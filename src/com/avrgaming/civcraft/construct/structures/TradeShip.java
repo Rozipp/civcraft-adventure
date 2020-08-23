@@ -1,22 +1,12 @@
 
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-
-import org.bukkit.Material;
-import org.bukkit.block.Sign;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
 import com.avrgaming.civcraft.components.TradeLevelComponent;
 import com.avrgaming.civcraft.components.TradeLevelComponent.Result;
 import com.avrgaming.civcraft.components.TradeShipResults;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.constructs.Template;
-import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -26,37 +16,31 @@ import com.avrgaming.civcraft.object.Buff;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.CivColor;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.MultiInventory;
-import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.TimeTools;
+import com.avrgaming.civcraft.util.*;
+import org.bukkit.Material;
+import org.bukkit.block.Sign;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.HashSet;
 
 public class TradeShip extends WaterStructure {
 
 	private int upgradeLevel = 1;
-	private int lastConsume;
-	private int tickLevel = 1;
+	private int lastConsume = 128;
 
-	public HashSet<BlockCoord> goodsDepositPoints = new HashSet<BlockCoord>();
-	public HashSet<BlockCoord> goodsWithdrawPoints = new HashSet<BlockCoord>();
+	public HashSet<BlockCoord> goodsDepositPoints = new HashSet<>();
+	public HashSet<BlockCoord> goodsWithdrawPoints = new HashSet<>();
 
 	private TradeLevelComponent consumeComp = null;
 
-	public TradeShip(String id, Town town) throws CivException {
+	public TradeShip(String id, Town town) {
 		super(id, town);
 		setUpgradeLvl(town.BM.saved_tradeship_upgrade_levels);
-		this.lastConsume = 128;
-	}
-
-	public TradeShip(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		this.lastConsume = 128;
 	}
 
 	public String getkey() {
-		return getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
+		return getTownOwner().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}
 
 	@Override
@@ -157,7 +141,7 @@ public class TradeShip extends WaterStructure {
 				break;
 			}
 			case "/outSign": {
-				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				int ID = Integer.parseInt(sb.keyvalues.get("id"));
 				if (this.getLevel() >= (ID * 2) + 1) {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
 					ItemManager.setData(absCoord.getBlock(), sb.getData());
@@ -183,7 +167,7 @@ public class TradeShip extends WaterStructure {
 				break;
 			}
 			case "/in": {
-				Integer ID = Integer.valueOf(sb.keyvalues.get("id"));
+				int ID = Integer.parseInt(sb.keyvalues.get("id"));
 				if (ID == 0) {
 					ItemManager.setTypeId(absCoord.getBlock(), ItemManager.getMaterialId(Material.WALL_SIGN));
 					ItemManager.setData(absCoord.getBlock(), sb.getData());
@@ -264,7 +248,7 @@ public class TradeShip extends WaterStructure {
 		} catch (IllegalStateException e) {
 			tradeResult = new TradeShipResults();
 			tradeResult.setResult(Result.STAGNATE);
-			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTown().getName() + " and Location: " + this.getCorner(), e);
+			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTownOwner().getName() + " and Location: " + this.getCorner(), e);
 			return tradeResult;
 		}
 		return tradeResult;
@@ -278,38 +262,38 @@ public class TradeShip extends WaterStructure {
 
 			Result result = tradeResult.getResult();
 			switch (result) {
-			case STAGNATE:
-				CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_tradeship_stagnated", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
-				break;
-			case GROW:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_productionGrew", getTradeLevelComponent().getLevel(), getTradeLevelComponent().getCountString()));
-				break;
-			case LEVELUP:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_lvlUp", getTradeLevelComponent().getLevel()));
-				this.reprocessCommandSigns();
-				break;
-			case MAXED:
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_maxed", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
-				break;
-			default:
-				break;
+				case STAGNATE:
+					CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_tradeship_stagnated", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
+					break;
+				case GROW:
+					CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_productionGrew", getTradeLevelComponent().getLevel(), getTradeLevelComponent().getCountString()));
+					break;
+				case LEVELUP:
+					CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_lvlUp", getTradeLevelComponent().getLevel()));
+					this.reprocessCommandSigns();
+					break;
+				case MAXED:
+					CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_maxed", getTradeLevelComponent().getLevel(), CivColor.LightGreen + getTradeLevelComponent().getCountString()));
+					break;
+				default:
+					break;
 			}
 			if (tradeResult.getCulture() >= 1) {
-				int total_culture = (int) Math.round(tradeResult.getCulture());
+				int total_culture = Math.round(tradeResult.getCulture());
 
-				this.getTown().SM.addCulture(total_culture);
-				this.getTown().save();
+				this.getTownOwner().SM.addCulture(total_culture);
+				this.getTownOwner().save();
 			}
 			if (tradeResult.getMoney() >= 1) {
 				double total_coins = tradeResult.getMoney();
-				if (this.getTown().getBuffManager().hasBuff("buff_ingermanland_trade_ship_income")) {
-					total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_ingermanland_trade_ship_income");
+				if (this.getTownOwner().getBuffManager().hasBuff("buff_ingermanland_trade_ship_income")) {
+					total_coins *= this.getTownOwner().getBuffManager().getEffectiveDouble("buff_ingermanland_trade_ship_income");
 				}
 
-				if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) {
-					total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_great_lighthouse_trade_ship_income");
+				if (this.getTownOwner().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) {
+					total_coins *= this.getTownOwner().getBuffManager().getEffectiveDouble("buff_great_lighthouse_trade_ship_income");
 				}
-				if (this.getTown().BM.hasStructure("s_lighthouse")) {
+				if (this.getTownOwner().BM.hasStructure("s_lighthouse")) {
 					try {
 						total_coins *= CivSettings.getDouble(CivSettings.townConfig, "town.lighthouse_trade_ship_boost");
 					} catch (InvalidConfiguration e) {
@@ -317,19 +301,19 @@ public class TradeShip extends WaterStructure {
 					}
 				}
 
-				double taxesPaid = total_coins * this.getTown().getDepositCiv().getIncomeTaxRate();
+				double taxesPaid = total_coins * this.getTownOwner().getDepositCiv().getIncomeTaxRate();
 
 				if (total_coins >= 1) {
-					CivMessage.sendTown(getTown(),
+					CivMessage.sendTown(getTownOwner(),
 							CivColor.LightGreen + CivSettings.localize.localizedString("var_tradeship_success", Math.round(total_coins), CivSettings.CURRENCY_NAME, tradeResult.getCulture(), "Культуры", tradeResult.getConsumed()));
 					this.lastConsume = tradeResult.getConsumed();
 				}
 				if (taxesPaid > 0) {
-					CivMessage.sendTown(this.getTown(), CivColor.Yellow + CivSettings.localize.localizedString("var_tradeship_taxesPaid", Math.round(taxesPaid), CivSettings.CURRENCY_NAME));
+					CivMessage.sendTown(this.getTownOwner(), CivColor.Yellow + CivSettings.localize.localizedString("var_tradeship_taxesPaid", Math.round(taxesPaid), CivSettings.CURRENCY_NAME));
 				}
 
-				this.getTown().getTreasury().deposit(total_coins - taxesPaid);
-				this.getTown().getDepositCiv().taxPayment(this.getTown(), taxesPaid);
+				this.getTownOwner().getTreasury().deposit(total_coins - taxesPaid);
+				this.getTownOwner().getDepositCiv().taxPayment(this.getTownOwner(), taxesPaid);
 			}
 
 			if (tradeResult.getReturnCargo().size() >= 1) {
@@ -350,15 +334,16 @@ public class TradeShip extends WaterStructure {
 				for (ItemStack item : tradeResult.getReturnCargo()) {
 					multiInv.addItemStackAsync(item);
 				}
-				CivMessage.sendTown(getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("tradeship_successSpecail"));
+				CivMessage.sendTown(getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("tradeship_successSpecail"));
 			}
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 	}
 
-	public void onPostBuild(BlockCoord absCoord, SimpleBlock commandBlock) {
-		this.upgradeLevel = getTown().BM.saved_tradeship_upgrade_levels;
+	@Override
+	public void onPostBuild() {
+		this.upgradeLevel = getTownOwner().BM.saved_tradeship_upgrade_levels;
 		this.reprocessCommandSigns();
 	}
 
@@ -378,7 +363,7 @@ public class TradeShip extends WaterStructure {
 		try {
 			return this.getTradeLevelComponent().getLevel();
 		} catch (Exception e) {
-			return tickLevel;
+			return 1;
 		}
 	}
 
@@ -387,7 +372,7 @@ public class TradeShip extends WaterStructure {
 		double base = attrBiome.getBaseValue();
 
 		double rate = 1;
-		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
+		rate += this.getTownOwner().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
 		return (rate * base);
 	}
 
@@ -411,18 +396,10 @@ public class TradeShip extends WaterStructure {
 
 	public double getBonusRate() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_ingermanland_trade_ship_income")) {
-			rate *= 1.3;
-		}
-		if (this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) {
-			rate *= 1.2;
-		}
-		if (this.getTown().BM.hasStructure("s_lighthouse")) {
-			rate *= 1.2;
-		}
-		if (this.getTown().getCiv().getGovernment().id.equalsIgnoreCase("gov_theocracy")) {
-			rate *= 2.0;
-		}
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_ingermanland_trade_ship_income")) rate *= 1.3;
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_great_lighthouse_trade_ship_income")) rate *= 1.2;
+		if (this.getTownOwner().BM.hasStructure("s_lighthouse")) rate *= 1.2;
+		if (this.getTownOwner().getCiv().getGovernment().id.equalsIgnoreCase("gov_theocracy")) rate *= 2.0;
 		return rate;
 	}
 

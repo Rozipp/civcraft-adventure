@@ -1,42 +1,25 @@
 
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigAlchLevel;
+import com.avrgaming.civcraft.construct.ConstructSign;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-public class Alch
-extends Structure {
+public class Alch extends Structure {
     private int level = 1;
-    private NonMemberFeeComponent nonMemberFeeComponent;
 
-    public Alch(Location center, String id, Town town) throws CivException {
+    public Alch(String id, Town town) {
         super(id, town);
-        this.nonMemberFeeComponent = new NonMemberFeeComponent(this);
-        this.nonMemberFeeComponent.onSave();
-        this.setLevel(town.BM.saved_alch_levels);
-    }
-
-    public Alch(ResultSet rs) throws SQLException, CivException {
-        super(rs);
-        this.nonMemberFeeComponent = new NonMemberFeeComponent(this);
-        this.nonMemberFeeComponent.onLoad();
     }
 
     @Override
@@ -63,20 +46,20 @@ extends Structure {
     }
 
     public double getNonResidentFee() {
-        return this.nonMemberFeeComponent.getFeeRate();
+        return this.getNonMemberFeeComponent().getFeeRate();
     }
 
     public void setNonResidentFee(double nonResidentFee) {
-        this.nonMemberFeeComponent.setFeeRate(nonResidentFee);
+        this.getNonMemberFeeComponent().setFeeRate(nonResidentFee);
     }
 
     private String getNonResidentFeeString() {
-        return "Fee: " + new StringBuilder().append((int)(this.getNonResidentFee() * 100.0)).append("%").toString().toString();
+        return "Fee: " + ((int) (this.getNonResidentFee() * 100.0) + "%");
     }
 
     private ConstructSign getSignFromSpecialId(int special_id) {
         for (ConstructSign sign : this.getSigns()) {
-            int id = Integer.valueOf(sign.getAction());
+            int id = Integer.parseInt(sign.getAction());
             if (id != special_id) continue;
             return sign;
         }
@@ -88,25 +71,25 @@ extends Structure {
         try {
             Resident resident = CivGlobal.getResident(player.getName());
             Civilization c = resident.getCiv();
-            if (c == this.getCiv()) {
+            if (c == this.getCivOwner()) {
                 resident.buyItem(itemName, id, data, price, amount);
-                CivMessage.send((Object)player, CivColor.Green + CivSettings.localize.localizedString("var_alch_msgBought", amount, itemName, new StringBuilder().append(price).append(" ").append(CivSettings.CURRENCY_NAME).toString()));
+                CivMessage.send(player, CivColor.Green + CivSettings.localize.localizedString("var_alch_msgBought", amount, itemName, price + " " + CivSettings.CURRENCY_NAME));
                 return;
             }
-            resident.buyItem(itemName, id, data, price + (double)payToTown, amount);
-            this.getTown().depositDirect(payToTown);
-            CivMessage.send((Object)player, CivColor.Green + CivSettings.localize.localizedString("var_alch_msgBought", amount, itemName, price, CivSettings.CURRENCY_NAME));
-            CivMessage.send((Object)player, CivColor.Yellow + CivSettings.localize.localizedString("var_taxes_paid", this.getTown().getName(), new StringBuilder().append(payToTown).append(" ").append(CivSettings.CURRENCY_NAME).toString()));
+            resident.buyItem(itemName, id, data, price + (double) payToTown, amount);
+            this.getTownOwner().depositDirect(payToTown);
+            CivMessage.send(player, CivColor.Green + CivSettings.localize.localizedString("var_alch_msgBought", amount, itemName, price, CivSettings.CURRENCY_NAME));
+            CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_taxes_paid", this.getTownOwner().getName(), payToTown + " " + CivSettings.CURRENCY_NAME));
         }
         catch (CivException e) {
-            CivMessage.send((Object)player, CivColor.Red + e.getMessage());
+            CivMessage.send(player, CivColor.Red + e.getMessage());
         }
     }
 
     @Override
     public void updateSignText() {
         ConstructSign sign;
-        int count = 0;
+        int count;
         for (count = 0; count < this.level; ++count) {
             sign = this.getSignFromSpecialId(count);
             if (sign == null) {
@@ -131,13 +114,18 @@ extends Structure {
 
     @Override
     public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-        int special_id = Integer.valueOf(sign.getAction());
+        int special_id = Integer.parseInt(sign.getAction());
         if (special_id < this.level) {
             ConfigAlchLevel alchlevel = CivSettings.alchLevels.get(special_id + 1);
-            this.sign_buy_material(player, alchlevel.itemName, alchlevel.itemId, (byte)alchlevel.itemData, alchlevel.amount, alchlevel.price);
+            this.sign_buy_material(player, alchlevel.itemName, alchlevel.itemId, (byte) alchlevel.itemData, alchlevel.amount, alchlevel.price);
         } else {
-            CivMessage.send((Object)player, CivColor.Red + CivSettings.localize.localizedString("alch_sign_needUpgrade"));
+            CivMessage.send(player, CivColor.Red + CivSettings.localize.localizedString("alch_sign_needUpgrade"));
         }
+    }
+
+    @Override
+    public void onPostBuild() {
+        this.setLevel(getTownOwner().BM.saved_alch_levels);
     }
 }
 

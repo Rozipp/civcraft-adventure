@@ -1,30 +1,5 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigGrocerLevel;
 import com.avrgaming.civcraft.construct.ConstructSign;
@@ -35,24 +10,16 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class Grocer extends Structure {
 
 	private int level = 1;
 
-	private NonMemberFeeComponent nonMemberFeeComponent; 
-	
-	public Grocer( String id, Town town) throws CivException {
+	public Grocer( String id, Town town) {
 		super(id, town);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onSave();
 		setLevel(town.BM.saved_grocer_levels);
-	}
-
-	public Grocer(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onLoad();
 	}
 
 	@Override
@@ -81,20 +48,20 @@ public class Grocer extends Structure {
 	}
 
 	public double getNonResidentFee() {
-		return nonMemberFeeComponent.getFeeRate();
+		return getNonMemberFeeComponent().getFeeRate();
 	}
 
 	public void setNonResidentFee(double nonResidentFee) {
-		this.nonMemberFeeComponent.setFeeRate(nonResidentFee);
+		this.getNonMemberFeeComponent().setFeeRate(nonResidentFee);
 	}
 	
 	private String getNonResidentFeeString() {
-		return "Fee: "+((int)(getNonResidentFee()*100) + "%").toString();		
+		return "Fee: "+ ((int)(getNonResidentFee()*100) + "%");
 	}
 	
 	private ConstructSign getSignFromSpecialId(int special_id) {
 		for (ConstructSign sign : getSigns()) {
-			int id = Integer.valueOf(sign.getAction());
+			int id = Integer.parseInt(sign.getAction());
 			if (id == special_id) {
 				return sign;
 			}
@@ -110,30 +77,28 @@ public class Grocer extends Structure {
 				resident = CivGlobal.getResident(player.getName());
 				Town t = resident.getTown();
 			
-				if (t == this.getTown()) {
+				if (t == this.getTownOwner()) {
 					// Pay no taxes! You're a member.
 					resident.buyItem(itemName, id, data, price, amount);
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_grocer_msgBought",amount,itemName,price+" "+CivSettings.CURRENCY_NAME));
-					return;
 				} else {
 					// Pay non-resident taxes
 					resident.buyItem(itemName, id, data, price + payToTown, amount);
-					getTown().depositDirect(payToTown);
+					getTownOwner().depositDirect(payToTown);
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_grocer_msgBought",amount,itemName,price,CivSettings.CURRENCY_NAME));
-					CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_grocer_msgPaidTaxes",this.getTown().getName(),payToTown+" "+CivSettings.CURRENCY_NAME));
+					CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_grocer_msgPaidTaxes",this.getTownOwner().getName(),payToTown+" "+CivSettings.CURRENCY_NAME));
 				}
 			
 			}
 			catch (CivException e) {
 				CivMessage.send(player, CivColor.Rose + e.getMessage());
 			}
-		return;
 	}
 
 	
 	@Override
 	public void updateSignText() {
-		int count = 0;
+		int count;
 	
 		for (count = 0; count < level; count++) {
 			ConstructSign sign = getSignFromSpecialId(count);
@@ -164,7 +129,7 @@ public class Grocer extends Structure {
 	
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-		int special_id = Integer.valueOf(sign.getAction());
+		int special_id = Integer.parseInt(sign.getAction());
 		if (special_id < this.level) {
 			ConfigGrocerLevel grocerlevel = CivSettings.grocerLevels.get(special_id+1);
 			sign_buy_material(player, grocerlevel.itemName, grocerlevel.itemId, 

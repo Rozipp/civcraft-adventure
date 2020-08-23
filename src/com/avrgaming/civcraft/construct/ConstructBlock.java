@@ -49,12 +49,12 @@ public class ConstructBlock implements ConstructDamageBlock {
 	}
 	
 	public Town getTown() {
-		return this.owner.getTown();
+		return this.owner.getTownOwner();
 
 	}
 	
 	public Civilization getCiv() {
-		return this.owner.getCiv();
+		return this.owner.getCivOwner();
 
 	}
 	

@@ -1,14 +1,14 @@
 package com.avrgaming.civcraft.interactive;
 
+import com.avrgaming.civcraft.construct.Buildable;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.menu.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
-import com.avrgaming.civcraft.construct.structures.BuildableStatic;
-import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -26,10 +26,10 @@ public class FoundTownCallback implements CallbackInterface {
 
 	private static int INVITE_TIMEOUT = 60000;// 60 seconds
 
-	private Player player;
-	private Resident resident;
-	private Structure cityhall;
-	private Town town;
+	private final Player player;
+	private final Resident resident;
+	private final Buildable cityhall;
+	private final Town town;
 
 	public FoundTownCallback(Player player) throws CivException {
 		this.player = player;
@@ -37,7 +37,7 @@ public class FoundTownCallback implements CallbackInterface {
 		if (resident == null) throw new CivException(CivSettings.localize.localizedString("var_civGlobal_noResident", player.getName()));
 		if (!resident.hasTown()) throw new CivException(CivSettings.localize.localizedString("settler_errorNotRes"));
 
-		cityhall = Structure.newStructure(player, player.getLocation(), "s_cityhall", null, true);
+		cityhall = Buildable.newBuildable(player, player.getLocation(), "s_cityhall", null, true);
 
 		town = new Town(resident.getCiv());
 		town.checkCanCreatedTown(resident, cityhall.getCenterLocation());

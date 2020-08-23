@@ -1,11 +1,3 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.units;
 
 import java.text.SimpleDateFormat;
@@ -50,8 +42,6 @@ import gpl.AttributeUtil;
 
 public class Spy extends UnitMaterial {
 
-	public final int BOOK_ID = 403;
-
 	public Spy(String id, ConfigUnit configUnit) {
 		super(id, configUnit);
 	}
@@ -85,10 +75,6 @@ public class Spy extends UnitMaterial {
 	}
 
 	@Override
-	public void onItemToPlayer(Player player, ItemStack stack) {
-	}
-
-	@Override
 	public void onPlayerDeath(EntityDeathEvent event, ItemStack stack) {
 
 		Player player = (Player) event.getEntity();
@@ -99,7 +85,7 @@ public class Spy extends UnitMaterial {
 
 		ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
 		BookMeta meta = (BookMeta) book.getItemMeta();
-		ArrayList<String> lore = new ArrayList<String>();
+		ArrayList<String> lore = new ArrayList<>();
 		lore.add("Mission Report");
 		meta.setAuthor("Mission Reports");
 		meta.setTitle("Missions From" + " " + resident.getTown().getName());
@@ -301,7 +287,7 @@ public class Spy extends UnitMaterial {
 
 		// Check that the player is within range of the town hall.
 		Construct granary = CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
-		if (!(granary instanceof Granary) || !granary.getTown().equals(tc.getTown())) throw new CivException(CivSettings.localize.localizedString("missionBook_poison_errorNotGranary"));
+		if (!(granary instanceof Granary) || !granary.getTownOwner().equals(tc.getTown())) throw new CivException(CivSettings.localize.localizedString("missionBook_poison_errorNotGranary"));
 
 		double distance = player.getLocation().distance(granary.getCorner().getLocation());
 		if (distance > mission.range) {
@@ -440,14 +426,9 @@ public class Spy extends UnitMaterial {
 			BookUtil.paginate(meta, out);
 
 			out = ChatColor.UNDERLINE + CivSettings.localize.localizedString("cmd_civ_info_upkeepHeading") + "\n\n" + ChatColor.RESET;
-			try {
 				out += CivSettings.localize.localizedString("cmd_town_info_structuresUpkeep") + " " + tc.getTown().getStructureUpkeep() + "\n";
 				out += CivSettings.localize.localizedString("Total") + " " + tc.getTown().getTotalUpkeep();
 				BookUtil.paginate(meta, out);
-			} catch (InvalidConfiguration e) {
-				e.printStackTrace();
-				throw new CivException(CivSettings.localize.localizedString("internalException"));
-			}
 
 			meta.setLore(lore);
 			book.setItemMeta(meta);
@@ -491,10 +472,10 @@ public class Spy extends UnitMaterial {
 		double distance = player.getLocation().distance(town.getLocation());
 		if (distance > mission.range) throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorTooFar", mission.range));
 
-		if (civ.getGovernment().id == "gov_anarchy") {
+		if (civ.getGovernment().id.equals("gov_anarchy")) {
 			throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorInAnarchy", civ.getName()));
 		} else
-			if (civ.getGovernment().id == "gov_tribalism") {
+			if (civ.getGovernment().id.equals("gov_tribalism")) {
 				throw new CivException(CivSettings.localize.localizedString("var_missionBook_subvert_errorInTribalism", civ.getName()));
 			}
 

@@ -1,19 +1,4 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.cache.PlayerLocationCache;
 import com.avrgaming.civcraft.components.PlayerProximityComponent;
@@ -28,6 +13,11 @@ import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.HashSet;
 
 public class ScoutTower extends Structure {
 
@@ -37,11 +27,8 @@ public class ScoutTower extends Structure {
 	private int reportSeconds = 60;
 	private int count = 0;
 
-	public ScoutTower(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
 
-	public ScoutTower(String id, Town town) throws CivException {
+	public ScoutTower(String id, Town town) {
 		super(id, town);
 	}
 
@@ -57,9 +44,9 @@ public class ScoutTower extends Structure {
 		try {
 			range = CivSettings.getDouble(CivSettings.warConfig, "scout_tower.range");
 			
-			int reportrate = (int) CivSettings.getDouble(CivSettings.warConfig, "scout_tower.update");
-			if (this.getTown().getBuffManager().hasBuff("buff_colossus_coins_from_culture")
-					&& this.getTown().getBuffManager().hasBuff("buff_great_lighthouse_tower_range")) {
+			int reportrate = CivSettings.getInteger(CivSettings.warConfig, "scout_tower.update");
+			if (this.getTownOwner().getBuffManager().hasBuff("buff_colossus_coins_from_culture")
+					&& this.getTownOwner().getBuffManager().hasBuff("buff_great_lighthouse_tower_range")) {
 				range = 600.0;
 				reportrate = 60;
 			} else {
@@ -82,10 +69,10 @@ public class ScoutTower extends Structure {
 		proximityComponent.createComponent(this);
 	}
 	private void scoutDebug(String str) {
-		if (this.getCiv().scoutDebug && this.getCiv().scoutDebugPlayer != null) {
+		if (this.getCivOwner().scoutDebug && this.getCivOwner().scoutDebugPlayer != null) {
 			Player player;
 			try {
-				player = CivGlobal.getPlayer(this.getCiv().scoutDebugPlayer);
+				player = CivGlobal.getPlayer(this.getCivOwner().scoutDebugPlayer);
 			} catch (CivException e) {
 				return;
 			}
@@ -96,11 +83,11 @@ public class ScoutTower extends Structure {
 	@Override
 	public int getMaxHitPoints() {
 		double rate = 1.0;
-		if (this.getTown().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_chichen_itza_tower_hp")) {
+			rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_chichen_itza_tower_hp");
 		}
-		if (this.getTown().getBuffManager().hasBuff("buff_barricade")) {
-			rate += this.getTown().getBuffManager().getEffectiveDouble("buff_barricade");
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_barricade")) {
+			rate += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_barricade");
 		}
 		return (int) ((double) this.getInfo().max_hitpoints * rate);
 	}
@@ -108,7 +95,7 @@ public class ScoutTower extends Structure {
 	@Override
 	public void onSecondUpdate(CivAsyncTask task) {
 		if (!CivGlobal.towersEnabled) return;
-		HashSet<String> announced = new HashSet<String>();
+		HashSet<String> announced = new HashSet<>();
 		this.process(announced);
 	}
 
@@ -140,24 +127,24 @@ public class ScoutTower extends Structure {
 			}
 
 			/* Do not re-announce players announced by other scout towers */
-			if (alreadyAnnounced.contains(this.getCiv().getName() + ":" + player.getName())) {
+			if (alreadyAnnounced.contains(this.getCivOwner().getName() + ":" + player.getName())) {
 				scoutDebug(CivSettings.localize.localizedString("scoutTower_debug_alreadyAnnounced") + pc.getName());
 				continue;
 			}
 
 			/* Always announce outlaws, so skip down to bottom. */
-			String relationName = "";
-			String relationColor = "";
-			if (!this.getTown().isOutlaw(player.getName())) {
+			String relationName;
+			String relationColor;
+			if (!this.getTownOwner().isOutlaw(player.getName())) {
 				/* do not announce residents in this civ */
 				Resident resident = CivGlobal.getResident(player);
-				if (resident != null && resident.hasTown() && resident.getCiv() == this.getCiv()) {
+				if (resident != null && resident.hasTown() && resident.getCiv() == this.getCivOwner()) {
 					scoutDebug(CivSettings.localize.localizedString("scoutTower_debug_sameCiv"));
 					continue;
 				}
 
 				/* Only announce hostile, war, and neutral players */
-				Relation.Status relation = this.getCiv().getDiplomacyManager().getRelationStatus(player);
+				Relation.Status relation = this.getCivOwner().getDiplomacyManager().getRelationStatus(player);
 				switch (relation) {
 					case PEACE :
 					case ALLY :
@@ -185,13 +172,13 @@ public class ScoutTower extends Structure {
 
 			if (center.distanceSquared(player.getLocation()) < range * range) {
 				/* Notify the town or civ. */
-				CivMessage.sendScout(this.getCiv(),
+				CivMessage.sendScout(this.getCivOwner(),
 						CivSettings.localize.localizedString("var_scoutTower_detection",
 								(relationColor + player.getName() + "(" + relationName + ")" + CivColor.White),
 								(player.getLocation().getBlockX() + "," + player.getLocation().getBlockY() + "," + player.getLocation().getBlockZ()),
-								this.getTown().getName()));
-				alreadyAnnounced.add(this.getCiv().getName() + ":" + player.getName());
-				CivMessage.send(player, CivColor.RoseItalic + CivSettings.localize.localizedString("event_found_by_scoutTower", this.getTown().getName()));
+								this.getTownOwner().getName()));
+				alreadyAnnounced.add(this.getCivOwner().getName() + ":" + player.getName());
+				CivMessage.send(player, CivColor.RoseItalic + CivSettings.localize.localizedString("event_found_by_scoutTower", this.getTownOwner().getName()));
 			}
 		}
 

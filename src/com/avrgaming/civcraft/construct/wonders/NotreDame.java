@@ -1,28 +1,6 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
@@ -30,12 +8,8 @@ import com.avrgaming.civcraft.object.Town;
 
 public class NotreDame extends Wonder {
 
-	public NotreDame(String id, Town town) throws CivException {
+	public NotreDame(String id, Town town) {
 		super(id, town);
-	}
-
-	public NotreDame(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -58,23 +32,23 @@ public class NotreDame extends Wonder {
 	
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromCiv(this.getCiv(), "buff_notre_dame_no_anarchy");
-		this.removeBuffFromTown(this.getTown(), "buff_notre_dame_coins_from_peace");
-		this.removeBuffFromTown(this.getTown(), "buff_notre_dame_extra_war_penalty");
+		this.removeBuffFromCiv(this.getCivOwner(), "buff_notre_dame_no_anarchy");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_notre_dame_coins_from_peace");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_notre_dame_extra_war_penalty");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToCiv(this.getCiv(), "buff_notre_dame_no_anarchy");
-		this.addBuffToTown(this.getTown(), "buff_notre_dame_coins_from_peace");
-		this.addBuffToTown(this.getTown(), "buff_notre_dame_extra_war_penalty");
+		this.addBuffToCiv(this.getCivOwner(), "buff_notre_dame_no_anarchy");
+		this.addBuffToTown(this.getTownOwner(), "buff_notre_dame_coins_from_peace");
+		this.addBuffToTown(this.getTownOwner(), "buff_notre_dame_extra_war_penalty");
 
 	}
 
 	public void processPeaceTownCoins() {
 		double totalCoins = 0;
 		int peacefulTowns = 0;
-		double coinsPerTown = this.getTown().getBuffManager().getEffectiveInt("buff_notre_dame_coins_from_peace");
+		double coinsPerTown = this.getTownOwner().getBuffManager().getEffectiveInt("buff_notre_dame_coins_from_peace");
 		
 		for (Civilization civ : CivGlobal.getCivs()) {
 			if (civ.isAdminCiv()) {
@@ -88,8 +62,8 @@ public class NotreDame extends Wonder {
 			totalCoins += (coinsPerTown*civ.getTowns().size());
 		}
 		
-		this.getTown().depositTaxed(totalCoins);
-		CivMessage.sendTown(this.getTown(), CivSettings.localize.localizedString("var_NotreDame_generatedCoins",totalCoins,CivSettings.CURRENCY_NAME,peacefulTowns));	
+		this.getTownOwner().depositTaxed(totalCoins);
+		CivMessage.sendTown(this.getTownOwner(), CivSettings.localize.localizedString("var_NotreDame_generatedCoins",totalCoins,CivSettings.CURRENCY_NAME,peacefulTowns));
 		
 	}
 

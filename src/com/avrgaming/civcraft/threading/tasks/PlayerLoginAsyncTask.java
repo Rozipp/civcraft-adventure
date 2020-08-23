@@ -18,12 +18,6 @@
  */
 package com.avrgaming.civcraft.threading.tasks;
 
-import java.util.ArrayList;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.endgame.EndConditionDiplomacy;
 import com.avrgaming.civcraft.exception.CivException;
@@ -42,6 +36,11 @@ import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.war.War;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class PlayerLoginAsyncTask implements Runnable {
 
@@ -63,7 +62,6 @@ public class PlayerLoginAsyncTask implements Runnable {
 				return;
 			}
 			CivLog.info("Running PlayerLoginAsyncTask for " + getPlayer().getName() + " UUID(" + playerUUID + ")");
-			// Resident resident = CivGlobal.getResident(getPlayer().getName());
 			Resident resident = CivGlobal.getResidentViaUUID(playerUUID);
 			if (resident != null && !resident.getName().equals(getPlayer().getName())) {
 				CivGlobal.removeResident(resident);
@@ -201,14 +199,11 @@ public class PlayerLoginAsyncTask implements Runnable {
 				}
 			}
 
-		} catch (
-
-		CivException playerNotFound) {
+		} catch (CivException playerNotFound) {
 			// Player logged out while async task was running.
 		} catch (InvalidNameException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
-
 }

@@ -1,22 +1,25 @@
 package com.avrgaming.civcraft.construct;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.bukkit.Color;
-import org.bukkit.Effect;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.World;
+import com.avrgaming.civcraft.components.Component;
+import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.config.ConfigConstructInfo;
+import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
+import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.main.CivCraft;
+import com.avrgaming.civcraft.main.CivData;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.object.*;
+import com.avrgaming.civcraft.permission.PlotPermissions;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
+import com.avrgaming.civcraft.util.*;
+import com.wimbli.WorldBorder.BorderData;
+import com.wimbli.WorldBorder.Config;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
@@ -24,37 +27,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.MaterialData;
 
-import com.avrgaming.civcraft.components.Component;
-import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.config.ConfigConstructInfo;
-import com.avrgaming.civcraft.construct.constructs.Template;
-import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
-import com.avrgaming.civcraft.construct.structures.BuildableStatic;
-import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.main.CivCraft;
-import com.avrgaming.civcraft.main.CivData;
-import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.SQLObject;
-import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.permission.PlotPermissions;
-import com.avrgaming.civcraft.threading.CivAsyncTask;
-import com.avrgaming.civcraft.threading.TaskMaster;
-import com.avrgaming.civcraft.threading.tasks.BuildTemplateTask;
-import com.avrgaming.civcraft.util.BlockCoord;
-import com.avrgaming.civcraft.util.ChunkCoord;
-import com.avrgaming.civcraft.util.FireworkEffectPlayer;
-import com.avrgaming.civcraft.util.ItemManager;
-import com.avrgaming.civcraft.util.SimpleBlock;
-import com.avrgaming.civcraft.util.TimeTools;
-import com.wimbli.WorldBorder.BorderData;
-import com.wimbli.WorldBorder.Config;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 @Setter
@@ -78,18 +55,14 @@ public abstract class Construct extends SQLObject {
 
 	public ArrayList<Component> attachedComponents = new ArrayList<>();
 
-	public Construct(String id, SQLObject owner) throws CivException {
+	public Construct(String id, SQLObject owner) {
 		ConfigConstructInfo cInfo = CivSettings.constructs.get(id);
 		this.setInfo(cInfo);
 		this.setSQLOwner(owner);
 		loadSettings();
 	}
 
-	public String getHash() {
-		return corner.toString();
-	}
-
-	public Resident getOwnerResident() {
+	public Resident getResidentOwner() {
 		if (SQLOwner == null) return null;
 		if (SQLOwner instanceof Resident) return (Resident) SQLOwner;
 		return null;
@@ -101,17 +74,17 @@ public abstract class Construct extends SQLObject {
 		return null;
 	}
 
-	public Town getTown() {
+	public Town getTownOwner() {
 		if (SQLOwner == null) return null;
-		if (SQLOwner instanceof Construct) return ((Construct) SQLOwner).getTown();
+		if (SQLOwner instanceof Construct) return ((Construct) SQLOwner).getTownOwner();
 		if (SQLOwner instanceof Town) return (Town) SQLOwner;
 		if (SQLOwner instanceof Resident) return ((Resident) SQLOwner).getTown();
 		return null;
 	}
 
-	public Civilization getCiv() {
+	public Civilization getCivOwner() {
 		if (SQLOwner == null) return null;
-		if (SQLOwner instanceof Construct) return ((Construct) SQLOwner).getCiv();
+		if (SQLOwner instanceof Construct) return ((Construct) SQLOwner).getCivOwner();
 		if (SQLOwner instanceof Town) return ((Town) SQLOwner).getCiv();
 		if (SQLOwner instanceof Civilization) return (Civilization) SQLOwner;
 		if (SQLOwner instanceof Resident) return ((Resident) SQLOwner).getCiv();
@@ -121,9 +94,26 @@ public abstract class Construct extends SQLObject {
 	public void setCorner(Location loc) {
 		this.corner = new BlockCoord(loc);
 		if (getTemplate() != null)
-			this.setCenterLocation(loc.add(getTemplate().size_x / 2, getTemplate().size_y / 2, getTemplate().size_z / 2));
+			this.setCenterLocation(loc.add(getTemplate().size_x * 0.5, getTemplate().size_y * 0.5, getTemplate().size_z * 0.5));
 		else
 			this.setCenterLocation(loc);
+	}
+
+	public void setTemplate(Template tpl) {
+		if (this.getCorner() != null) {
+			if (tpl == null)
+				this.setCenterLocation(this.getCorner().getLocation());
+			else
+				this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x * 0.5, tpl.size_y * 0.5, tpl.size_z * 0.5));
+		}
+		this.template = tpl;
+	}
+
+	public Location getCenterLocation() {
+		if (this.centerLocation != null)
+			return this.centerLocation;
+		else
+			return this.getCorner().getLocation();
 	}
 
 	// ---------------- get ConfigBuildableInfo
@@ -144,8 +134,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public int getRegenRate() {
-		if (this.info.regenRate == null) return 0;
-		return info.regenRate;
+		return (this.info.regenRate == null) ? 0 : info.regenRate;
 	}
 
 	public double getUpkeepCost() {
@@ -165,8 +154,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public int getPoints() {
-		if (info.points == null) return 0;
-		return info.points;
+		return (info.points == null) ? 0 : info.points;
 	}
 
 	public boolean allowDemolish() {
@@ -182,8 +170,8 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public boolean isAvailable() {
-		if (this.getTown() == null || this.getTown().getId() == 0) return true;
-		return info.isAvailable(this.getTown());
+		if (this.getTownOwner() == null || this.getTownOwner().getId() == 0) return true;
+		return info.isAvailable(this.getTownOwner());
 	}
 
 	public int getLimit() {
@@ -203,23 +191,6 @@ public abstract class Construct extends SQLObject {
 			if (name.equals(comp.getName())) return comp;
 		}
 		return null;
-	}
-
-	public void setTemplate(Template tpl) {
-		if (this.getCorner() != null) {
-			if (tpl == null)
-				this.setCenterLocation(this.getCorner().getLocation());
-			else
-				this.setCenterLocation(this.getCorner().getLocation().add(tpl.size_x / 2, tpl.size_y / 2, tpl.size_z / 2));
-		}
-		this.template = tpl;
-	}
-
-	public Location getCenterLocation() {
-		if (this.centerLocation != null)
-			return this.centerLocation;
-		else
-			return this.getCorner().getLocation();
 	}
 
 	// ------------- Build ----------------------
@@ -287,9 +258,8 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public void repairFromTemplate() {
-		Template tpl = this.getTemplate();
-		tpl.buildTemplate(getCorner());
-		tpl.buildAirBlocks(getCorner());
+		getTemplate().buildTemplate(getCorner());
+		getTemplate().buildAirBlocks(getCorner());
 		postBuild();
 	}
 
@@ -306,7 +276,8 @@ public abstract class Construct extends SQLObject {
 	public void onSecondUpdate(CivAsyncTask task) {
 	}
 
-	public abstract void processUndo() throws CivException;
+	public void processUndo() throws CivException {
+	}
 
 	public void build(Player player) throws CivException {
 		this.checkBlockPermissionsAndRestrictions(player);
@@ -326,7 +297,15 @@ public abstract class Construct extends SQLObject {
 		}
 	}
 
-	public abstract String getDynmapDescription();
+	public String getDynmapDescription() {
+		return null;
+	}
+
+	;
+
+	public boolean showOnDynmap() {
+		return false;
+	}
 
 	public abstract String getMarkerIconName();
 
@@ -334,19 +313,9 @@ public abstract class Construct extends SQLObject {
 
 	public abstract void onUnload();
 
-	public boolean showOnDynmap() {
-		return false;
-	}
-
-	public void updateSignText() {
-		/* Override in children */
-	}
-
-	public void onDemolish() throws CivException {
-	}
+	public void updateSignText() {/* Override in children */}
 
 	// ---------------- load
-	@SuppressWarnings("deprecation")
 	public void loadSettings() {
 		/* Build and register all of the components. */
 		if (!info.components.isEmpty()) {
@@ -365,19 +334,6 @@ public abstract class Construct extends SQLObject {
 				}
 			}
 		}
-
-		if (!this.attachedComponents.isEmpty()) {
-			Construct construct = this;
-			TaskMaster.syncTask(new Runnable() {
-				// Посколько compClass.createComponent() создаеться в новом потоке, то нам надо подождать 2 секунды, перед загрузкой информации из ДБ
-				@Override
-				public void run() {
-					for (Component comp : construct.attachedComponents) {
-						comp.onLoad();
-					}
-				}
-			}, 40);
-		}
 	}
 
 	public void bindBlocks() {
@@ -387,40 +343,31 @@ public abstract class Construct extends SQLObject {
 		if (tpl == null) return;
 		if (isDestroyable()) return;
 		Construct construct = this;
-		TaskMaster.asyncTask(new Runnable() {
-			@Override
-			public void run() {
-				Queue<SimpleBlock> sbs = new LinkedList<SimpleBlock>();
-				BlockCoord corner = construct.getCorner();
-				for (int y = 0; y < tpl.size_y; y++) {
-					for (SimpleBlock sb : tpl.blocks.get(y)) {
-						if (sb.getType() == CivData.AIR) continue;
-						if (sb.specialType == SimpleBlock.SimpleType.COMMAND) continue;
-						sbs.add(new SimpleBlock(corner, sb));
+		TaskMaster.asyncTask(() -> {
+			BlockCoord corner = construct.getCorner();
+			for (int y = 0; y < tpl.size_y; y++) {
+				for (SimpleBlock sb : tpl.blocks.get(y)) {
+					if (sb.getType() == CivData.AIR) continue;
+					if (sb.specialType == SimpleBlock.SimpleType.COMMAND) continue;
 
-						BlockCoord bc = corner.getRelative(sb.getX(), y, sb.getZ());
-						construct.addConstructBlock(new BlockCoord(bc), (y != 0));
-					}
+					BlockCoord bc = corner.getRelative(sb.getX(), y, sb.getZ());
+					construct.addConstructBlock(new BlockCoord(bc), (y != 0));
 				}
 			}
 		}, 20);
 	}
 
 	public void postBuild() {
-		CivLog.debug("postBuild");
 		bindBlocks();
-		if (this.isActive()) postBuildSyncTask();
+		postBuildSyncTask();
 	}
 
 	public void postBuildSyncTask() {
-		Construct constr = this;
-		TaskMaster.syncTask(new Runnable() {
-			@Override
-			public void run() {
-				constr.processCommandSigns();
-				constr.onPostBuild();
-			}
-		}, TimeTools.toTicks(1));
+		if (this.isActive())
+			TaskMaster.syncTask(() -> {
+				this.processCommandSigns();
+				this.onPostBuild();
+			}, 20);
 	}
 
 	public abstract void onPostBuild();
@@ -515,10 +462,6 @@ public abstract class Construct extends SQLObject {
 	}
 
 	// ------------------- delete
-	public void delete(boolean isUndo) {
-
-	}
-
 	@Override
 	public void delete() {
 		this.setDeleted(true);
@@ -533,7 +476,7 @@ public abstract class Construct extends SQLObject {
 			constructChests = null;
 		}
 
-		synchronized (this.constructSigns) {
+		synchronized (constructSigns) {
 			Set<BlockCoord> deleteObject = this.constructSigns.keySet();
 			for (BlockCoord bcoord : deleteObject) {
 				this.constructSigns.get(bcoord).delete();
@@ -545,7 +488,7 @@ public abstract class Construct extends SQLObject {
 	public void deleteWithUndo() {
 		try {
 			this.undoFromTemplate();
-		} catch (IOException | CivException e1) {
+		} catch (CivException e1) {
 			e1.printStackTrace();
 			this.fancyDestroyConstructBlocks();
 		}
@@ -557,88 +500,63 @@ public abstract class Construct extends SQLObject {
 		this.delete();
 	}
 
-	public void undoFromTemplate() throws IOException, CivException {
+	public void undoFromTemplate() throws CivException {
 		String templatePath = Template.getUndoFilePath(this.getCorner().toString());
 		File f = new File(templatePath);
-		if (!f.exists()) {
-			throw new CivException(CivSettings.localize.localizedString("internalIOException") + " " + CivSettings.localize.localizedString("FileNotFound") + " " + templatePath);
+		if (!f.exists()) throw new CivException(CivSettings.localize.localizedString("internalIOException") + " " + CivSettings.localize.localizedString("FileNotFound") + " " + templatePath);
+		try {
+			TaskMaster.asyncTask(new BuildTemplateTask(new Template(templatePath), this.getCorner(), true, true), 0);
+		} catch (IOException | CivException e) {
+			throw new CivException(e.getMessage());
 		}
-		Construct constr = this;
-		TaskMaster.asyncTask(new Runnable() {
-			@Override
-			public void run() {
-				Template tpl;
-				try {
-					tpl = new Template(templatePath);
-				} catch (IOException | CivException e) {
-					e.printStackTrace();
-					return;
-				}
-				BuildTemplateTask btt = new BuildTemplateTask(tpl, constr.getCorner(), true);
-				TaskMaster.asyncTask(btt, 0);
-				while (!BuildTemplateTask.isFinished(btt)) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				constr.unbindConstructBlocks();
-				Template.deleteFilePath(templatePath);
-			}
-		}, 20);
 	}
 
 	public void fancyDestroyConstructBlocks() {
 		String templatePath = Template.getUndoFilePath(this.getCorner().toString());
 		Template.deleteFilePath(templatePath);
-		TaskMaster.syncTask(new Runnable() {
-			@Override
-			public void run() {
-				for (BlockCoord coord : constructBlocks.keySet()) {
-					CivGlobal.removeConstructBlock(coord);
+		TaskMaster.syncTask(() -> {
+			for (BlockCoord coord : constructBlocks.keySet()) {
+				CivGlobal.removeConstructBlock(coord);
 
-					if (ItemManager.getTypeId(coord.getBlock()) == CivData.AIR) continue;
-					if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
-					if (ItemManager.getTypeId(coord.getBlock()) == CivData.SIGN) continue;
-					if (ItemManager.getTypeId(coord.getBlock()) == CivData.WALL_SIGN) continue;
-					if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
-						continue;
-					}
+				if (ItemManager.getTypeId(coord.getBlock()) == CivData.AIR) continue;
+				if (ItemManager.getTypeId(coord.getBlock()) == CivData.CHEST) continue;
+				if (ItemManager.getTypeId(coord.getBlock()) == CivData.SIGN) continue;
+				if (ItemManager.getTypeId(coord.getBlock()) == CivData.WALL_SIGN) continue;
+				if (CivSettings.alwaysCrumble.contains(ItemManager.getTypeId(coord.getBlock()))) {
+					ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
+					continue;
+				}
 
-					double nextrand = CivCraft.civRandom.nextDouble();
+				double nextrand = CivCraft.civRandom.nextDouble();
 
-					// Each block has a 0.1% chance of launching an explosion effect
-					if (nextrand <= 0.002) {
-						FireworkEffect effect = FireworkEffect.builder().with(org.bukkit.FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
-						FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
-						for (int i = 0; i < 3; i++) {
-							try {
-								fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
+				// Each block has a 0.1% chance of launching an explosion effect
+				if (nextrand <= 0.002) {
+					FireworkEffect effect = FireworkEffect.builder().with(FireworkEffect.Type.BURST).withColor(Color.ORANGE).withColor(Color.RED).withTrail().withFlicker().build();
+					FireworkEffectPlayer fePlayer = new FireworkEffectPlayer();
+					for (int i = 0; i < 3; i++) {
+						try {
+							fePlayer.playFirework(coord.getBlock().getWorld(), coord.getLocation(), effect);
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
-					// Each block has a 10% chance of starting a fire
-					if (nextrand <= 0.05) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.FIRE);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
-					// Each block has a 30% chance to turn into gravel
-					if (nextrand <= 0.2) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
-					// Each block has a 70% chance to turn into Air
-					if (nextrand <= 0.8) {
-						ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
-						ItemManager.setData(coord.getBlock(), 0, true);
-						continue;
-					}
+				}
+				// Each block has a 10% chance of starting a fire
+				if (nextrand <= 0.05) {
+					ItemManager.setTypeId(coord.getBlock(), CivData.FIRE);
+					ItemManager.setData(coord.getBlock(), 0, true);
+					continue;
+				}
+				// Each block has a 30% chance to turn into gravel
+				if (nextrand <= 0.2) {
+					ItemManager.setTypeId(coord.getBlock(), CivData.GRAVEL);
+					ItemManager.setData(coord.getBlock(), 0, true);
+					continue;
+				}
+				// Each block has a 70% chance to turn into Air
+				if (nextrand <= 0.8) {
+					ItemManager.setTypeId(coord.getBlock(), CivData.AIR);
+					ItemManager.setData(coord.getBlock(), 0, true);
 				}
 			}
 		}, 100);
@@ -660,10 +578,6 @@ public abstract class Construct extends SQLObject {
 		return this.constructSigns.values();
 	}
 
-	public ConstructSign getSign(BlockCoord coord) {
-		return this.constructSigns.get(coord);
-	}
-
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
 		// Children override
 	}
@@ -671,7 +585,7 @@ public abstract class Construct extends SQLObject {
 	// ------------ ConstructChest
 	public void addChest(ConstructChest chest) {
 		ArrayList<ConstructChest> chests = constructChests.get(chest.getChestId());
-		if (chests == null) chests = new ArrayList<ConstructChest>();
+		if (chests == null) chests = new ArrayList<>();
 		chests.add(chest);
 		constructChests.put(chest.getChestId(), chests);
 		// if (getTown() != null) getTown().addChest();
@@ -681,7 +595,7 @@ public abstract class Construct extends SQLObject {
 	public ArrayList<ConstructChest> getChestsById(String id) {
 		ArrayList<ConstructChest> chests = constructChests.get(id);
 		if (chests == null)
-			return new ArrayList<ConstructChest>();
+			return new ArrayList<>();
 		else
 			return chests;
 	}
@@ -744,7 +658,7 @@ public abstract class Construct extends SQLObject {
 	}
 
 	public boolean isPartOfAdminCiv() {
-		return (this.getCiv() != null) && this.getCiv().isAdminCiv();
+		return (this.getCivOwner() != null) && this.getCivOwner().isAdminCiv();
 	}
 
 	public boolean isActive() {
@@ -759,7 +673,7 @@ public abstract class Construct extends SQLObject {
 		return true;
 	}
 
-	public void validateAsyncTask(Player player) throws CivException {
+	public void validateAsyncTask(Player player) {
 		TaskMaster.asyncTask(new StructureValidator(player, this, null), 0);
 	}
 

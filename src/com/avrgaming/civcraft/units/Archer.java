@@ -26,7 +26,7 @@ public class Archer extends UnitMaterial {
 		
 		attrs.addLore(CivColor.RoseBold + "           Амуниция:");
 		attrs.addLore(CivColor.Rose     + "          Голова  : " + h);
-		attrs.addLore(CivColor.Rose     + "  мечь    Грудь   : " + c + CivColor.Rose + "    лук");
+		attrs.addLore(CivColor.Rose     + "  меч     Грудь   : " + c + CivColor.Rose + "    лук");
 		attrs.addLore(CivColor.Rose     + "   " + m + CivColor.Rose + "     Ноги    : " + l + CivColor.Rose + "     " + t);
 		attrs.addLore(CivColor.Rose     + "          Ступни  : " + b);
 	}

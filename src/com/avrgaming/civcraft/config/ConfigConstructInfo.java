@@ -105,4 +105,28 @@ public class ConfigConstructInfo {
 		}
 		CivLog.info("Loaded " + structureMap.size() + " " + path + " construct.");
 	}
+
+	public String getClassName(){
+		String[] splitId = id.split("_");
+		String name = "com.avrgaming.civcraft.construct.";
+		switch (type){
+			case Structure:
+				name += "structures.";
+				break;
+			case Wonder:
+				name += "wonders.";
+				break;
+			case Global:
+				name += "constructs.";
+				break;
+			case Titles:
+				name += "titles.";
+				break;
+		}
+		int length = splitId.length;
+		for (int i = 1; i < length; i++) {
+			name = name + splitId[i].substring(0, 1).toUpperCase() + splitId[i].substring(1).toLowerCase();
+		}
+		return name;
+	}
 }

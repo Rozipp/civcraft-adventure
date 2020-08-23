@@ -1,11 +1,7 @@
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import com.avrgaming.civcraft.components.TransmuterComponent;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.object.Town;
@@ -15,13 +11,9 @@ public class Quarry extends Structure {
 
 	public int level;
 
-	public Quarry(String id, Town town) throws CivException {
+	public Quarry(String id, Town town) {
 		super(id, town);
 		this.level = town.BM.saved_quarry_level;
-	}
-
-	public Quarry(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -66,20 +58,20 @@ public class Quarry extends Structure {
 
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().BM.saved_quarry_level;
+		this.level = getTownOwner().BM.saved_quarry_level;
 		modifyTransmuterChance();
 		getTransmuter().setLevel(level);
 	}
 
 	public void modifyTransmuterChance() {
-		Double chance = 1.0;
-		double extraction = this.getTown().getBuffManager().getEffectiveDouble("buff_extraction");
+		double chance = 1.0;
+		double extraction = this.getTownOwner().getBuffManager().getEffectiveDouble("buff_extraction");
 		chance += (extraction > 2) ? 2 : extraction;
-		chance += this.getTown().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
+		chance += this.getTownOwner().getBuffManager().getEffectiveDouble("buff_grandcanyon_quarry_and_trommel");
 
 		try {
-			if (this.getTown().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
-			if (this.getTown().getGovernment().id.equals("gov_theocracy") || this.getTown().getGovernment().id.equals("gov_monarchy")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
+			if (this.getTownOwner().getGovernment().id.equals("gov_despotism")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.despotism_rate");
+			if (this.getTownOwner().getGovernment().id.equals("gov_theocracy") || this.getTownOwner().getGovernment().id.equals("gov_monarchy")) chance *= CivSettings.getDouble(CivSettings.structureConfig, "quarry.penalty_rate");
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}

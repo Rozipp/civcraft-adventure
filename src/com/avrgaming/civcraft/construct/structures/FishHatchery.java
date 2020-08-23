@@ -1,31 +1,23 @@
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.ArrayList;
 
 public class FishHatchery extends Structure {
 
 	private int level = 1;
 
-	public FishHatchery(String id, Town town) throws CivException {
+	public FishHatchery(String id, Town town) {
 		super(id, town);
-	}
-
-	public FishHatchery(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -55,7 +47,7 @@ public class FishHatchery extends Structure {
 
 	private ConstructSign getSignFromSpecialId(int special_id) {
 		for (ConstructSign sign : getSigns()) {
-			int id = Integer.valueOf(sign.getAction());
+			int id = Integer.parseInt(sign.getAction());
 			if (id == special_id) {
 				return sign;
 			}
@@ -65,7 +57,7 @@ public class FishHatchery extends Structure {
 
 	@Override
 	public void updateSignText() {
-		int count = 0;
+		int count;
 
 		for (count = 0; count < level; count++) {
 			ConstructSign sign = getSignFromSpecialId(count);
@@ -90,7 +82,7 @@ public class FishHatchery extends Structure {
 
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-		int special_id = Integer.valueOf(sign.getAction());
+		int special_id = Integer.parseInt(sign.getAction());
 		if (special_id < this.level) {
 			CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_fishery_pool_msg_online", (special_id + 1)));
 		} else {
@@ -100,20 +92,20 @@ public class FishHatchery extends Structure {
 	
 	@Override
 	public ArrayList<ConstructChest> getChestsById(String id) {
-		if (id.equals("result")) return getChestsById("4");
+		if (id.equals("result")) return super.getChestsById("4");
 		
 		ArrayList<ConstructChest> chests = new ArrayList<>();
 		ArrayList<ConstructChest> ch; 
-		if ((ch = getChestsById("0")) != null) chests.addAll(ch);
-		if ((ch = getChestsById("1")) != null) chests.addAll(ch);
-		if ((ch = getChestsById("2")) != null) chests.addAll(ch);
-		if ((ch = getChestsById("3")) != null) chests.addAll(ch);
+		if ((ch = super.getChestsById("0")) != null) chests.addAll(ch);
+		if ((ch = super.getChestsById("1")) != null) chests.addAll(ch);
+		if ((ch = super.getChestsById("2")) != null) chests.addAll(ch);
+		if ((ch = super.getChestsById("3")) != null) chests.addAll(ch);
 		return chests;
 	}
 	
 	@Override
 	public void onPostBuild() {
-		this.level = getTown().BM.saved_fish_hatchery_level;
+		this.level = getTownOwner().BM.saved_fish_hatchery_level;
 	}
 
 }

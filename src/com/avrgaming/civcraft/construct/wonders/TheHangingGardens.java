@@ -1,27 +1,4 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.wonders;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -29,29 +6,26 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
+import org.bukkit.entity.Player;
 
 public class TheHangingGardens extends Wonder {
 
-	public TheHangingGardens(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public TheHangingGardens(String id, Town town) throws CivException {
+	public TheHangingGardens(String id, Town town) {
 		super(id, town);
 	}
 
 	@Override
 	protected void addBuffs() {
-		addBuffToCiv(this.getCiv(), "buff_hanging_gardens_growth");
-		addBuffToCiv(this.getCiv(), "buff_hanging_gardens_additional_growth");
-		addBuffToTown(this.getTown(), "buff_hanging_gardens_regen");
+		addBuffToCiv(this.getCivOwner(), "buff_hanging_gardens_growth");
+		addBuffToCiv(this.getCivOwner(), "buff_hanging_gardens_additional_growth");
+		addBuffToTown(this.getTownOwner(), "buff_hanging_gardens_regen");
 	}
 
 	@Override
 	protected void removeBuffs() {
-		removeBuffFromCiv(this.getCiv(), "buff_hanging_gardens_growth");
-		removeBuffFromCiv(this.getCiv(), "buff_hanging_gardens_additional_growth");
-		removeBuffFromTown(this.getTown(), "buff_hanging_gardens_regen");
+		removeBuffFromCiv(this.getCivOwner(), "buff_hanging_gardens_growth");
+		removeBuffFromCiv(this.getCivOwner(), "buff_hanging_gardens_additional_growth");
+		removeBuffFromTown(this.getTownOwner(), "buff_hanging_gardens_regen");
 	}
 
 	@Override
@@ -75,7 +49,7 @@ public class TheHangingGardens extends Wonder {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCivtickUpdate(CivAsyncTask task) {
-		for (Town t : this.getTown().getCiv().getTowns()) {
+		for (Town t : this.getTownOwner().getCiv().getTowns()) {
 			for (Resident res : t.getResidents()) {
 				try {
 					Player player = CivGlobal.getPlayer(res);
@@ -83,7 +57,7 @@ public class TheHangingGardens extends Wonder {
 					if (player.getHealth() >= 20) continue;
 
 					TownChunk tc = CivGlobal.getTownChunk(player.getLocation());
-					if (tc == null || tc.getTown() != this.getTown()) continue;
+					if (tc == null || tc.getTown() != this.getTownOwner()) continue;
 
 					if (player.getHealth() > player.getMaxHealth())
 						player.setHealth(player.getMaxHealth());

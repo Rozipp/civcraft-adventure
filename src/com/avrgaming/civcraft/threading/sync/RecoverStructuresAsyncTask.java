@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;

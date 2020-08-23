@@ -1,32 +1,5 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
@@ -39,12 +12,21 @@ import com.avrgaming.civcraft.object.LibraryEnchantment;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
 
 public class Library extends Structure {
 
 	private int level;
-	ArrayList<LibraryEnchantment> enchantments = new ArrayList<LibraryEnchantment>();
-	private NonMemberFeeComponent nonMemberFeeComponent;
+	ArrayList<LibraryEnchantment> enchantments = new ArrayList<>();
+
+	public Library(String id, Town town) {
+		super(id, town);
+		setLevel(town.BM.saved_library_level);
+	}
 
 	public static EnchantmentCustom getEnchantFromString(String name) {
 		// Armor Enchantments
@@ -81,28 +63,15 @@ public class Library extends Structure {
 	}
 
 	public double getNonResidentFee() {
-		return this.nonMemberFeeComponent.getFeeRate();
+		return this.getNonMemberFeeComponent().getFeeRate();
 	}
 
 	public void setNonResidentFee(double nonResidentFee) {
-		this.nonMemberFeeComponent.setFeeRate(nonResidentFee);
+		this.getNonMemberFeeComponent().setFeeRate(nonResidentFee);
 	}
 
 	private String getNonResidentFeeString() {
-		return "Fee: " + ((int) (getNonResidentFee() * 100) + "%").toString();
-	}
-
-	public Library(String id, Town town) throws CivException {
-		super(id, town);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onSave();
-		setLevel(town.BM.saved_library_level);
-	}
-
-	public Library(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onLoad();
+		return "Fee: " + ((int) (getNonResidentFee() * 100) + "%");
 	}
 
 	public int getLevel() {
@@ -115,7 +84,7 @@ public class Library extends Structure {
 
 	private ConstructSign getSignFromSpecialId(int special_id) {
 		for (ConstructSign sign : getSigns()) {
-			int id = Integer.valueOf(sign.getAction());
+			int id = Integer.parseInt(sign.getAction());
 			if (id == special_id) {
 				return sign;
 			}
@@ -136,7 +105,7 @@ public class Library extends Structure {
 			}
 			double price = enchant.price;
 
-			if (this.getTown().BM.hasStructure("s_shopingcenter")) price /= 2.0;
+			if (this.getTownOwner().BM.hasStructure("s_shopingcenter")) price /= 2.0;
 			sign.setText(enchant.displayName + "\n" + "Level " + enchant.level + "\n" + getNonResidentFeeString() + "\n" + "For " + price);
 			sign.update();
 			count++;
@@ -166,7 +135,7 @@ public class Library extends Structure {
 	}
 
 	public void add_enchantment_to_tool(Player player, ConstructSign sign, PlayerInteractEvent event) throws CivException {
-		int special_id = Integer.valueOf(sign.getAction());
+		int special_id = Integer.parseInt(sign.getAction());
 
 		if (!event.hasItem()) {
 			CivMessage.send(player, CivColor.Rose + CivSettings.localize.localizedString("library_enchant_itemNotInHand"));
@@ -186,7 +155,7 @@ public class Library extends Structure {
 
 		resident = CivGlobal.getResident(player.getName());
 		Town t = resident.getTown();
-		if (t == this.getTown()) {
+		if (t == this.getTownOwner()) {
 			// Pay no taxes! You're a member.
 			payToTown = 0;
 		}
@@ -202,7 +171,7 @@ public class Library extends Structure {
 
 		// Send money to town for non-resident fee
 		if (payToTown != 0) {
-			getTown().depositDirect(payToTown);
+			getTownOwner().depositDirect(payToTown);
 			CivMessage.send(player, CivColor.Yellow + " " + CivSettings.localize.localizedString("var_taxes_paid", payToTown, CivSettings.CURRENCY_NAME));
 		}
 
@@ -233,10 +202,6 @@ public class Library extends Structure {
 			}
 		}
 		return out;
-	}
-
-	public ArrayList<LibraryEnchantment> getEnchants() {
-		return enchantments;
 	}
 
 	public void addEnchant(LibraryEnchantment enchant) throws CivException {

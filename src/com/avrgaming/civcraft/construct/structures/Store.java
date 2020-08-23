@@ -1,31 +1,5 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-
-import com.avrgaming.civcraft.components.NonMemberFeeComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.exception.CivException;
@@ -36,26 +10,20 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.StoreMaterial;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.ArrayList;
 
 public class Store extends Structure {
 	
 	private int level = 1;
 	
-	private NonMemberFeeComponent nonMemberFeeComponent;
+	ArrayList<StoreMaterial> materials = new ArrayList<>();
 	
-	ArrayList<StoreMaterial> materials = new ArrayList<StoreMaterial>();
-	
-	public Store(String id, Town town) throws CivException {
+	public Store(String id, Town town) {
 		super(id, town);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onSave();
 		setLevel(town.BM.saved_store_level);
-	}
-	
-	public Store(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-		nonMemberFeeComponent = new NonMemberFeeComponent(this);
-		nonMemberFeeComponent.onLoad();
 	}
 
 	public int getLevel() {
@@ -67,15 +35,15 @@ public class Store extends Structure {
 	}
 
 	public double getNonResidentFee() {
-		return nonMemberFeeComponent.getFeeRate();
+		return getNonMemberFeeComponent().getFeeRate();
 	}
 
 	public void setNonResidentFee(double nonResidentFee) {
-		nonMemberFeeComponent.setFeeRate(nonResidentFee);
+		getNonMemberFeeComponent().setFeeRate(nonResidentFee);
 	}
 	
 	private String getNonResidentFeeString() {
-		return "Fee: "+((int)(nonMemberFeeComponent.getFeeRate()*100) + "%").toString();		
+		return "Fee: "+ ((int)(getNonMemberFeeComponent().getFeeRate()*100) + "%");
 	}
 	
 	public void addStoreMaterial(StoreMaterial mat) throws CivException {
@@ -87,7 +55,7 @@ public class Store extends Structure {
 	
 	private ConstructSign getSignFromSpecialId(int special_id) {
 		for (ConstructSign sign : getSigns()) {
-			int id = Integer.valueOf(sign.getAction());
+			int id = Integer.parseInt(sign.getAction());
 			if (id == special_id) {
 				return sign;
 			}
@@ -124,7 +92,7 @@ public class Store extends Structure {
 	
 	@Override
 	public void processSignAction(Player player, ConstructSign sign, PlayerInteractEvent event) {
-		int special_id = Integer.valueOf(sign.getAction());
+		int special_id = Integer.parseInt(sign.getAction());
 		if (special_id < this.materials.size()) {
 			StoreMaterial mat = this.materials.get(special_id);
 			sign_buy_material(player, mat.name, mat.type, mat.data, 64, mat.price);
@@ -143,7 +111,7 @@ public class Store extends Structure {
 				resident = CivGlobal.getResident(player.getName());
 				Town t = resident.getTown();
 			
-				if (t == this.getTown()) {
+				if (t == this.getTownOwner()) {
 					// Pay no taxes! You're a member.
 					resident.buyItem(itemName, id, data, price, amount);
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_market_buy",amount,itemName,price,CivSettings.CURRENCY_NAME));
@@ -151,7 +119,7 @@ public class Store extends Structure {
 				} else {
 					// Pay non-resident taxes
 					resident.buyItem(itemName, id, data, price + payToTown, amount);
-					getTown().depositDirect(payToTown);
+					getTownOwner().depositDirect(payToTown);
 					CivMessage.send(player, CivColor.Yellow + CivSettings.localize.localizedString("var_taxes_paid",payToTown,CivSettings.CURRENCY_NAME));
 				}
 			
@@ -159,7 +127,6 @@ public class Store extends Structure {
 			catch (CivException e) {
 				CivMessage.send(player, CivColor.Rose + e.getMessage());
 			}
-		return;
 	}
 
 	@Override

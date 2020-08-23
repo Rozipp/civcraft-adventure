@@ -1,36 +1,10 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.construct.wonders;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigEnchant;
 import com.avrgaming.civcraft.construct.ConstructSign;
 import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
 import com.avrgaming.civcraft.enchantment.Enchantments;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.items.CustomMaterial;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
@@ -39,15 +13,14 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class GreatLibrary extends Wonder {
 
-	public GreatLibrary(String id, Town town) throws CivException {
+	public GreatLibrary(String id, Town town) {
 		super(id, town);
-	}
-
-	public GreatLibrary(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -70,14 +43,14 @@ public class GreatLibrary extends Wonder {
 
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
-		this.removeBuffFromTown(this.getTown(), "buff_greatlibrary_double_tax_beakers");
+		this.removeBuffFromCiv(this.getCivOwner(), "buff_greatlibrary_extra_beakers");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_greatlibrary_double_tax_beakers");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToCiv(this.getCiv(), "buff_greatlibrary_extra_beakers");
-		this.addBuffToTown(this.getTown(), "buff_greatlibrary_double_tax_beakers");
+		this.addBuffToCiv(this.getCivOwner(), "buff_greatlibrary_extra_beakers");
+		this.addBuffToTown(this.getTownOwner(), "buff_greatlibrary_double_tax_beakers");
 	}
 
 	@Override
@@ -117,8 +90,8 @@ public class GreatLibrary extends Wonder {
 			return;
 		}
 
-		if (resident.getCiv() != this.getCiv()) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember", this.getCiv().getName()));
+		if (resident.getCiv() != this.getCivOwner()) {
+			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember", this.getCivOwner().getName()));
 			return;
 		}
 		// XXX ПРоверка на лидера цивы

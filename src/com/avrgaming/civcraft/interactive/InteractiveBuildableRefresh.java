@@ -50,7 +50,7 @@ public class InteractiveBuildableRefresh implements InteractiveResponse {
 			@Override
 			public void run() {
 				buildable.repairFromTemplate();
-				buildable.getTown().markLastBuildableRefeshAsNow();
+				buildable.getTownOwner().markLastBuildableRefeshAsNow();
 				CivMessage.sendSuccess(resident, CivSettings.localize.localizedString("var_interactive_refresh_success", buildable.getDisplayName()));
 			}
 		});

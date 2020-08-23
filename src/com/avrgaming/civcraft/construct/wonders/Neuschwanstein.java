@@ -1,50 +1,43 @@
 
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import com.avrgaming.civcraft.construct.structures.RespawnLocationHolder;
-import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.construct.RespawnLocationHolder;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Neuschwanstein extends Wonder implements RespawnLocationHolder {
-	private ArrayList<BlockCoord> revivePoints = new ArrayList<BlockCoord>();
+	private final ArrayList<BlockCoord> revivePoints = new ArrayList<>();
 
-    protected Neuschwanstein(String id, Town town) throws CivException {
+    protected Neuschwanstein(String id, Town town) {
         super(id, town);
-    }
-
-    public Neuschwanstein(ResultSet rs) throws SQLException, CivException {
-        super(rs);
     }
 
     @Override
     protected void removeBuffs() {
-        this.removeBuffFromTown(this.getTown(), "buff_neuschwanstein_culture");
+        this.removeBuffFromTown(this.getTownOwner(), "buff_neuschwanstein_culture");
     }
 
     @Override
     protected void addBuffs() {
-        this.addBuffToTown(this.getTown(), "buff_neuschwanstein_culture");
+        this.addBuffToTown(this.getTownOwner(), "buff_neuschwanstein_culture");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.getCiv().updateReviveSigns();
+        this.getCivOwner().updateReviveSigns();
     }
 
     @Override
     public String getRespawnName() {
         String townInfo = CivColor.LightGray + "Neuschwanstein";
-        Town town = this.getTown();
+        Town town = this.getTownOwner();
         return townInfo + "\n" + CivColor.Gold + town.getName() + "\nLocation:\n" + CivColor.LightGreen + this.getCorner().getX() + " " + this.getCorner().getY() + " " + this.getCorner().getZ();
     }
 
@@ -69,10 +62,7 @@ public class Neuschwanstein extends Wonder implements RespawnLocationHolder {
 
     @Override
     public boolean isTeleportReal() {
-        if (this.isDestroyed()) {
-            return false;
-        }
-        return true;
+        return !this.isDestroyed();
     }
 }
 

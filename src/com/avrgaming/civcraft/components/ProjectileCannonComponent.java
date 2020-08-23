@@ -91,7 +91,7 @@ public class ProjectileCannonComponent extends ProjectileComponent {
 		}
 
 		SyncFollow follow = new SyncFollow();
-		CannonExplosionProjectile proj = new CannonExplosionProjectile(construct, targetEntity.getLocation());
+		CannonExplosionProjectile proj = new CannonExplosionProjectile(getConstruct(), targetEntity.getLocation());
 		proj.setLocation(new Location(turretLoc.getWorld(), turretLoc.getX(), turretLoc.getY(), turretLoc.getZ()));
 		proj.setTargetLocation(targetEntity.getLocation());
 		proj.setSpeed(speed);
@@ -136,9 +136,9 @@ public class ProjectileCannonComponent extends ProjectileComponent {
 			splash = CivSettings.getInteger(CivSettings.warConfig, "cannon_tower.splash");
 			fireRate = CivSettings.getInteger(CivSettings.warConfig, "cannon_tower.fire_rate");
 
-			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
+			this.proximityComponent.setCenter(new BlockCoord(getConstruct().getCenterLocation()));
 			this.proximityComponent.setRadius(range);
-			this.proximityComponent.createComponent(construct);
+			this.proximityComponent.createComponent(getConstruct());
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
@@ -153,7 +153,7 @@ public class ProjectileCannonComponent extends ProjectileComponent {
 	}
 
 	public Town getTown() {
-		return construct.getTown();
+		return getConstruct().getTownOwner();
 	}
 
 }

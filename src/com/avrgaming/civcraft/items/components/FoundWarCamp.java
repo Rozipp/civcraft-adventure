@@ -9,10 +9,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.constructs.WarCamp;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
-import com.avrgaming.civcraft.construct.structures.BuildableStatic;
+import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.gui.GuiInventory;

@@ -1,24 +1,8 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
-import org.bukkit.inventory.Inventory;
-
-import com.avrgaming.civcraft.components.ConsumeLevelComponent;
 import com.avrgaming.civcraft.components.ConsumeLevelComponent.Result;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructChest;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivData;
@@ -32,22 +16,14 @@ import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.MultiInventory;
+import org.bukkit.inventory.Inventory;
+
+import java.util.ArrayList;
 
 public class Cottage extends Structure {
 
-	private ConsumeLevelComponent consumeComp = null;
-
-	public Cottage(String id, Town town) throws CivException {
+	public Cottage(String id, Town town) {
 		super(id, town);
-	}
-
-	public Cottage(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
-	public ConsumeLevelComponent getConsumeComponent() {
-		if (consumeComp == null) consumeComp = (ConsumeLevelComponent) this.getComponent(ConsumeLevelComponent.class.getSimpleName());
-		return consumeComp;
 	}
 
 	@Override
@@ -64,18 +40,18 @@ public class Cottage extends Structure {
 	}
 
 	public String getkey() {
-		return this.getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
+		return this.getTownOwner().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}
 
 	/* Returns true if the granary has been poisoned, false otherwise. */
 	public boolean processIsPoison(MultiInventory inv) {
 		// Check to make sure the granary has not been poisoned!
-		String key = "posiongranary:" + getTown().getName();
+		String key = "posiongranary:" + getTownOwner().getName();
 		ArrayList<SessionEntry> entries;
 		entries = CivGlobal.getSessionDatabase().lookup(key);
 		int max_poison_ticks = -1;
 		for (SessionEntry entry : entries) {
-			int next = Integer.valueOf(entry.value);
+			int next = Integer.parseInt(entry.value);
 
 			if (next > max_poison_ticks) {
 				max_poison_ticks = next;
@@ -86,10 +62,10 @@ public class Cottage extends Structure {
 			CivGlobal.getSessionDatabase().delete_all(key);
 			max_poison_ticks--;
 
-			if (max_poison_ticks > 0) CivGlobal.getSessionDatabase().add(key, "" + max_poison_ticks, this.getTown().getCiv().getId(), this.getTown().getId(), this.getId());
+			if (max_poison_ticks > 0) CivGlobal.getSessionDatabase().add(key, "" + max_poison_ticks, this.getTownOwner().getCiv().getId(), this.getTownOwner().getId(), this.getId());
 
 			// Add some rotten flesh to the chest lol
-			CivMessage.sendTown(this.getTown(), CivColor.Rose + CivSettings.localize.localizedString("cottage_poisoned"));
+			CivMessage.sendTown(this.getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("cottage_poisoned"));
 			inv.addItemStackAsync(ItemManager.createItemStack(CivData.ROTTEN_FLESH, 4));
 			return true;
 		}
@@ -103,7 +79,7 @@ public class Cottage extends Structure {
 		/* Build a multi-inv from granaries. */
 		MultiInventory multiInv = new MultiInventory();
 
-		for (Structure struct : this.getTown().BM.getStructures()) {
+		for (Structure struct : this.getTownOwner().BM.getStructures()) {
 			if (struct instanceof Granary) {
 				ArrayList<ConstructChest> chests = struct.getChestsById("1");
 
@@ -127,8 +103,8 @@ public class Cottage extends Structure {
 		getConsumeComponent().setMultiInventory(multiInv);
 
 		double cottage_consume_mod = 1.0; // allows buildings and govs to change the totals for cottage consumption.
-		if (this.getTown().getBuffManager().hasBuff(Buff.REDUCE_CONSUME)) cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble(Buff.REDUCE_CONSUME);
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_consume")) cottage_consume_mod *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_consume");
+		if (this.getTownOwner().getBuffManager().hasBuff(Buff.REDUCE_CONSUME)) cottage_consume_mod *= this.getTownOwner().getBuffManager().getEffectiveDouble(Buff.REDUCE_CONSUME);
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_pyramid_cottage_consume")) cottage_consume_mod *= this.getTownOwner().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_consume");
 
 		getConsumeComponent().setConsumeRate(cottage_consume_mod);
 		Result result = Result.STAGNATE;
@@ -136,25 +112,25 @@ public class Cottage extends Structure {
 			result = getConsumeComponent().processConsumption(this.getProfesionalComponent().isWork);
 			getConsumeComponent().onSave();
 		} catch (IllegalStateException e) {
-			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTown().getName() + " and Location: " + this.getCorner(), e);
+			CivLog.exception(this.getDisplayName() + " Process Error in town: " + this.getTownOwner().getName() + " and Location: " + this.getCorner(), e);
 		}
 
 		/* Bail early for results that do not generate coins. */
 		switch (result) {
 		case STARVE:
-			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
+			CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
 					CivSettings.localize.localizedString("var_cottage_status_starved", getConsumeComponent().getCountString()), CivSettings.CURRENCY_NAME));
 			return;
 		case LEVELDOWN:
-			CivMessage.sendTown(getTown(),
+			CivMessage.sendTown(getTownOwner(),
 					CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", (getConsumeComponent().getLevel() + 1), CivSettings.localize.localizedString("var_cottage_status_lvlDown"), CivSettings.CURRENCY_NAME));
 			return;
 		case STAGNATE:
-			CivMessage.sendTown(getTown(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
+			CivMessage.sendTown(getTownOwner(), CivColor.Rose + CivSettings.localize.localizedString("var_cottage_starved_base", getConsumeComponent().getLevel(),
 					CivSettings.localize.localizedString("var_cottage_status_stagnated", getConsumeComponent().getCountString()), CivSettings.CURRENCY_NAME));
 			return;
 		case UNKNOWN:
-			CivMessage.sendTown(getTown(), CivColor.DarkPurple + CivSettings.localize.localizedString("var_cottage_starved_unknwon", CivSettings.CURRENCY_NAME));
+			CivMessage.sendTown(getTownOwner(), CivColor.DarkPurple + CivSettings.localize.localizedString("var_cottage_starved_unknwon", CivSettings.CURRENCY_NAME));
 			return;
 		default:
 			break;
@@ -164,18 +140,18 @@ public class Cottage extends Structure {
 
 		/* Calculate how much money we made. */
 		/* XXX leveling down doesnt generate coins, so we don't have to check it here. */
-		Double coins = 0.0;
+		Double coins;
 		if (result == Result.LEVELUP) {
 			coins = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel() - 1);
 		} else {
 			coins = getConsumeComponent().getConsumeLevelStorageResult(getConsumeComponent().getLevel());
 		}
 
-		int total_coins = (int) Math.round(coins * this.getTown().getCottageRate());
-		if (this.getTown().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) total_coins *= this.getTown().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
-		if (this.getTown().getBuffManager().hasBuff("buff_hotel")) total_coins = (int) ((double) total_coins * this.getTown().getBuffManager().getEffectiveDouble("buff_hotel"));
-		if (this.getCiv().getStockExchangeLevel() >= 1) total_coins = (int) ((double) total_coins * 1.3);
-		if (this.getCiv().hasTechnologys("tech_taxation")) {
+		int total_coins = (int) Math.round(coins * this.getTownOwner().getCottageRate());
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) total_coins *= this.getTownOwner().getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus");
+		if (this.getTownOwner().getBuffManager().hasBuff("buff_hotel")) total_coins = (int) ((double) total_coins * this.getTownOwner().getBuffManager().getEffectiveDouble("buff_hotel"));
+		if (this.getCivOwner().getStockExchangeLevel() >= 1) total_coins = (int) ((double) total_coins * 1.3);
+		if (this.getCivOwner().hasTechnologys("tech_taxation")) {
 			double taxation_bonus;
 			try {
 				taxation_bonus = CivSettings.getDouble(CivSettings.techsConfig, "taxation_cottage_buff");
@@ -185,7 +161,7 @@ public class Cottage extends Structure {
 			}
 		}
 
-		double taxesPaid = total_coins * this.getTown().getDepositCiv().getIncomeTaxRate();
+		double taxesPaid = total_coins * this.getTownOwner().getDepositCiv().getIncomeTaxRate();
 		String stateMessage = "";
 		switch (result) {
 		case GROW:
@@ -202,14 +178,14 @@ public class Cottage extends Structure {
 		}
 
 		if (taxesPaid > 0) {
-			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME,
-					CivColor.Yellow + CivSettings.localize.localizedString("var_cottage_grew_taxes", Math.floor(taxesPaid), this.getTown().getDepositCiv().getName())));
+			CivMessage.sendTown(this.getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME,
+					CivColor.Yellow + CivSettings.localize.localizedString("var_cottage_grew_taxes", Math.floor(taxesPaid), this.getTownOwner().getDepositCiv().getName())));
 		} else {
-			CivMessage.sendTown(this.getTown(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME, ""));
+			CivMessage.sendTown(this.getTownOwner(), CivColor.LightGreen + CivSettings.localize.localizedString("var_cottage_grew_base", getConsumeComponent().getLevel(), stateMessage, total_coins, CivSettings.CURRENCY_NAME, ""));
 		}
 
-		this.getTown().getTreasury().deposit(total_coins - taxesPaid);
-		this.getTown().getDepositCiv().taxPayment(this.getTown(), taxesPaid);
+		this.getTownOwner().getTreasury().deposit(total_coins - taxesPaid);
+		this.getTownOwner().getDepositCiv().taxPayment(this.getTownOwner(), taxesPaid);
 	}
 
 	public int getLevel() {
@@ -250,7 +226,6 @@ public class Cottage extends Structure {
 
 	public void onDestroy() {
 		super.onDestroy();
-
 		getConsumeComponent().setLevel(1);
 		getConsumeComponent().setCount(0);
 		getConsumeComponent().onSave();

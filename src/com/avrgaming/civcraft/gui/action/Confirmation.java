@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.gui.action;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -16,8 +15,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 
 public class Confirmation implements GuiItemAction {
 	@Override
-	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player) event.getWhoClicked();
+	public void performAction(Player player, ItemStack stack) {
 		try {
 			GuiInventory inv = new GuiInventory(player, player, null).setRow(3)//
 					.setTitle("§a" + CivSettings.localize.localizedString("resident_tradeNotconfirmed"));

@@ -88,7 +88,7 @@ public class TownCommand extends MenuAbstractCommand {
 				if (tc.perms.getOwner() != null && tc.perms.getOwner() != resident) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaimOtherRes"));
 
 				for (Construct construct : CivGlobal.getConstructsFromChunk(tc.getChunkCoord())) {
-					if (construct instanceof Buildable && town.equals(construct.getTown())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
+					if (construct instanceof Buildable && town.equals(construct.getTownOwner())) throw new CivException(CivSettings.localize.localizedString("cmd_town_unclaim_errorStructure"));
 				}
 				TownChunk.unclaim(tc);
 				CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("var_cmd_town_unclaimSuccess", tc.getCoordToString()));
@@ -399,8 +399,8 @@ public class TownCommand extends MenuAbstractCommand {
 				if (War.isWarTime()) throw new CivException("Cannot move structures during war time.");
 				if (struct == null) throw new CivException("Structure at:" + coordString + " is not found.");
 				if (town.getCiv() != targetTown.getCiv()) throw new CivException("You can only move structures between towns in your own civ.");
-				town.BM.removeStructure(struct);
-				targetTown.BM.addStructure(struct);
+				town.BM.removeBuildable(struct);
+				targetTown.BM.addBuildable(struct);
 				struct.setSQLOwner(targetTown);
 				struct.save();
 				CivMessage.sendSuccess(sender, "Moved structure " + coordString + " to town " + targetTown.getName());
@@ -427,8 +427,8 @@ public class TownCommand extends MenuAbstractCommand {
 						if (!town.BM.isStructureAddable(struct)) throw new CivException(CivSettings.localize.localizedString("cmd_town_enableStructureOverLimit"));
 
 						/* Readding structure will make it valid. */
-						town.BM.removeStructure(struct);
-						town.BM.addStructure(struct);
+						town.BM.removeBuildable(struct);
+						town.BM.addBuildable(struct);
 						CivMessage.sendSuccess(sender, CivSettings.localize.localizedString("cmd_town_enableStructureSuccess"));
 					}
 				}));

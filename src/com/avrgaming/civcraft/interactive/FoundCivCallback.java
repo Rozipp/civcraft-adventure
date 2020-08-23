@@ -1,14 +1,14 @@
 package com.avrgaming.civcraft.interactive;
 
+import com.avrgaming.civcraft.construct.Buildable;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.menu.TownCommand;
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.construct.constructs.Template;
+import com.avrgaming.civcraft.construct.Template;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
-import com.avrgaming.civcraft.construct.structures.BuildableStatic;
-import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -25,7 +25,7 @@ public class FoundCivCallback implements CallbackInterface {
 
 	private Player player;
 	private Resident resident;
-	private Structure cityhall;
+	private Buildable cityhall;
 	private Town town;
 	private Civilization civ;
 
@@ -36,7 +36,7 @@ public class FoundCivCallback implements CallbackInterface {
 		if (resident.hasCamp()) throw new CivException(CivSettings.localize.localizedString("civ_found_mustleavecamp"));
 
 		/* Build a preview for the Capitol structure. */
-		cityhall = Structure.newStructure(player, player.getLocation(), "s_cityhall", null,true);
+		cityhall = Buildable.newBuildable(player, player.getLocation(), "s_cityhall", null,true);
 		town = new Town((Civilization) null);
 		town.checkCanCreatedTown(resident, cityhall.getCenterLocation());
 		civ = new Civilization();

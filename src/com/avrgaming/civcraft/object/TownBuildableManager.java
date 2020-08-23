@@ -1,45 +1,36 @@
 package com.avrgaming.civcraft.object;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
-import com.avrgaming.civcraft.construct.structures.Bank;
-import com.avrgaming.civcraft.construct.structures.Cottage;
-import com.avrgaming.civcraft.construct.structures.Quarry;
-import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.structures.TradeShip;
+import com.avrgaming.civcraft.construct.structures.*;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.interactive.InteractiveBuildableRefresh;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.TownPeoplesManager.Prof;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.war.War;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Setter
 @Getter
 public class TownBuildableManager {
 
-	private Town town = null;
+	private Town town;
 
-	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<BlockCoord, Wonder>();
-	private ConcurrentHashMap<BlockCoord, Structure> structures = new ConcurrentHashMap<BlockCoord, Structure>();
+	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<BlockCoord, Structure> structures = new ConcurrentHashMap<>();
 	private LinkedList<Buildable> disabledBuildables = new LinkedList<>();
 	private LinkedList<Buildable> invalideBuildables = new LinkedList<>();
 
@@ -111,15 +102,50 @@ public class TownBuildableManager {
 		}
 	}
 
-	// ------------ wonders
-
-	public void addWonder(Wonder wonder) {
-		this.wonders.put(wonder.getCorner(), wonder);
-		CivGlobal.addWonder(wonder);
+	public boolean isStructureAddable(Structure struct) {
+		if (struct.isTileImprovement()) {
+			int maxTileImprovements = town.getMaxTileImprovements();
+			return town.getTileImprovementCount() <= maxTileImprovements;
+		}
+		return (struct.getLimit() == 0) || (this.getBuildableByIdCount(struct.getConfigId()) <= struct.getLimit());
 	}
 
+	// ------------ Buildable
+
+	public void addBuildable(Buildable buildable) {
+		if (buildable instanceof Structure) {
+			Structure struct = (Structure) buildable;
+			this.structures.put(struct.getCorner(), struct);
+			if (isStructureAddable(struct)) {
+				this.disabledBuildables.remove(struct);
+				struct.setEnabled(true);
+			} else {
+				this.disabledBuildables.add(struct);
+				struct.setEnabled(false);
+			}
+
+		} else if (buildable instanceof Wonder) {
+			this.wonders.put(buildable.getCorner(), (Wonder) buildable);
+		}
+		CivGlobal.addConstruct(buildable);
+	}
+
+	public void removeBuildable(Buildable buildable) {
+		if (!buildable.isComplete()) this.removeBuildableInprogress(buildable);
+		if (buildable instanceof  Structure) {
+			this.structures.remove(buildable.getCorner());
+		}
+		else if (buildable instanceof  Wonder) {
+			this.wonders.remove(buildable.getCorner());
+		}
+		this.invalideBuildables.remove(buildable);
+		this.disabledBuildables.remove(buildable);
+	}
+
+	// ------------ wonders
+
 	public boolean hasWonder(final String wonder_id) {
-		if (wonder_id == null || wonder_id.equals("")) return false;
+		if (wonder_id == null || wonder_id.equals("")) return true;
 		Wonder foundwonder = null;
 		for (final Wonder wonder : this.wonders.values()) {
 			if (wonder.getConfigId().equalsIgnoreCase(wonder_id)) {
@@ -130,38 +156,11 @@ public class TownBuildableManager {
 		return foundwonder != null && foundwonder.isActive();
 	}
 
-	public void removeWonder(Wonder wonder) {
-		if (!wonder.isComplete()) this.removeBuildableInprogress(wonder);
-		if (buildablePoolInProgress.contains(wonder)) buildablePoolInProgress.remove(wonder);
-		this.wonders.remove(wonder.getCorner());
-	}
-
 	public Collection<Wonder> getWonders() {
 		return this.wonders.values();
 	}
 
 	// -------------Structure
-
-	public void addStructure(Structure struct) {
-		this.structures.put(struct.getCorner(), struct);
-
-		if (isStructureAddable(struct)) {
-			this.disabledBuildables.remove(struct);
-			struct.setEnabled(true);
-		} else {
-			this.disabledBuildables.add(struct);
-			struct.setEnabled(false);
-		}
-		CivGlobal.addStructure(struct);
-	}
-
-	public boolean isStructureAddable(Structure struct) {
-		if (struct.isTileImprovement()) {
-			Integer maxTileImprovements = town.getMaxTileImprovements();
-			return town.getTileImprovementCount() <= maxTileImprovements;
-		}
-		return (struct.getLimit() == 0) || (this.getBuildableByIdCount(struct.getConfigId()) <= struct.getLimit());
-	}
 
 	public boolean hasStructure(String structure_id) {
 		if (structure_id == null || structure_id.equals("")) return true;
@@ -172,18 +171,17 @@ public class TownBuildableManager {
 				break;
 			}
 		}
-		return foundstruct != null && foundstruct.isActive();
+		if (foundstruct != null) {
+			CivLog.debug("foundstruct = " + foundstruct.getDisplayName());
+			return foundstruct.isActive();
+		} else {
+			CivLog.debug("structure  " + structure_id + "  not found");
+			return false;
+		}
 	}
 
 	public Collection<Structure> getStructures() {
 		return this.structures.values();
-	}
-
-	public void removeStructure(Structure structure) {
-		if (!structure.isComplete()) this.removeBuildableInprogress(structure);
-		this.structures.remove(structure.getCorner());
-		this.invalideBuildables.remove(structure);
-		this.disabledBuildables.remove(structure);
 	}
 
 	// ------------ build
@@ -229,25 +227,9 @@ public class TownBuildableManager {
 					+ ". Освободите плоты командой /plot unclaim, или улучшите город командой /t upgrade buy");
 	}
 
-	/** @deprecated */
-	public void startBuildStructure(Player player, Structure struct) {
-		try {
-			struct.runOnBuild(struct.getCorner().getChunkCoord());
-		} catch (CivException e1) {
-			e1.printStackTrace();
-		}
-		struct.startBuildTask();
-		struct.save();
-
-		// Go through and add any town chunks that were claimed to this list of saved objects.
-		town.getTreasury().withdraw(struct.getCost());
-
-		town.save();
-	}
-
 	// -------------- wonder_stock_exchange
 
-	public boolean canBuildStock(final Player player) {
+	public boolean canBuildStock() {
 		int bankCount = 0;
 		int tradeShipCount = 0;
 		int cottageCount = 0;
@@ -276,7 +258,7 @@ public class TownBuildableManager {
 		return bankCountCondition && tradeShipCountCondition && cottageCountCondition && quarryCountCondition;
 	}
 
-	public boolean canUpgradeStock(final String upgradeName) {
+	public boolean canUpgradeStock() {
 		int bankCount = 0;
 		int tradeShipCount = 0;
 		int cottageCount = 0;
@@ -310,7 +292,6 @@ public class TownBuildableManager {
 
 	public void demolish(Structure struct, boolean isAdmin) throws CivException {
 		if (!struct.allowDemolish() && !isAdmin) throw new CivException(CivSettings.localize.localizedString("town_demolish_Cannot"));
-		struct.onDemolish();
 		struct.deleteWithUndo();
 	}
 
@@ -332,20 +313,19 @@ public class TownBuildableManager {
 		if (buildable == null) throw new CivException(CivSettings.localize.localizedString("town_refresh_couldNotFind"));
 		if (!buildable.isActive()) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorInProfress"));
 		if (War.isWarTime()) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorWar"));
-		if (!buildable.getTown().equals(town)) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorWrongTown"));
+		if (!buildable.getTownOwner().equals(town)) throw new CivException(CivSettings.localize.localizedString("town_refresh_errorWrongTown"));
 		resident.setInteractiveMode(new InteractiveBuildableRefresh(buildable, resident.getName()));
 	}
 
 	public void processStructureFlipping(HashMap<ChunkCoord, Structure> centerCoords) {
-
 		for (CultureChunk cc : town.getCultureChunks()) {
 			Structure struct = centerCoords.get(cc.getChunkCoord());
 			if (struct == null) continue;
-			if (struct.getCiv() == cc.getCiv()) continue;
+			if (struct.getCivOwner() == cc.getCiv()) continue;
 
 			/* There is a structure at this location that doesnt belong to us! Grab it! */
-			struct.getTown().BM.removeStructure(struct);
-			this.addStructure(struct);
+			struct.getTownOwner().BM.removeBuildable(struct);
+			this.addBuildable(struct);
 			struct.setSQLOwner(town);
 			struct.save();
 		}
@@ -380,7 +360,7 @@ public class TownBuildableManager {
 				}
 			}
 		}
-		return null;
+		return found;
 	}
 
 	public Structure getFirstStructureById(String id) {

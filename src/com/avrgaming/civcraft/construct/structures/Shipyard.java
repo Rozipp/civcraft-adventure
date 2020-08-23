@@ -1,21 +1,10 @@
 
 package com.avrgaming.civcraft.construct.structures;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-
 import com.avrgaming.civcraft.components.AttributeBiomeRadiusPerLevel;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructSign;
-import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.construct.RespawnLocationHolder;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -28,21 +17,25 @@ import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 import com.avrgaming.civcraft.util.SimpleBlock;
 import com.avrgaming.civcraft.war.War;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Shipyard extends WaterStructure {
 	private ConstructSign respawnSign;
 	private int index = 0;
 
-	public Shipyard(String id, Town town) throws CivException {
+	public Shipyard(String id, Town town) {
 		super(id, town);
 	}
 
-	public Shipyard(ResultSet rs) throws SQLException, CivException {
-		super(rs);
-	}
-
 	public String getkey() {
-		return getTown().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
+		return getTownOwner().getName() + "_" + this.getConfigId() + "_" + this.getCorner().toString();
 	}
 
 	@Override
@@ -60,17 +53,17 @@ public class Shipyard extends WaterStructure {
 		double base = attrBiome.getBaseValue();
 
 		double rate = 1;
-		rate += this.getTown().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
+		rate += this.getTownOwner().getBuffManager().getEffectiveDouble(Buff.ADVANCED_TOOLING);
 		return (rate * base);
 	}
 
 	private RespawnLocationHolder getSelectedHolder() {
-		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+		ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 		return respawnables.get(this.index);
 	}
 
 	private void changeIndex(int newIndex) {
-		ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+		ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 		if (this.respawnSign != null) {
 			block4: {
 				try {
@@ -99,13 +92,13 @@ public class Shipyard extends WaterStructure {
 			return;
 		}
 		Boolean hasPermission = false;
-		Civilization civ = this.getTown().getCiv();
+		Civilization civ = this.getTownOwner().getCiv();
 		if (civ.hasResident(resident)) {
 			hasPermission = true;
 		}
 		switch (sign.getAction()) {
 		case "prev": {
-			if (hasPermission.booleanValue()) {
+			if (hasPermission) {
 				this.changeIndex(this.index - 1);
 				break;
 			}
@@ -113,7 +106,7 @@ public class Shipyard extends WaterStructure {
 			break;
 		}
 		case "next": {
-			if (hasPermission.booleanValue()) {
+			if (hasPermission) {
 				this.changeIndex(this.index + 1);
 				break;
 			}
@@ -122,7 +115,7 @@ public class Shipyard extends WaterStructure {
 		}
 		case "respawn": {
 			long timeNow;
-			ArrayList<RespawnLocationHolder> respawnables = this.getTown().getCiv().getAvailableRespawnables();
+			ArrayList<RespawnLocationHolder> respawnables = this.getTownOwner().getCiv().getAvailableRespawnables();
 			if (this.index >= respawnables.size()) {
 				this.index = 0;
 				this.changeIndex(this.index);
@@ -130,7 +123,7 @@ public class Shipyard extends WaterStructure {
 				return;
 			}
 			respawnables.get(this.index).getRandomRevivePoint();
-			if (!hasPermission.booleanValue()) {
+			if (!hasPermission) {
 				CivMessage.sendError(resident, CivSettings.localize.localizedString("stable_Sign_noPermission"));
 				return;
 			}
@@ -159,7 +152,7 @@ public class Shipyard extends WaterStructure {
 				return;
 			}
 			nextTeleport = timeNow + 60000L;
-			CivMessage.send((Object) player, "§a" + CivSettings.localize.localizedString("stable_respawningAlert"));
+			CivMessage.send(player, "§a" + CivSettings.localize.localizedString("stable_respawningAlert"));
 			player.teleport(placeToTeleport);
 			resident.getTreasury().withdraw(1000.0);
 			resident.setNextTeleport(nextTeleport);
@@ -175,7 +168,7 @@ public class Shipyard extends WaterStructure {
 			ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
 			ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
 			ConstructSign structSign = new ConstructSign(absCoord, this);
-			structSign.setText("\n" + (Object) ChatColor.BOLD + (Object) ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_nextLocation"));
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_nextLocation"));
 			structSign.setDirection(commandBlock.getData());
 			structSign.setAction("next");
 			structSign.update();
@@ -186,7 +179,7 @@ public class Shipyard extends WaterStructure {
 			ItemManager.setTypeId(absCoord.getBlock(), commandBlock.getType());
 			ItemManager.setData(absCoord.getBlock(), commandBlock.getData());
 			ConstructSign structSign = new ConstructSign(absCoord, this);
-			structSign.setText("\n" + (Object) ChatColor.BOLD + (Object) ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_previousLocation"));
+			structSign.setText("\n" + ChatColor.BOLD + ChatColor.UNDERLINE + CivSettings.localize.localizedString("stable_sign_previousLocation"));
 			structSign.setDirection(commandBlock.getData());
 			structSign.setAction("prev");
 			structSign.update();

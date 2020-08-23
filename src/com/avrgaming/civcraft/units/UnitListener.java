@@ -78,7 +78,6 @@ public class UnitListener extends SimpleListener {
 			}
 			CivMessage.global("Игрок " + killer.getName() + " убил игрока " + death.getName());
 		}
-
 	}
 
 }

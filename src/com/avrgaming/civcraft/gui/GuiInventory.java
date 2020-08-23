@@ -1,46 +1,43 @@
 package com.avrgaming.civcraft.gui;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import com.avrgaming.civcraft.main.CivMessage;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.CallbackInterface;
 import com.avrgaming.civcraft.util.CivColor;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Setter
 @Getter
 public class GuiInventory implements CallbackInterface {
     public static final int MAX_INV_SIZE = 54;
     public static final int INV_COLUM_COUNT = 9;
-
-    private static Map<UUID, ArrayDeque<GuiInventory>> playersGuiInventoryStack = new HashMap<>();
     protected static Map<String, GuiInventory> staticGuiInventory = new HashMap<>();
-
+    private static Map<UUID, ArrayDeque<GuiInventory>> playersGuiInventoryStack = new HashMap<>();
     private InventoryHolder holder;
     private Player player;
     private Resident resident;
     private Town town;
     private Civilization civ;
     private String arg;
-    private Inventory inventory = null;
+    protected Inventory inventory = null;
     private HashMap<Integer, GuiItem> items = new HashMap<>();
     private String title = "";
     private Integer row = 6;
@@ -56,129 +53,6 @@ public class GuiInventory implements CallbackInterface {
     }
 
     // ------------- builders
-
-    public GuiInventory setRow(int row) {
-        this.row = row;
-        if (this.row < 1) this.row = 1;
-        if (this.row > 6) this.row = 6;
-        return this;
-    }
-
-    public GuiInventory setTitle(String title) {
-        this.title = (title.length() > 32) ? title.substring(0, 32) : title;
-        return this;
-    }
-
-    public GuiInventory setTown(Town town) {
-        this.town = town;
-        return this;
-    }
-
-    public GuiInventory setCiv(Civilization civ) {
-        this.civ = civ;
-        return this;
-    }
-
-    // -------------- items
-
-    public void addGuiItem(GuiItem item) {
-        addGuiItem(0, item);
-    }
-
-    public void addGuiItem(Integer slot, GuiItem item) {
-        if (slot < 0 || slot >= size()) {
-            int i;
-            for (i = 0; i < size(); i++) {
-                if (items.get(i) == null) break;
-            }
-            items.put(i, item);
-            return;
-        }
-        if (items.get(slot) == null) {
-            items.put(slot, item);
-            return;
-        }
-        if (items.size() >= size()) {
-            items.put(slot, item);
-            return;
-        }
-        int i;
-        for (i = 0; i < size(); i++) {
-            if (items.get(i) == null) break;
-        }
-        items.put(i, items.get(slot));
-        items.put(slot, item);
-    }
-
-    public void addLastItem(UUID uuid) {
-        ArrayDeque<GuiInventory> gis;
-        gis = GuiInventory.getInventoryStack(uuid);
-        if (gis.isEmpty()) {
-            items.put(size(), GuiItems.newGuiItem()//
-                    .setTitle("§c" + "Закрыть меню")//
-                    .setMaterial(Material.EMPTY_MAP)//
-                    .setAction("CloseInventory"));
-        } else {
-            items.put(size(), GuiItems.newGuiItem()//
-                    .setTitle(CivSettings.localize.localizedString("loreGui_recipes_back"))//
-                    .setMaterial(Material.MAP)//
-                    .addLore(CivSettings.localize.localizedString("bookReborn_backTo", CivColor.White + gis.getFirst().getName()))//
-                    .setAction("OpenBackInventory"));
-        }
-    }
-
-    public GuiItem getGuiItem(Integer i) {
-        return items.get(i);
-    }
-
-    public Integer size() {
-        return row * INV_COLUM_COUNT - 1;
-    }
-
-    // --------------- getters
-
-    public String getName() {
-        return inventory.getName();
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    // -------------------- Inventory
-
-    public void openInventory(Player player) {
-        ArrayDeque<GuiInventory> gis = GuiInventory.getInventoryStack(player.getUniqueId());
-        player.openInventory(getInventory(player));
-        gis.push(this);
-        GuiInventory.setInventoryStack(player.getUniqueId(), gis);
-    }
-
-    public Inventory getInventory(Player player) {
-        if (inventory == null) try {
-            inventory = Bukkit.createInventory(holder, size() + 1, title);
-            addLastItem(player.getUniqueId());
-            for (int slot = 0; slot <= size(); slot++) {
-                GuiItem item = items.get(slot);
-                if (item == null) continue;
-                inventory.setItem(slot, item.getStack());
-            }
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        return inventory;
-    }
-
-    @Override
-    public void execute(String... strings) {
-        // XXX Children Override
-        UUID uuid = (getPlayer() == null) ? UUID.fromString(strings[1]) : getPlayer().getUniqueId();
-
-        ArrayDeque<GuiInventory> gis = getInventoryStack(uuid);
-        if (!gis.isEmpty()) gis.getFirst().execute(strings);
-    }
-
-    // ------------------- static
 
     private static GuiInventory newGuiInventory(Player player, String className, String arg) throws CivException {
         try {
@@ -212,14 +86,7 @@ public class GuiInventory implements CallbackInterface {
         }
     }
 
-    public static boolean isGuiInventory(Inventory inv) {
-        if (inv == null) return false;
-        for (ItemStack stack : inv) {
-            if (stack == null) continue;
-            return GuiItems.isGUIItem(stack);
-        }
-        return false;
-    }
+    // -------------- items
 
     public static void closeInventory(Player player) {
         player.closeInventory();
@@ -234,12 +101,154 @@ public class GuiInventory implements CallbackInterface {
         return playersGuiInventoryStack.get(uuid);
     }
 
+    public static GuiInventory getActiveGuiInventory(UUID uuid) {
+        if (playersGuiInventoryStack.get(uuid) == null) return null;
+        if (playersGuiInventoryStack.get(uuid).isEmpty()) return null;
+        return playersGuiInventoryStack.get(uuid).getFirst();
+    }
+
     public static void setInventoryStack(UUID uuid, ArrayDeque<GuiInventory> gis) {
         GuiInventory.playersGuiInventoryStack.put(uuid, gis);
     }
 
     public static void clearInventoryStack(UUID uuid) {
         GuiInventory.playersGuiInventoryStack.put(uuid, null);
+    }
+
+    // --------------- getters
+
+    public GuiInventory setRow(int row) {
+        this.row = row;
+        if (this.row < 1) this.row = 1;
+        if (this.row > 6) this.row = 6;
+        return this;
+    }
+
+    public GuiInventory setTown(Town town) {
+        this.town = town;
+        return this;
+    }
+
+    // -------------------- Inventory
+
+    public GuiInventory setCiv(Civilization civ) {
+        this.civ = civ;
+        return this;
+    }
+
+    public Integer addGuiItem(GuiItem item) {
+        return addGuiItem(0, item);
+    }
+
+    public Integer addGuiItem(Integer slot, GuiItem item) {
+        if (slot < 0 || slot >= size()) {
+            int i;
+            for (i = 0; i < size(); i++) {
+                if (items.get(i) == null) break;
+            }
+            items.put(i, item);
+            return i;
+        }
+        if (items.get(slot) == null) {
+            items.put(slot, item);
+            return slot;
+        }
+        if (items.size() >= size()) {
+            items.put(slot, item);
+            return slot;
+        }
+        int i;
+        for (i = 0; i < size(); i++) {
+            if (items.get(i) == null) break;
+        }
+        items.put(i, items.get(slot));
+        items.put(slot, item);
+        return slot;
+    }
+
+    public void addLastItem(UUID uuid) {
+        ArrayDeque<GuiInventory> gis;
+        gis = GuiInventory.getInventoryStack(uuid);
+        if (gis.isEmpty()) {
+            items.put(size(), GuiItems.newGuiItem()//
+                    .setTitle("§c" + "Закрыть меню")//
+                    .setMaterial(Material.EMPTY_MAP)//
+                    .setAction("CloseInventory"));
+        } else {
+            items.put(size(), GuiItems.newGuiItem()//
+                    .setTitle(CivSettings.localize.localizedString("loreGui_recipes_back"))//
+                    .setMaterial(Material.MAP)//
+                    .addLore(CivSettings.localize.localizedString("bookReborn_backTo", CivColor.White + gis.getFirst().getName()))//
+                    .setAction("OpenBackInventory"));
+        }
+    }
+
+    // ------------------- static
+
+    public GuiItem getGuiItem(Integer i) {
+        return items.get(i);
+    }
+
+    public Integer size() {
+        return row * INV_COLUM_COUNT - 1;
+    }
+
+    public String getName() {
+        return inventory.getName();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public GuiInventory setTitle(String title) {
+        this.title = (title.length() > 32) ? title.substring(0, 32) : title;
+        return this;
+    }
+
+    public void openInventory(Player player) {
+        ArrayDeque<GuiInventory> gis = GuiInventory.getInventoryStack(player.getUniqueId());
+        player.openInventory(getInventory(player));
+        gis.push(this);
+        GuiInventory.setInventoryStack(player.getUniqueId(), gis);
+    }
+
+    public Inventory getInventory(Player player) {
+        if (inventory == null) try {
+            inventory = Bukkit.createInventory(holder, size() + 1, title);
+            addLastItem(player.getUniqueId());
+            for (int slot = 0; slot <= size(); slot++) {
+                GuiItem item = items.get(slot);
+                if (item == null) continue;
+                inventory.setItem(slot, item.getStack());
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return inventory;
+    }
+
+    public boolean onItemToInventory(Cancellable event, Player player, Inventory inv, ItemStack stack) {
+        return true;
+    }
+
+    public boolean onItemFromInventory(Cancellable event, Player player, Inventory inv, ItemStack stack) {
+        if (event.isCancelled()) return true;
+        if (GuiItems.isGUIItem(stack)) {
+            String action = GuiItems.getAction(stack);
+            if (action != null) GuiItems.processAction(action, stack, player);
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void execute(String... strings) {
+        // XXX Children Override
+        UUID uuid = (getPlayer() == null) ? UUID.fromString(strings[1]) : getPlayer().getUniqueId();
+
+        ArrayDeque<GuiInventory> gis = getInventoryStack(uuid);
+        if (!gis.isEmpty()) gis.getFirst().execute(strings);
     }
 
 }

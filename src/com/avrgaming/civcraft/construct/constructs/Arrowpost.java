@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.avrgaming.civcraft.construct.Template;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -112,18 +112,19 @@ public class GuiItem {
 			attrs.setCivCraftProperty("GUI", "" + ItemManager.getTypeId(stack));
 		else {
 			attrs.setCivCraftProperty("GUI", title);
+			attrs.addLore("GUI: " + title); // TODO debag
 			attrs.setName(title);
 		}
 		if (lore != null) attrs.setLore(lore);
 		if (action != null) {
 			attrs.setCivCraftProperty("GUI_ACTION", action);
-//			attrs.addLore("GUI_ACTION " + action); // TODO debag
+			attrs.addLore("GUI_ACTION " + action); // TODO debag
 		}
 
 		if (!data.isEmpty()) {
 			for (String key : data.keySet()) {
 				attrs.setCivCraftProperty("GUI_ACTION_DATA:" + key, data.get(key));
-//				attrs.addLore("GUI_ACTION_DATA:" + key + " " + data.get(key)); // TODO debag
+				attrs.addLore("GUI_ACTION_DATA:" + key + " " + data.get(key)); // TODO debag
 			}
 		}
 		stack = attrs.getStack();

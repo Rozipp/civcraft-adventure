@@ -27,7 +27,6 @@ package com.avrgaming.civcraft.listener;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.fishing.FishingListener;
-import com.avrgaming.civcraft.gui.GuiInventoryListener;
 import com.avrgaming.civcraft.items.CraftableCustomMaterialListener;
 import com.avrgaming.civcraft.listener.armor.ArmorListener;
 import com.avrgaming.civcraft.main.CivCraft;
@@ -54,24 +53,21 @@ public abstract class SimpleListener implements Listener {
     
     public static final List<SimpleListener> listeners = Lists.newArrayList();
     
-    public static final void unregisterAll() {
+    public static void unregisterAll() {
         for (SimpleListener listener : listeners) {
             listener.unregister();
         }
     }
     
-    public static final void registerAll() {
+    public static void registerAll() {
     	new BlockListener();
 		new ChatListener();
-		new MarkerPlacementManager();
 		new CustomItemListener();
-		new UnitInventoryListener();
 		new PlayerListener();
 		new DebugListener();
 		new CraftableCustomMaterialListener();
-		new GuiInventoryListener();
 
-		Boolean useEXPAsCurrency = true;
+		boolean useEXPAsCurrency = true;
 		try {
 			useEXPAsCurrency = CivSettings.getBoolean(CivSettings.civConfig, "global.use_exp_as_currency");
 		} catch (InvalidConfiguration e) {
@@ -93,7 +89,7 @@ public abstract class SimpleListener implements Listener {
 		CivLog.info("Registred " +  SimpleListener.listeners.size() + " listeners");
     }
     
-    public static final List<SimpleListener> getRegistered() {
+    public static List<SimpleListener> getRegistered() {
         return Collections.unmodifiableList(listeners);
     }
             

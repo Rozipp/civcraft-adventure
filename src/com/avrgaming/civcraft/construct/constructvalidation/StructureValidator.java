@@ -12,8 +12,8 @@ import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.ConstructLayer;
-import com.avrgaming.civcraft.construct.constructs.Template;
-import com.avrgaming.civcraft.construct.structures.BuildableStatic;
+import com.avrgaming.civcraft.construct.Template;
+import com.avrgaming.civcraft.construct.BuildableStatic;
 import com.avrgaming.civcraft.construct.structures.WaterStructure;
 import com.avrgaming.civcraft.construct.Construct;
 import com.avrgaming.civcraft.exception.CivException;

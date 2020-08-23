@@ -1,29 +1,4 @@
-/*************************************************************************
- * 
- * AVRGAMING LLC
- * __________________
- * 
- *  [2013] AVRGAMING LLC
- *  All Rights Reserved.
- * 
- * NOTICE:  All information contained herein is, and remains
- * the property of AVRGAMING LLC and its suppliers,
- * if any.  The intellectual and technical concepts contained
- * herein are proprietary to AVRGAMING LLC
- * and its suppliers and may be covered by U.S. and Foreign Patents,
- * patents in process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from AVRGAMING LLC.
- */
 package com.avrgaming.civcraft.command.menu;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.command.Commander;
 import com.avrgaming.civcraft.command.CustomCommand;
@@ -32,29 +7,25 @@ import com.avrgaming.civcraft.command.Validators;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigCultureLevel;
 import com.avrgaming.civcraft.construct.Buildable;
-import com.avrgaming.civcraft.construct.structures.Bank;
-import com.avrgaming.civcraft.construct.structures.Cottage;
-import com.avrgaming.civcraft.construct.structures.Mine;
-import com.avrgaming.civcraft.construct.structures.Structure;
-import com.avrgaming.civcraft.construct.structures.Temple;
-import com.avrgaming.civcraft.construct.structures.TradeShip;
+import com.avrgaming.civcraft.construct.structures.*;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.AttrSource;
-import com.avrgaming.civcraft.object.Buff;
-import com.avrgaming.civcraft.object.Civilization;
-import com.avrgaming.civcraft.object.CultureChunk;
-import com.avrgaming.civcraft.object.Relation;
+import com.avrgaming.civcraft.object.*;
 import com.avrgaming.civcraft.object.Relation.Status;
 import com.avrgaming.civcraft.object.TownPeoplesManager.Prof;
 import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TownInfoCommand extends MenuAbstractCommand {
 
@@ -64,7 +35,6 @@ public class TownInfoCommand extends MenuAbstractCommand {
 		withValidator(Validators.validHasTown);
 
 		add(new CustomCommand("help").withDescription("Вивести все возможные подкоманды").withExecutor(new CustomExecutor() {
-
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				showBasicHelp(sender);
@@ -77,20 +47,10 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_upkeepHeading"));
 				CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("baseUpkeep") + " " + CivColor.LightGreen + town.getBaseUpkeep());
 				CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("StructureUpkeep") + " " + CivColor.LightGreen + town.getStructureUpkeep());
-				try {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Subtotal") + " " + CivColor.LightGreen + town.getTotalUpkeep() + CivColor.Green + " "
 							+ CivSettings.localize.localizedString("cmd_civ_gov_infoUpkeep") + " " + CivColor.LightGreen + town.getGovernment().upkeep_rate);
-				} catch (InvalidConfiguration e) {
-					e.printStackTrace();
-					throw new CivException(CivSettings.localize.localizedString("internalException"));
-				}
 				CivMessage.send(sender, CivColor.LightGray + "---------------------------------");
-				try {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.LightGreen + town.getTotalUpkeep() * town.getCiv().getGovernment().upkeep_rate);
-				} catch (InvalidConfiguration e) {
-					e.printStackTrace();
-					throw new CivException(CivSettings.localize.localizedString("internalException"));
-				}
 			}
 		}));
 		add(new CustomCommand("cottage").withDescription(CivSettings.localize.localizedString("cmd_town_info_cottageDesc")).withValidator(Validators.validMayorAssistantLeader).withExecutor(new CustomExecutor() {
@@ -134,10 +94,10 @@ public class TownInfoCommand extends MenuAbstractCommand {
 				out.add(CivColor.Green + CivSettings.localize.localizedString("cmd_civ_gov_infoCottage") + " " + CivColor.Yellow + df.format(town.getCottageRate() * 100) + "%");
 				if (town.getBuffManager().hasBuff("buff_pyramid_cottage_bonus")) {
 					out.add("§2" + CivSettings.localize.localizedString("cmd_town_bonusCottage_pyramid",
-							new StringBuilder().append("§a").append(Math.round((town.getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus") - 1.0) * 100.0)).toString()));
+							"§a" + Math.round((town.getBuffManager().getEffectiveDouble("buff_pyramid_cottage_bonus") - 1.0) * 100.0)));
 				}
 				if (town.getBuffManager().hasBuff("buff_hotel"))
-					out.add("§2" + CivSettings.localize.localizedString("cmd_town_bonusCottage_hotel", new StringBuilder().append("§a").append(Math.round((town.getBuffManager().getEffectiveDouble("buff_hotel") - 1.0) * 100.0)).toString()));
+					out.add("§2" + CivSettings.localize.localizedString("cmd_town_bonusCottage_hotel", "§a" + Math.round((town.getBuffManager().getEffectiveDouble("buff_hotel") - 1.0) * 100.0)));
 				if (town.getCiv().getStockExchangeLevel() >= 1) out.add("§2" + CivSettings.localize.localizedString("cmd_town_bonusCottage_stockExchange", "§a30%", String.valueOf(town.getCiv().getStockExchangeLevel())));
 				total *= town.getCottageRate();
 				out.add(CivColor.Green + CivSettings.localize.localizedString("Total") + " " + CivColor.Yellow + df.format(total) + " " + CivSettings.CURRENCY_NAME);
@@ -148,7 +108,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			@Override
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
-				ArrayList<String> out = new ArrayList<String>();
+				ArrayList<String> out = new ArrayList<>();
 				DecimalFormat df = new DecimalFormat("#,###.#");
 				CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_templeHeading"));
 				double total = 0;
@@ -187,7 +147,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 						return;
 					}
 				}
-				HashMap<String, Double> structsByName = new HashMap<String, Double>();
+				HashMap<String, Double> structsByName = new HashMap<>();
 				for (Structure struct : town.BM.getStructures()) {
 					Double upkeep = structsByName.get(struct.getConfigId());
 					if (upkeep == null) {
@@ -246,7 +206,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				DecimalFormat df = new DecimalFormat("#,###.#");
-				ArrayList<String> out = new ArrayList<String>();
+				ArrayList<String> out = new ArrayList<>();
 				CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_mineHeading"));
 				double total = 0;
 				for (Structure struct : town.BM.getStructures()) {
@@ -306,7 +266,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				CivMessage.sendHeading(sender, town.getName() + " " + CivSettings.localize.localizedString("cmd_town_info_buffsHeading"));
-				ArrayList<String> out = new ArrayList<String>();
+				ArrayList<String> out = new ArrayList<>();
 				for (Buff buff : town.getBuffManager().getAllBuffs()) {
 					out.add(CivColor.Green + CivSettings.localize.localizedString("var_BuffsFrom", (CivColor.LightGreen + buff.getDisplayName() + CivColor.Green), CivColor.LightGreen + buff.getSource()));
 				}
@@ -330,7 +290,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_info_happinessHeading"));
-				ArrayList<String> out = new ArrayList<String>();
+				ArrayList<String> out = new ArrayList<>();
 				out.add(CivMessage.buildSmallTitle(CivSettings.localize.localizedString("cmd_town_info_happinessSources")));
 				AttrSource happySources = town.SM.getAttr(StorageType.HAPPY);
 				DecimalFormat df = new DecimalFormat();
@@ -367,7 +327,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_town_info_areaHeading"));
-				HashMap<String, Integer> biomes = new HashMap<String, Integer>();
+				HashMap<String, Integer> biomes = new HashMap<>();
 				double hammers = 0.0;
 				double growth = 0.0;
 				double happiness = 0.0;
@@ -448,7 +408,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 
 	public static void show(CommandSender sender, Resident resident, Town town, Civilization civ) throws CivException {
 		DecimalFormat df = new DecimalFormat();
-		boolean isAdmin = false;
+		boolean isAdmin;
 
 		if (resident != null) {
 			Player player = CivGlobal.getPlayer(resident);
@@ -483,7 +443,7 @@ public class TownInfoCommand extends MenuAbstractCommand {
 
 		if (resident == null || civ.hasResident(resident) || isAdmin) {
 			String color = CivColor.LightGreen;
-			Integer maxTileImprovements = town.getMaxTileImprovements();
+			int maxTileImprovements = town.getMaxTileImprovements();
 			if (town.getTileImprovementCount() > maxTileImprovements) color = CivColor.Rose;
 
 			CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("Plots") + " " + CivColor.LightGreen + "(" + town.getTownChunks().size() + "/" + town.getMaxPlots() + ") " + CivColor.Green + " "
@@ -505,7 +465,6 @@ public class TownInfoCommand extends MenuAbstractCommand {
 		}
 
 		if (resident == null || town.GM.isMayorOrAssistant(resident) || civ.GM.isLeaderOrAdviser(resident) || isAdmin) {
-			try {
 				String s = "";
 				for (Prof prof : town.PM.getPeoplesPriority()) {
 					s += CivColor.LightGreen + prof.toString() + ": " + CivColor.LightBlue + town.PM.getPeoplesProfCount(prof) + CivColor.LightGray + "(" + town.PM.getPeoplesWorker(prof) + CivColor.LightGreen + "), ";
@@ -521,10 +480,6 @@ public class TownInfoCommand extends MenuAbstractCommand {
 					CivMessage.send(sender, CivColor.Green + CivSettings.localize.localizedString("cmd_town_info_showBankInterest") + " " + CivColor.LightGreen + CivSettings.localize.localizedString("cmd_town_info_showBankNoBank") + " "
 							+ CivColor.Green + CivSettings.localize.localizedString("cmd_town_info_showBankPrinciple") + " " + CivColor.LightGreen + CivSettings.localize.localizedString("cmd_town_info_showBankNoBank"));
 				}
-			} catch (InvalidConfiguration e) {
-				e.printStackTrace();
-				throw new CivException(CivSettings.localize.localizedString("internalException"));
-			}
 		}
 
 		if (town.inDebt()) {

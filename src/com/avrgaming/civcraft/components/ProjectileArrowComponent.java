@@ -54,9 +54,9 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 				}
 			min_range = CivSettings.getDouble(CivSettings.warConfig, "arrow_tower.min_range");
 
-			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
+			this.proximityComponent.setCenter(new BlockCoord(getConstruct().getCenterLocation()));
 			this.proximityComponent.setRadius(range);
-			this.proximityComponent.createComponent(construct);
+			this.proximityComponent.createComponent(getConstruct());
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
@@ -71,10 +71,10 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 
 		turretLoc = adjustTurretLocation(turretLoc, playerLoc);
 		Vector dir = getVectorBetween(playerLoc, turretLoc).normalize();
-		Arrow arrow = construct.getCorner().getLocation().getWorld().spawnArrow(turretLoc, dir, (float) power, 0.0f);
+		Arrow arrow = getConstruct().getCorner().getLocation().getWorld().spawnArrow(turretLoc, dir, (float) power, 0.0f);
 		arrow.setVelocity(dir.multiply(power));
 
-		if (construct.getTown().getBuffManager().hasBuff(Buff.FIRE_BOMB)) {
+		if (getConstruct().getTownOwner().getBuffManager().hasBuff(Buff.FIRE_BOMB)) {
 			arrow.setFireTicks(1000);
 		}
 
@@ -90,7 +90,7 @@ public class ProjectileArrowComponent extends ProjectileComponent {
 	}
 
 	public Town getTown() {
-		return construct.getTown();
+		return getConstruct().getTownOwner();
 	}
 
 }

@@ -19,11 +19,11 @@ import com.avrgaming.civcraft.randomevents.RandomEvent;
 
 public class TownStorageManager {
 
-	public static enum StorageType {
+	public enum StorageType {
 		GROWTH, FOODS, HAMMERS, SUPPLIES, CULTURE, COINS, BEAKERS, HAPPY, UNHAPPY,
 	}
 
-	private Town town;
+	private final Town town;
 
 	private int foodBasket = 0;
 	private int supplies = 600;
@@ -117,7 +117,7 @@ public class TownStorageManager {
 	
 	public AttrRate calcAttrGrowthRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		double newRate = rate * town.getGovernment().growth_rate;
 		rates.put("Government", newRate - rate);
@@ -142,7 +142,7 @@ public class TownStorageManager {
 
 	public void calcAttrGrowth() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
 		/* Grab any growth from culture. */
 		double cultureSource = 0;
@@ -183,7 +183,6 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 		this.lastAttrCache.put(StorageType.GROWTH, new AttrSource(sources, total, rate));
-		return;
 	}
 
 	// ------------ food
@@ -211,7 +210,7 @@ public class TownStorageManager {
 
 	public AttrRate calcAttrFoodRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		/* Government */
 		double newRate = rate;// * town.getGovernment().hammer_rate;
@@ -223,11 +222,11 @@ public class TownStorageManager {
 
 	public void calcAttrFood() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
-		Integer formPeoples = (int) Math.min(getAttr(StorageType.GROWTH).total, town.PM.getIntake(StorageType.FOODS));
+		int formPeoples = (int) Math.min(getAttr(StorageType.GROWTH).total, town.PM.getIntake(StorageType.FOODS));
 		total += formPeoples;
-		sources.put("Peoples", formPeoples.doubleValue());
+		sources.put("Peoples", (double) formPeoples);
 
 		/* Grab hammers generated from structures with components. */
 		double structures = 0;
@@ -243,12 +242,11 @@ public class TownStorageManager {
 		AttrRate rate = calcAttrFoodRate();
 		total *= rate.total;
 
-		Integer eat = town.PM.getFoodsOuttake();
+		int eat = town.PM.getFoodsOuttake();
 		total -= eat;
-		sources.put("Peoples eat", eat.doubleValue());
+		sources.put("Peoples eat", (double) eat);
 
 		lastAttrCache.put(StorageType.FOODS, new AttrSource(sources, total, rate));
-		return;
 	}
 
 	// -------------- Hammers
@@ -259,7 +257,7 @@ public class TownStorageManager {
 	
 	public AttrRate calcAttrHammerRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		/* Government */
 		double newRate = rate * town.getGovernment().hammer_rate;
@@ -274,7 +272,7 @@ public class TownStorageManager {
 		for (final Town town : town.getCiv().getTowns()) {
 			if (town.getBuffManager().hasBuff("buff_spoil")) newRate *= 1.1;
 		}
-		rate = newRate;
+		rate += newRate;
 
 		/* Captured Town Penalty */
 		if (town.getMotherCiv() != null) {
@@ -291,7 +289,7 @@ public class TownStorageManager {
 
 	public void calcAttrHammer() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
 		double cultureHammers = 0;
 		for (CultureChunk cc : town.getCultureChunks()) {
@@ -339,7 +337,7 @@ public class TownStorageManager {
 
 	public AttrRate calcAttrSuppliesRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		/* Government */
 		double newRate = rate * town.getGovernment().hammer_rate;
@@ -371,13 +369,13 @@ public class TownStorageManager {
 
 	public void calcAttrSupplies() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
-		Integer fromPeople = (int) Math.min(getAttr(StorageType.HAMMERS).total, town.PM.getIntake(StorageType.SUPPLIES));
+		int fromPeople = (int) Math.min(getAttr(StorageType.HAMMERS).total, town.PM.getIntake(StorageType.SUPPLIES));
 		total += fromPeople;
-		sources.put("Peoples", fromPeople.doubleValue());
+		sources.put("Peoples", (double) fromPeople);
 
-		Double structures = 0.0;
+		double structures = 0.0;
 		for (Structure struct : town.BM.getStructures()) {
 			if (struct instanceof Mine) {
 				if (struct.getProfesionalComponent().isWork) {
@@ -408,7 +406,6 @@ public class TownStorageManager {
 				CivMessage.sendCiv(town.getCiv(), CivSettings.localize.localizedString("var_town_bordersExpanded", town.getName()));
 			}
 		}
-		return;
 	}
 
 	public int getCulture() {
@@ -433,7 +430,7 @@ public class TownStorageManager {
 
 	public AttrRate calcAttrCultureRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		double newRate = town.getGovernment().culture_rate;
 		rates.put("Government", newRate - rate);
@@ -457,7 +454,7 @@ public class TownStorageManager {
 
 	public void calcAttrCulture() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 		/* Grab beakers generated from structures with components. */
 		double fromStructures = 0;
 		for (Structure struct : town.BM.getStructures()) {
@@ -484,7 +481,7 @@ public class TownStorageManager {
 	
 	public AttrRate calcAttrCoinsRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		double newRate = town.getGovernment().trade_rate;
 		rates.put("Government", newRate - rate);
@@ -508,7 +505,7 @@ public class TownStorageManager {
 
 	public void calcAttrCoins() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 		/* Grab beakers generated from structures with components. */
 		double fromStructures = 0;
 		for (Structure struct : town.BM.getStructures()) {
@@ -535,7 +532,7 @@ public class TownStorageManager {
 
 	public AttrRate calcAttrBeakerRate() {
 		double rate = 1.0;
-		HashMap<String, Double> rates = new HashMap<String, Double>();
+		HashMap<String, Double> rates = new HashMap<>();
 
 		double newRate;
 
@@ -555,7 +552,7 @@ public class TownStorageManager {
 
 	public double calcAttrBeakers() {
 		double total = 0;
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
 		/* Grab beakers generated from structures with components. */
 		double fromStructures = 0;
@@ -592,7 +589,7 @@ public class TownStorageManager {
 	/* Gets the basic amount of happiness for a town. */
 
 	public void calcAttrHappiness() {
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 		double total = 0;
 
 		/* Add happiness from town level. */
@@ -639,13 +636,12 @@ public class TownStorageManager {
 
 		// TODO Governments
 		this.lastAttrCache.put(StorageType.HAPPY, new AttrSource(sources, total, null));
-		return;
 	}
 
 	/* Gets the basic amount of unhappiness for a town. */
 
 	public void calcAttrUnhappiness() {
-		HashMap<String, Double> sources = new HashMap<String, Double>();
+		HashMap<String, Double> sources = new HashMap<>();
 
 		/* Get the unhappiness from the civ. */
 		double total = town.getCiv().getCivWideUnhappiness(sources);
@@ -707,7 +703,6 @@ public class TownStorageManager {
 
 		if (total < 0) total = 0;
 		this.lastAttrCache.put(StorageType.UNHAPPY, new AttrSource(sources, total, null));
-		return;
 	}
 
 	public double getHappinessPercentage() {

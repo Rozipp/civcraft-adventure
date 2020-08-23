@@ -3,7 +3,6 @@ package com.avrgaming.civcraft.gui.action;
 import java.util.ArrayDeque;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.gui.GuiInventory;
@@ -15,9 +14,7 @@ import com.avrgaming.civcraft.util.CallbackInterface;
 public class CallbackGui implements GuiItemAction {
 
 	@Override
-	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		if (!GuiInventory.isGuiInventory(event.getClickedInventory())) return;
-		Player player = (Player) event.getWhoClicked();
+	public void performAction(Player player, ItemStack stack) {
 		if (player == null) return;
 		String callbackData = GuiItems.getActionData(stack, "data");
 

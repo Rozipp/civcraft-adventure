@@ -47,13 +47,12 @@ public abstract class ProjectileComponent extends Component {
 	protected int damage;
 	protected double range;
 	protected double min_range;
-	protected Construct construct;
 	protected PlayerProximityComponent proximityComponent;
 
 	private HashSet<BlockCoord> turrets = new HashSet<BlockCoord>();
 
 	public ProjectileComponent(Construct constr) {
-		this.construct = constr;
+		this.setConstruct(constr);
 		proximityComponent = new PlayerProximityComponent();
 		proximityComponent.createComponent(constr);
 		loadSettings();
@@ -89,7 +88,7 @@ public abstract class ProjectileComponent extends Component {
 	}
 
 	public Location getTurretCenter() {
-		return construct.getCenterLocation();
+		return getConstruct().getCenterLocation();
 	}
 
 	public Vector getVectorBetween(Location to, Location from) {
@@ -104,7 +103,7 @@ public abstract class ProjectileComponent extends Component {
 
 	public int getDamage() {
 		double rate = 1;
-		rate += this.getConstruct().getTown().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
+		rate += this.getConstruct().getTownOwner().getBuffManager().getEffectiveDouble(Buff.FIRE_BOMB);
 		return (int) (this.damage * rate);
 	}
 
@@ -184,7 +183,7 @@ public abstract class ProjectileComponent extends Component {
 	}
 
 	public void process() {
-		if (!construct.isActive()) {
+		if (!getConstruct().isActive()) {
 			return;
 		}
 
@@ -196,11 +195,11 @@ public abstract class ProjectileComponent extends Component {
 		for (PlayerLocationCache pc : getpl) {
 			if (pc == null || pc.isDead()) continue;
 
-			if (!construct.getTown().isOutlaw(pc.getName())) {
+			if (!getConstruct().getTownOwner().isOutlaw(pc.getName())) {
 				Resident resident = pc.getResident();
 				// Try to exit early by making sure this resident is at war.
 				if (resident == null || (!resident.hasTown())) continue;
-				if (!construct.getCiv().getDiplomacyManager().isHostileWith(resident)) continue;
+				if (!getConstruct().getCivOwner().getDiplomacyManager().isHostileWith(resident)) continue;
 			}
 
 			Location playerLoc = pc.getCoord().getLocation();

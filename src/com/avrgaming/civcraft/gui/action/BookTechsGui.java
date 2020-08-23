@@ -2,7 +2,6 @@
 package com.avrgaming.civcraft.gui.action;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
@@ -15,8 +14,7 @@ import com.avrgaming.civcraft.object.Resident;
 
 public class BookTechsGui implements GuiItemAction {
 	@Override
-	public void performAction(InventoryClickEvent event, ItemStack stack) {
-		Player player = (Player) event.getWhoClicked();
+	public void performAction(Player player, ItemStack stack) {
 		Resident whoClicked = CivGlobal.getResident(player);
 		if (whoClicked.getTown() == null) {
 			CivMessage.send((Object) player, "§c" + CivSettings.localize.localizedString("res_gui_noTown"));

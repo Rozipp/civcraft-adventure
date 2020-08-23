@@ -6,7 +6,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import com.avrgaming.civcraft.components.ProjectileComponent;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.main.CivMessage;
@@ -52,15 +51,15 @@ public class ProjectileMagicComponent extends ProjectileComponent {
 			this.min_range = CivSettings.getDouble(CivSettings.warConfig, "tesla_tower.min_range");
 			this.fireRate = 20;
 			
-			this.proximityComponent.setCenter(new BlockCoord(construct.getCenterLocation()));
+			this.proximityComponent.setCenter(new BlockCoord(getConstruct().getCenterLocation()));
 			this.proximityComponent.setRadius(this.range);
-			this.proximityComponent.createComponent(this.construct);
+			this.proximityComponent.createComponent(this.getConstruct());
 		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		}
 	}
 
 	public Town getTown() {
-		return this.construct.getTown();
+		return this.getConstruct().getTownOwner();
 	}
 }

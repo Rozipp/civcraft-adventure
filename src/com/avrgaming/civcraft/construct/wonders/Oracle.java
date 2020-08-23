@@ -1,13 +1,5 @@
 package com.avrgaming.civcraft.construct.wonders;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigEnchant;
 import com.avrgaming.civcraft.construct.ConstructSign;
@@ -18,15 +10,14 @@ import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class Oracle extends Wonder {
 
-	public Oracle(String id, Town town) throws CivException {
+	public Oracle(String id, Town town) {
 		super(id, town);
-	}
-
-	public Oracle(ResultSet rs) throws SQLException, CivException {
-		super(rs);
 	}
 
 	@Override
@@ -49,14 +40,14 @@ public class Oracle extends Wonder {
 
 	@Override
 	protected void removeBuffs() {
-		this.removeBuffFromCiv(this.getCiv(), "buff_oracle_extra_hp");
-		this.removeBuffFromTown(this.getTown(), "buff_oracle_double_tax_beakers");
+		this.removeBuffFromCiv(this.getCivOwner(), "buff_oracle_extra_hp");
+		this.removeBuffFromTown(this.getTownOwner(), "buff_oracle_double_tax_beakers");
 	}
 
 	@Override
 	protected void addBuffs() {
-		this.addBuffToCiv(this.getCiv(), "buff_oracle_extra_hp");
-		this.addBuffToTown(this.getTown(), "buff_oracle_double_tax_beakers");
+		this.addBuffToCiv(this.getCivOwner(), "buff_oracle_extra_hp");
+		this.addBuffToTown(this.getTownOwner(), "buff_oracle_double_tax_beakers");
 	}
 
 	@Override
@@ -93,12 +84,12 @@ public class Oracle extends Wonder {
 	public void processSignAction(final Player player, final ConstructSign sign, final PlayerInteractEvent event) {
 		final Resident resident = CivGlobal.getResident(player);
 		if (resident == null) return;
-		if (!resident.hasTown() || resident.getCiv() != this.getCiv()) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember", this.getCiv().getName()));
+		if (!resident.hasTown() || resident.getCiv() != this.getCivOwner()) {
+			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_nonMember", this.getCivOwner().getName()));
 			return;
 		}
-		if (!this.getCiv().GM.isLeader(resident)) {
-			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_onlyleader", this.getCiv().getName()));
+		if (!this.getCivOwner().GM.isLeader(resident)) {
+			CivMessage.sendError(player, CivSettings.localize.localizedString("var_greatLibrary_onlyleader", this.getCivOwner().getName()));
 			return;
 		}
 		ItemStack hand = player.getInventory().getItemInMainHand();
@@ -208,7 +199,7 @@ public class Oracle extends Wonder {
 		}
 		}
 		player.getInventory().setItemInMainHand(hand);
-		CivMessage.sendSuccess((CommandSender) player, CivSettings.localize.localizedString("library_enchantment_success"));
+		CivMessage.sendSuccess(player, CivSettings.localize.localizedString("library_enchantment_success"));
 	}
 	/* @Override public void updateSignText() { for (final StructureSign sign : this.getSigns()) { final String lowerCase =
 	 * sign.getAction().toLowerCase(); switch (lowerCase) { case "0": { final ConfigEnchant enchant = CivSettings.enchants.get("ench_thorns");
