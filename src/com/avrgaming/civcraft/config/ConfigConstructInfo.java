@@ -1,11 +1,3 @@
-/************************************************************************* AVRGAMING LLC __________________
- * 
- * [2013] AVRGAMING LLC All Rights Reserved.
- * 
- * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
- * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
- * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
- * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.config;
 
 import java.util.HashMap;
@@ -47,7 +39,7 @@ public class ConfigConstructInfo {
 	public boolean allow_demolish;
 	public boolean strategic;
 	public boolean ignore_floating;
-	public List<HashMap<String, String>> components = new LinkedList<HashMap<String, String>>();
+	public List<HashMap<String, String>> components = new LinkedList<>();
 
 	public ConfigConstructInfo() {
 	}
@@ -71,7 +63,7 @@ public class ConfigConstructInfo {
 			sinfo.id/*               */ = (String) struct.get("id");
 			sinfo.type/*             */ = ConstructType.valueOf((String) struct.get("type"));
 			sinfo.template_name/*    */ = ((obj = struct.get("template"))/*         */ == null) ? null : (String) obj;
-			sinfo.template_y_shift/*   */ = ((obj = struct.get("template_y_shift"))/* */ == null) ? 0 : (Integer) obj;
+			sinfo.template_y_shift/* */ = ((obj = struct.get("template_y_shift"))/* */ == null) ? 0 : (Integer) obj;
 			sinfo.displayName/*      */ = (String) struct.get("displayName");
 			sinfo.require_tech/*     */ = ((obj = struct.get("require_tech"))/*     */ == null) ? null : (String) obj;
 			sinfo.require_upgrade/*  */ = ((obj = struct.get("require_upgrade"))/*  */ == null) ? null : (String) obj;
@@ -96,7 +88,7 @@ public class ConfigConstructInfo {
 			List<Map<?, ?>> comps = (List<Map<?, ?>>) struct.get("components");
 			if (comps != null) {
 				for (Map<?, ?> compObj : comps) {
-					HashMap<String, String> compMap = new HashMap<String, String>();
+					HashMap<String, String> compMap = new HashMap<>();
 					for (Object key : compObj.keySet()) {
 						compMap.put((String) key, (String) compObj.get(key));
 					}

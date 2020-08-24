@@ -68,6 +68,20 @@ public class BuildableCommand extends MenuAbstractCommand {
 				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_listWondersHeader"));
 
 				for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
+					if (sinfo.type != ConstructType.Title) continue;
+					if (sinfo.isAvailable(town)) {
+						String s = "";
+						s = CivColor.addTabToString(s + CivColor.LightPurple, sinfo.displayName, 22);
+						s = CivColor.addTabToString(s + CivColor.Yellow, "C: " + sinfo.cost, 12);
+						s = CivColor.addTabToString(s + CivColor.Yellow, "U: " + sinfo.upkeep, 12);
+						s = CivColor.addTabToString(s + CivColor.Yellow, "H: " + sinfo.hammer_cost, 12);
+						s = s + CivColor.Yellow + "L: " + ((sinfo.limit == 0) ? CivSettings.localize.localizedString("Unlimited") : "" + (sinfo.limit - town.BM.getBuildableByIdCount(sinfo.id)));
+						CivMessage.send(sender, s);
+					}
+				}
+				CivMessage.sendHeading(sender, CivSettings.localize.localizedString("cmd_build_listWondersHeader"));
+
+				for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
 					if (sinfo.type != ConstructType.Wonder) continue;
 					if (!sinfo.isAvailable(town)) continue;
 					String leftString = (sinfo.limit == 0) ? CivSettings.localize.localizedString("Unlimited") : "" + (sinfo.limit - (town.BM.getBuildableByIdCount(sinfo.id)));
@@ -96,9 +110,9 @@ public class BuildableCommand extends MenuAbstractCommand {
 						for (ConfigConstructInfo sinfo : CivSettings.constructs.values()) {
 							if (sinfo.displayName.toLowerCase().startsWith(arg) && sinfo.isAvailable(town)) {
 								if (sinfo.type == ConstructType.Structure) l.add(sinfo.displayName.replace(" ", "_"));
-								if (sinfo.type == ConstructType.Wonder) {
+								if (sinfo.type == ConstructType.Title) l.add(sinfo.displayName.replace(" ", "_"));
+								if (sinfo.type == ConstructType.Wonder)
 									if (Wonder.isWonderAvailable(sinfo.id)) l.add(sinfo.displayName.replace(" ", "_"));
-								}
 							}
 						}
 						return l;
@@ -191,7 +205,7 @@ public class BuildableCommand extends MenuAbstractCommand {
 			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
 				Town town = Commander.getSelectedTown(sender);
 				Player player = Commander.getPlayer(sender);
-				Structure nearest = (Structure) CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
+				Buildable nearest = (Buildable) CivGlobal.getConstructFromChunk(new ChunkCoord(player.getLocation()));
 				if (nearest == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_Invalid"));
 				if (args.length < 1 || !args[0].equalsIgnoreCase("yes")) {
 					CivMessage.send(player, CivColor.LightGreen + CivSettings.localize.localizedString("var_cmd_build_demolishNearestConfirmPrompt", CivColor.Yellow + nearest.getDisplayName() + CivColor.LightGreen,

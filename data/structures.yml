@@ -1163,25 +1163,41 @@ structures:
     max_hitpoints: 300
     points: 2000
 
-#  - id: ti_lab
-#    type: Structure
-#    template: lab
-#    displayName: Обсерватория
-#    require_upgrade:
-#    require_tech: 'tech_innovation'
-#    gui_item_id: 390
-#    gui_slot: 32
-#    limit: 3
-#    cost: 100000.0
-#    upkeep: 4500.0
-#    tile_improvement: true
-#    hammer_cost: 3600
-#    points: 6200
-#    max_hitpoints: 1200
-#    components:
-#        - name: 'ProfesionalComponent'
-#          prof: 'SCIENTIST'
-#        - name: 'AttributeBiomeRadiusPerLevel'
-#          attribute: 'BEAKERS'
-#          biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
-#          base_value: '7.0'
+  - id: ti_lab
+    type: Structure
+    template: lab
+    displayName: Обсерватория
+    require_upgrade:
+    require_tech: 'tech_innovation'
+    gui_item_id: 390
+    gui_slot: 32
+    limit: 3
+    cost: 100000.0
+    upkeep: 4500.0
+    tile_improvement: true
+    hammer_cost: 3600
+    points: 6200
+    max_hitpoints: 1200
+    components:
+        - name: 'ProfesionalComponent'
+          prof: 'SCIENTIST'
+        - name: 'AttributeBiomeRadiusPerLevel'
+          attribute: 'BEAKERS'
+          biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
+          base_value: '7.0'
+
+  - id: ti_science_title
+    type: Title
+    template: science_title
+    displayName: Научный район
+    require_upgrade:
+    require_tech:
+    gui_item_id: 390
+    gui_slot: 32
+    limit: 3
+    cost: 100000.0
+    upkeep: 4500.0
+    tile_improvement: true
+    hammer_cost: 300
+    points: 200
+    max_hitpoints: 200

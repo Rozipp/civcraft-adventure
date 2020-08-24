@@ -8,6 +8,7 @@ import com.avrgaming.civcraft.construct.farm.FarmChunk;
 import com.avrgaming.civcraft.construct.farm.FarmPreCachePopulateTimer;
 import com.avrgaming.civcraft.construct.structures.Market;
 import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.titles.Title;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
@@ -23,7 +24,10 @@ import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
 import com.avrgaming.civcraft.units.UnitObject;
-import com.avrgaming.civcraft.util.*;
+import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
+import com.avrgaming.civcraft.util.CivColor;
+import com.avrgaming.civcraft.util.TagManager;
 import com.avrgaming.civcraft.war.War;
 import com.avrgaming.civcraft.war.WarRegen;
 import org.bukkit.*;
@@ -64,6 +68,7 @@ public class CivGlobal {
 	private static final Map<ChunkCoord, TownChunk> townChunks = new ConcurrentHashMap<>();
 	private static final Map<ChunkCoord, CultureChunk> cultureChunks = new ConcurrentHashMap<>();
 
+	private static final Map<BlockCoord, Title> titles = new ConcurrentHashMap<>();
 	private static final Map<BlockCoord, Structure> structures = new ConcurrentHashMap<>();
 	private static final Map<BlockCoord, Wonder> wonders = new ConcurrentHashMap<>();
 	private static final Map<BlockCoord, ConstructBlock> constructBlocks = new ConcurrentHashMap<>();
@@ -798,6 +803,8 @@ public class CivGlobal {
 	public static void addConstruct(Construct construct) {
 		if (construct instanceof Structure)
 			structures.put(construct.getCorner(), (Structure) construct);
+		else if (construct instanceof Title)
+			titles.put(construct.getCorner(), (Title) construct);
 		else if (construct instanceof Wonder)
 			wonders.put(construct.getCorner(), (Wonder) construct);
 		else if (construct instanceof Camp)
@@ -807,6 +814,8 @@ public class CivGlobal {
 	public static void removeConstruct(Construct construct) {
 		if (construct instanceof Structure)
 			structures.remove(construct.getCorner());
+		else if (construct instanceof Title)
+			titles.remove(construct.getCorner());
 		else if (construct instanceof Wonder)
 			wonders.remove(construct.getCorner());
 		else if (construct instanceof Camp)

@@ -135,7 +135,7 @@ public abstract class Buildable extends Construct {
 		this.setHammersCompleted(rs.getInt("hammersCompleted"));
 		String variablesMap = rs.getString("variables");
 		variables = new HashMap<>();
-		if (variablesMap != null)
+		if (variablesMap != null && !variables.isEmpty())
 			for (String ss : variablesMap.split(",")) {
 				String[] s = ss.split("=");
 				variables.put(s[0], s[1]);
@@ -208,7 +208,7 @@ public abstract class Buildable extends Construct {
 			int maxTileImprovements = getTownOwner().getMaxTileImprovements();
 			if (getTownOwner().getTileImprovementCount() >= maxTileImprovements) throw new CivException(CivSettings.localize.localizedString("buildable_errorTILimit"));
 		}
-		super.checkBlockPermissionsAndRestrictions(player);
+		if (getInfo().require_floor==null || getInfo().require_floor.isEmpty()) super.checkBlockPermissionsAndRestrictions(player);
 	}
 
 	// ------------- Build Task

@@ -231,15 +231,20 @@ public class DebugCommand extends MenuAbstractCommand {
 				String name = Commander.getNamedString(args, 0, "Enter a buildName");
 				String theme = "default";
 				if (args.length == 2) theme = args[1];
-				ConfigConstructInfo sinfo;
-
-				sinfo = CivSettings.getConstructInfoByName(name);
-
-				if (sinfo == null) throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
-				String templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
+				ConfigConstructInfo sinfo = CivSettings.getConstructInfoByName(name);
+				String templatePath = null;
+				if (sinfo == null) {
+					if (theme != null)
+						templatePath = Template.getTemplateFilePath(player.getLocation(), name, theme);
+					else
+						throw new CivException(CivSettings.localize.localizedString("cmd_build_defaultUnknownStruct") + " " + name);
+				} else
+					templatePath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
+				if (templatePath == null) throw new CivException("Постройка не найдена");
 				Template tpl = Template.getTemplate(templatePath);
 				CivMessage.send(sender, "Loaded Template " + templatePath);
 				if (tpl != null) tpl.buildTemplateDbg(new BlockCoord(player.getLocation()));
+				else throw new CivException("Постройка не найдена");
 			}
 		}));
 		add(new CustomCommand("savetemplate").withDescription("[name] [theme] seve select region.").withExecutor(new CustomExecutor() {
@@ -248,14 +253,14 @@ public class DebugCommand extends MenuAbstractCommand {
 				Player player = Commander.getPlayer(sender);
 				String name = Commander.getNamedString(args, 0, "Enter a filename");
 				String build_name = name.replace("_", " ");
-				String theme = (args.length == 3) ? args[2] : null;
+				String theme = (args.length == 2) ? args[1] : null;
 				ConfigConstructInfo sinfo = CivSettings.getConstructInfoByName(build_name);
 
 				String filepath;
 				if (sinfo != null)
 					filepath = Template.getTemplateFilePath(player.getLocation(), sinfo, theme);
-				else
-					filepath = "templates/" + name + ".def";
+				else if (theme == null) filepath = "templates/" + name + ".def";
+				else filepath = Template.getTemplateFilePath(player.getLocation(), name, theme);
 
 				LocalSession session = CivCraft.getWorldEdit().getSession(player);
 				CuboidRegion selection;

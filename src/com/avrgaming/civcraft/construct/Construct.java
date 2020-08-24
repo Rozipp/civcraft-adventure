@@ -4,7 +4,7 @@ import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
-import com.avrgaming.civcraft.database.SQL;
+import com.avrgaming.civcraft.construct.titles.Title;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -90,6 +90,14 @@ public abstract class Construct extends SQLObject {
 		if (SQLOwner instanceof Civilization) return (Civilization) SQLOwner;
 		if (SQLOwner instanceof Resident) return ((Resident) SQLOwner).getCiv();
 		return null;
+	}
+
+	public void setCorner(BlockCoord bc) {
+		this.corner = bc;
+		if (getTemplate() != null)
+			this.setCenterLocation(bc.getLocation().add(getTemplate().size_x * 0.5, getTemplate().size_y * 0.5, getTemplate().size_z * 0.5));
+		else
+			this.setCenterLocation(bc.getLocation());
 	}
 
 	public void setCorner(Location loc) {
@@ -200,11 +208,20 @@ public abstract class Construct extends SQLObject {
 		Template tpl = Template.getTemplate(tplPath);
 		if (tpl == null) throw new CivException("Не найден шаблон " + tplPath);
 		this.setTemplate(tpl);
-		this.setCorner(this.repositionCenter(location, tpl));
+		if (getInfo().require_floor != null) {
+			ConfigConstructInfo cci = CivSettings.constructs.get(getInfo().require_floor);
+			if (cci == null) this.setCorner(this.repositionCenter(location, tpl));
+			else {
+				Title title = getTownOwner().BM.getNearestTitle(location);
+				if (title == null || !getInfo().require_floor.equals(title.getInfo().id)) throw new CivException("Это здание надо строит в " + cci.displayName);
+				this.setCorner(title.getSlotBlockCoord(getConfigId()));
+			}
+		} else
+			this.setCorner(this.repositionCenter(location, tpl));
 		this.setHitpoints(getMaxHitPoints());
 	}
 
-	public Location repositionCenter(Location center, Template tpl) throws CivException {
+	public Location repositionCenter(Location center, Template tpl) {
 		return BuildableStatic.repositionCenterStatic(center, this.getTemplateYShift(), tpl);
 	}
 

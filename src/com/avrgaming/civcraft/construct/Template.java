@@ -87,15 +87,17 @@ public class Template {
 		// Read blocks from file.
 		while ((line = reader.readLine()) != null) {
 			String[] locTypeSplit = line.split(",");
-
+			if (locTypeSplit.length < 2) continue;  //Ошибка в темплатете, или пустая строка в файле
 			// Parse location
 			String[] locationSplit = locTypeSplit[0].split(":");
+			if (locationSplit.length < 3) continue;  //Ошибка в темплатете, или пустая строка в файле
 			int blockX = Integer.parseInt(locationSplit[0]);
 			int blockY = Integer.parseInt(locationSplit[1]);
 			int blockZ = Integer.parseInt(locationSplit[2]);
 
 			// Parse type
 			String[] typeSplit = locTypeSplit[1].split(":");
+			if (typeSplit.length < 2) continue;  //Ошибка в темплатете, или пустая строка в файле
 			int blockId = Integer.parseInt(typeSplit[0]);
 			int blockData = Integer.parseInt(typeSplit[1]);
 			if (blockId == 0) continue;
@@ -480,6 +482,10 @@ public class Template {
 	public static String getTemplateFilePath(Location loc, ConfigConstructInfo info, String theme) throws CivException {
 		if (info.type == ConstructType.Wonder) theme = "wonders";
 		return Template.getTemplateFilePath(info.template_name, Template.getDirection(loc), theme);
+	}
+
+	public static String getTemplateFilePath(Location loc, String template_name, String theme) throws CivException {
+		return Template.getTemplateFilePath(template_name, Template.getDirection(loc), theme);
 	}
 
 	public static String getTemplateFilePath(String template_name, String direction, String theme) throws CivException {

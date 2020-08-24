@@ -3,6 +3,7 @@ package com.avrgaming.civcraft.object;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.construct.Buildable;
 import com.avrgaming.civcraft.construct.structures.*;
+import com.avrgaming.civcraft.construct.titles.Title;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
@@ -31,6 +32,7 @@ public class TownBuildableManager {
 
 	private ConcurrentHashMap<BlockCoord, Wonder> wonders = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<BlockCoord, Structure> structures = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<BlockCoord, Title> titles = new ConcurrentHashMap<>();
 	private LinkedList<Buildable> disabledBuildables = new LinkedList<>();
 	private LinkedList<Buildable> invalideBuildables = new LinkedList<>();
 
@@ -123,7 +125,8 @@ public class TownBuildableManager {
 				this.disabledBuildables.add(struct);
 				struct.setEnabled(false);
 			}
-
+		} else if (buildable instanceof Title) {
+			this.titles.put(buildable.getCorner(), (Title) buildable);
 		} else if (buildable instanceof Wonder) {
 			this.wonders.put(buildable.getCorner(), (Wonder) buildable);
 		}
@@ -158,6 +161,30 @@ public class TownBuildableManager {
 
 	public Collection<Wonder> getWonders() {
 		return this.wonders.values();
+	}
+
+	// ------------------ Title
+
+	public boolean hasTitle(String structure_id) {
+		if (structure_id == null || structure_id.equals("")) return true;
+		Structure foundstruct = null;
+		for (Structure struct : this.structures.values()) {
+			if (struct.getConfigId().equalsIgnoreCase(structure_id)) {
+				foundstruct = struct;
+				break;
+			}
+		}
+		if (foundstruct != null) {
+			CivLog.debug("foundstruct = " + foundstruct.getDisplayName());
+			return foundstruct.isActive();
+		} else {
+			CivLog.debug("structure  " + structure_id + "  not found");
+			return false;
+		}
+	}
+
+	public Collection<Title> getTitles() {
+		return this.titles.values();
 	}
 
 	// -------------Structure
@@ -290,9 +317,9 @@ public class TownBuildableManager {
 
 	// -------------------- process
 
-	public void demolish(Structure struct, boolean isAdmin) throws CivException {
-		if (!struct.allowDemolish() && !isAdmin) throw new CivException(CivSettings.localize.localizedString("town_demolish_Cannot"));
-		struct.deleteWithUndo();
+	public void demolish(Buildable buildable, boolean isAdmin) throws CivException {
+		if (!buildable.allowDemolish() && !isAdmin) throw new CivException(CivSettings.localize.localizedString("town_demolish_Cannot"));
+		buildable.deleteWithUndo();
 	}
 
 	public void refreshNearestBuildable(Resident resident) throws CivException {
@@ -383,6 +410,9 @@ public class TownBuildableManager {
 		for (Structure struct : this.structures.values()) {
 			if (struct.getConfigId().equalsIgnoreCase(id)) count++;
 		}
+		for (Title title : this.titles.values()) {
+			if (title.getConfigId().equalsIgnoreCase(id)) count++;
+		}
 		for (Wonder wonder : this.wonders.values()) {
 			if (wonder.getConfigId().equalsIgnoreCase(id)) count++;
 		}
@@ -451,6 +481,20 @@ public class TownBuildableManager {
 			if (distance < lowest_distance) {
 				lowest_distance = distance;
 				nearest = struct;
+			}
+		}
+		return nearest;
+	}
+
+	public Title getNearestTitle(Location location) {
+		Title nearest = null;
+		double lowest_distance = Double.MAX_VALUE;
+
+		for (Title title : getTitles()) {
+			double distance = title.getCenterLocation().distanceSquared(location);
+			if (distance < lowest_distance) {
+				lowest_distance = distance;
+				nearest = title;
 			}
 		}
 		return nearest;

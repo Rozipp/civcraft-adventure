@@ -293,7 +293,7 @@ public class Civilization extends SQLObject {
 		this.conquer_date = ctime == 0 ? null : new Date(ctime);
 
 		String motd = rs.getString("motd");
-		this.messageOfTheDay = (motd.equals("")) ? null : motd;
+		this.messageOfTheDay = (motd == null || motd.equals("")) ? null : motd;
 
 		ctime = rs.getLong("created_date");
 		this.created_date = new Date(ctime);
