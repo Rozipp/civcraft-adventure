@@ -17,6 +17,6 @@ public abstract class ConfigMaterial {
 //	public String required_tech = null;
 	public boolean shiny = false;
 	public boolean tradeable = false;
-	public List<HashMap<String, String>> components = new LinkedList<HashMap<String, String>>();
+	public List<HashMap<String, String>> components = new LinkedList<>();
 	public double tradeValue = 0;
 }

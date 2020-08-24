@@ -29,71 +29,6 @@ public class Structure extends Buildable {
 		super(id, town);
 	}
 
-	@Override
-	public void load(ResultSet rs) throws CivException, SQLException {
-		this.setId(rs.getInt("id"));
-		this.setInfo(CivSettings.constructs.get(rs.getString("type_id")));
-		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
-
-		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
-		this.setHitpoints(rs.getInt("hitpoints"));
-
-		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
-
-		if (this.getTownOwner() == null) {
-			this.deleteWithUndo();
-			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
-		}
-
-		this.setComplete(rs.getBoolean("complete"));
-		this.setHammersCompleted(rs.getInt("hammersCompleted"));
-		this.getTownOwner().BM.addBuildable(this);
-
-		if (!this.isComplete()) {
-			try {
-				this.startBuildTask();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else
-			TaskMaster.syncTask(() -> {
-				try {
-					this.onLoad();
-				} catch (Exception e) {
-					CivLog.error(e.getMessage());
-					e.printStackTrace();
-				}
-			}, 2000);
-	}
-
-	@Override
-	public void saveNow() throws SQLException {
-		HashMap<String, Object> hashmap = new HashMap<>();
-		hashmap.put("type_id", this.getConfigId());
-		hashmap.put("town_id", this.getTownOwner().getId());
-		hashmap.put("complete", this.isComplete());
-		hashmap.put("hammersCompleted", this.getHammersCompleted());
-		hashmap.put("cornerBlockHash", this.getCorner().toString());
-		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getTemplate().getFilepath());
-
-		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
-	}
-
-	@Override
-	public void delete() {
-		super.delete();
-
-		if (this.getTownOwner() != null) this.getTownOwner().BM.removeBuildable(this);
-		CivGlobal.removeConstruct(this);
-
-		try {
-			SQL.deleteNamedObject(this, TABLE_NAME);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	// -------------------build
 
 	public void runOnBuild(ChunkCoord cChunk) throws CivException {
@@ -127,12 +62,6 @@ public class Structure extends Buildable {
 	}
 
 	// --------------- structure const
-
-	@Override
-	@Deprecated
-	public String getName() {
-		return this.getDisplayName();
-	}
 
 	public double getRepairCost() {
 		return (int) this.getCost() *0.5;

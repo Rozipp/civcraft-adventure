@@ -21,7 +21,7 @@ import com.avrgaming.civcraft.object.Town;
 public class ConfigConstructInfo {
 
 	public enum ConstructType {
-		Global, Titles, Structure, Wonder, War
+		Global, Title, Structure, Wonder, War
 	}
 
 	public String id = "";
@@ -32,6 +32,7 @@ public class ConfigConstructInfo {
 	public String require_tech;
 	public String require_upgrade;
 	public String require_structure;
+	public String require_floor;
 	public int gui_item_id;
 	public int gui_slot;
 	public int limit;
@@ -75,6 +76,7 @@ public class ConfigConstructInfo {
 			sinfo.require_tech/*     */ = ((obj = struct.get("require_tech"))/*     */ == null) ? null : (String) obj;
 			sinfo.require_upgrade/*  */ = ((obj = struct.get("require_upgrade"))/*  */ == null) ? null : (String) obj;
 			sinfo.require_structure/**/ = ((obj = struct.get("require_structure"))/**/ == null) ? null : (String) obj;
+			sinfo.require_floor/*    */ = ((obj = struct.get("require_floor"))/*    */ == null) ? null : (String) obj;
 			sinfo.gui_item_id/*      */ = ((obj = struct.get("gui_item_id"))/*      */ == null) ? 1 : (Integer) obj;
 			sinfo.gui_slot/*         */ = ((obj = struct.get("gui_slot"))/*         */ == null) ? 0 : (Integer) obj;
 			sinfo.limit/*            */ = ((obj = struct.get("limit"))/*            */ == null) ? 1 : (Integer) obj;
@@ -119,7 +121,7 @@ public class ConfigConstructInfo {
 			case Global:
 				name += "constructs.";
 				break;
-			case Titles:
+			case Title:
 				name += "titles.";
 				break;
 		}

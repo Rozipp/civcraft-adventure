@@ -8,12 +8,11 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.titles.Title;
 import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.exception.InvalidNameException;
-import com.avrgaming.civcraft.exception.InvalidObjectException;
 import com.avrgaming.civcraft.main.CivData;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -64,7 +63,7 @@ public abstract class Buildable extends Construct {
 	public static Buildable _newBuildable(String id, Town town) {
 		ConfigConstructInfo cci = CivSettings.constructs.get(id);
 		String className = cci.getClassName();
-		Buildable buildable;
+		Buildable buildable = null;
 		try {
 			Class<?>[] parTypes = {String.class, Town.class};
 			Constructor<?> constructor = Class.forName(className).getConstructor(parTypes);
@@ -73,9 +72,9 @@ public abstract class Buildable extends Construct {
 		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			CivLog.error("-----Structure class '" + className + "' creation error-----");
 			e.printStackTrace();
-			// This structure is generic, just create a structure type.
-			// TODO should ANY structure be generic?
-			buildable = new Structure(id, town);
+			if (cci.type == ConfigConstructInfo.ConstructType.Structure) buildable = new Structure(id, town);
+			else if (cci.type == ConfigConstructInfo.ConstructType.Title) buildable = new Title(id, town);
+			else if (cci.type == ConfigConstructInfo.ConstructType.Wonder) buildable = new Wonder(id, town);
 		}
 		return buildable;
 	}
@@ -84,12 +83,7 @@ public abstract class Buildable extends Construct {
 		String id = rs.getString("type_id");
 		Town town = CivGlobal.getTown(rs.getInt("town_id"));
 		Buildable buildable = _newBuildable(id, town);
-		try {
-			buildable.load(rs);
-		} catch (InvalidNameException | InvalidObjectException e) {
-			e.printStackTrace();
-			throw new CivException(e.getMessage());
-		}
+		buildable.load(rs);
 		buildable.postBuild();
 		return buildable;
 	}
@@ -125,8 +119,79 @@ public abstract class Buildable extends Construct {
 		}
 	}
 
+	@Override
+	public void load(ResultSet rs) throws CivException, SQLException {
+		this.setId(rs.getInt("id"));
+		this.setInfo(CivSettings.constructs.get(rs.getString("type_id")));
+		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
+		if (this.getTownOwner() == null) {
+			this.deleteWithUndo();
+			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for structure " + this.getDisplayName() + " ID:" + this.getId());
+		}
+		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
+		this.setHitpoints(rs.getInt("hitpoints"));
+		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
+		this.setComplete(rs.getBoolean("complete"));
+		this.setHammersCompleted(rs.getInt("hammersCompleted"));
+		String variablesMap = rs.getString("variables");
+		variables = new HashMap<>();
+		if (variablesMap != null)
+			for (String ss : variablesMap.split(",")) {
+				String[] s = ss.split("=");
+				variables.put(s[0], s[1]);
+			}
+		this.getTownOwner().BM.addBuildable(this);
+		if (!this.isComplete()) {
+			try {
+				this.startBuildTask();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else
+			TaskMaster.syncTask(() -> {
+				try {
+					this.onLoad();
+				} catch (Exception e) {
+					CivLog.error(e.getMessage());
+					e.printStackTrace();
+				}
+			}, 2000);
+	}
+
+	@Override
+	public void saveNow() throws SQLException {
+		HashMap<String, Object> hashmap = new HashMap<>();
+		hashmap.put("type_id", this.getConfigId());
+		hashmap.put("town_id", this.getTownOwner().getId());
+		hashmap.put("complete", this.isComplete());
+		hashmap.put("hammersCompleted", this.getHammersCompleted());
+		hashmap.put("cornerBlockHash", this.getCorner().toString());
+		hashmap.put("hitpoints", this.getHitpoints());
+		hashmap.put("template_name", this.getTemplate().getFilepath());
+		hashmap.put("variables", this.variables.toString().replace("{", "").replace("}", "").replace(" ", ""));
+		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
+	}
+
+	@Override
+	public void delete() {
+		super.delete();
+		if (this.getTownOwner() != null) this.getTownOwner().BM.removeBuildable(this);
+		CivGlobal.removeConstruct(this);
+
+		try {
+			SQL.deleteNamedObject(this, TABLE_NAME);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void startBuildTask() {
 		this.getTownOwner().BM.addBuildableInprogress(this);
+	}
+
+	@Override
+	public String getName() {
+		return this.getDisplayName();
 	}
 
 	@Override
@@ -291,7 +356,9 @@ public abstract class Buildable extends Construct {
 	}
 
 	// ------------ abstract metods
-	public abstract void processUndo() throws CivException;
+	@Override
+	public void processUndo() throws CivException {
+	}
 
 	public void updateBuildProgess(){
 		if (this.getId() != 0) {

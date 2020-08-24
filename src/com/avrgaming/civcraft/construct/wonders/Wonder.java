@@ -30,54 +30,11 @@ public class Wonder extends Buildable {
 	}
 
 	public void loadSettings() {
+		super.loadSettings();
 		wonderBuffs = CivSettings.wonderBuffs.get(this.getConfigId());
-
 		if (this.isComplete() && this.isActive()) {
 			this.addWonderBuffsToTown();
 		}
-	}
-
-	@Override
-	public void load(ResultSet rs) throws SQLException, CivException {
-		this.setId(rs.getInt("id"));
-		this.setInfo(CivSettings.constructs.get(rs.getString("type_id")));
-		this.setSQLOwner(CivGlobal.getTown(rs.getInt("town_id")));
-		if (this.getTownOwner() == null) {
-			// CivLog.warning("Coudln't find town ID:"+rs.getInt("town_id")+ " for wonder
-			// "+this.getDisplayName()+" ID:"+this.getId());
-			throw new CivException("Coudln't find town ID:" + rs.getInt("town_id") + " for wonder " + this.getDisplayName() + " ID:" + this.getId());
-		}
-
-		this.corner = new BlockCoord(rs.getString("cornerBlockHash"));
-		this.setHitpoints(rs.getInt("hitpoints"));
-		this.setTemplate(Template.getTemplate(rs.getString("template_name")));
-		this.setComplete(rs.getBoolean("complete"));
-		this.setHammersCompleted(rs.getInt("hammersCompleted"));
-
-		this.getTownOwner().BM.addBuildable(this);
-
-		this.startWonderOnLoad();
-
-		if (!this.isComplete()) {
-			try {
-				this.startBuildTask();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public void saveNow() throws SQLException {
-		HashMap<String, Object> hashmap = new HashMap<>();
-		hashmap.put("type_id", this.getConfigId());
-		hashmap.put("town_id", this.getTownOwner().getId());
-		hashmap.put("complete", this.isComplete());
-		hashmap.put("hammersCompleted", this.getHammersCompleted());
-		hashmap.put("cornerBlockHash", this.getCorner().toString());
-		hashmap.put("hitpoints", this.getHitpoints());
-		hashmap.put("template_name", this.getTemplate().getFilepath());
-		SQL.updateNamedObject(this, hashmap, TABLE_NAME);
 	}
 
 	@Override
@@ -90,22 +47,12 @@ public class Wonder extends Buildable {
 			}
 		}
 		super.delete();
-
-		if (this.getTownOwner() != null) this.getTownOwner().BM.removeBuildable(this);
-		CivGlobal.removeConstruct(this);
-
-		try {
-			SQL.deleteNamedObject(this, TABLE_NAME);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static boolean isWonderAvailable(String configId) {
 		if (CivGlobal.isCasualMode()) {
 			return true;
 		}
-
 		for (Wonder wonder : CivGlobal.getWonders()) {
 			if (wonder.getConfigId().equals(configId)) {
 				if (wonder.getConfigId().equals("w_colosseum") || wonder.getConfigId().equals("w_battledome")) {
@@ -116,7 +63,6 @@ public class Wonder extends Buildable {
 				}
 			}
 		}
-
 		return true;
 	}
 
@@ -188,18 +134,6 @@ public class Wonder extends Buildable {
 
 	@Override
 	public void onUnload() {
-	}
-
-	private void startWonderOnLoad() {
-		Wonder wonder = this;
-		TaskMaster.syncTask(() -> {
-			try {
-				wonder.onLoad();
-			} catch (Exception e) {
-				CivLog.error(e.getMessage());
-				e.printStackTrace();
-			}
-		}, 2000);
 	}
 
 	protected void addBuffToTown(Town town, String id) {

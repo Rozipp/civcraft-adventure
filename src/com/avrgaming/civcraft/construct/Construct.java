@@ -4,6 +4,7 @@ import com.avrgaming.civcraft.components.Component;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigConstructInfo;
 import com.avrgaming.civcraft.construct.constructvalidation.StructureValidator;
+import com.avrgaming.civcraft.database.SQL;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivData;
@@ -309,9 +310,11 @@ public abstract class Construct extends SQLObject {
 
 	public abstract String getMarkerIconName();
 
-	public abstract void onLoad() throws CivException;
+	public void onLoad() throws CivException {
+	}
 
-	public abstract void onUnload();
+	public void onUnload() {
+	}
 
 	public void updateSignText() {/* Override in children */}
 

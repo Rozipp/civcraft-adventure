@@ -431,7 +431,8 @@ structures:
     type: Structure
     template: trommel
     displayName: Trommel
-    require_tech: 'tech_mining' 
+    require_tech: 'tech_mining'
+    require_floor: 'ti_mine_title'
     gui_item_id: 4
     gui_slot: 2
     limit: 2
@@ -451,7 +452,8 @@ structures:
     template: fish_hatchery
     displayName: Fish Hatchery
     require_upgrade:
-    require_tech: 'tech_automation' 
+    require_tech: 'tech_automation'
+    require_floor: 'ti_fish_title'
     gui_item_id: 349
     gui_slot: 16
     limit: 0
@@ -472,7 +474,8 @@ structures:
     template: quarry
     template_y_shift: -30
     displayName: quarry
-    require_tech: 'tech_automation' 
+    require_tech: 'tech_automation'
+    require_floor: 'ti_mine_title'
     check_event: 
     gui_item_id: 159
     gui_slot: 11
@@ -512,6 +515,7 @@ structures:
     template: library
     displayName: Library
     require_tech: 'tech_productivity'
+    require_floor: 'ti_science_title'
     gui_item_id: 116
     gui_slot: 5
     limit: 1
@@ -533,6 +537,7 @@ structures:
     template: university
     displayName: University
     require_tech: 'tech_education'
+    require_floor: 'ti_science_title'
     gui_item_id: 387
     gui_slot: 14
     limit: 1
@@ -553,9 +558,9 @@ structures:
     template: school
     template_y_shift: -1
     displayName: Public School
-    replace_structure: s_university
     require_structure: 's_university'
     require_tech: 'tech_scientific_method'
+    require_floor: 'ti_science_title'
     gui_item_id: 403
     gui_slot: 23
     limit: 1
@@ -578,6 +583,7 @@ structures:
     require_upgrade: upgrade_town_level_8
     require_structure: 's_school'
     require_tech: 'tech_plastics'
+    require_floor: 'ti_science_title'
     gui_item_id: 390
     gui_slot: 32
     limit: 1
@@ -693,6 +699,7 @@ structures:
     template: temple
     displayName: Temple
     require_tech: 'tech_priesthood'
+    require_floor: 'ti_culture_title'
     gui_item_id: 109
     gui_slot: 13
     limit: 1
@@ -719,6 +726,7 @@ structures:
     template_y_shift: -2
     displayName: Monument
     require_tech: 'tech_religion'
+    require_floor: 'ti_culture_title'
     gui_item_id: 98
     gui_slot: 4
     limit: 1
@@ -742,6 +750,7 @@ structures:
     template: stadium
     displayName: Stadium
     require_tech: 'tech_refrigeration'
+    require_floor: 'ti_culture_title'
     require_structure: 
     gui_item_id: 340
     gui_slot: 31
@@ -807,6 +816,7 @@ structures:
     template_y_shift: -1
     displayName: Museum
     require_tech: 'tech_archaeology'
+    require_floor: 'ti_culture_title'
     require_structure: 
     gui_item_id: 31
     gui_slot: 22
@@ -836,6 +846,7 @@ structures:
     template_y_shift: -3
     displayName: Shipyard
     require_tech: 'tech_sailing'
+    require_floor: 'ti_fish_title'
     gui_item_id: 333
     gui_slot: 7
     limit: 1
@@ -852,6 +863,7 @@ structures:
     template_y_shift: -6
     displayName: Mine
     require_tech: 'tech_productivity'
+    require_floor: 'ti_mine_title'
     gui_item_id: 331
     gui_slot: 29
     limit: 0
@@ -874,6 +886,7 @@ structures:
     displayName: Trade Ship
     require_tech: 'tech_exploration'
     require_structure: 's_shipyard'
+    require_floor: 'ti_fish_title'
     gui_item_id: 289
     gui_slot: 25
     limit: 1
@@ -1150,25 +1163,25 @@ structures:
     max_hitpoints: 300
     points: 2000
 
-  - id: ti_lab
-    type: Structure
-    template: lab
-    displayName: Обсерватория
-    require_upgrade:
-    require_tech: 'tech_innovation'
-    gui_item_id: 390
-    gui_slot: 32
-    limit: 3
-    cost: 100000.0
-    upkeep: 4500.0
-    tile_improvement: true
-    hammer_cost: 3600
-    points: 6200
-    max_hitpoints: 1200
-    components:
-        - name: 'ProfesionalComponent'
-          prof: 'SCIENTIST'
-        - name: 'AttributeBiomeRadiusPerLevel'
-          attribute: 'BEAKERS'
-          biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
-          base_value: '7.0'
+#  - id: ti_lab
+#    type: Structure
+#    template: lab
+#    displayName: Обсерватория
+#    require_upgrade:
+#    require_tech: 'tech_innovation'
+#    gui_item_id: 390
+#    gui_slot: 32
+#    limit: 3
+#    cost: 100000.0
+#    upkeep: 4500.0
+#    tile_improvement: true
+#    hammer_cost: 3600
+#    points: 6200
+#    max_hitpoints: 1200
+#    components:
+#        - name: 'ProfesionalComponent'
+#          prof: 'SCIENTIST'
+#        - name: 'AttributeBiomeRadiusPerLevel'
+#          attribute: 'BEAKERS'
+#          biomes: 'OCEAN:3,TAGIA:3,DESERT_HILLS:3,DEEP_OCEAN:3,DESERT:1'
+#          base_value: '7.0'
