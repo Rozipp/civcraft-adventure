@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="APlugin">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../APlugin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../APlugin/src/main/java" />
+      <root url="file://$PROJECT_DIR$/../APlugin/src/test/java" />
+    </SOURCES>
+  </library>
+</component>

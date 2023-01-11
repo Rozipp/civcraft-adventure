@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: worldguard-bukkit-6.2.2.jar WorldBorder-2.jar playerversion-
- 1.3.0-20190719.234809-19.jar spigot-1.12.2.jar titleapi-2.1.1.jar Hikar
- iCP-3.3.1.jar slf4j-api-1.7.25.jar api-3.5.2-20170414.095125-7.jar comm
- ons-io-2.6.jar Donate.jar MythicMobs-4.6.5.jar craftbukkit-1.9-R0.1-201
- 60302.181937-1.jar javassist-3.18.1-GA.jar slf4j-simple-1.7.5.jar
-
