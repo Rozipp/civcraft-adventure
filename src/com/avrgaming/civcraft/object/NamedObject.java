@@ -37,7 +37,7 @@ public class NamedObject {
 		this.name = newname;
 	}
 	
-	private void validateName(String name) throws InvalidNameException {
+	private static void validateName(String name) throws InvalidNameException {
 		if (name == null) {
 			throw new InvalidNameException();
 		}

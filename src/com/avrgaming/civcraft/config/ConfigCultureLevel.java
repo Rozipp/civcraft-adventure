@@ -30,6 +30,11 @@ public class ConfigCultureLevel {
 	public int amount;
 	public int chunks;
 	
+	public String title;
+	public double upkeep;
+	public int plots;
+	public int tile_improvements;
+
 	public static void loadConfig(FileConfiguration cfg, Map<Integer, ConfigCultureLevel> levels) {
 		levels.clear();
 		List<Map<?, ?>> culture_levels = cfg.getMapList("culture_levels");
@@ -38,6 +43,10 @@ public class ConfigCultureLevel {
 			culture_level.level = (Integer)level.get("level");
 			culture_level.amount = (Integer)level.get("amount");
 			culture_level.chunks = (Integer)level.get("chunks");
+			culture_level.title = (String) level.get("title");
+			culture_level.upkeep = (Double) level.get("upkeep");
+			culture_level.plots = (Integer) level.get("plots");
+			culture_level.tile_improvements = (Integer) level.get("tile_improvements");
 			levels.put(culture_level.level, culture_level);
 		}
 		CivLog.info("Loaded "+levels.size()+" culture levels.");

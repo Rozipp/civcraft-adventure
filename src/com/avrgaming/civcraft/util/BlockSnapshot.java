@@ -21,7 +21,6 @@ package com.avrgaming.civcraft.util;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.ChunkSnapshot;
-
 import com.avrgaming.civcraft.exception.InvalidBlockLocation;
 
 @Getter
@@ -34,26 +33,20 @@ public class BlockSnapshot {
 	private int typeId;
 	private int data;
 	private ChunkSnapshot snapshot;
-	
+
 	public BlockSnapshot(int x, int y, int z, ChunkSnapshot snapshot) {
 		this.setFromSnapshotLocation(x, y, z, snapshot);
 	}
 
-	
 	public BlockSnapshot() {
-		//Used when caching.
+		// Used when caching.
 	}
 
 	public void setFromSnapshotLocation(int x, int y, int z, ChunkSnapshot snapshot) {
 		/* Modulo in Java doesn't handle negative numbers the way we want it to, compensate here. */
-		if (x < 0) {
-			x += 16;
-		}
-		
-		if (z < 0) {
-			z += 16;
-		}
-				
+		if (x < 0) x += 16;
+		if (z < 0) z += 16;
+
 		this.setX(x);
 		this.setY(y);
 		this.setZ(z);
@@ -67,8 +60,8 @@ public class BlockSnapshot {
 		if (nX < 0 || nX > 15) {
 			throw new InvalidBlockLocation();
 		}
-		
-		BlockSnapshot relative = new BlockSnapshot(this.getX() + xOff, this.getY() + yOff, this.getZ() + zOff, snapshot);		
+
+		BlockSnapshot relative = new BlockSnapshot(this.getX() + xOff, this.getY() + yOff, this.getZ() + zOff, snapshot);
 		return relative;
 	}
 }

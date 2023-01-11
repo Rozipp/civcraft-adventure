@@ -1,0 +1,52 @@
+#
+# This file contains information about the trade goods.
+#
+# The trade goods are divided into two lists, land goods and water goods.
+# Configuration for them is identical, however as you might expect... water 
+# goods never spawn on land and land goods never spawn on water.
+
+########### Trade Good Generation Options #######
+generation:
+    # Minimum number of chunks trade goods can be apart
+    chunks_min: 15
+
+    # Maximum number of chunks trade goods should be apart
+    chunks_max: 30
+
+    # World size in x chunks (radius)
+    chunks_x: 625
+
+    # World size in z chunks (radius)
+    chunks_z: 625
+
+    # Random seed for trade good locations
+    seed: 2520150148
+
+########## Trade Good Types #######
+# id - unquie ID to identify this cave
+#
+
+
+# type:
+#   0: уникальная пещера с чудом
+#   1: Баф пещера - Трудно захватываемая крепость
+#   2: Фарм пещера - Большая открытая пещера со спавнерами и спрятанными сундуками
+cave_entranse:
+    - id: 'f_cave1'
+      name: 'Шахта с лавой'
+      template: 'cave1'
+      template_entrance: 'entrance1'
+      require_techs: 'tech_hunting'
+      type: 1
+      mobs: 'leeser_yobo'
+      rarity: 1
+      treasure:
+          - material: 'mat_crafted_leather'
+            count: 2
+            rate: 10
+          - material: 'mat_varnish'
+            count: 1
+            rate: 5
+      buffs: 'buff_fine_art'
+      
+     

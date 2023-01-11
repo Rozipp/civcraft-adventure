@@ -161,51 +161,11 @@ tesla_tower:
     # Defined in number of half-seconds to delay. Higher numbers is lower fire rate.
     fire_rate: 6
 
-wall:
-   # Maximum height walls can be built at.
-   maximum_height: 200
-
-   # Height of a basic wall piece
-   height: 6
-
-   # Cost of a vertical segment
-   cost_per_segment: 50.0
-
-   max_segment: 300
-
-   recursion_limit: 350
-
-fortified_wall:
-   # Maximum height walls can be built at.
-   maximum_height: 200
-
-   # Height of a basic wall piece
-   height: 10
-
-   # Cost of a vertical segment
-   cost_per_segment: 100.0
-
-   max_segment: 300
-
-   recursion_limit: 350
-
 warcamp:
-    # template for war camps.
-    template: warcamp
-
-    # Amount of HP each control block has
-    control_block_hitpoints: 20
-
     # Number of mins it takes to rebuild.
     rebuild_timeout: 30
 
-    # maximum number of war camps a civ can have.
-    max: 3
-
 cannon:
-    # template for deployable cannon
-    template: cannon
-
     # amount of blocks to destroy per shot
     yield: 7.0
 
@@ -215,9 +175,6 @@ cannon:
     # Number of seconds between shots.
     cooldown: 30
 
-    # Amount of HP each cannon has
-    hitpoints: 50
-
     # Amount of damage done to PLAYERS when hit by a blast
     player_damage: 50
 
@@ -226,8 +183,6 @@ cannon:
 
     # Maximum range a cannon shot will travel.
     max_range: 256.0
-
-    control_block_hp: 1
 
 tnt:
     # amount of blocks to destroy per shot

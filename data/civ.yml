@@ -24,7 +24,7 @@ global:
         - '366:10'
         - '345:1'
         - 'mat_tutorial_book:1'
-        - 'mat_found_village:1'
+        - 'mat_found_camp:1'
 
    # Amount of mins PvP timer remains active after first login.
    pvp_timer: 120
@@ -72,10 +72,10 @@ global:
    # This used to be false, but the performance gain was too great to leave it as such.
    # If this feature annoys your players, turn it off at your own risk of poor performance.
    speed_check_chunks: true
-
+   
    # Minimum Build Height for Structures, Walls, and Roads. Default: 1
    min_build_height: 1
-
+   
    #Use Experience as currency. Default: true
    #If true, disables EXP enchanting and repair.
    use_exp_as_currency: true

@@ -21,9 +21,8 @@ package com.avrgaming.civcraft.event;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
-import com.avrgaming.civcraft.village.VillageHourlyTick;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.constructs.CampHourlyTick;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -31,8 +30,7 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.CultureProcessAsyncTask;
-import com.avrgaming.civcraft.threading.timers.EffectEventTimer;
-import com.avrgaming.civcraft.threading.timers.SyncTradeTimer;
+import com.avrgaming.civcraft.threading.timers.TownHourlyTick;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class HourlyTickEvent implements EventInterface {
@@ -41,9 +39,8 @@ public class HourlyTickEvent implements EventInterface {
 	public void process() {
 		CivLog.info("TimerEvent: Hourly -------------------------------------");
 		TaskMaster.asyncTask("cultureProcess", new CultureProcessAsyncTask(), 0);
-		TaskMaster.asyncTask("EffectEventTimer", new EffectEventTimer(), 0);
-		TaskMaster.syncTask(new SyncTradeTimer(), 0);
-		TaskMaster.syncTask(new VillageHourlyTick(), 0);
+		TaskMaster.asyncTask(TownHourlyTick.class.getName(), new TownHourlyTick(), 0);
+		TaskMaster.syncTask(new CampHourlyTick(), 0);
 		
         for (Civilization civ : CivGlobal.getCivs()) {
             if (!civ.getMissionActive()) continue;
@@ -56,8 +53,7 @@ public class HourlyTickEvent implements EventInterface {
             int percentageCompleteHammers = (int)((double)Math.round(Double.parseDouble(split[1])) / Double.parseDouble(CivSettings.spacemissions_levels.get((Object)Integer.valueOf((int)civ.getCurrentMission())).require_hammers) * 100.0);
             CivMessage.sendCiv(civ, CivSettings.localize.localizedString("var_spaceshuttle_progress", CivColor.Red + missionName + CivColor.RESET, "§b" + completedBeakers + CivColor.Red + "(" + percentageCompleteBeakers + "%)" + CivColor.RESET, CivColor.LightGray + completedHammers + CivColor.Red + "(" + percentageCompleteHammers + "%)" + CivColor.RESET));
         }
-//TODO для всех онлайн игроков писать команду ad dynmapwonder 
-//TODO from furnex
+//TODO from furnex для всех онлайн игроков писать команду ad dynmapwonder 
 //        Iterator var15 = Bukkit.getOnlinePlayers().iterator();
 //
 //	      while(var15.hasNext()) {

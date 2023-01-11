@@ -4,16 +4,16 @@
 
 # Base rates and information for items 
 # without any units attached.
-#
+# Speed bonus with Armor Contents
 base:
-    T1_leather_speed: 1.05
-    T2_leather_speed: 1.1
-    T3_leather_speed: 1.15
-    T4_leather_speed: 1.2
-    T1_metal_speed: 0.95
-    T2_metal_speed: 0.9
-    T3_metal_speed: 0.85
-    T4_metal_speed: 0.8
+    T1_metal_speed: -0.025
+    T2_metal_speed: -0.05
+    T3_metal_speed: -0.075
+    T4_metal_speed: -0.1
+    normal_speed: 0.2
+
+# если юнита не использовали указанное количество минут, то он возвращаеться в бараки    
+unit_time_diactivate: 2
 
 # Special information per unit
 unit_info:
@@ -42,12 +42,13 @@ unit_info:
 #
 
 unit_components:
+#------------------------------ базовые -------------------
   - id: 'maxheal'
     name: 'Бонусное серце'
     ammunition: chestplate
     require_tech: '' 
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 307
     gui_slot: 20
@@ -57,7 +58,7 @@ unit_components:
     name: 'Скорость'
     ammunition: leggings
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 308
     gui_slot: 38
@@ -67,7 +68,7 @@ unit_components:
     name: 'Бонусная защита'
     ammunition: chestplate
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 315
     gui_slot: 21
@@ -75,35 +76,47 @@ unit_components:
         - 'Увеличивает защиту'
   - id: 'swordattack'
     name: 'Урон меча'
-    ammunition: sword
+    ammunition: mainhand
     require_level: 0
-    require_level_upgrade: 4
+    require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 367
     gui_slot: 0
     gui_lore:
         - 'Увеличивает атаку в ближнем бою'
+  - id: 'archerswordattack'
+    name: 'Урон меча'
+    ammunition: mainhand
+    require_level: 0
+    require_level_upgrade: 10
+    max_upgrade: 15
+    gui_item_id: 367
+    gui_slot: 0
+    gui_lore:
+        - 'Увеличивает атаку в ближнем бою'        
   - id: 'bowattack'
     name: 'Урон Лука'
-    ammunition: two
-    require_level: 0
-    require_level_upgrade: 4
-    max_upgrade: 30
-    gui_item_id: 361
-    gui_slot: 8
-    gui_lore:
-        - 'Увеличивает атаку в дальнем бою'
-  - id: 'criticalchance'
-    name: 'Шанс критического удара'
-    ammunition: two
+    ammunition: twohand
     require_level: 0
     require_level_upgrade: 5
     max_upgrade: 30
     gui_item_id: 361
     gui_slot: 8
     gui_lore:
+        - 'Увеличивает атаку в дальнем бою'
+  - id: 'critical'
+    name: 'Шанс критического удара'
+    ammunition: mainhand
+    require_level: 0
+    require_level_upgrade: 10
+    max_upgrade: 30
+    gui_item_id: 361
+    gui_slot: 8
+    gui_lore:
         - 'Увеличивает шанс критического удара'
         - 'в ближнем бою'
+        
+ # ---------------------------------другие------------------
   - id: 'oxygen'
     name: 'Подводное дыхание'
     ammunition: helmet
@@ -143,8 +156,8 @@ unit_components:
     name: 'Прыжок'
     ammunition: leggings
     require_component:
-        - speed 8
-        - againstfall 1
+       - speed 8
+       - againstfall 1
     require_level: 0
     max_upgrade: 3
     gui_item_id: 300
@@ -201,9 +214,10 @@ unit_components:
     gui_slot: 49
     gui_lore:
         - 'Накладает на ботинки заклининие Ледоход'
+# --------------------------- меч ------------------------------
   - id: 'swordknockback'
     name: 'Отталкивание на меч'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
         - swordattack 20
     require_level: 80
@@ -214,7 +228,7 @@ unit_components:
         - 'заклининие Отдача I'
   - id: 'fireaspect'
     name: 'Горячий мечь'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
         - swordattack 20
     require_level: 0
@@ -225,18 +239,19 @@ unit_components:
         - 'заклининие Заговор огня I'
   - id: 'looting'
     name: 'Удача на мечь'
-    ammunition: sword
+    ammunition: mainhand
     require_component:
-        - swordattack 5
-    require_level: 25
+        - swordattack 1
+    require_level: 1
     max_upgrade: 3
     gui_item_id: 283
     gui_slot: 9
     gui_lore:
         - 'Накладает на мечь заклининие Добыча'
+# ------------------------------- лук -----------------------
   - id: 'bowknockback'
     name: 'Отбрасывание на лук'
-    ammunition: two
+    ammunition: twohand
     require_component:
         - bowattack 20
     require_level: 0
@@ -246,7 +261,7 @@ unit_components:
         - 'Накладает на лук заклининие Откидывание I' 
   - id: 'flame'
     name: 'Обжигание на лук'
-    ammunition: two
+    ammunition: twohand
     require_component:
         - bowattack 20
     require_level: 0
@@ -256,23 +271,115 @@ unit_components:
         - 'Накладает на лук заклининие Горящая стрела'
   - id: 'infinite'
     name: 'Бесконечные стрелы'
-    ammunition: two
+    ammunition: twohand
     require_component:
-        - bowattack 20
+        - bowattack 1
     require_level: 0
     gui_item_id: 261
     gui_slot: 17
     gui_lore:
-        - 'Накладает на лук заклининие Безконечность'          
-      
+        - 'Накладает на лук заклининие Безконечность'    
+        
+  - id: 'u_arrow_fire'
+    name: 'Горящая стрела'
+    ammunition: arrow
+    require_component:
+        - infinite 1
+    require_level: 0
+    gui_item_id: 262
+    gui_slot: 7
+    gui_lore:
+        - 'Накладает на стрелу поджигание'
+        
+  - id: 'u_arrow_frost'
+    name: 'Ледяная стрела'
+    ammunition: arrow
+    require_component:
+        - infinite 1
+    require_level: 0
+    gui_item_id: 262
+    gui_slot: 16
+    gui_lore:
+        - 'Накладает на стрелу замедление' 
+         
+  - id: 'u_arrow_poison'
+    name: 'Отравленная стрела'
+    ammunition: arrow
+    require_component:
+        - infinite 1
+    require_level: 0
+    gui_item_id: 262
+    gui_slot: 25
+    gui_lore:
+        - 'Накладает на стрелу отравление'          
+# ----------- поселенец ----------------------------
   - id: 'u_foundtown'
     name: 'Основать новый город'
+    ammunition: item
     require_level: 0
-    gui_item_id: 261
+    gui_item_id: 340
     gui_slot: 17
     gui_lore:
         - 'Добавляет книги с помощью которой'
-        - 'можно создать новый город'       
+        - 'можно создать новый город' 
+#--------------- шпион   ---------------------------    
+  - id: 'u_botltest'
+    name: 'Тестовая бутылка'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 373
+    gui_slot: 1
+    gui_lore:
+        - 'тестовая бутылка'
+   
+  - id: 'u_investigate_town'
+    name: 'Иследовать город'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 2
+    gui_lore:
+        - 'Добавляет шпионскую миссию Иследовать город'
+  - id: 'u_steal_treasury'
+    name: 'Украсть казну'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 3
+    gui_lore:
+        - 'Добавляет шпионскую миссию Украсть казну'   
+  - id: 'u_subvert_government'
+    name: 'Подорвать правительство'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 4
+    gui_lore:
+        - 'Добавляет шпионскую миссию Подорвать правительство'
+  - id: 'u_poison_granary'
+    name: 'Отравить амбары'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 5
+    gui_lore:
+        - 'Добавляет шпионскую миссию Отравить амбары'
+  - id: 'u_pirate'
+    name: 'Украсть торговый ресурс'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 6
+    gui_lore:
+        - 'Добавляет шпионскую миссию Украсть торговый ресурс'
+  - id: 'u_sabotage'
+    name: 'Саботаж'
+    ammunition: item
+    require_level: 0
+    gui_item_id: 340
+    gui_slot: 11
+    gui_lore:
+        - 'Добавляет шпионскую миссию Саботаж'
       
 ############################# Experience ##############
 
@@ -335,21 +442,7 @@ units:
         - 'коварные миссии на територии вражеских цивилизаций'
         - 'Опыт получает за успешное выполнение миссий'
         - 'С повышение уровня открываються новые миссии.'
-    enable_components: 'maxheal,speed,protection'
-        # - id: 'spy_investigate_town'
-          # slot: 8
-        # - id: 'spy_steal_treasury'
-          # slot: 7
-      #  - id: 'spy_incite_riots'
-      #    slot: 6
-      #  - id: 'spy_subvert_government'
-      #    slot: 5
-      #  - id: 'spy_poison_granary'
-      #    slot: 4
-      #  - id: 'spy_pirate'
-      #    slot: 3
-      #  - id: 'spy_sabotage'
-      #    slot: 2
+    enable_components: 'u_botltest,maxheal,speed,protection,u_investigate_town,u_steal_treasury,u_subvert_government,u_poison_granary,u_pirate,u_sabotage'
     
   - id: 'u_settler'
     name: "Поселенцы"
@@ -359,7 +452,7 @@ units:
     require_upgrade:
     cost: 25000.0
     hammer_cost: 1000.0
-    limit: 0
+    limit: 1
     item_id: 330
     item_data: 0
     lore:
@@ -367,7 +460,7 @@ units:
         - 'передвижения. От его уровня ничего не зависит.'
         - 'Имеет способность основать новый город, которая'
         - 'во время войны устанавливает военный лагерь'
-    enable_components: 'maxheal,speed,protection,u_foundtown'
+    enable_components: 'maxheal,speed,protection,jumping,u_foundtown'
            
   - id: 'u_archer'
     name: "Archer"
@@ -377,15 +470,16 @@ units:
     require_upgrade:
     cost: 2.0
     hammer_cost: 5.0
-    limit: 0
-    item_id: 2256
+    limit: 3
+    item_id: 2257
     item_data: 0
     lore:
         - 'Лучник - это основной воин дальнего боя. Прекрасно'
         - 'владеет луком, может носить только кожанную броню.'
         - 'При увеличения уровня, лучник кроме особенных стрел'
         - 'может получить особенные пасивные способности'
-    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+    equipments: 'mat_leather_helmet,mat_refined_leather_helmet,mat_hardened_leather_helmet,mat_composite_leather_helmet,mat_leather_chestplate,mat_refined_leather_chestplate,mat_hardened_leather_chestplate,mat_composite_leather_chestplate,mat_leather_leggings,mat_refined_leather_leggings,mat_hardened_leather_leggings,mat_composite_leather_leggings,mat_leather_boots,mat_refined_leather_boots,mat_hardened_leather_boots,mat_composite_leather_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword,mat_hunting_bow,mat_recurve_bow,mat_longbow,mat_marksmen_bow'
+    enable_components: 'u_arrow_fire,u_arrow_frost,u_arrow_poison,u_botltest,maxheal,speed,protection,archerswordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,looting,bowknockback,flame,infinite'
     
   - id: 'u_warrior'
     name: "Воин"
@@ -395,13 +489,14 @@ units:
     require_upgrade:
     cost: 2.0
     hammer_cost: 5.0
-    limit: 0
-    item_id: 2256
+    limit: 3
+    item_id: 2258
     item_data: 0
     lore:
         - 'Воин - это основной воин ближнего боя. Мастер'
         - 'меча может носить только тяжелую броню и щиты.'
         - 'При увеличения уровня, увеличивает оборонительные'
         - 'способности и атаку'
-    enable_components: 'maxheal,speed,protection,swordattack,bowattack,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,frostwalker,fireprotection,swordknockback,fireaspect,looting,bowknockback,flame,infinite'
+    equipments: 'mat_iron_helmet,mat_iron_chestplate,mat_iron_leggings,mat_iron_boots,mat_steel_helmet,mat_steel_chestplate,mat_steel_leggings,mat_steel_boots,mat_carbide_steel_helmet,mat_carbide_steel_chestplate,mat_carbide_steel_leggings,mat_carbide_steel_boots,mat_tungsten_helmet,mat_tungsten_chestplate,mat_tungsten_leggings,mat_tungsten_boots,mat_stone_sword,mat_iron_sword,mat_steel_sword,mat_carbide_steel_sword,mat_tungsten_sword'
+    enable_components: 'u_botltest,maxheal,speed,protection,swordattack,critical,oxygen,waterworker,thorns,jumping,depthstrider,againstfall,fireprotection,swordknockback,fireaspect,looting'
    

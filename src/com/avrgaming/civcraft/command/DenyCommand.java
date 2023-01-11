@@ -19,53 +19,50 @@
 package com.avrgaming.civcraft.command;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.threading.tasks.CivLeaderQuestionTask;
-import com.avrgaming.civcraft.threading.tasks.PlayerQuestionTask;
+import com.avrgaming.civcraft.questions.CivLeaderQuestionTask;
+import com.avrgaming.civcraft.questions.PlayerQuestionTask;
+import com.avrgaming.civcraft.questions.Question;
 
-public class DenyCommand implements CommandExecutor {
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		
-		if (!(sender instanceof Player)) {
-			CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_MustBePlayer"));
-			return false;
-		}
-		
-		Player player = (Player)sender;
-		
-		PlayerQuestionTask task = (PlayerQuestionTask) CivGlobal.getQuestionTask(player.getName());
-		if (task != null) {
-			/* We have a question, and the answer was "Accepted" so notify the task. */
-			synchronized(task) {
-				task.setResponse("deny");
-				task.notifyAll();
-			}
-			return true;
-		}
+public class DenyCommand extends CustomCommand {
 
-		Resident resident = CivGlobal.getResident(player);
-		if (resident.getCiv().getLeaderGroup().hasMember(resident)) {
-			CivLeaderQuestionTask civTask = (CivLeaderQuestionTask) CivGlobal.getQuestionTask("civ:"+resident.getCiv().getName());
-			if (civTask != null) {
-				synchronized(civTask) {
-					civTask.setResponse("deny");
-					civTask.setResponder(resident);
-					civTask.notifyAll();
+	public DenyCommand(String perentComman) {
+		super(perentComman);
+		this.setAliases("no");
+		this.setExecutor(new CustomExecutor() {
+			@Override
+			public void run(CommandSender sender, Command cmd, String label, String[] args) throws CivException {
+				if (!(sender instanceof Player)) throw new CivException(CivSettings.localize.localizedString("cmd_MustBePlayer"));
+				Player player = (Player) sender;
+				PlayerQuestionTask task = (PlayerQuestionTask) Question.getQuestionTask(player.getName());
+				if (task != null) {
+					/* We have a question, and the answer was "Accepted" so notify the task. */
+					synchronized (task) {
+						task.setResponse("deny");
+						task.notifyAll();
+					}
+					return;
 				}
+				Resident resident = CivGlobal.getResident(player);
+				if (resident.getCiv().GM.isLeader(resident)) {
+					CivLeaderQuestionTask civTask = (CivLeaderQuestionTask) Question.getQuestionTask("civ:" + resident.getCiv().getName());
+					if (civTask != null) {
+						synchronized (civTask) {
+							civTask.setResponse("deny");
+							civTask.setResponder(resident);
+							civTask.notifyAll();
+						}
+					}
+					return;
+				}
+				throw new CivException(CivSettings.localize.localizedString("cmd_acceptError"));
 			}
-			return true;
-		}
-		
-
-		CivMessage.sendError(sender, CivSettings.localize.localizedString("cmd_acceptError"));
-		return false;
+		});
 	}
 }

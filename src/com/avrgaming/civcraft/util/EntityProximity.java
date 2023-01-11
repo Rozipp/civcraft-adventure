@@ -11,10 +11,7 @@ import org.bukkit.entity.Entity;
 import net.minecraft.server.v1_12_R1.AxisAlignedBB;
 
 public class EntityProximity {
-
-	
-	/*
-	 * Use a NMS method to grab an axis aligned bounding box around an area to 
+	/*Use a NMS method to grab an axis aligned bounding box around an area to 
 	 * determine which entities are within this radius. 
 	 * Optionally provide an entity that is exempt from these checks.
 	 * Also optionally provide a filter so we can only capture specific types of entities.
@@ -38,8 +35,6 @@ public class EntityProximity {
 		}
 		
 		for (net.minecraft.server.v1_12_R1.Entity e : eList) {
-			
-			
 			if (filter == null || (filter.isInstance(e))) {
 				entities.add(e.getBukkitEntity());
 			}

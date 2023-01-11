@@ -7,18 +7,24 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivLog;
+import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.util.TimeTools;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
+import io.lumine.xikage.mythicmobs.api.bukkit.BukkitAPIHelper;
 import io.lumine.xikage.mythicmobs.api.exceptions.InvalidMobTypeException;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 
@@ -26,47 +32,98 @@ public class MobStatic {
 
 	public static HashMap<String, LinkedList<ConfigMobs>> biomes = new HashMap<>();
 	public static HashSet<EntityType> disableMobs = new HashSet<>();
+	public static HashSet<String> disableCustomMobs = new HashSet<>();
+	private static MobAsynckSpawnTimer task;
 
 	static class MobDrop {
 		String uid;
 		double chance;
+
 		public MobDrop(String uid, double chance) {
 			this.uid = uid;
 			this.chance = chance;
 		}
 	}
 
-	public static boolean isMithicMobEntity(LivingEntity e) {
-		return MythicMobs.inst().getAPIHelper().isMythicMob(e);
+	public static BukkitAPIHelper API() {
+		return MythicMobs.inst().getAPIHelper();
 	}
+
 	public static boolean isMithicMobEntity(Entity e) {
-		return isMithicMobEntity((LivingEntity) e);
+		if (e == null) return false;
+		return API().isMythicMob(e);
 	}
 
 	public static ActiveMob getMithicMob(Entity entity) {
-		return MythicMobs.inst().getAPIHelper().getMythicMobInstance(entity);
+		if (entity == null) return null;
+		return API().getMythicMobInstance(entity);
 	}
-	
-	
+
 	public static LinkedList<ConfigMobs> getValidMobsForBiome(Biome biome) {
 		LinkedList<ConfigMobs> mobs = biomes.get(biome.name());
 		if (mobs == null) mobs = new LinkedList<ConfigMobs>();
 		return mobs;
 	}
 
-	public static void despawnAll() {
-		MythicMobs.inst().getMobManager().removeAllAllMobs();
+	public static void startMobSpawnTimer() {
+		if (task == null) task = new MobAsynckSpawnTimer(CivCraft.mainWorld);
+		TaskMaster.asyncTimer("MobAsynckSpawner", task, TimeTools.toTicks(MobAsynckSpawnTimer.SPAWN_COOLDOWN));
 	}
 
-	public static void spawnRandomCustomMob(Location location) {
-		LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
-		if (validMobs.isEmpty()) return;
+	public static void stopMobSpawnTimer() {
+		if (task != null) TaskMaster.cancelTimer("MobAsynckSpawner");
+	}
 
-		String mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
+	public static int despawnAll() {
+		return MythicMobs.inst().getMobManager().despawnAllMobs();
+	}
+
+	public static void despawnMobsFromRadius(Location loc, int radius) {
+		Set<Entity> mobs = getMobsFromRadius(loc, radius);
+		int count = 0;
+		for (Entity e : mobs) {
+			e.remove();
+			count++;
+		}
+		CivLog.debug("kill " + count + "  mobs");
+	}
+
+	public static Set<Entity> getMobsFromRadius(Location loc, int radius) {
+		Set<Entity> mobs = new HashSet<>();
+		if (!loc.getWorld().equals(CivCraft.mainWorld)) return mobs;
+		int r = radius / 16;
+		int rSqr = r * (r + 1);
+
+		int cx = loc.getBlockX() / 16;
+		int cz = loc.getBlockZ() / 16;
+		World world = loc.getWorld();
+
+		for (int chX = 0 - r; chX <= r; chX++) {
+			for (int chZ = 0 - r; chZ <= r; chZ++) {
+				if (chX * chX + chZ * chZ > rSqr) continue;
+				Chunk chunk = world.getChunkAt(cx + chX, cz + chZ);
+				for (Entity e : chunk.getEntities()) {
+					if (MobStatic.isMithicMobEntity(e)) mobs.add(e);
+				}
+			}
+		}
+		return mobs;
+	}
+
+	public static Entity spawnCustomMob(String mobId, Location location) {
+		String mmid;
+		if (mobId == null) {
+			LinkedList<ConfigMobs> validMobs = getValidMobsForBiome(location.getBlock().getBiome());
+			if (validMobs.isEmpty()) return null;
+			mmid = validMobs.get(civRandom.nextInt(validMobs.size())).uid;
+		} else
+			mmid = mobId;
+		if (disableCustomMobs.contains(mmid)) return null;
 		try {
-			MythicMobs.inst().getAPIHelper().spawnMythicMob(mmid, location);
+			return API().spawnMythicMob(mmid, location);
 		} catch (InvalidMobTypeException e) {
 			CivLog.error("MythicMobs can not spawn mobType " + mmid);
+			return null;
 		}
 	}
 
@@ -132,4 +189,5 @@ public class MobStatic {
 			}
 		}
 	}
+
 }

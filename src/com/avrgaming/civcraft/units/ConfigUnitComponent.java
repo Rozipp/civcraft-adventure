@@ -12,7 +12,7 @@ public class ConfigUnitComponent {
 
 	public String id;
 	public String name;
-	public String ammunition;
+	public Equipments ammunition;
 	public String require_tech;
 	public HashMap<String, Integer> require_component = new HashMap<>();
 	public int require_level;
@@ -31,7 +31,7 @@ public class ConfigUnitComponent {
 			Object temp;
 			component.id = (String) b.get("id");
 			component.name = (String) b.get("name");
-			component.ammunition = (String) b.get("ammunition");
+			component.ammunition = Equipments.valueOf(((String) b.get("ammunition")).toUpperCase());
 			component.require_tech = (String) b.get("require_tech");
 
 			List<?> temp_require_component = (List<?>) b.get("require_component");

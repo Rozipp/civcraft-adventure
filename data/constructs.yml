@@ -1,0 +1,42 @@
+
+constructs:
+  - id: c_camp
+    type: Global
+    template: camp
+    template_y_shift: -1
+    displayName: Camp
+    cost: 2500.0
+    regen_rate: 2
+    max_hitpoints: 100
+    components:
+        - name: 'TransmuterComponent'
+          annex: 'sifter'
+          recipes: '1:sifter1, 2:sifter2'
+        - name: 'ConsumeLevelComponent'
+          consume_id: 'camp'
+ 
+  - id: c_warcamp
+    type: War
+    template: warcamp
+    template_y_shift: -1
+    displayName: "War Camp"
+    limit: 3
+    regen_rate: 2
+    max_hitpoints: 20
+        
+  - id: c_cannon
+    type: War
+    template: cannon
+    displayName: Cannon
+    limit: 3
+    max_hitpoints: 50
+    ignore_floating: true
+    
+  - id: c_arrowpost
+    type: War
+    template: arrowpost
+    displayName: Arrowpost
+    require_structure: 'not_town'
+    limit: 3
+    max_hitpoints: 50
+    ignore_floating: true

@@ -13,7 +13,6 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.exception.InvalidObjectException;
@@ -79,7 +78,7 @@ public class RandomEvent extends SQLObject {
 			throw new CivException("Couldn't find random event config id:"+rs.getString("config_id"));
 		}
 		
-		this.town = CivGlobal.getTownFromId(rs.getInt("town_id"));
+		this.town = CivGlobal.getTown(rs.getInt("town_id"));
 		if (this.town == null) {
 			this.delete();
 			throw new CivException("Couldn't find town id:"+rs.getInt("town_id")+" while loading random event.");
@@ -136,12 +135,6 @@ public class RandomEvent extends SQLObject {
 			this.savedMessages.add(message);
 		}
 	}
-
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
-
 
 	@Override
 	public void saveNow() throws SQLException {
@@ -210,6 +203,7 @@ public class RandomEvent extends SQLObject {
 		buildComponents("com.avrgaming.civcraft.randomevents.components.", configRandomEvent.failure, failure);		
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void buildComponents(String classPath, List<HashMap<String,String>> compInfoList, HashMap<String, RandomEventComponent> components) {	
 		if (compInfoList != null) {
 			for (HashMap<String, String> compInfo : compInfoList) {
@@ -344,7 +338,7 @@ public class RandomEvent extends SQLObject {
 	public static double getUnhappiness(Town town) {
 	//	CivGlobal.getSessionDB().add("randomevent:unhappiness", unhappiness+":"+duration, this.getParentTown().getCiv().getId(), this.getParentTown().getId(), 0);	
 
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(Unhappiness.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(Unhappiness.getKey(town));
 		double unhappy = 0.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -368,14 +362,14 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return unhappy;
 	}
 
 	public static double getHappiness(Town town) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(Happiness.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(Happiness.getKey(town));
 		double happy = 0.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -399,14 +393,14 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return happy;
 	}
 
 	public static double getHammerRate(Town town) {
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(HammerRate.getKey(town));
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(HammerRate.getKey(town));
 		double hammerrate = 1.0;
 		
 		ArrayList<SessionEntry> removed = new ArrayList<SessionEntry>();
@@ -430,7 +424,7 @@ public class RandomEvent extends SQLObject {
 		
 		/* Remove any expired entries */
 		for (SessionEntry entry : removed) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 		}
 		
 		return hammerrate;	

@@ -101,11 +101,11 @@ public class ScoreManager {
 			s.setString(2, Bukkit.getServerName());
 			s.setInt(3, civ.getId());
 			s.setString(4, civ.getName());
-			s.setString(5, civ.getCapitolName());
+			s.setString(5, civ.getCapitol().getName());
 			s.setInt(6, points);
 			
 			s.setString(7, civ.getName());
-			s.setString(8, civ.getCapitolName());
+			s.setString(8, civ.getCapitol().getName());
 			s.setInt(9, points);
 			
 			int rs = s.executeUpdate();

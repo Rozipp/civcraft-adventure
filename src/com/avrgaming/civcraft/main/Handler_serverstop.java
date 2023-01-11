@@ -21,7 +21,7 @@ package com.avrgaming.civcraft.main;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import com.avrgaming.civcraft.structure.Structure;
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 public class Handler_serverstop extends Thread {

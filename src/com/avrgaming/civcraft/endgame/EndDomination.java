@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TreeMap;
+
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndDomination
@@ -29,10 +30,10 @@ extends EndGameCondition {
 
     private void getStartDate() {
         String key = "endcondition:domination:startdate";
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
         if (entries.isEmpty()) {
             this.startDate = new Date();
-            CivGlobal.getSessionDB().add(key, "" + this.startDate.getTime(), 0, 0, 0);
+            CivGlobal.getSessionDatabase().add(key, "" + this.startDate.getTime(), 0, 0, 0);
         } else {
             long time = Long.valueOf(entries.get((int)0).value);
             this.startDate = new Date(time);
@@ -73,7 +74,7 @@ extends EndGameCondition {
         }
         int wonderCount = 0;
         for (Town town : top1.getTowns()) {
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (wonder.getConfigId().equalsIgnoreCase("w_space_shuttle") || wonder.getConfigId().equalsIgnoreCase("w_colosseum") || wonder.getConfigId().equalsIgnoreCase("")) continue;
                 ++wonderCount;
             }

@@ -11,22 +11,17 @@ package com.avrgaming.civcraft.threading.tasks;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.cache.PlayerLocationCache;
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMission;
 import com.avrgaming.civcraft.exception.CivException;
-import com.avrgaming.civcraft.exception.InvalidConfiguration;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.CultureChunk;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.ScoutShip;
-import com.avrgaming.civcraft.structure.ScoutTower;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.threading.TaskMaster;
+import com.avrgaming.civcraft.units.Spy;
 import com.avrgaming.civcraft.units.UnitStatic;
-import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -48,18 +43,6 @@ public class EspionageMissionTask implements Runnable {
 
 	@Override
 	public void run() {
-		int exposePerSecond;
-		int exposePerPlayer;
-		int exposePerScout;
-		try {
-			exposePerSecond = CivSettings.getInteger(CivSettings.espionageConfig, "espionage.exposure_per_second");
-			exposePerPlayer = CivSettings.getInteger(CivSettings.espionageConfig, "espionage.exposure_per_player");
-			exposePerScout = CivSettings.getInteger(CivSettings.espionageConfig, "espionage.exposure_per_scout");
-		} catch (InvalidConfiguration e) {
-			e.printStackTrace();
-			return;
-		}
-
 		Player player;
 		try {
 			player = CivGlobal.getPlayer(playerName);
@@ -76,41 +59,6 @@ public class EspionageMissionTask implements Runnable {
 
 				/* Add base exposure. */
 				resident.setPerformingMission(true);
-				resident.setSpyExposure(resident.getSpyExposure() + exposePerSecond);
-
-				/* Add players nearby exposure */
-				//PlayerLocationCache.lock.lock();
-				try {
-					int playerCount = PlayerLocationCache.getNearbyPlayers(new BlockCoord(player.getLocation()), 600).size();
-					playerCount--;
-					resident.setSpyExposure(resident.getSpyExposure() + (playerCount * exposePerPlayer));
-				} finally {
-					//	PlayerLocationCache.lock.unlock();
-				}
-
-				/* Add scout tower exposure */
-				int amount = 0;
-				double rangeSqr;
-				try {
-					rangeSqr = Math.pow(CivSettings.getDouble(CivSettings.warConfig, "scout_tower.range"), 2);
-				} catch (InvalidConfiguration e) {
-					e.printStackTrace();
-					resident.setPerformingMission(false);
-					return;
-				}
-
-				Location loc = player.getLocation();
-
-				for (Structure struct : target.getStructures()) {
-					if (!struct.isActive()) continue;
-
-					if (struct instanceof ScoutTower || struct instanceof ScoutShip) {
-						if (loc.distanceSquared(struct.getCenterLocation()) < rangeSqr) {
-							amount += exposePerScout;
-						}
-					}
-				}
-				resident.setSpyExposure(resident.getSpyExposure() + amount);
 
 				/* Process exposure penalities */
 				if (target.processSpyExposure(resident)) {
@@ -146,8 +94,21 @@ public class EspionageMissionTask implements Runnable {
 				return;
 			}
 		}
-
 		resident.setPerformingMission(false);
+
+		class PerformMissionTask implements Runnable {
+			ConfigMission mission;
+			String playerName;
+			public PerformMissionTask(ConfigMission mission, String playerName) {
+				this.mission = mission;
+				this.playerName = playerName;
+			}
+			@Override
+			public void run() {
+				Spy.performMission(mission, playerName);
+			}
+		}
+
 		TaskMaster.syncTask(new PerformMissionTask(mission, playerName));
 	}
 

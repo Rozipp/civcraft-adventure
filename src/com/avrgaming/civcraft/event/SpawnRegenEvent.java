@@ -20,10 +20,9 @@ package com.avrgaming.civcraft.event;
 
 import java.util.Calendar;
 
-import org.bukkit.Bukkit;
-
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
+import com.avrgaming.civcraft.main.CivCraft;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
@@ -48,7 +47,7 @@ public class SpawnRegenEvent implements EventInterface {
 			
 			@Override
 			public void run() {
-				Bukkit.getWorld("world").regenerateChunk(cc.getChunkCoord().getX(), cc.getChunkCoord().getZ());
+				CivCraft.mainWorld.regenerateChunk(cc.getChunkCoord().getX(), cc.getChunkCoord().getZ());
 			}
 		}
 		

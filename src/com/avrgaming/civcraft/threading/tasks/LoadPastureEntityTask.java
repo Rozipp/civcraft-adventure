@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 
+import com.avrgaming.civcraft.construct.structures.Pasture;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
-import com.avrgaming.civcraft.structure.Pasture;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.util.EntityUtil;
 import com.avrgaming.civcraft.util.TimeTools;
@@ -44,7 +44,7 @@ public class LoadPastureEntityTask implements Runnable {
 						pasture.entities.add(entity.getUniqueId());
 						Pasture.pastureEntities.put(entity.getUniqueId(), pasture);
 					} else {
-						CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+						CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 					}
 				}
 			} finally {
@@ -59,7 +59,7 @@ public class LoadPastureEntityTask implements Runnable {
 		/* Everything else is beyond our max, lets just forget about them. */
 		SessionEntry entry = entriesToLoad.poll();
 		while (entry != null) {
-			CivGlobal.getSessionDB().delete(entry.request_id, entry.key);
+			CivGlobal.getSessionDatabase().delete(entry.request_id, entry.key);
 			entry = entriesToLoad.poll();
 		}
 		CivLog.info("...Finished Pasture Entity Load Task");

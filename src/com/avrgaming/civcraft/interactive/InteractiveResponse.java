@@ -18,8 +18,8 @@
  */
 package com.avrgaming.civcraft.interactive;
 
-import com.avrgaming.civcraft.object.Resident;
+import org.bukkit.entity.Player;
 
 public interface InteractiveResponse {
-	void respond(String message, Resident resident);
+	void respond(String message, Player player);
 }

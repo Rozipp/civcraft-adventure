@@ -6,13 +6,13 @@ import java.util.Calendar;
 import java.util.Date;
 import org.bukkit.Bukkit;
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndConditionScience
@@ -27,7 +27,7 @@ extends EndGameCondition {
     }
 
     public static Double getBeakersFor(Civilization civ) {
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(EndConditionScience.getBeakerSessionKey(civ));
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(EndConditionScience.getBeakerSessionKey(civ));
         if (entries.size() == 0) {
             return 0.0;
         }
@@ -43,10 +43,10 @@ extends EndGameCondition {
 
     private void getStartDate() {
         String key = "endcondition:science:startdate";
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
         if (entries.size() == 0) {
             this.startDate = new Date();
-            CivGlobal.getSessionDB().add(key, "" + this.startDate.getTime(), 0, 0, 0);
+            CivGlobal.getSessionDatabase().add(key, "" + this.startDate.getTime(), 0, 0, 0);
         } else {
             long time = Long.valueOf(entries.get((int)0).value);
             this.startDate = new Date(time);
@@ -75,7 +75,7 @@ extends EndGameCondition {
         boolean hasSpaceShuttle = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals(this.wonderId)) continue;
                 hasSpaceShuttle = true;
                 break;
@@ -102,7 +102,7 @@ extends EndGameCondition {
         boolean hasSpaceShuttle = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals(this.wonderId)) continue;
                 hasSpaceShuttle = true;
                 break;
@@ -120,20 +120,20 @@ extends EndGameCondition {
 
     @Override
     protected void onWarDefeat(Civilization civ) {
-        CivGlobal.getSessionDB().delete_all(EndConditionScience.getBeakerSessionKey(civ));
+        CivGlobal.getSessionDatabase().delete_all(EndConditionScience.getBeakerSessionKey(civ));
         CivMessage.sendCiv(civ, CivSettings.localize.localizedString("end_scienceWarDefeat"));
         civ.save();
         this.onFailure(civ);
     }
 
     public void addExtraBeakersToCiv(Civilization civ, double beakers) {
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(EndConditionScience.getBeakerSessionKey(civ));
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(EndConditionScience.getBeakerSessionKey(civ));
         double current = 0.0;
         if (entries.size() == 0) {
-            CivGlobal.getSessionDB().add(EndConditionScience.getBeakerSessionKey(civ), "" + beakers, civ.getId(), 0, 0);
+            CivGlobal.getSessionDatabase().add(EndConditionScience.getBeakerSessionKey(civ), "" + beakers, civ.getId(), 0, 0);
         } else {
             current = Double.valueOf(entries.get((int)0).value);
-            CivGlobal.getSessionDB().update(entries.get((int)0).request_id, entries.get((int)0).key, "" + (current += beakers));
+            CivGlobal.getSessionDatabase().update(entries.get((int)0).request_id, entries.get((int)0).key, "" + (current += beakers));
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.avrgaming.civcraft.components;
 
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.construct.Construct;
 
 public class AttributeWarUnhappiness extends Component {
 
@@ -11,8 +11,8 @@ public class AttributeWarUnhappiness extends Component {
 	 */
 	
 	@Override
-	public void createComponent(Buildable buildable, boolean async) {
-		super.createComponent(buildable, async);
+	public void createComponent(Construct constr, boolean async) {
+		super.createComponent(constr, async);
 		value = this.getDouble("value");
 	}
 	

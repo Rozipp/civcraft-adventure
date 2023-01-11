@@ -12,37 +12,29 @@ import java.util.Iterator;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.config.ConfigMarketItem;
-import com.avrgaming.civcraft.database.ConnectionPool;
+//import com.avrgaming.civcraft.construct.caves.Cave;
+import com.avrgaming.civcraft.construct.constructs.Camp;
+import com.avrgaming.civcraft.construct.structures.Structure;
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.event.EventTimer;
 import com.avrgaming.civcraft.exception.InvalidConfiguration;
-import com.avrgaming.civcraft.items.BonusGoodie;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Coalition;
 import com.avrgaming.civcraft.object.MissionLogger;
 import com.avrgaming.civcraft.object.NamedObject;
-import com.avrgaming.civcraft.object.ProtectedBlock;
 import com.avrgaming.civcraft.object.Relation;
 import com.avrgaming.civcraft.object.Report;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.SQLObject;
-import com.avrgaming.civcraft.object.StructureSign;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.object.TownChunk;
-import com.avrgaming.civcraft.object.TradeGood;
-import com.avrgaming.civcraft.object.WallBlock;
 import com.avrgaming.civcraft.permission.PermissionGroup;
 import com.avrgaming.civcraft.randomevents.RandomEvent;
-import com.avrgaming.civcraft.road.RoadBlock;
 import com.avrgaming.civcraft.sessiondb.SessionDatabase;
-import com.avrgaming.civcraft.structure.Structure;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.units.UnitObject;
 import com.avrgaming.civcraft.util.BiomeCache;
-import com.avrgaming.civcraft.village.Village;
-import com.avrgaming.global.perks.PerkManager;
 import com.avrgaming.global.scores.ScoreManager;
 
 public class SQL {
@@ -58,9 +50,6 @@ public class SQL {
 		
 		tb_prefix = CivSettings.getStringBase("mysql.table_prefix");
 
-		CivGlobal.perkManager = new PerkManager();
-		CivGlobal.perkManager.init();
-
 		CivLog.heading("Initializing SQL Finished");
 	}
 
@@ -68,7 +57,6 @@ public class SQL {
 		CivLog.heading("Initializing " + name + " SQL Database");
 		String useSSL = "false";
 
-		useSSL = CivSettings.getStringBase(pref+".useSSL");
 		String hostname = CivSettings.getStringBase(pref+".hostname");
 		String port = CivSettings.getStringBase(pref+".port");
 		String db_name = CivSettings.getStringBase(pref+".database");
@@ -96,20 +84,15 @@ public class SQL {
 		TownChunk.init();
 		Structure.init();
 		Wonder.init();
-		WallBlock.init();
-		RoadBlock.init();
 		PermissionGroup.init();
 		Coalition.init();
-		TradeGood.init();
+//		Cave.init();
 		UnitObject.init();
-		ProtectedBlock.init();
-		BonusGoodie.init();
 		MissionLogger.init();
 		EventTimer.init();
-		Village.init();
+		Camp.init();
 		ConfigMarketItem.init();
 		RandomEvent.init();
-		StructureSign.init();
 		Report.init();
 
 		CivLog.heading("Building Global Tables!!");
@@ -468,7 +451,7 @@ public class SQL {
 		try {
 			context = SQL.getGameConnection();
 			ps = context.prepareStatement("DROP TABLE " + table_clear);
-			CivLog.debug("deleted " + table_clear);
+			CivLog.info("deleted " + table_clear);
 			ps.execute();
 		} catch (SQLException e) {
 			CivLog.error("not deleted " + table_clear);
@@ -514,6 +497,29 @@ public class SQL {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void clearTableData() {
+		CivLog.info("-------------------------- Clears all table data ------------------------");
+		SQL.deleteTable(ConfigMarketItem.TABLE_NAME);
+		SQL.deleteTable(EventTimer.TABLE_NAME);
+		SQL.deleteTable(Civilization.TABLE_NAME);
+		SQL.deleteTable(Coalition.TABLE_NAME);
+		SQL.deleteTable(MissionLogger.TABLE_NAME);
+		SQL.deleteTable(Relation.TABLE_NAME);
+		SQL.deleteTable(Report.TABLE_NAME);
+//		SQL.deleteTable(Cave.TABLE_NAME);
+		SQL.deleteTable(Resident.TABLE_NAME);
+		SQL.deleteTable(Town.TABLE_NAME);
+		SQL.deleteTable(TownChunk.TABLE_NAME);
+		SQL.deleteTable(PermissionGroup.TABLE_NAME);
+		SQL.deleteTable(RandomEvent.TABLE_NAME);
+		SQL.deleteTable(SessionDatabase.TABLE_NAME);
+		SQL.deleteTable(Wonder.TABLE_NAME);
+		SQL.deleteTable(Structure.TABLE_NAME);
+		SQL.deleteTable(BiomeCache.TABLE_NAME);
+		SQL.deleteTable(Camp.TABLE_NAME);
+		SQL.deleteTable(UnitObject.TABLE_NAME);
 	}
 
 }

@@ -7,7 +7,6 @@ import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 
-
 public class EndGameCheckTask implements Runnable {
 
 	@Override
@@ -30,7 +29,7 @@ public class EndGameCheckTask implements Runnable {
 			return;
 		}
 		
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("endgame:winningCiv");
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("endgame:winningCiv");
 		if (entries.size() != 0) {
 			CivMessage.global(entries.get(0).value);
 			return;

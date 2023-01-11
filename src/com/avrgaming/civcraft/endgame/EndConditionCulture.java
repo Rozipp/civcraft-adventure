@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import org.bukkit.Bukkit;
+
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndConditionCulture
@@ -27,10 +28,10 @@ extends EndGameCondition {
 
     private void getStartDate() {
         String key = "endcondition:culture:startdate";
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
         if (entries.isEmpty()) {
             this.startDate = new Date();
-            CivGlobal.getSessionDB().add(key, "" + this.startDate.getTime(), 0, 0, 0);
+            CivGlobal.getSessionDatabase().add(key, "" + this.startDate.getTime(), 0, 0, 0);
         } else {
             long time = Long.valueOf(entries.get((int)0).value);
             this.startDate = new Date(time);
@@ -64,7 +65,7 @@ extends EndGameCondition {
         boolean hasBurj = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals("w_burj")) continue;
                 hasBurj = true;
                 break;
@@ -78,7 +79,7 @@ extends EndGameCondition {
         int cultureCount = 0;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            cultureCount += town.getAccumulatedCulture();
+            cultureCount += town.SM.getCulture();
         }
         if (cultureCount < 16500000) {
             return false;

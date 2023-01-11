@@ -26,132 +26,132 @@ import java.util.List;
 
 import org.bukkit.scheduler.BukkitTask;
 
+import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.main.CivMessage;
 import com.avrgaming.civcraft.util.BukkitObjects;
 
 public class TaskMaster {
-	
+
 	private static HashMap<String, BukkitTask> tasks = new HashMap<String, BukkitTask>();
 	private static HashMap<String, BukkitTask> timers = new HashMap<String, BukkitTask>();
 
 	public static long getTicksTilDate(Date date) {
 		Calendar c = Calendar.getInstance();
-		
+
 		if (c.getTime().after(date)) {
 			return 0;
 		}
-		
-		long timeInSeconds = (date.getTime() - c.getTime().getTime() ) / 1000;
-		return timeInSeconds*20;
+
+		long timeInSeconds = (date.getTime() - c.getTime().getTime()) / 1000;
+		return timeInSeconds * 20;
 	}
-	
+
 	public static long getTicksToNextHour() {
 		Calendar c = Calendar.getInstance();
 		Date now = c.getTime();
-		
+
 		c.add(Calendar.HOUR_OF_DAY, 1);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.SECOND, 0);
-		
+
 		Date nextHour = c.getTime();
-		
-		long timeInSeconds = (nextHour.getTime() - now.getTime())/1000;
-		return timeInSeconds*20;
+
+		long timeInSeconds = (nextHour.getTime() - now.getTime()) / 1000;
+		return timeInSeconds * 20;
 	}
-	
-	
-	
+
 	public static void syncTask(Runnable runnable) {
 		BukkitObjects.scheduleSyncDelayedTask(runnable, 0);
 	}
-	
+
 	public static void syncTask(Runnable runnable, long l) {
-		BukkitObjects.scheduleSyncDelayedTask(runnable, l);	
+		BukkitObjects.scheduleSyncDelayedTask(runnable, l);
 	}
 
-	public static void asyncTimer(String name, Runnable runnable,
-			long delay, long repeat) {
+	public static void asyncTimer(String name, Runnable runnable, long delay, long repeat) {
+		if (getTimer(name) != null) getTimer(name).cancel();
 		addTimer(name, BukkitObjects.scheduleAsyncRepeatingTask(runnable, delay, repeat));
 	}
-	
+
 	public static void asyncTimer(String name, Runnable runnable, long time) {
-		addTimer(name, BukkitObjects.scheduleAsyncRepeatingTask(runnable, time, time));
+		asyncTimer(name, runnable, time, time);
 	}
-	
+
 	public static void asyncTask(String name, Runnable runnable, long delay) {
+		if (getTask(name) != null) getTask(name).cancel();
 		addTask(name, BukkitObjects.scheduleAsyncDelayedTask(runnable, delay));
 	}
-	
+
 	public static void asyncTask(Runnable runnable, long delay) {
 		BukkitObjects.scheduleAsyncDelayedTask(runnable, delay);
 	}
-	
+
 	private static void addTimer(String name, BukkitTask timer) {
 		timers.put(name, timer);
 	}
-	
+
 	private static void addTask(String name, BukkitTask task) {
-		//RJ.out("Added task:"+name);
+		// RJ.out("Added task:"+name);
 		tasks.put(name, task);
 	}
-	
+
 	public static void stopAll() {
 		stopAllTasks();
 		stopAllTimers();
 	}
-	
+
 	public static void stopAllTasks() {
+		int count = 0;
 		for (BukkitTask task : tasks.values()) {
 			task.cancel();
+			count++;
 		}
-		tasks.clear();		
+		tasks.clear();
+		CivLog.info("Stopes " + count + " tasks");
 	}
-	
+
 	public static void stopAllTimers() {
+		int count = 0;
 		for (BukkitTask timer : timers.values()) {
 			timer.cancel();
+			count++;
 		}
-		//RJ.out("clearing timers");
-
 		timers.clear();
+		CivLog.info("Stopes " + count + " timers");
 	}
 
 	public static void cancelTask(String name) {
 		BukkitTask task = tasks.get(name);
 		if (task != null) {
 			task.cancel();
+			tasks.remove(name);
 		}
-		//RJ.out("clearing tasks");
-
-		tasks.remove(name);
 	}
-	
+
 	public static void cancelTimer(String name) {
 		BukkitTask timer = tasks.get(name);
 		if (timer != null) {
 			timer.cancel();
+			timers.remove(name);
 		}
-		//RJ.out("cancel timer:"+name);
-
-		timers.remove(name);
 	}
 
 	public static BukkitTask getTimer(String name) {
 		return timers.get(name);
 	}
-	
+
 	public static BukkitTask getTask(String name) {
 		return tasks.get(name);
 	}
 
 	public static List<String> getTimersList() {
 		List<String> out = new ArrayList<String>();
-		
+
 		out.add(CivMessage.buildTitle("Timers Running"));
 		for (String name : timers.keySet()) {
-			out.add("Timer: "+name+" running.");
+			out.add("Timer: " + name + " running.");
 		}
-		
+
 		return out;
 	}
 
@@ -161,23 +161,29 @@ public class TaskMaster {
 
 	public static void syncTimer(String name, Runnable runnable, long delay, long repeat) {
 		BukkitObjects.scheduleSyncRepeatingTask(runnable, delay, repeat);
-		
+
 	}
 
 	public static boolean hasTask(String key) {
 		BukkitTask task = tasks.get(key);
-		
+
 		if (task == null) {
 			return false;
 		}
-		
+
 		if (BukkitObjects.getScheduler().isCurrentlyRunning(task.getTaskId()) || BukkitObjects.getScheduler().isQueued(task.getTaskId())) {
 			return true;
-		} 
-		
+		}
+
 		tasks.remove(key);
-				
+
 		return false;
+	}
+
+	public static void printAllTask() {
+		for (String s : tasks.keySet()) {
+			CivLog.info(s);
+		}
 	}
 
 }

@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -97,7 +98,7 @@ public class CivLog {
 	}
 
 	public static void moneylog(final String name, final String message) {
-        CivLog.plugin.getLogger().info("[\u0414\u0435\u0431\u0430\u0433 \u0434\u0435\u043d\u044c\u0433\u043e\u0431\u043e\u0440\u043e\u0442\u0430: " + name + "] " + message);
+        CivLog.plugin.getLogger().info("[moneylog: " + name + "] " + message);
     }
 
 	public static String paste(final String contents, final String extension, final String customName, final String deleteKey) {
@@ -112,7 +113,7 @@ public class CivLog {
             pasteConnection.setRequestMethod("PUT");
             pasteConnection.setDoOutput(true);
             final OutputStream out = pasteConnection.getOutputStream();
-            out.write(contents.getBytes("UTF-8"));
+            out.write(contents.getBytes(StandardCharsets.UTF_8));
             out.flush();
             return new BufferedReader(new InputStreamReader(pasteConnection.getInputStream())).readLine();
         }

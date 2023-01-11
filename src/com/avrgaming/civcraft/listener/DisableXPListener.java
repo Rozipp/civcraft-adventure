@@ -4,7 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.ExpBottleEvent;
@@ -20,7 +19,7 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;
 import com.avrgaming.civcraft.util.ItemManager;
 
-public class DisableXPListener implements Listener {
+public class DisableXPListener extends SimpleListener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onExpBottleEvent(ExpBottleEvent event) {

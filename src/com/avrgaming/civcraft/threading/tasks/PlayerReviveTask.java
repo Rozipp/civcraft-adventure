@@ -22,10 +22,10 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.construct.structures.Cityhall;
 import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.structure.TownHall;
 import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
@@ -33,21 +33,21 @@ public class PlayerReviveTask implements Runnable {
 
 	String playerName;
 	int timeout;
-	TownHall townhall;
+	Cityhall cityhall;
 	Location alternativeLocation;
 	
-	public PlayerReviveTask(Player player, int timeout, TownHall townhall, Location alt) {
+	public PlayerReviveTask(Player player, int timeout, Cityhall cityhall, Location alt) {
 		this.playerName = player.getName();
 		this.timeout = timeout;
-		this.townhall = townhall;
+		this.cityhall = cityhall;
 		this.alternativeLocation = alt;
 	}
 	
 	public void setRespawnViaSessionDB() {
 		//Player was logged out when the respawn event fired. Create a sessionDB entry
 		//to respawn the player when they login.
-		BlockCoord revive = townhall.getRandomRevivePoint();
-		CivGlobal.getSessionDB().add("global:respawnPlayer", playerName+":"+revive.toString(), 0, 0, 0);
+		BlockCoord revive = cityhall.getRandomRevivePoint();
+		CivGlobal.getSessionDatabase().add("global:respawnPlayer", playerName+":"+revive.toString(), 0, 0, 0);
 	}
 	
 	@Override
@@ -77,7 +77,7 @@ public class PlayerReviveTask implements Runnable {
 			return;
 		}
 		
-		BlockCoord revive = townhall.getRandomRevivePoint();
+		BlockCoord revive = cityhall.getRandomRevivePoint();
 		Location loc;
 		if (revive == null) {
 			loc = alternativeLocation;

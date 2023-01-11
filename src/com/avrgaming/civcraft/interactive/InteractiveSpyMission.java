@@ -15,7 +15,7 @@ import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.object.Town;
 import com.avrgaming.civcraft.threading.TaskMaster;
 import com.avrgaming.civcraft.threading.tasks.EspionageMissionTask;
-import com.avrgaming.civcraft.units.MissionBook;
+import com.avrgaming.civcraft.units.Spy;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class InteractiveSpyMission implements InteractiveResponse {
@@ -42,8 +42,8 @@ public class InteractiveSpyMission implements InteractiveResponse {
 
 		CivMessage.sendHeading(player, CivSettings.localize.localizedString("interactive_spy_heading") + " " + mission.name);
 
-		double failChance = MissionBook.getMissionFailChance(mission, target);
-		double compChance = MissionBook.getMissionCompromiseChance(mission, target);
+		double failChance = Spy.getMissionFailChance(mission, target);
+		double compChance = Spy.getMissionCompromiseChance(mission, target);
 		DecimalFormat df = new DecimalFormat();
 
 		String successChance = df.format((1 - failChance) * 100) + "%";
@@ -77,13 +77,8 @@ public class InteractiveSpyMission implements InteractiveResponse {
 	}
 
 	@Override
-	public void respond(String message, Resident resident) {
-		Player player;
-		try {
-			player = CivGlobal.getPlayer(resident);
-		} catch (CivException e) {
-			return;
-		}
+	public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
 		resident.clearInteractiveMode();
 
 		if (!message.equalsIgnoreCase("yes")) {

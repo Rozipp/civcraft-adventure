@@ -8,105 +8,49 @@
  * obtained from AVRGAMING LLC. */
 package com.avrgaming.civcraft.threading.tasks;
 
-import java.util.Random;
-
-import gpl.AttributeUtil;
-
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.exception.CivException;
+import com.avrgaming.civcraft.construct.ConstructDamageBlock;
+import com.avrgaming.civcraft.enchantment.EnchantmentCustom;
+import com.avrgaming.civcraft.enchantment.PunchoutEnchantment;
+import com.avrgaming.civcraft.enchantment.Enchantments;
 import com.avrgaming.civcraft.items.CustomMaterial;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancement;
-import com.avrgaming.civcraft.loreenhancements.LoreEnhancementPunchout;
-import com.avrgaming.civcraft.main.CivCraft;
-import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.object.BuildableDamageBlock;
-import com.avrgaming.civcraft.object.Resident;
-import com.avrgaming.civcraft.structure.Capitol;
-import com.avrgaming.civcraft.structure.TownHall;
-import com.avrgaming.civcraft.util.BlockCoord;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class StructureBlockHitEvent implements Runnable {
 
 	/* Called when a structure block is hit, this async task quickly determines if the block hit should take damage during war. */
-	String playerName;
-	BlockCoord coord;
-	BuildableDamageBlock dmgBlock;
-	World world;
+	Player player;
+	ConstructDamageBlock dmgBlock;
 
-	public StructureBlockHitEvent(String player, BlockCoord coord, BuildableDamageBlock dmgBlock, World world) {
-		this.playerName = player;
-		this.coord = coord;
+	public StructureBlockHitEvent(Player player, ConstructDamageBlock dmgBlock) {
+		this.player = player;
 		this.dmgBlock = dmgBlock;
-		this.world = world;
 	}
 
 	@Override
 	public void run() {
-
-		if (playerName == null) {
-			return;
-		}
-		Player player;
-		Resident resident;
-		try {
-			player = CivGlobal.getPlayer(this.playerName);
-			resident = CivGlobal.getResident(player);
-		} catch (CivException e) {
-			return;
-		}
+		if (player == null || !player.isOnline()) return;
+		
 		if (dmgBlock.allowDamageNow(player)) {
 			/* Do our damage. */
 			int damage = 1;
-			CustomMaterial material = CustomMaterial.getCustomMaterial(player.getInventory().getItemInMainHand());
-			if (material != null) {
-				damage = material.onStructureBlockBreak(dmgBlock, damage);
+
+			ItemStack hand = player.getInventory().getItemInMainHand();
+			if (hand != null && hand.getType() != Material.AIR) {
+				CustomMaterial material = CustomMaterial.getCustomMaterial(hand);
+				if (material != null) damage = material.onStructureBlockBreak(dmgBlock, damage);
+				if (Enchantments.hasEnchantment(hand, EnchantmentCustom.Punchout)) damage = PunchoutEnchantment.onStructureBlockBreak(dmgBlock, damage);
 			}
 
-			if (player.getInventory().getItemInMainHand() != null && !player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) {
-				AttributeUtil attrs = new AttributeUtil(player.getInventory().getItemInMainHand());
-				for (LoreEnhancement enhance : attrs.getEnhancements()) {
-					if (enhance instanceof LoreEnhancementPunchout) damage = ((LoreEnhancementPunchout) enhance).onStructureBlockBreak(dmgBlock, damage);
-				}
-			}
-			int addinationalDamage = 0;
-			if (resident.getCiv() != null && resident.getCiv().getCapitol() != null) {
-				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraCPdmgTown")
-						&& (CivGlobal.getNearestBuildable(player.getLocation()) instanceof Capitol
-								|| CivGlobal.getNearestBuildable(player.getLocation()) instanceof TownHall)) {
-					addinationalDamage += this.getAddinationalBreak();
-				}
-				if (resident.getCiv().getCapitol().getBuffManager().hasBuff("level6_extraStrucutreDmgTown")
-						&& !(CivGlobal.getNearestBuildable(player.getLocation()) instanceof Capitol)
-						&& !(CivGlobal.getNearestBuildable(player.getLocation()) instanceof TownHall)) {
-					addinationalDamage += this.getAddinationalBreak();
-				}
-			}
-			if (damage > 1 && dmgBlock.isDamageable()) {
-				CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_StructureBlockHitEvent_punchoutDmg", (damage - 1)));
-			}
-			if (addinationalDamage != 0) {
-				CivMessage.send(player, "§a" + CivSettings.localize.localizedString("var_StructureBlockHitEvent_talentDmg", "§2" + addinationalDamage + "§a",
-						"§2" + CivSettings.localize.localizedString("Damage")));
-				damage += addinationalDamage;
-			}
-			dmgBlock.getOwner().onDamage(damage, world, player, dmgBlock.getCoord(), dmgBlock);
+			if (damage > 1 && dmgBlock.isDamageable()) CivMessage.send(player, CivColor.LightGray + CivSettings.localize.localizedString("var_StructureBlockHitEvent_punchoutDmg", (damage - 1)));
+			dmgBlock.getOwner().onDamage(damage, player, dmgBlock);
 		} else {
-			CivMessage.sendErrorNoRepeat(player,
-					CivSettings.localize.localizedString("var_StructureBlockHitEvent_Invulnerable", dmgBlock.getOwner().getDisplayName()));
+			CivMessage.sendErrorNoRepeat(player, CivSettings.localize.localizedString("var_StructureBlockHitEvent_Invulnerable", dmgBlock.getOwner().getDisplayName()));
 		}
-	}
-	public int getAddinationalBreak() {
-		final Random rand = CivCraft.civRandom;
-		int damage = 0;
-		if (rand.nextInt(100) <= 50) {
-			damage += rand.nextInt(2);
-		}
-		return damage;
 	}
 }

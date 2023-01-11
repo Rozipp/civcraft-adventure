@@ -27,6 +27,11 @@ import org.bukkit.entity.Entity;
 
 import com.avrgaming.civcraft.components.ProjectileArrowComponent;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ArrowFiredCache {
 	private ProjectileArrowComponent fromTower;
 	private Location target;
@@ -35,7 +40,7 @@ public class ArrowFiredCache {
 	private UUID uuid;
 	private Calendar expired;
 	private boolean hit = false;
-	
+
 	public ArrowFiredCache(ProjectileArrowComponent tower, Entity targetEntity, Arrow arrow) {
 		this.setFromTower(tower);
 		this.target = targetEntity.getLocation();
@@ -46,39 +51,10 @@ public class ArrowFiredCache {
 		expired.add(Calendar.SECOND, 5);
 	}
 
-
-	/**
-	 * @return the target
-	 */
-	public Location getTarget() {
-		return target;
-	}
-
-	/**
-	 * @param target the target to set
-	 */
-	public void setTarget(Location target) {
-		this.target = target;
-	}
-
-	/**
-	 * @return the arrow
-	 */
-	public Arrow getArrow() {
-		return arrow;
-	}
-
-	/**
-	 * @param arrow the arrow to set
-	 */
-	public void setArrow(Arrow arrow) {
-		this.arrow = arrow;
-	}
-
 	public Object getUUID() {
 		return uuid;
 	}
-	
+
 	public void destroy(Arrow arrow) {
 		arrow.remove();
 		this.arrow = null;
@@ -86,52 +62,8 @@ public class ArrowFiredCache {
 		this.uuid = null;
 	}
 
-
 	public void destroy(Entity damager) {
-		if (damager instanceof Arrow) {
-			this.destroy((Arrow)damager);
-		}
+		if (damager instanceof Arrow) this.destroy((Arrow) damager);
 	}
 
-
-	public Calendar getExpired() {
-		return expired;
-	}
-
-
-	public void setExpired(Calendar expired) {
-		this.expired = expired;
-	}
-
-
-	public boolean isHit() {
-		return hit;
-	}
-
-
-	public void setHit(boolean hit) {
-		this.hit = hit;
-	}
-
-
-	public ProjectileArrowComponent getFromTower() {
-		return fromTower;
-	}
-
-
-	public void setFromTower(ProjectileArrowComponent fromTower) {
-		this.fromTower = fromTower;
-	}
-
-
-	public Entity getTargetEntity() {
-		return targetEntity;
-	}
-
-
-	public void setTargetEntity(Entity targetEntity) {
-		this.targetEntity = targetEntity;
-	}
-
-	
 }

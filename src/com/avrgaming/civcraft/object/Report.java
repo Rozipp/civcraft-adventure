@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.main.CivLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -62,11 +61,6 @@ extends SQLObject {
         this.setWhoClosed(rs.getString("whoClosed"));
         this.setResult(rs.getString("result"));
         this.setCloseTime(rs.getLong("closeTime"));
-    }
-
-    @Override
-    public void save() {
-        SQLUpdate.add(this);
     }
 
     @Override

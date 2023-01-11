@@ -1,6 +1,12 @@
 package com.avrgaming.civcraft.util;
 
+import java.util.Random;
+
 import org.bukkit.ChatColor;
+
+import com.avrgaming.civcraft.config.CivSettings;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.object.Civilization;
 
 public class CivColor {
 	public static final String Black = "§0";
@@ -132,38 +138,38 @@ public class CivColor {
 
 	public static String valueOf(String color) {
 		switch (color.toLowerCase()) {
-			case "black" :
-				return "§0";
-			case "navy" :
-				return "§1";
-			case "green" :
-				return "§2";
-			case "blue" :
-				return "§3";
-			case "red" :
-				return "§4";
-			case "purple" :
-				return "§5";
-			case "gold" :
-				return "§6";
-			case "lightgray" :
-				return "§7";
-			case "gray" :
-				return "§8";
-			case "darkpurple" :
-				return "§9";
-			case "lightgreen" :
-				return "§a";
-			case "lightblue" :
-				return "§b";
-			case "rose" :
-				return "§c";
-			case "lightpurple" :
-				return "§d";
-			case "yellow" :
-				return "§e";
-			case "white" :
-				return "§f";
+		case "black":
+			return "§0";
+		case "navy":
+			return "§1";
+		case "green":
+			return "§2";
+		case "blue":
+			return "§3";
+		case "red":
+			return "§4";
+		case "purple":
+			return "§5";
+		case "gold":
+			return "§6";
+		case "lightgray":
+			return "§7";
+		case "gray":
+			return "§8";
+		case "darkpurple":
+			return "§9";
+		case "lightgreen":
+			return "§a";
+		case "lightblue":
+			return "§b";
+		case "rose":
+			return "§c";
+		case "lightpurple":
+			return "§d";
+		case "yellow":
+			return "§e";
+		case "white":
+			return "§f";
 		}
 		return "§f";
 	}
@@ -234,11 +240,65 @@ public class CivColor {
 	}
 
 	/** в строку string добавляет строку addString, если длина строки addString менше чем length, то добавляет пробелы */
-	public static String AddTabToString(String string, String addString, Integer length) {
+	public static String addTabToString(String string, String addString, Integer length) {
 		string += addString;
 		for (Integer i = addString.length(); i <= length; i++) {
 			string += " ";
 		}
 		return string;
+	}
+
+	public static int pickCivColor() {
+		int max_retries = 10;
+		Random rand = new Random();
+		boolean found = false;
+		int c = 0;
+		// Tries to get CivColor that are not the same.
+		for (int i = 0; i < max_retries; i++) {
+			c = rand.nextInt(Civilization.HEX_COLOR_MAX); // Must clip at a 24 bit integer.
+			if (testColorForCloseness(c) == false) continue; // reject this color, try again.
+			found = true;
+			break;
+		}
+
+		// If we couldn't find a close color withing the max retries, pick any old color
+		// as a failsafe.
+		if (found == false) {
+			c = rand.nextInt();
+			System.out.println(CivSettings.localize.localizedString("civ_colorExhaustion"));
+		}
+
+		return c;
+	}
+
+	public static boolean testColorForCloseness(int c) {
+		int tolerance = Civilization.HEX_COLOR_TOLERANCE; // out of 255 CivColor, 40 is about a 15% difference.
+
+		if (simpleColorDistance(c, 0xFF0000) < tolerance) return false; // never accept pure red, or anything close to it, used for town markers.
+		if (simpleColorDistance(c, 0xFFFFFF) < tolerance) return false; // not too bright.
+		if (simpleColorDistance(c, 0x000000) < tolerance) return false; // not too dark/
+
+		// Check all the currently held CivColor.
+		for (int c2 : CivGlobal.CivColorInUse.keySet()) {
+			if (simpleColorDistance(c, c2) < tolerance) return false; // if this color is too close to any other color, reject it.
+		}
+		return true;
+	}
+
+	public static int simpleColorDistance(int color1, int color2) {
+		int red1, red2, blue1, blue2, green1, green2;
+
+		red1 = color1 & 0xFF0000;
+		red2 = color2 & 0xFF0000;
+		green1 = color1 & 0x00FF00;
+		green2 = color2 & 0x00FF00;
+		blue1 = color1 & 0x0000FF;
+		blue2 = color2 & 0x0000FF;
+
+		double redPower = Math.pow((red1 - red2), 2);
+		double greenPower = Math.pow((green1 - green2), 2);
+		double bluePower = Math.pow((blue1 - blue2), 2);
+
+		return (int) Math.sqrt(redPower + greenPower + bluePower);
 	}
 }

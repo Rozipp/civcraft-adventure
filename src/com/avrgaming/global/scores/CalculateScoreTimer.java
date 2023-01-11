@@ -37,7 +37,7 @@ public class CalculateScoreTimer extends CivAsyncTask {
 			return;
 		}
 		
-		ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup("endgame:winningCiv");
+		ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup("endgame:winningCiv");
 		if (entries.size() != 0) {
 			/* we have a winner, do not accumulate scores anymore. */
 			return;

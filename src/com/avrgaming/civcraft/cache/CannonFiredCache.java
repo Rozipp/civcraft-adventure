@@ -25,7 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 
-import com.avrgaming.civcraft.structure.Buildable;
+import com.avrgaming.civcraft.construct.Buildable;
 
 public class CannonFiredCache {
 	private Buildable whoFired;

@@ -7,34 +7,27 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.avrgaming.civcraft.config.CivSettings;
-import com.avrgaming.civcraft.tutorial.Book;
+import com.avrgaming.civcraft.gui.GuiInventory;
 import com.avrgaming.civcraft.util.CivColor;
 
 public class TutorialBook extends ItemComponent {
 
 	@Override
 	public void onPrepareCreate(AttributeUtil attrs) {
-		attrs.addLore(CivColor.Gold+CivSettings.localize.localizedString("tutorialBook_lore1"));
-		attrs.addLore(CivColor.Rose+CivSettings.localize.localizedString("tutorialBook_lore2"));
+		attrs.addLore(CivColor.Gold + CivSettings.localize.localizedString("tutorialBook_lore1"));
+		attrs.addLore(CivColor.Rose + CivSettings.localize.localizedString("tutorialBook_lore2"));
 	}
 
-	
 	public void onInteract(PlayerInteractEvent event) {
-		
 		event.setCancelled(true);
-		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
-				!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+		if (!event.getAction().equals(Action.RIGHT_CLICK_AIR) && !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			return;
 		}
-		
-		//CivTutorial.showCraftingHelp(event.getPlayer());
-		Book.spawnGuiBook(event.getPlayer());
-
+		GuiInventory.openGuiInventory(event.getPlayer(), "GuiBook", null);
 	}
-	
+
 	public void onItemSpawn(ItemSpawnEvent event) {
 		event.setCancelled(true);
 	}
 
-	
 }

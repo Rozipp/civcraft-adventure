@@ -20,14 +20,15 @@ package com.avrgaming.civcraft.threading.sync.request;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.avrgaming.civcraft.util.ChunkCoord;
+
 public class LoadChunkRequest extends AsyncRequest {
 
-	public LoadChunkRequest(ReentrantLock lock) {
+	public LoadChunkRequest(ReentrantLock lock, ChunkCoord chunkCoord) {
 		super(lock);
+		this.chunkCoord = chunkCoord;
 	}
 
-	public String worldName;
-	public int x;
-	public int z;
+	public ChunkCoord chunkCoord;
 	
 }

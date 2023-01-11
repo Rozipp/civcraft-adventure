@@ -11,34 +11,36 @@ import com.avrgaming.global.perks.components.PerkComponent;
 public class Perk {
 
 	public static HashMap<String, Perk> staticPerks = new HashMap<String, Perk>();
-	
-	private String ident;
+
+	private String configId;
 	private HashMap<String, PerkComponent> components = new HashMap<String, PerkComponent>();
 	public ConfigPerk configPerk;
 	public int count = 0;
 	public String provider;
-	
+
 	public Perk(ConfigPerk config) {
 		this.configPerk = config;
-		this.ident = config.id;
+		this.configId = config.id;
 		this.count = 1;
 		buildComponents();
 	}
-	
+
 	public static void init() {
 		for (ConfigPerk configPerk : CivSettings.perks.values()) {
 			Perk p = new Perk(configPerk);
-			staticPerks.put(p.getIdent(), p);
+			staticPerks.put(p.getConfigId(), p);
 		}
 	}
-	
-	public String getIdent() {
-		return ident;
+
+	public String getConfigId() {
+		return configId;
 	}
-	public void setIdent(String ident) {
-		this.ident = ident;
+
+	public void setConfigId(String confogId) {
+		this.configId = confogId;
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	private void buildComponents() {
 		List<HashMap<String, String>> compInfoList = this.configPerk.components;
 		if (compInfoList != null) {
@@ -59,12 +61,7 @@ public class Perk {
 					
 					perkCompClass.createComponent();
 					this.components.put(perkCompClass.getName(), perkCompClass);
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-				catch (ClassNotFoundException e) {
+				} catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
 			}
@@ -84,5 +81,5 @@ public class Perk {
 	public PerkComponent getComponent(String key) {
 		return this.components.get(key);
 	}
-	
+
 }

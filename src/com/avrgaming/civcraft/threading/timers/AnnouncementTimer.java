@@ -46,7 +46,6 @@ public class AnnouncementTimer implements Runnable {
 			try {
 				CivSettings.streamResourceToDisk("/data/"+filename);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

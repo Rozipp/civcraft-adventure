@@ -3,8 +3,9 @@ package com.avrgaming.civcraft.threading.sync;
 
 import java.util.concurrent.locks.ReentrantLock;
 import org.bukkit.entity.Player;
+
+import com.avrgaming.civcraft.construct.wonders.SpaceShuttle;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.SpaceShuttle;
 import com.avrgaming.civcraft.threading.CivAsyncTask;
 
 public class ValidateShuttleSync
@@ -19,7 +20,7 @@ extends CivAsyncTask {
     }
 
     private void processTick() {
-        SpaceShuttle spaceShuttle = (SpaceShuttle)town.getWonderByType("w_space_shuttle");
+        SpaceShuttle spaceShuttle = (SpaceShuttle)town.BM.getWonderById("w_space_shuttle");
         try {
             spaceShuttle.startMission(this, player);
         }

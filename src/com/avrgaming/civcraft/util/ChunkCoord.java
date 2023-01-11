@@ -10,73 +10,70 @@ package com.avrgaming.civcraft.util;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-
-import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.block.Block;
 
 @Getter
 @Setter
-public class ChunkCoord implements Comparable<ChunkCoord> {
+public class ChunkCoord {
 
-	private String worldname;
+	private World world;
 	private int x;
 	private int z;
 
-	//private static World[] worlds;
-	//private static String[] worldnames;
-
-	private static ConcurrentHashMap<String, World> worlds = new ConcurrentHashMap<String, World>();
-
-	public static void addWorld(World world) {
-		worlds.put(world.getName(), world);
-	}
-
-	public static void buildWorldList() {
-		for (World world : Bukkit.getWorlds()) {
-			worlds.put(world.getName(), world);
-		}
+	public ChunkCoord(World world, int x, int z) {
+		this.world = world;
+		this.x = x;
+		this.z = z;
 	}
 
 	public ChunkCoord(String worldname, int x, int z) {
-		this.setWorldname(worldname);
-		this.setX(x);
-		this.setZ(z);
+		this.world = Bukkit.getWorld(worldname);
+		this.x = x;
+		this.z = z;
 	}
 
 	public ChunkCoord(Location location) {
-		this.setFromLocation(location);
+		this.world = location.getWorld();
+		this.x = castCoordToChunkCoord(location.getBlockX());
+		this.z = castCoordToChunkCoord(location.getBlockZ());
 	}
 
 	public ChunkCoord(Chunk c) {
-		this.setWorldname(c.getWorld().getName());
-		this.setX(c.getX());
-		this.setZ(c.getZ());
+		this.world = c.getWorld();
+		this.x = c.getX();
+		this.z = c.getZ();
 	}
 
-	public ChunkCoord(BlockCoord corner) {
-		this.setFromLocation(corner.getLocation());
+	public ChunkCoord(BlockCoord coord) {
+		this.world = coord.getWorld();
+		this.x = castCoordToChunkCoord(coord.getX());
+		this.z = castCoordToChunkCoord(coord.getZ());
 	}
 
-	public ChunkCoord() {
+	public ChunkCoord(Block block) {
+		this.world = block.getWorld();
+		this.x = castCoordToChunkCoord(block.getX());
+		this.z = castCoordToChunkCoord(block.getZ());
 	}
 
 	@Override
 	public String toString() {
-		return this.worldname + "," + x + "," + z;
+		return this.world.getName() + "," + x + "," + z;
 	}
 
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof ChunkCoord) {
 			ChunkCoord otherCoord = (ChunkCoord) other;
-			if (otherCoord.worldname.equals(worldname)) {
-				if ((otherCoord.getX()) == x && (otherCoord.getZ() == z)) {
-					return true;
-				}
-			}
+			return otherCoord != null && //
+					otherCoord.world.equals(this.world) && //
+					otherCoord.getX() == x && //
+					otherCoord.getZ() == z;
 		}
 		return false;
 	}
@@ -86,57 +83,36 @@ public class ChunkCoord implements Comparable<ChunkCoord> {
 		return this.toString().hashCode();
 	}
 
-	public static int castToChunkX(int blockx) {
-		return castToChunk(blockx);
-	}
-
-	public static int castToChunkZ(int blockz) {
-		return castToChunk(blockz);
-	}
-
-	public static int castToChunk(int i) {
-		return (int) Math.floor((double) i / (double) 16);
-	}
-
-	public void setFromLocation(Location location) {
-		for (String name : worlds.keySet()) {
-			World world = worlds.get(name);
-			if (world == null) continue;
-
-			if (world.equals(location.getWorld())) {
-				this.worldname = name;
-				break;
-			}
-		}
-		this.x = castToChunkX(location.getBlockX());
-		this.z = castToChunkZ(location.getBlockZ());
+	public ChunkCoord getRelative(int dx, int dz) {
+		return new ChunkCoord(getWorld(), getX() + dx, getZ() + dz);
 	}
 
 	public int manhattanDistance(ChunkCoord chunkCoord) {
 		return Math.abs(chunkCoord.x - this.x) + Math.abs(chunkCoord.z - this.z);
 	}
 
-	public double distance(ChunkCoord chunkCoord) {
-		if (!chunkCoord.getWorldname().equals(this.getWorldname())) {
-			return Double.MAX_VALUE;
-		}
+	public double distanceSqr(ChunkCoord chunkCoord) {
+		if (!chunkCoord.getWorld().equals(this.getWorld())) return Double.MAX_VALUE;
+		return Math.pow(this.getX() - chunkCoord.getX(), 2) + Math.pow(this.getZ() - chunkCoord.getZ(), 2);
+	}
 
-		double dist = Math.pow(this.getX() - chunkCoord.getX(), 2) + Math.pow(this.getZ() - chunkCoord.getZ(), 2);
-		return Math.sqrt(dist);
+	public double distance(ChunkCoord chunkCoord) {
+		return Math.sqrt(distanceSqr(chunkCoord));
 	}
 
 	public Chunk getChunk() {
-		return Bukkit.getWorld(this.worldname).getChunkAt(this.x, this.z);
+		return this.world.getChunkAt(this.x, this.z);
 	}
 
-	public int compareTo(ChunkCoord o) {
-		int i = worldname.hashCode() - o.hashCode();
-		if (i == 0) {
-			i = x - o.x;
-			if (i == 0) {
-				i = z - o.z;
-			}
-		}
-		return i;
+	public static int getCoordInChunk(int x) {
+		return Math.floorMod(x, 16);
+	}
+
+	public static int castCoordToChunkCoord(int x) {
+		return Math.floorDiv(x, 16);
+	}
+
+	public static int castSizeInChunkSize(int size_x) {
+		return Math.floorDiv(Math.abs(size_x)-1, 16) + 1;
 	}
 }

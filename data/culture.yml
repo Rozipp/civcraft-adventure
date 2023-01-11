@@ -1,504 +1,421 @@
-#
-# This file contains any settings relevent to culture.
-# This includes culture levels for towns.
-#
-#
-
-# culture to beaker conversion ratio.
-beakers_per_culture: 0.1
-
-# Culture levels for towns
-# level: - this entries' level number
-# amount - amount of culture needed for this level
-# chunks - number of chunks(radius from each edge town block) of culture granted for this level
-
-culture_levels:
-    - level: 0
-      amount: 0
-      chunks: 6
-
-    - level: 1
-      amount: 500
-      chunks: 8
-
-    - level: 2
-      amount: 10000
-      chunks: 10
-
-    - level: 3
-      amount: 20000
-      chunks: 13
-
-    - level: 4
-      amount: 100000
-      chunks: 15
-
-    - level: 5
-      amount: 250000
-      chunks: 17
-
-    - level: 6
-      amount: 500000
-      chunks: 19
-
-    - level: 7
-      amount: 1000000
-      chunks: 22
-
-    - level: 8
-      amount: 2000000
-      chunks: 26
-
-    - level: 9
-      amount: 4000000
-      chunks: 32
-
-    - level: 10
-      amount: 5000000
-      chunks: 40
-
 culture_biomes:
-    - name: OCEAN
-      coins: 0.0
-      hammers: 0.5
-      growth: 0.25
-      happiness: 0.02
-      beakers: 1.0
-
-    - name: DEEP_OCEAN
-      coins: 0.0
-      hammers: 0.5
-      growth: 0.25
-      happiness: 0.0
-      beakers: 1.5
-
-    - name: SMALLER_EXTREME_HILLS
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.5
-      happiness: 0.015
-      beakers: 0.5
-
-    - name: PLAINS
-      coins: 0.0
-      hammers: 0.25
-      growth: 2.0
-      happiness: 0.025
-      beakers: 0.5
-
-    - name: MUTATED_PLAINS
-      coins: 0.0
-      hammers: 1.0
-      growth: 1.5
-      happiness: 0.04
-      beakers: 1.0
-
-    - name: SAVANNA
-      coins: 0.0
-      hammers: 1.0
-      growth: 1.5
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: MUTATED_SAVANNA
-      coins: 0.0
-      hammers: 1.25
-      growth: 1.25
-      happiness: 0.025
-      beakers: 1.0
-
-    - name: MESA
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.0
-      happiness: 0.03
-      beakers: 1.5
-
-    - name: MESA_CLEAR_ROCK
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.5
-      happiness: 0.01
-      beakers: 0.25
-
-    - name: MESA_ROCK
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.0
-      happiness: 0.01
-      beakers: 0.25
-
-    - name: MUTATED_MESA_ROCK
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.25
-
-    - name: MUTATED_MESA
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.25
-
-    - name: MUTATED_MESA_CLEAR_ROCK
-      coins: 0.0
-      hammers: 1.5
-      growth: 1.0
-      happiness: 0.02
-      beakers: 0.5
-
-    - name: DESERT
-      coins: 0.0
-      hammers: 0.25
-      growth: 1.0
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: FOREST
-      coins: 0.0
-      hammers: 1.0
-      growth: 1.25
-      happiness: 0.025
-      beakers: 0.5
-
-    - name: MUTATED_FOREST
-      coins: 0.0
-      hammers: 1.0
-      growth: 1.0
-      happiness: 0.05
-      beakers: 0.75
-
-    - name: BIRCH_FOREST
-      coins: 0.0
-      hammers: 1.5
-      growth: 0.75
-      happiness: 0.025
-      beakers: 0.5
-
-    - name: MUTATED_BIRCH_FOREST
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.5
-      happiness: 0.01
-      beakers: 1.0
-
-    - name: MUTATED_BIRCH_FOREST_HILLS
-      coins: 0.0
-      hammers: 1.5
-      growth: 1.0
-      happiness: 0.02
-      beakers: 1.0
-
-    - name: ROOFED_FOREST
-      coins: 0.0
-      hammers: 1.0
-      growth: 0.50
-      happiness: 0.025
-      beakers: 0.75
-
-    - name: MUTATED_ROOFED_FOREST
-      coins: 0.0
-      hammers: 2.0
-      growth: 2.0
-      happiness: 0.0
-      beakers: 0.5
-
-    - name: TAIGA
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.5
-      happiness: 0.02
-      beakers: 0.5
-
-    - name: MUTATED_REDWOOD_TAIGA
-      coins: 0.0
-      hammers: 1.5
-      growth: 0.25
-      happiness: 0.02
-      beakers: 1.5
-
-    - name: REDWOOD_TAIGA
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.25
-      happiness: 0.01
-      beakers: 0.25
-
-    - name: REDWOOD_TAIGA_HILLS
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.0
-      happiness: 0.03
-      beakers: 0.5
-
-    - name: TAIGA_COLD
-      coins: 0.0
-      hammers: 1.0
-      growth: 0.25
-      happiness: 0.02
-      beakers: 1.5
-
-    - name: SWAMPLAND
-      coins: 0.0
-      hammers: 0.25
-      growth: 1.0
-      happiness: 0.02
-      beakers: 1.5
-
-    - name: RIVER
-      coins: 0.0
-      hammers: 1.5
-      growth: 3.0
-      happiness: 0.025
-      beakers: 0.5
-
-    - name: FROZEN_OCEAN
-      coins: 0.0
-      hammers: 0.25
-      growth: 0.0
-      happiness: 0.0
-      beakers: 3.0
-
-    - name: FROZEN_RIVER
-      coins: 0.0
-      hammers: 2.0
-      growth: 2.5
-      happiness: 0.015
-      beakers: 1.0
-
-    - name: ICE_FLATS
-      coins: 0.0
-      hammers: 1.0
-      growth: 0.5
-      happiness: 0.02
-      beakers: 0.5
-
-    - name: MUTATED_ICE_FLATS
-      coins: 0.5
-      hammers: 0.25
-      growth: 0.25
-      happiness: 0.05
-      beakers: 1.5
-
-    - name: MUTATED_JUNGLE
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.5
-      happiness: 0.0
-      beakers: 0.25
-
-    - name: MUTATED_JUNGLE_EDGE
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.01
-      beakers: 0.5
-
-    - name: ICE_MOUNTAINS
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.02
-      beakers: 1.0
-
-    - name: SAVANNA_ROCK
-      coins: 0.0
-      hammers: 4.0
-      growth: 0.25
-      happiness: 0.0
-      beakers: 0.25
-
-    - name: MUTATED_SAVANNA_ROCK
-      coins: 0.0
-      hammers: 3.25
-      growth: 0.5
-      happiness: 0.0
-      beakers: 0.0
-
-    - name: TAIGA_HILLS
-      coins: 0.0
-      hammers: 1.5
-      growth: 0.5
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: TAIGA_COLD_HILLS
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.0
-      happiness: 0.0
-      beakers: 1.0
-
-    - name: MUTATED_SWAMPLAND
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.10
-      happiness: 0.02
-      beakers: 0.5
-
-    - name: SMALL_MOUNTAINS
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.5
-      happiness: 0.015
-      beakers: 0.5
-
-    - name: MUSHROOM_ISLAND
-      coins: 0.0
-      hammers: 1.0
-      growth: 0.5
-      happiness: 0.03
-      beakers: 0.5
-
-    - name: MUSHROOM_SHORE
-      coins: 0.0
-      hammers: 0.5
-      growth: 0.25
-      happiness: 0.05
-      beakers: 0.5
-
-    - name: BEACHES
-      coins: 0.0
-      hammers: 0.25
-      growth: 0.5
-      happiness: 0.06
-      beakers: 1.5
-
-    - name: STONE_BEACH
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.0
-      happiness: 0.015
-      beakers: 0.15
-
-    - name: COLD_BEACH
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.0
-      happiness: 0.01
-      beakers: 1.0
-
-    - name: DESERT_HILLS
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: MUTATED_DESERT
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: FOREST_HILLS
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: BIRCH_FOREST_HILLS
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.15
-      happiness: 0.02
-      beakers: 0.5
-
-    - name: TAIGA_HILLS
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.25
-      happiness: 0.02
-      beakers: 0.15
-
-    - name: MUTATED_TAIGA
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.25
-      happiness: 0.04
-      beakers: 0.75
-
-    - name: MUTATED_TAIGA_COLD
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.1
-      happiness: 0.01
-      beakers: 0.5
-
-    - name: MUTATED_REDWOOD_TAIGA_HILLS
-      coins: 0.0
-      hammers: 3.0
-      growth: 0.1
-      happiness: 0.0
-      beakers: 0.1
-
-    - name: TAIGA_HILLS_COLD
-      coins: 0.0
-      hammers: 2.5
-      growth: 0.15
-      happiness: 0.02
-      beakers: 0.25
-
-    - name: EXTREME_HILLS
-      coins: 0.0
-      hammers: 4.0
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.15
-
-    - name: EXTREME_HILLS_WITH_TREES
-      coins: 0.0
-      hammers: 4.0
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.5
-
-    - name: MUTATED_EXTREME_HILLS
-      coins: 0.0
-      hammers: 4.5
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.0
-
-    - name: MUTATED_EXTREME_HILLS_WITH_TREES
-      coins: 0.0
-      hammers: 4.5
-      growth: 0.0
-      happiness: 0.0
-      beakers: 0.5
-
-    - name: JUNGLE
-      coins: 0.0
-      hammers: 0.5
-      growth: 1.0
-      happiness: 0.02
-      beakers: 1.0
-
-    - name: JUNGLE_HILLS
-      coins: 0.0
-      hammers: 2.0
-      growth: 0.25
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: JUNGLE_EDGE
-      coins: 0.0
-      hammers: 1.0
-      growth: 0.5
-      happiness: 0.03
-      beakers: 1.0
-
-    - name: UNKNOWN
-      coins: 0.2
-      hammers: 0.2
-      growth: 0.2
-      happiness: 0.01
-      beakers: 0.2
-
-
-
-
+-  id: 0
+   name: OCEAN
+   surface: oceanic
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: null
+-  id: 1
+   name: PLAINS
+   surface: plains
+   humidity: irrigation
+   climate: normal
+   beauty: regular
+   mobs: lesser_yobo
+-  id: 2
+   name: DESERT
+   surface: plains
+   humidity: none
+   climate: desert
+   beauty: regular
+   mobs: lesser_savage
+-  id: 3
+   name: EXTREME_HILLS
+   surface: mountainous
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: greater_yobo
+-  id: 4
+   name: FOREST
+   surface: plains
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: lesser_yobo
+-  id: 5
+   name: TAIGA
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: lesser_savage
+-  id: 6
+   name: SWAMPLAND
+   surface: swampland
+   humidity: irrigation
+   climate: normal
+   beauty: regular
+   mobs: lesser_ruffian
+-  id: 7
+   name: RIVER
+   surface: plains
+   humidity: irrigation
+   climate: normal
+   beauty: regular
+   mobs: null
+-  id: 10
+   name: FROZEN_OCEAN
+   surface: oceanic
+   humidity: none
+   climate: frozen
+   beauty: regular
+   mobs: null
+-  id: 11
+   name: FROZEN_RIVER
+   surface: plains
+   humidity: irrigation
+   climate: frozen
+   beauty: beauty
+   mobs: null
+-  id: 12
+   name: ICE_FLATS
+   surface: plains
+   humidity: none
+   climate: frozen
+   beauty: regular
+   mobs: lesser_behemoth
+-  id: 13
+   name: ICE_MOUNTAINS
+   surface: mountainous
+   humidity: none
+   climate: frozen
+   beauty: beauty
+   mobs: lesser_behemoth
+-  id: 14
+   name: MUSHROOM_ISLAND
+   surface: swampland
+   humidity: none
+   climate: normal
+   beauty: beauty
+   mobs: elite_ruffian
+-  id: 15
+   name: MUSHROOM_ISLAND_SHORE
+   surface: swampland
+   humidity: none
+   climate: normal
+   beauty: beauty
+   mobs: brutal_ruffian
+-  id: 16
+   name: BEACHES
+   surface: plains
+   humidity: irrigation
+   climate: normal
+   beauty: regular
+   mobs: null
+-  id: 17
+   name: DESERT_HILLS
+   surface: hills
+   humidity: none
+   climate: desert
+   beauty: regular
+   mobs: greater_savage
+-  id: 18
+   name: FOREST_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_yobo
+-  id: 19
+   name: TAIGA_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_savage
+-  id: 20
+   name: SMALLER_EXTREME_HILLS
+   surface: mountainous
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: null
+-  id: 21
+   name: JUNGLE
+   surface: hills
+   humidity: none
+   climate: jungles
+   beauty: regular
+   mobs: elite_ruffian
+-  id: 22
+   name: JUNGLE_HILLS
+   surface: hills
+   humidity: none
+   climate: jungles
+   beauty: regular
+   mobs: brutal_ruffian
+-  id: 23
+   name: JUNGLE_EDGE
+   surface: plains
+   humidity: none
+   climate: jungles
+   beauty: beauty
+   mobs: brutal_ruffian
+-  id: 24
+   name: DEEP_OCEAN
+   surface: oceanic
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: null
+-  id: 25
+   name: STONE_BEACH
+   surface: mountainous
+   humidity: irrigation
+   climate: normal
+   beauty: beauty
+   mobs: null
+-  id: 26
+   name: COLD_BEACH
+   surface: plains
+   humidity: irrigation
+   climate: frozen
+   beauty: beauty
+   mobs: null
+-  id: 27
+   name: BIRCH_FOREST
+   surface: plains
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: greater_yobo
+-  id: 28
+   name: BIRCH_FOREST_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_yobo
+-  id: 29
+   name: ROOFED_FOREST
+   surface: plains
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: greater_ruffian
+-  id: 30
+   name: TAIGA_COLD
+   surface: plains
+   humidity: forests
+   climate: frozen
+   beauty: regular
+   mobs: greater_behemoth
+-  id: 31
+   name: TAIGA_COLD_HILLS
+   surface: hills
+   humidity: forests
+   climate: frozen
+   beauty: regular
+   mobs: elite_behemoth
+-  id: 32
+   name: REDWOOD_TAIGA
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_savage
+-  id: 33
+   name: REDWOOD_TAIGA_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: brutal_savage
+-  id: 34
+   name: EXTREME_HILLS_WITH_TREES
+   surface: mountainous
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: brutal_yobo
+-  id: 35
+   name: SAVANNA
+   surface: plains
+   humidity: none
+   climate: savanna
+   beauty: regular
+   mobs: greater_savage
+-  id: 36
+   name: SAVANNA_ROCK
+   surface: hills
+   humidity: none
+   climate: savanna
+   beauty: regular
+   mobs: elite_savage
+-  id: 37
+   name: MESA
+   surface: plains
+   humidity: none
+   climate: mesa
+   beauty: beauty
+   mobs: elite_savage
+-  id: 38
+   name: MESA_ROCK
+   surface: hills
+   humidity: forests
+   climate: mesa
+   beauty: regular
+   mobs: brutal_savage
+-  id: 39
+   name: MESA_CLEAR_ROCK
+   surface: hills
+   humidity: none
+   climate: mesa
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 129
+   name: MUTATED_PLAINS
+   surface: plains
+   humidity: irrigation
+   climate: normal
+   beauty: beauty
+   mobs: elite_yobo
+-  id: 130
+   name: MUTATED_DESERT
+   surface: plains
+   humidity: irrigation
+   climate: desert
+   beauty: beauty
+   mobs: greater_savage
+-  id: 131
+   name: MUTATED_EXTREME_HILLS
+   surface: mountainous
+   humidity: none
+   climate: normal
+   beauty: beauty
+   mobs: brutal_yobo
+-  id: 132
+   name: MUTATED_FOREST
+   surface: plains
+   humidity: forests
+   climate: normal
+   beauty: beauty
+   mobs: brutal_yobo
+-  id: 133
+   name: MUTATED_TAIGA
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: brutal_savage
+-  id: 134
+   name: MUTATED_SWAMPLAND
+   surface: swampland
+   humidity: irrigation
+   climate: normal
+   beauty: regular
+   mobs: greater_ruffian
+-  id: 140
+   name: MUTATED_ICE_FLATS
+   surface: mountainous
+   humidity: none
+   climate: frozen
+   beauty: beauty
+   mobs: brutal_behemoth
+-  id: 149
+   name: MUTATED_JUNGLE
+   surface: hills
+   humidity: forests
+   climate: jungles
+   beauty: regular
+   mobs: brutal_ruffian
+-  id: 151
+   name: MUTATED_JUNGLE_EDGE
+   surface: plains
+   humidity: forests
+   climate: jungles
+   beauty: beauty
+   mobs: brutal_ruffian
+-  id: 155
+   name: MUTATED_BIRCH_FOREST
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_yobo
+-  id: 156
+   name: MUTATED_BIRCH_FOREST_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_yobo
+-  id: 157
+   name: MUTATED_ROOFED_FOREST
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: elite_ruffian
+-  id: 158
+   name: MUTATED_TAIGA_COLD
+   surface: hills
+   humidity: forests
+   climate: frozen
+   beauty: regular
+   mobs: brutal_behemoth
+-  id: 160
+   name: MUTATED_REDWOOD_TAIGA
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: brutal_savage
+-  id: 161
+   name: MUTATED_REDWOOD_TAIGA_HILLS
+   surface: hills
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: brutal_savage
+-  id: 162
+   name: MUTATED_EXTREME_HILLS_WITH_TREES
+   surface: mountainous
+   humidity: forests
+   climate: normal
+   beauty: regular
+   mobs: brutal_yobo
+-  id: 163
+   name: MUTATED_SAVANNA
+   surface: mountainous
+   humidity: none
+   climate: savanna
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 164
+   name: MUTATED_SAVANNA_ROCK
+   surface: mountainous
+   humidity: none
+   climate: savanna
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 165
+   name: MUTATED_MESA
+   surface: mountainous
+   humidity: none
+   climate: mesa
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 166
+   name: MUTATED_MESA_ROCK
+   surface: hills
+   humidity: forests
+   climate: mesa
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 167
+   name: MUTATED_MESA_CLEAR_ROCK
+   surface: hills
+   humidity: none
+   climate: mesa
+   beauty: beauty
+   mobs: brutal_savage
+-  id: 200
+   name: VOID
+   surface: oceanic
+   humidity: none
+   climate: normal
+   beauty: regular
+   mobs: null

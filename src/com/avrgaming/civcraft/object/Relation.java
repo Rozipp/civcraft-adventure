@@ -26,7 +26,6 @@ import java.util.HashMap;
 
 import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.database.SQL;
-import com.avrgaming.civcraft.database.SQLUpdate;
 import com.avrgaming.civcraft.exception.InvalidNameException;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
@@ -94,14 +93,14 @@ public class Relation extends SQLObject {
 	@Override
 	public void load(ResultSet rs) throws SQLException, InvalidNameException {
 		this.setId(rs.getInt("id"));
-		civ = CivGlobal.getCivFromId(rs.getInt("civ_id"));
+		civ = CivGlobal.getCiv(rs.getInt("civ_id"));
 		if (civ == null) {
 			CivLog.warning("Couldn't find civ id:"+rs.getInt("civ_id")+" deleting this relation.");
 			this.delete();
 			return;
 		}
 		
-		other_civ = CivGlobal.getCivFromId(rs.getInt("other_civ_id"));
+		other_civ = CivGlobal.getCiv(rs.getInt("other_civ_id"));
 		if (other_civ == null) {
 			CivLog.warning("Couldn't find other civ id:"+rs.getInt("other_civ_id")+" deleting this relation.");
 			this.civ = null;
@@ -117,7 +116,7 @@ public class Relation extends SQLObject {
 				
 		int aggressor_id = rs.getInt("aggressor_civ_id");
 		if (aggressor_id != 0) {
-			setAggressor(CivGlobal.getCivFromId(aggressor_id));
+			setAggressor(CivGlobal.getCiv(aggressor_id));
 		}
 		
 		
@@ -133,11 +132,6 @@ public class Relation extends SQLObject {
 		}
 	}
 
-	@Override
-	public void save() {
-		SQLUpdate.add(this);
-	}
-	
 	@Override
 	public void saveNow() throws SQLException {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();

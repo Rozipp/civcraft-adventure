@@ -39,19 +39,13 @@ public class DisableTeleportEvent implements EventInterface {
 	@Override
 	public void process() {
 		CivLog.info("TimerEvent: DisableTeleportEvent -------------------------------------");
-
-		try {
-			disableTeleport();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		disableTeleport();
 	}
 
 	@Override
 	public Calendar getNextDate() throws InvalidConfiguration {
 		Calendar cal = EventTimer.getCalendarInServerTimeZone();
-		
+
 		int dayOfWeek = CivSettings.getInteger(CivSettings.warConfig, "war.disable_tp_time_day");
 		int hourBeforeWar = CivSettings.getInteger(CivSettings.warConfig, "war.disable_tp_time_hour");
 
@@ -59,7 +53,7 @@ public class DisableTeleportEvent implements EventInterface {
 		cal.set(Calendar.HOUR_OF_DAY, hourBeforeWar);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
-		
+
 		Calendar now = Calendar.getInstance();
 		if (now.after(cal)) {
 			cal.add(Calendar.WEEK_OF_MONTH, 1);
@@ -68,79 +62,82 @@ public class DisableTeleportEvent implements EventInterface {
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
 		}
-		
+
 		return cal;
 	}
-	
 
-	public static void disableTeleport() throws IOException {
-		if (War.hasWars())
-		{
-		File file = new File(CivSettings.plugin.getDataFolder().getPath()+"/data/teleportsOff.txt");
-		if (!file.exists()) {
-			CivLog.warning("Configuration file: teleportsOff.txt was missing. Streaming to disk from Jar.");
-			CivSettings.streamResourceToDisk("/data/teleportsOff.txt");
-		}
-		
-		CivLog.info("Loading Configuration file: teleportsOff.txt");
-		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			
-			String line;
-			try {
-				CivMessage.globalHeading(CivColor.BOLD+CivSettings.localize.localizedString(CivSettings.localize.localizedString("warteleportDisable")));
-				while ((line = br.readLine()) != null) {
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), line);
+	public static void disableTeleport() {
+		if (War.hasWars()) {
+			File file = new File(CivSettings.plugin.getDataFolder().getPath() + "/data/teleportsOff.txt");
+			if (!file.exists()) {
+				CivLog.warning("Configuration file: teleportsOff.txt was missing. Streaming to disk from Jar.");
+				try {
+					CivSettings.streamResourceToDisk("/data/teleportsOff.txt");
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-		
-				br.close();
-			} catch (IOException e) {
+			}
+
+			CivLog.info("Loading Configuration file: teleportsOff.txt");
+
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+
+				String line;
+				try {
+					CivMessage.globalHeading(CivColor.BOLD + CivSettings.localize.localizedString(CivSettings.localize.localizedString("warteleportDisable")));
+					while ((line = br.readLine()) != null) {
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), line);
+					}
+
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+
+			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				return;
 			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
 		}
 	}
-	
 
-	
-	public static void enableTeleport() throws IOException {
-		
-		File file = new File(CivSettings.plugin.getDataFolder().getPath()+"/data/teleportsOn.txt");
+	public static void enableTeleport() {
+
+		File file = new File(CivSettings.plugin.getDataFolder().getPath() + "/data/teleportsOn.txt");
 		if (!file.exists()) {
 			CivLog.warning("Configuration file: teleportsOn.txt was missing. Streaming to disk from Jar.");
-			CivSettings.streamResourceToDisk("/data/teleportsOn.txt");
+			try {
+				CivSettings.streamResourceToDisk("/data/teleportsOn.txt");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		
+
 		CivLog.info("Loading Configuration file: teleportsOn.txt");
-		
+
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
-			
+
 			String line;
 			try {
 
-				CivMessage.globalHeading(CivColor.BOLD+CivSettings.localize.localizedString("warteleportEnable"));
+				CivMessage.globalHeading(CivColor.BOLD + CivSettings.localize.localizedString("warteleportEnable"));
 				while ((line = br.readLine()) != null) {
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), line);
 				}
-		
+
 				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return;
 		}
 	}
-
 
 }

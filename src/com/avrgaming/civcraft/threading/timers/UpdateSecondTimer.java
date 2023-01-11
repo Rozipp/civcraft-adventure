@@ -1,0 +1,42 @@
+/************************************************************************* AVRGAMING LLC __________________
+ * 
+ * [2013] AVRGAMING LLC All Rights Reserved.
+ * 
+ * NOTICE: All information contained herein is, and remains the property of AVRGAMING LLC and its suppliers, if any. The intellectual and technical concepts
+ * contained herein are proprietary to AVRGAMING LLC and its suppliers and may be covered by U.S. and Foreign Patents, patents in process, and are protected by
+ * trade secret or copyright law. Dissemination of this information or reproduction of this material is strictly forbidden unless prior written permission is
+ * obtained from AVRGAMING LLC. */
+package com.avrgaming.civcraft.threading.timers;
+
+import java.util.concurrent.locks.ReentrantLock;
+
+//import com.avrgaming.civcraft.construct.caves.Cave;
+import com.avrgaming.civcraft.construct.constructs.Camp;
+import com.avrgaming.civcraft.main.CivGlobal;
+import com.avrgaming.civcraft.object.Town;
+import com.avrgaming.civcraft.threading.CivAsyncTask;
+
+public class UpdateSecondTimer extends CivAsyncTask {
+
+	public static ReentrantLock lock = new ReentrantLock();
+
+	@Override
+	public void run() {
+		this.beginTime = System.currentTimeMillis();
+		if (!lock.tryLock()) return;
+		try {
+			// Loop through each structure, if it has an update function call it in another async process
+			for (Town town : CivGlobal.getTowns()) {
+				town.onSecondUpdate(this);
+			}
+			for (Camp camp : CivGlobal.getCamps()) {
+				camp.onSecondUpdate(this);
+			}
+//			for (Cave cave : CivGlobal.getCaves()) {
+//				cave.onSecondUpdate();
+//			}
+		} finally {
+			lock.unlock();
+		}
+	}
+}

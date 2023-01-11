@@ -96,7 +96,7 @@ public class ConfigGovernment {
 	}
 
 	public boolean isAvailable(Civilization civ) {
-		if (civ.hasTechnology(this.require_tech)) {
+		if (civ.hasTechnologys(this.require_tech)) {
 			return true;
 		}
 		return false;

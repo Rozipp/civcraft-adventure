@@ -15,8 +15,8 @@ import java.util.Random;
 import org.bukkit.Effect;
 import org.bukkit.World;
 
+import com.avrgaming.civcraft.construct.structures.Structure;
 import com.avrgaming.civcraft.main.CivGlobal;
-import com.avrgaming.civcraft.structure.Structure;
 import com.avrgaming.civcraft.util.BlockCoord;
 
 public class DamagedStructureTimer implements Runnable {
@@ -29,7 +29,7 @@ public class DamagedStructureTimer implements Runnable {
 			Structure struct = iter.next().getValue();
 
 			if (struct.isDestroyed()) {
-				int size = struct.getStructureBlocks().size();
+				int size = struct.getConstructBlocks().size();
 				World world = struct.getCorner().getBlock().getWorld();
 
 				for (int i = 0; i < size / 10; i++) {
@@ -38,8 +38,7 @@ public class DamagedStructureTimer implements Runnable {
 
 					// slower but uses less memory.
 					int j = 0;
-					for (BlockCoord coord : struct.getStructureBlocks().keySet()) {
-
+					for (BlockCoord coord : struct.getConstructBlocks().keySet()) {
 						if (j < index) {
 							j++;
 							continue;

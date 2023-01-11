@@ -1,14 +1,14 @@
 package com.avrgaming.civcraft.trade;
 
-import org.bukkit.inventory.Inventory;
+import org.bukkit.entity.Player;
 
-import com.avrgaming.civcraft.object.Resident;
+import com.avrgaming.civcraft.gui.GuiInventory;
 
 public class TradeInventoryPair {
-	public Inventory inv;
-	public Inventory otherInv;
-	public Resident resident;
-	public Resident otherResident;
+	public GuiInventory inv;
+	public GuiInventory otherInv;
+	public Player player;
+	public Player otherPlayer;
 	public double coins;
 	public double otherCoins;
 	public boolean valid;

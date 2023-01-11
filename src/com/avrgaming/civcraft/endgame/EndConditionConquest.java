@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import org.bukkit.Bukkit;
+
+import com.avrgaming.civcraft.construct.wonders.Wonder;
 import com.avrgaming.civcraft.endgame.EndGameCondition;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivLog;
 import com.avrgaming.civcraft.sessiondb.SessionEntry;
 import com.avrgaming.civcraft.object.Civilization;
 import com.avrgaming.civcraft.object.Town;
-import com.avrgaming.civcraft.structure.wonders.Wonder;
 import com.avrgaming.civcraft.war.War;
 
 public class EndConditionConquest
@@ -32,10 +33,10 @@ extends EndGameCondition {
 
     private void getStartDate() {
         String key = "endcondition:conquest:startdate";
-        ArrayList<SessionEntry> entries = CivGlobal.getSessionDB().lookup(key);
+        ArrayList<SessionEntry> entries = CivGlobal.getSessionDatabase().lookup(key);
         if (entries.isEmpty()) {
             this.startDate = new Date();
-            CivGlobal.getSessionDB().add(key, "" + this.startDate.getTime(), 0, 0, 0);
+            CivGlobal.getSessionDatabase().add(key, "" + this.startDate.getTime(), 0, 0, 0);
         } else {
             long time = Long.valueOf(entries.get((int)0).value);
             this.startDate = new Date(time);
@@ -66,7 +67,7 @@ extends EndGameCondition {
         boolean hasChichenItza = false;
         for (Town town : civ.getTowns()) {
             if (town.getMotherCiv() != null) continue;
-            for (Wonder wonder : town.getWonders()) {
+            for (Wonder wonder : town.BM.getWonders()) {
                 if (!wonder.isActive() || !wonder.getConfigId().equals("w_chichen_itza")) continue;
                 hasChichenItza = true;
                 break;
@@ -77,18 +78,16 @@ extends EndGameCondition {
         int towncountglobal = 0;
         int towncountciv = 0;
         for (Town town : CivGlobal.getTowns()) {
-            if (town.getName() != null) {
+            if (town.getName() == null) {
                 ++towncountglobal;
                 continue;
             }
-            CivLog.debug("Town with number " + towncountglobal + " = null. Sure ?\nEndCondition Class");
         }
         for (Town town : civ.getTowns()) {
             if (town.getName() != null) {
                 ++towncountciv;
                 continue;
             }
-            CivLog.debug("Town with number " + towncountciv + " = null. Sure ?\nEndCondition Class");
         }
         double captured = (double)towncountciv / (double)towncountglobal;
         if (!hasChichenItza) {

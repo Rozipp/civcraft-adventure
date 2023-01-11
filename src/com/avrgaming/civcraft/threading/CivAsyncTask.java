@@ -19,17 +19,14 @@
 package com.avrgaming.civcraft.threading;
 
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.avrgaming.civcraft.construct.farm.GrowBlock;
 import com.avrgaming.civcraft.exception.CivTaskAbortException;
 import com.avrgaming.civcraft.main.CivLog;
-import com.avrgaming.civcraft.structure.farm.FarmChunk;
-import com.avrgaming.civcraft.structure.farm.GrowBlock;
-import com.avrgaming.civcraft.threading.sync.SyncBuildUpdateTask;
 import com.avrgaming.civcraft.threading.sync.SyncGetChestInventory;
 import com.avrgaming.civcraft.threading.sync.SyncGrowTask;
 import com.avrgaming.civcraft.threading.sync.SyncLoadChunk;
@@ -39,8 +36,9 @@ import com.avrgaming.civcraft.threading.sync.request.GrowRequest;
 import com.avrgaming.civcraft.threading.sync.request.LoadChunkRequest;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest;
 import com.avrgaming.civcraft.threading.sync.request.UpdateInventoryRequest.Action;
+import com.avrgaming.civcraft.util.BlockCoord;
+import com.avrgaming.civcraft.util.ChunkCoord;
 import com.avrgaming.civcraft.util.MultiInventory;
-import com.avrgaming.civcraft.util.SimpleBlock;
 
 public abstract class CivAsyncTask implements Runnable {
 	/*
@@ -66,21 +64,16 @@ public abstract class CivAsyncTask implements Runnable {
 	public static final long TIMEOUT = 5000;
 	
 	protected boolean finished = true;
-			
+	public Long beginTime = 0L;
+	
 	public boolean isFinished() 
 	{
 		return finished;
 	}
 			
-	public void syncLoadChunk(String worldname, int x, int z) throws InterruptedException {
-		
-		LoadChunkRequest request = new LoadChunkRequest(SyncLoadChunk.lock);
-		request.worldName = worldname;
-		request.x = x;
-		request.z = z;
-		
+	public void syncLoadChunk(ChunkCoord chunkCoord) throws InterruptedException {
+		LoadChunkRequest request = new LoadChunkRequest(SyncLoadChunk.lock, chunkCoord);
 		this.finished = false;
-		
 		SyncLoadChunk.lock.lock();
 		try {
 			SyncLoadChunk.requestQueue.add(request);
@@ -95,21 +88,14 @@ public abstract class CivAsyncTask implements Runnable {
 					CivLog.warning("Couldn't load chunk in "+TIMEOUT+" milliseconds! Retrying.");
 				}
 			}
-			
 		} finally {
 			this.finished = true;
 			SyncLoadChunk.lock.unlock();
 		}
-		
 	}
 		
-	public Inventory getChestInventory(String worldname, int x, int y, int z, boolean retry) throws InterruptedException, CivTaskAbortException {
-
-		GetChestRequest request = new GetChestRequest(SyncGetChestInventory.lock);
-		request.worldName = worldname;
-		request.block_x = x;
-		request.block_y = y;
-		request.block_z = z;
+	public Inventory getChestInventory(BlockCoord blockCoord, boolean retry) throws InterruptedException, CivTaskAbortException {
+		GetChestRequest request = new GetChestRequest(SyncGetChestInventory.lock,blockCoord);
 		
 		this.finished = false;
 		
@@ -139,28 +125,10 @@ public abstract class CivAsyncTask implements Runnable {
 		}
 	}
 	
-	public void updateBlocksQueue(Queue<SimpleBlock> sbs) {
-
-		SyncBuildUpdateTask.queueSimpleBlock(sbs);
-		return;
-
-		//		this.finished = false;
-//		SimpleBlock sb;
-//		while((sb = sbs.poll()) != null) {		
-//			if (!SyncBuildUpdateTask.updateBlocks.offer(sb)) {
-//				this.finished = true;
-//				return false;
-//			}
-//		}
-//		
-//		this.finished = true;
-//		return true;
-	}
-	
 	public Boolean updateInventory(Action action, Inventory inv, ItemStack stack, int index) throws InterruptedException  {
 		
 		UpdateInventoryRequest request = new UpdateInventoryRequest(SyncUpdateInventory.lock);
-		request.index = index;
+		request.slot = index;
 		request.stack = stack;
 		request.inv = inv;
 		request.action = action;
@@ -220,11 +188,10 @@ public abstract class CivAsyncTask implements Runnable {
 		}
 	}
 	
-	public Boolean growBlocks(LinkedList<GrowBlock> growBlocks, FarmChunk farmChunk) throws InterruptedException {
+	public Boolean growBlocks(LinkedList<GrowBlock> growBlocks) throws InterruptedException {
 		
 		GrowRequest request = new GrowRequest(SyncGrowTask.lock);
 		request.growBlocks = growBlocks;
-		request.farmChunk = farmChunk;
 		
 		this.finished = false;
 		SyncGrowTask.lock.lock();

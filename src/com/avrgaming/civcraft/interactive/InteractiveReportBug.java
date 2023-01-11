@@ -9,7 +9,6 @@ import com.avrgaming.civcraft.config.CivSettings;
 import com.avrgaming.civcraft.interactive.InteractiveResponse;
 import com.avrgaming.civcraft.main.CivGlobal;
 import com.avrgaming.civcraft.main.CivMessage;
-import com.avrgaming.civcraft.exception.CivException;
 import com.avrgaming.civcraft.object.Report;
 import com.avrgaming.civcraft.object.Resident;
 import com.avrgaming.civcraft.util.CivColor;
@@ -17,14 +16,8 @@ import com.avrgaming.civcraft.util.CivColor;
 public class InteractiveReportBug
 implements InteractiveResponse {
     @Override
-    public void respond(String message, Resident resident) {
-        Player player;
-        try {
-            player = CivGlobal.getPlayer(resident);
-        }
-        catch (CivException e) {
-            return;
-        }
+    public void respond(String message, Player player) {
+		Resident resident = CivGlobal.getResident(player);
         if (message.equalsIgnoreCase("cancel")) {
             CivMessage.send((Object)player, "§a" + (Object)ChatColor.BOLD + CivSettings.localize.localizedString("interactive_report_cancel"));
             resident.clearInteractiveMode();

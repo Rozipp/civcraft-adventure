@@ -7,5 +7,6 @@
         <isEnabled>true</isEnabled>
       </Java>
     </inspection_tool>
+    <inspection_tool class="StringConcatenationInLoops" enabled="true" level="TYPO" enabled_by_default="true" />
   </profile>
 </component>

@@ -1,14 +1,14 @@
 package com.avrgaming.civcraft.components;
 
-public class AttributeStatic extends AttributeBase {
+import com.avrgaming.civcraft.object.TownStorageManager.StorageType;
 
-	@Override
-	public double getGenerated() {
-		if (this.getBuildable().isActive()) {
+public class AttributeStatic extends Component {
+	public double getGenerated(StorageType atk) {
+		if (!this.getString("attribute").equalsIgnoreCase(atk.name())) return 0.0;
+		if (this.getConstruct().isActive())
 			return super.getDouble("value");
-		} else {
+		else
 			return 0.0;
-		}
 	}
-	
+
 }

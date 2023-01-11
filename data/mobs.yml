@@ -1,5 +1,20 @@
-﻿
-#######################    даленные ванильные мобы     #######################
+﻿#время через которое пробовать спавить мобов вокруг игроков
+SPAWN_COOLDOWN: 15
+
+#количество мобов, которое спавнится вокруг игроков за раз
+SPAWN_FOR_PLAYER_LIMIT: 10
+
+# минимальное растояние до игроков накотором может заспавниться моб
+MIN_SPAWN_DISTANCE: 20
+
+# максимальная дальность спавна мобов, а так же радиус арены подсчёта лимита
+MAX_SPAWN_DISTANCE: 50
+
+#если в радиусе арены мобов больше чем это число, то спавна не будет
+MOB_AREA_LIMIT: 7
+
+
+#######################    удаленные ванильные мобы     #######################
 disable:
 #    - ZOMBIE
     - SKELETON
@@ -165,7 +180,6 @@ drops:
 
    - id: Lesser_Ruffian
      drop:
-        - mat_ionic_crystal_fragment_1 0.05
         - mat_forged_clay 0.1
         - mat_crafted_reeds 0.1
         - mat_crafted_sticks 0.1
@@ -173,7 +187,6 @@ drops:
           
    - id: Greater_Ruffian
      drop:
-        - mat_ionic_crystal_fragment_2 0.05
         - mat_carved_leather 0.1
         - mat_crafted_string 0.03
         - mat_refined_slime 0.05
@@ -183,7 +196,6 @@ drops:
       
    - id: Elite_Ruffian
      drop:
-        - mat_ionic_crystal_fragment_3 0.05
         - mat_leather_straps 0.1
         - mat_crafted_string 0.05
         - mat_refined_slime 0.05
@@ -193,7 +205,6 @@ drops:
         
    - id: Brutal_Ruffian
      drop:
-        - mat_ionic_crystal_fragment_4 0.05
         - mat_artisan_leather 0.1
         - mat_crafted_string 0.1
         - mat_refined_slime 0.05

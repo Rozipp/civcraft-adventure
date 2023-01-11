@@ -20,15 +20,15 @@ package com.avrgaming.civcraft.threading.sync.request;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.avrgaming.civcraft.util.BlockCoord;
+
 public class GetChestRequest extends AsyncRequest {
 	
-	public GetChestRequest(ReentrantLock lock) {
+	public GetChestRequest(ReentrantLock lock, BlockCoord blockCoord) {
 		super(lock);
+		this.blockCoord = blockCoord;
 	}
 	
-	public int block_x;
-	public int block_y;
-	public int block_z;
-	public String worldName;
+	public BlockCoord blockCoord;
 	
 }
